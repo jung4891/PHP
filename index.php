@@ -1,19 +1,17 @@
 <!DOCTYPE html>
-<html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+  </head>
   <body>
-    <?php
-      echo date('Y-m-d H:i:s');   // 현재 시간을 출력해라!
-     ?>
+    <h1>WEB</h1>
+    <ol>
+      <li><a href="index.php?id=HTML">HTML</a></li>
+      <li><a href="index.php?id=CSS">CSS</a></li>
+      <li><a href="index.php?id=JavaScript">JavaScript</a></li>
+    </ol>
+    <h2><?php echo $_GET['id']; ?></h2>
+    Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
   </body>
 </html>
-
-<!-- http://localhost/index.html
-     http://localhost/index.php
-     php파일로 요청시 f12로 소스보면 새로고침 할때마다 시간이 동적으로 변경됨
-     즉 브라우저가 index.php를 아파치 웹서버에 요청시 웹서버는 처리를 못하므로
-     그대로 PHP(html공장)으로 넘어가져서 그 공장에서 php처리후 나온
-     php코드가 없는 순수한 html정보를 서버에 보내고 그게 브라우저에 보이게 된다.
-
-     html은 html파일이 만들어지면 언제나 똑같이 정적으로 동작하지만
-     php는 html를 동적으로(프로그래밍적) 생산할 수 있다.
- -->
