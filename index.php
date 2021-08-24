@@ -5,13 +5,30 @@
     <title></title>
   </head>
   <body>
-    <h1>WEB</h1>
+    <h1><a href="index.php">WEB</a></h1>
     <ol>
       <li><a href="index.php?id=HTML">HTML</a></li>
       <li><a href="index.php?id=CSS">CSS</a></li>
       <li><a href="index.php?id=JavaScript">JavaScript</a></li>
     </ol>
-    <h2><?php echo $_GET['id']; ?></h2>
-    Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+
+    <h2>
+      <?php
+      if (isset($_GET['id'])) {
+        echo $_GET['id'];
+      } else {
+        echo 'Welcome';
+      }
+      ?>
+    </h2>
+    <?php
+    if (isset($_GET['id'])) {
+      $file = file_get_contents('data/'.$_GET['id']);
+      echo $file;             // data/id 값에 해당하는 파일의 내용
+    } else {
+      echo 'WEB 메인페이지입니다.'; 
+    }
+
+     ?>
   </body>
 </html>
