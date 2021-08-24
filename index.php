@@ -22,7 +22,7 @@
       ?>
     </h2>
     <?php
-    if (isset($_GET['id'])) { 
+    if (isset($_GET['id'])) {  
       $file = file_get_contents('data/'.$_GET['id']);
       echo $file;             // data/id 값에 해당하는 파일의 내용
     } else {
