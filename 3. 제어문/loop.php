@@ -7,12 +7,16 @@
   <body>
     <?php
     echo '1<br>';
-    $i = 0;
-    while($i < 2) {
-      echo '2<br>';
+    $i = 1;
+    while($i < 4) {
+      $j = $i;
+      while($j > 0) {
+        echo $i.'<br>';
+        $j = $j - 1;
+      }
       $i = $i + 1;
     }
-    echo '3<br>';
+    echo '4<br>';
      ?>
 
   </body>

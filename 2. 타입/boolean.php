@@ -29,7 +29,8 @@
     $var2 = 'a';
     var_dump(isset($var, $var2));   // bool(true)
     unset ($var2);
-    var_dump(isset($var2));         // // bool(false)
+    var_dump(isset($var2));         // bool(false)
+    // echo $var2;                     // Undefined variable
      ?>
   </body>
 </html>
