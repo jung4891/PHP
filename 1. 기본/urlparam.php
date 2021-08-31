@@ -13,7 +13,8 @@
 
 <!--
   URL에 파라미터 넣기.
-  (이게 없다면 html파일을 hyuk.html, jung.html~~~ 등등을 다 만들어야 되고 수정시 굉장히 말도 안되게 슬퍼진다.)
+  (이게 없다면 html파일을 hyuk.html, jung.html~~~ 등등을 다 만들어야 되고
+   수정시 굉장히 말도 안되게 슬퍼진다.)
   https://localhost/urlparam.php?name=hyuk 처럼 name에 값을 넣어
   수많은 html를 만들 필요 없이 바로바로 동적으로 변하게 할 수 있다.
 
