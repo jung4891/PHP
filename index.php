@@ -5,7 +5,7 @@
       echo $_GET['id'];
     } else {
       echo 'Welcome';
-    }
+    } 
   }
 
   function print_list(){
