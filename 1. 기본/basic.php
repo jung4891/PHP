@@ -92,7 +92,12 @@
   $num = 10;
   echo ++$num.'<br>';    // 11
   echo $num++.'<br>';    // 11 (11이 반환된 후 1이 더해짐)
-  echo $num.'<br>';      // 12
+  echo $num.'<br><br>';  // 12
+
+  $num2 = 1;
+  $num2++;    // 1
+  $num2++;    // 2
+  echo $num2.'<br>';    // 3 !!!!!
  ?>
 
 

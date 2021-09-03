@@ -6,6 +6,13 @@
   </head>
   <body>
     <?php
+
+    // 배열 기초
+    $country = array();   // 배열 선언
+    $country[0] = 'korea';
+    echo $country[0];
+
+    echo '<br><br>';
     $arr = array('a', 'b', 'c');
     echo $arr[1].'<br>';
     var_dump(count($arr));    // int(3)
