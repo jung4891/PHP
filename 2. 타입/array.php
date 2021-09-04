@@ -7,19 +7,25 @@
   <body>
     <?php
 
-    // 배열 기초
+    // 배열에 값 넣기
     // PHP에서는 인덱스를 키라고 부르기도 한다.
     $country = array();      // 배열 선언
-    $country[0] = 'korea';   // 인덱스로 값 넣기
-    echo $country[0].'<br>';
-    $country['name'] = 'korea';    // 인덱스를 문자열로 사용
-    echo $country['name'].'<br>';
-    $country = array('name2' => 'korea2', 1 => '테스트1');   // =>로 값을 추가
-    echo $country['name2'].' '.$country['1'].'<br>';
-
+    $country[0] = 'korea';   // 1) 인덱스(키)로 값 넣기
+    echo $country[0].'<br>'; // korea
+    $country['name'] = 'koreaa';    // 2) 문자열로 값 넣기
+    echo $country['name'].'<br>';   // koreaa
+    $country = array('name2' => 'korea2', 1 => '테스트1');   // 3) =>로 값을 추가
+    echo $country['name2'].' '.$country['1'].'<br>';         // korea2 테스트1
+    $country['nation'] = array();   // 4) 값으로 배열을 선언
+    $country['nation'][0] = '서울';
+    $country['nation'][1] = '대전';
+    echo $country['nation'][0].' '.$country['nation'][1];   // 서울 대전
     echo '<br><br>';
+
+    // 배열에 값 추가하기
     $arr = array('a', 'b', 'c');
-    echo $arr[1].'<br>';
+    array_push($arr, 'd', 'e');
+
     var_dump(count($arr));    // int(3)
     // print($arr);           // 안됨
     array_push($arr, 'd', 'e');
