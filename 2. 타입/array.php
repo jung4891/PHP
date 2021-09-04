@@ -8,9 +8,14 @@
     <?php
 
     // 배열 기초
-    $country = array();   // 배열 선언
-    $country[0] = 'korea';
-    echo $country[0];
+    // PHP에서는 인덱스를 키라고 부르기도 한다.
+    $country = array();      // 배열 선언
+    $country[0] = 'korea';   // 인덱스로 값 넣기
+    echo $country[0].'<br>';
+    $country['name'] = 'korea';    // 인덱스를 문자열로 사용
+    echo $country['name'].'<br>';
+    $country = array('name2' => 'korea2', 1 => '테스트1');   // =>로 값을 추가
+    echo $country['name2'].' '.$country['1'].'<br>';
 
     echo '<br><br>';
     $arr = array('a', 'b', 'c');
