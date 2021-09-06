@@ -6,6 +6,43 @@
   </head>
   <body>
     <?php
+        // settype(변수명, 변경할 데이터형) : 변수에 데이터형 지정
+        $val = "true";
+        echo gettype($val).'<br>';   // string
+        settype($val, 'bool');    // boolean도 무관
+        echo gettype($val).'<br>';   // boolean
+        $val = 10;
+        echo gettype($val).'<br>';   // integer
+        settype($val, 'string');
+        echo gettype($val).'<br>';   // string
+        echo '<br>';
+
+        // empty(변수) : 변수의 값이 비어있으면 true
+        $var = '';    // 값이 빈 문자
+        var_dump(empty($var));    // bool(true)
+        $var = array(); // 값이 빈 배열, []도 무관
+        var_dump(empty($var));    // bool(true)
+        $var = NULL;    // null도 무관
+        var_dump(empty($var));    // bool(true)
+        $var = 0;
+        var_dump(empty($var));    // bool(true)   1이면 false
+        $var = '0';
+        var_dump(empty($var));    // bool(true)
+        $var = false;
+        var_dump(empty($var));    // bool(true)
+        $var = 'a';
+        var_dump(empty($var));    // bool(false)
+        $var = true;
+        var_dump(empty($var));    // bool(false)
+        echo '<br><br>';
+
+        // isset(변수) : 변수의 선언여부
+        var_dump(isset($strr));         // bool(false)
+        $strr = 'test';
+        var_dump(isset($strr));         // bool(true)
+        echo isset($strr).'<br><br>';   // 1(true) / 없다면 null(false)
+
+
       /*
         # 데이터형의 종류
          - int, integer : 정수
@@ -17,7 +54,7 @@
       */
 
 
-      // # 데이터형 확인
+      // # gettype(변수) : 데이터형 확인
       // (PHP는 JAVA와 다르게 값을 확인한 후 데이터형을 자동으로 지정해준다.)
       $num = 7;
       echo "\$num 데이터형: ".gettype($num)." (값: {$num}) <br>";

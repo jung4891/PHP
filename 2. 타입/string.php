@@ -1,32 +1,71 @@
 <!doctype html>
 <html>
 <body>
-   <h4>String & String Operator</h4>
+   <!-- <h4>String & String Operator</h4>
    <?php
-    echo 'Hello World';
-    echo "Hello World'2'";
-    echo 'Hello World"3"';
-    echo 'Hello World\'3\'';
-    echo "Hello World\"2\"";
+    // echo 'Hello World';
+    // echo "Hello World'2'";
+    // echo 'Hello World"3"';
+    // echo 'Hello World\'3\'';
+    // echo "Hello World\"2\"";
     ?>
 
-    <h5>- 결합연산자(concatenation operator) .</h5>
+    <h5>결합연산자(concatenation operator)</h5>
     <?php
-    echo "Hello"." World";    // +는 안된다.
-     ?>
+    // echo "Hello"." World <br>";    // +는 안된다.
+     ?> -->
 
     <!-- 함수 -->
     <?php
-     // strlen()
-     $str = ' ab cd ';
-     echo strlen($str)."<br>";   // 7
+
+    // strpos(전체 문자열, 찾을 문자) : 특정 문자의 인덱스 반환
+    $str = "web developer";
+    $findStr = 'e';         // 'develop'은 'd'랑 결과가 같다.
+    $pos = strpos($str, $findStr);
+    echo $pos.'<br><br>';   // 1  (뒤에 있어도 앞 인덱스 반환)
+
+    // substr(대상 문자열, 자르기 시작위치, 자를 문자열 수)
+    $str = "abcde";
+    $cutStr = substr($str, 2, 2);
+    echo $cutStr.'<br>';      // cd
+    $cutStr = substr($str, -3, 2);    // 제일 뒤가 -1
+    echo $cutStr.'<br><br>';  // cd
+
+    // str_replace('치환할 문자열', '대체할 문자열', 대상 문자열변수)
+    $str = "welcome to korea!";
+    $str2 = str_replace('korea', 'china', $str);
+    echo $str2.'<br><br>';      // welcome to china!
+
+    // strlen() : 문자열의 글자수
+    $str = ' ab cd ';
+    echo strlen($str)."<br>";   // 7
+    echo '<br>';
+
+    // strtoupper(), strtolower()
+    $str = "test";
+    echo strtoupper($str).'<br>';   // TEST
+    $str = "TEST";
+    echo strtolower($str).'<br>';   // test
+    echo '<br>';
+
+    // ucfirst() : 첫글자만 대문자로 (only 첫글자가 영문일 경우)
+    $str = "test test";
+    echo ucfirst($str).'<br>';      // Test test
+    // ucwords() : 문자열에 있는 영단어의 첫 글자를 대문자로
+    echo ucwords($str).'<br><br>';  // Test Test
+
+    // trim()
+    $str = " 공백 테스트 ";
+    echo '|'.trim($str).'| <br>';   // |공백 테스트|
+    echo '|'.ltrim($str).'| <br>';  // |공백 테스트 |
+    echo '|'.rtrim($str).'| <br>';  // | 공백 테스트|
+    echo '<br>';
 
      // nl2br() : new line에 br태그 삽입함.
      $str = 'aaa
      bbb';
      echo $str."<br>";   // 줄개행 안됨
-     $str = 'ccc
-     ddd';
+     $str = 'ccc ddd';
      echo nl2br($str)    // 줄개행 됨 (페이지소스보면 ccc뒤에 <br /> 생성됨)
      ?>
 
