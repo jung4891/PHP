@@ -91,9 +91,41 @@
       } else {
         echo "내부오류";
       }
-      echo '<br>';
+      echo '<br><br>';
 
-       
+
+      // getdate() : 현재 시간정보를 배열로 보내줌
+      $nowTime = getdate();
+      echo "현재 년도 : ".$nowTime['year']."<br>";
+      echo "현재 월 : ".$nowTime['mon']."<br>";
+      echo "현재 일 : ".$nowTime['mday']."<br>";
+      echo "현재 시 : ".$nowTime['hours']."<br>";
+      echo "현재 분 : ".$nowTime['minutes']."<br>";
+      echo "현재 초 : ".$nowTime['seconds']."<br>";
+      echo "현재 요일 숫자 : ".$nowTime['wday']."<br>";
+      echo "현재 월 문자 : ".$nowTime['weekday']."<br>";
+      echo "현재 시간 타임스탬프 : ".$nowTime[0]."<br>";
+      echo "올해의 일차 : ".$nowTime['yday']."<br><br>";
+
+
+      // checkdate(월, 일, 년) : 날짜값이 유효한지 확인
+      $isDateCheck = checkdate(2, 29, 2019);
+      if ($isDateCheck) {
+        echo "유효한 날짜입니다.";
+      } else {
+        echo "유효하지 않은 날짜입니다.";
+      }
+      echo "<br><br>";
+
+
+      // microtime() : 1초 이하의 마이크로초를 표시
+      echo time().'<br>';           // 1631019732
+      echo microtime().'<br>';      // 0.74864900 1631019732 (소수 정수)
+      echo microtime(true).'<br>';  // 1631019732.7487
+
+
+
+
      ?>
 
   </body>

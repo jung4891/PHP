@@ -7,6 +7,7 @@
   <body>
     <?php
 
+    echo "<br>";
     // # 배열에 값 넣기
     // PHP에서는 인덱스를 키라고 부르기도 한다.
 
@@ -45,13 +46,12 @@
     echo '-----------------<br>';
 
 
-
-
     // # 배열에 값 추가하기
     $arr = array('a', 'b');
     array_push($arr, 'c');
     print $arr[2].'<br>';    // c
     echo '-----------------<br>';
+
 
     // # 배열 출력하기
     $arr = array();
@@ -75,6 +75,13 @@
     print_r($arr);   // Array ( [0] => a [1] => b [2] => c [3] => d [4] => e )
     echo '</pre>';
     echo '<br>';
+
+
+    // max/min(배열 변수) : 배열에서 가장 큰(작은) 수를 반환
+    $arr = range(1, 55);
+    echo max($arr).'<br>';    // 55
+    $arr = [3, 11, 22];
+    echo min($arr).'<br>';    // 3
      ?>
   </body>
 </html>
