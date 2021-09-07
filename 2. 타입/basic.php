@@ -6,6 +6,10 @@
   </head>
   <body>
     <?php
+
+        //  변수
+        //  php는 변수 앞에 반드시 $를 붙인다.
+
         // settype(변수명, 변경할 데이터형) : 변수에 데이터형 지정
         $val = "true";
         echo gettype($val).'<br>';   // string
@@ -52,7 +56,6 @@
          - NULL : 없는값(값: null)
          - array : 배열
       */
-
 
       // # gettype(변수) : 데이터형 확인
       // (PHP는 JAVA와 다르게 값을 확인한 후 데이터형을 자동으로 지정해준다.)
