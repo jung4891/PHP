@@ -18,7 +18,6 @@
     // 2) 문자열로 값 넣기
     $country['name'] = 'koreaa';
     echo $country['name'].'<br>';   // koreaa
-
     // 3) =>로 값을 추가
     $country = array('name2' => 'korea2', 1 => '테스트1');
     echo $country['name2'].' '.$country['1'].'<br>';         // korea2 테스트1
@@ -46,12 +45,13 @@
     echo '-----------------<br>';
 
 
+
+
     // # 배열에 값 추가하기
     $arr = array('a', 'b');
     array_push($arr, 'c');
     print $arr[2].'<br>';    // c
     echo '-----------------<br>';
-
 
     // # 배열 출력하기
     $arr = array();
