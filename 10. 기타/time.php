@@ -91,7 +91,7 @@
       } else {
         echo "내부오류";
       }
-      echo '<br><br>';
+      echo '<br><br>'; 
 
 
       // getdate() : 현재 시간정보를 배열로 보내줌

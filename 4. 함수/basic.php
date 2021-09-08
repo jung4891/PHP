@@ -5,28 +5,25 @@
     <title></title>
   </head>
   <body>
-
-    <h4>test()</h4>
     <?php
-      function test() {
-        print("test1<br>");
-        echo "test2";
+
+      // 함수
+      // Argument : 함수에 전달하는 값 (10과 20)
+      // Parameter : 함수에서 값을 받는 부분 (num1과 num2)
+      // 세번째 파라미터가 값을 받지 못할경우 기본값 설정
+
+      function sumTest($num1, $num2, $num3 = 100) {
+        $sum = $num1 + $num2 + $num3;
+        echo "합 : {$sum} <br>";
+        return $sum;    // 함수를 호출한 곳으로 값을 전달(반환)
       }
-      test();
+      echo "sumTest(10,20) : ".sumTest(10, 20).'<br>';      // 함수 호출
+      echo "sumTest(10,20,30) : ".sumTest(10,20,30).'<br>';
+      echo '<br>';
+
+
      ?>
 
-    <h4>sum()</h4>
-    <?php
-      function sum($left, $right) {
-        print($left + $right);
-        print("<br>");
-      }
-      sum(3, 7);
-      // 입력한 실제 값 (3, 7) -> argument
-      // 매개변수로 값을 받아 함수 내부에서 쓰이는 것($left) -> parameter
-     ?>
-
-     <h4>return</h4>
      <?php
      function sum2($left, $right) {
        return $left + $right;
