@@ -5,7 +5,7 @@
     <title></title>
   </head>
   <body>
-    <?php
+    <?php 
 
       // static
       // public static function write(){ echo '글씨를 씁니다.'}
