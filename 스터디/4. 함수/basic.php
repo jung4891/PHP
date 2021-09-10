@@ -17,10 +17,9 @@
         echo "합 : {$sum} <br>";
         return $sum;    // 함수를 호출한 곳으로 값을 전달(반환)
       }
-      echo "sumTest(10,20) : ".sumTest(10, 20).'<br>';      // 함수 호출
+      // echo "sumTest(10,20) : ".sumTest(10, 20).'<br>';      // 함수 호출
       echo "sumTest(10,20,30) : ".sumTest(10,20,30).'<br>';
       echo '<br>';
-
 
      ?>
 

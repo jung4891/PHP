@@ -89,15 +89,8 @@
         $host = 'localhost';
         $user = 'root';
         $pw = 'root';
-        $mysqli = new mysqli($host, $user, $pw, $dbName);
+        $mysqli = new mysqli($host, $user, $pw, $dbName);   // db접속
         $mysqli->set_charset('utf8');
-
-        if (mysqli_connect_errno()) {
-          echo "db_$dbName 접속 실패 <br>";
-          echo mysqli_connect_error();
-        } else {
-          echo "db_$dbName 접속 성공! <br>";
-        }
 
         if ($mysqli->query($sql)) {
           echo "쿼리 실행완료~!";
