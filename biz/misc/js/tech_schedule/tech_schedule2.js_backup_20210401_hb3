@@ -1,0 +1,2399 @@
+var search = 'false';
+var company_schedule_chk = 'true';
+var duple_sch_chk = 'false';
+
+//날짜선택 달력으로 표시
+$(function(){
+  $("#startDay, #endDay, #de_startDay, #de_endDay").datepicker();
+
+});
+$(function(){
+  $('#startTime, #endTime, #de_startTime, #de_endTime').timepicker({
+      minuteStep: 10,
+      // template: 'modal',
+      // appendWidgetTo: 'body',
+      // showSeconds: true,
+      showMeridian: false
+      // defaultTime: false
+  });
+})
+function openStartDate(e){
+  if(e === 'de'){
+    $("#de_startDay").focus();
+  }else{
+    $("#startDay").focus();
+  }
+}
+
+function openEndDate(e){
+ if(e === 'de'){
+   $("#de_endDay").focus();
+ }else{
+   $("#endDay").focus();
+ }
+}
+
+// 종일 버튼 누를시 시간선택 숨기기
+function hideTime(){
+  // var oldStartTime =
+  if($("input:checkbox[name='alldayCheck']").is(":checked") == true){
+
+    $("#startTime, #startTimeBtn, #endTime, #endTimeBtn").hide();
+    $("#startTime, #endTime").val("00:00");
+
+  }else{
+    $("#startTime, #startTimeBtn, #endTime, #endTimeBtn").show();
+  }
+}
+
+function de_hideTime(){
+  // var oldStartTime =
+  if($("input:checkbox[name='de_alldayCheck']").is(":checked") == true){
+
+    $("#de_startTime, #de_startTimeBtn, #de_endTime, #de_endTimeBtn").hide();
+    $("#de_startTime, #de_endTime").val("00:00");
+
+  }else{
+    $("#de_startTime, #de_startTimeBtn, #de_endTime, #de_endTimeBtn").show();
+  }
+}
+
+
+document.addEventListener("DOMContentLoaded", function() {
+  var session_name = $('#session_name').val();
+  var checked_name = [session_name];
+  // var checked_name = new Array();
+  var events = new Array();
+  var jsonEvents = '';
+  // var reload = '';
+
+  // 조직도 트리 생성
+  var session_name = $('#session_name').val();
+  $('#tree').jstree({
+    "checkbox" : {
+      "keep_selected_style" : false
+    },
+    'plugins': ["wholerow", "checkbox"],
+    'core' : {
+      'themes' : {
+        'name': 'proton',
+        "icons" : false
+      }
+    },
+  }).on('ready.jstree', function(){
+    $(this).jstree('close_all');
+    var pgroup = $(this).jstree(true).get_node(session_name).parent;
+
+    $(this).jstree('open_node', pgroup);
+    $(this).jstree('select_node', session_name);
+  });
+
+  $("#tree").bind("changed.jstree", function (e, data) {
+    checked_name = [];
+    var reg = /^[가-힣]*$/;
+
+    $.each($("#tree").jstree("get_checked",true),function(){
+      if (reg.test(this.id)){
+        checked_name.push(this.id);
+      }
+    })
+  });
+
+   var initialView_val = '';
+
+   var calendarEl = document.getElementById('calendar');
+   var calendar = new FullCalendar.Calendar(calendarEl, {
+     googleCalendarApiKey:'AIzaSyBLpSLtCDQOB3mG0eAK1YrAqDjzQIjfeI0',
+     locale: 'ko', //언어 설정
+     selectable: true,
+     // selectHelper: true,
+     editable: true, // 일정 드래그 가능 여부
+     // aspectRatio: 1.8,
+     eventOverlap: true, //동일 날짜 시간 중복등록 가능
+     scrollTime: '08:00', // 포커스 되는 시간
+     navLinks: true, //날짜 클릭시 그날 일정으로 가는 거
+     dayMaxEventRows: true,
+     displayEventTime: false,
+     initialView: 'dayGridMonth',
+     // initialView: initialView_val,
+     // dayMaxEvent: true,
+     //버튼 만들기
+     customButtons: {
+       //일정 추가 버튼
+       addSchedule: {
+         text: '일정추가',
+         click: function() {
+           //KI1 20210125 새로 일정을 불렀을 때 이전 입력내용 삭제
+           $('#startDay').val('');
+           $('#startTime').val('');
+           $('#endDay').val('');
+           $('#endTime').val('');
+           $('#workname').val('');
+           $('#customerName').val('');
+           $('#customerName2').val('');
+           //KI1 20210208
+           $('#customerName').css('border-color','#00ff0000');
+           $('#customerName').attr('readonly',true);
+           // $('#tech_report').val('');
+           //KI1 20210208
+           $('#project').val('');
+           $('#customer').val('');
+           $('#supportMethod').val('');
+           $('#participant').val('');
+           $('#contents').val('');
+           $('#customer_manager').val('');
+           $('#customer').val('');
+           $('#forcasting_seq').val('');
+           $('#maintain_seq').val('');
+           // $('#insertDirect').val(''); //직접입력부분(포캐스팅 고객사형으로 변경되어서 사용하지 않음)
+           $('#room_name').val('')
+           $('#car_name').val('')
+           $('#title').val('');
+           $('#place').val('');
+           $('.except_nondisclosure_div').show();
+           $('#participant_box').html('');
+           $('#add_weekly_report').prop('checked',false);
+           $('#nondisclosure_sch').prop('checked',false);
+           if($("#myDropdown").is(':visible')){ //드롭박스가 열려있을 경우(true)
+            $("#myDropdown").toggle();
+          }
+          $('#usertree').jstree("deselect_all");
+          $('#usertree').jstree("close_all");
+          //KI2 20210125
+          $('#addpopup').bPopup();
+        }
+      }
+    },
+    headerToolbar: {
+      left: 'today prev,next', //왼쪽버튼
+      center: 'title', //중앙 버튼
+      right: 'addSchedule dayGridMonth,listMonth timeGridWeek,listWeek timeGridDay,listDay' //dayGridWeek//오른쪽 버튼
+    },
+    eventSources : [
+      {
+        googleCalendarId : 'qansohiecib58ga9k1bmppvt5oi65b1q@import.calendar.google.com',
+        className : 'koHolidays',
+        color : '#ffe3e3',
+        // background_color : '#FFF7F7',
+        // color : '#ffffff',
+        daycolor: 'red',
+        textColor : 'red',
+        editable : false,
+        display:"background",
+        eventClick:false
+      },
+      {
+        events : function(info, successCallback, failureCallback) {
+          if(search == 'true'){
+            var searchOpt = $('#searchSelect').val();
+            if($('#searchText').val() != ''){
+              var segment = $('#searchText').val();
+              var spanceKey = /^\s+|\s+$/g;
+              sement = segment.replace(spanceKey,'');
+
+              if(searchOpt == 'participant'){
+                $('#search-usertree').jstree('deselect_all');
+                var split_segment = segment.split(',');
+                for(var i=0; i<split_segment.length; i++){
+                  $('#search-usertree').jstree('select_node', split_segment[i]);
+                }
+              }
+            }else if($('#work_nameSelect').val() != ''){
+              var segment = $('#work_nameSelect').val();
+            }else if($('#support_methodSelect').val() != ''){
+              var segment = $('#support_methodSelect').val();
+            }else if ($('#customerSelect').val() != '') {
+              var segment = $('#customerSelect').val();
+            }
+
+            $.ajax({
+              type: "POST",
+              dataType:'json',
+              url:"/index.php/biz/schedule/events_maker",
+              data:{
+                searchOpt: searchOpt,
+                segment: segment,
+                search: search
+              },
+              success: function(data, textStatus) {
+                successCallback(data);
+              },
+              error :function(jqXHR, textStatus, errorThrown) {
+                alert("something went wrong");
+              }
+            })
+          } else {
+            $.ajax({
+              url : "/index.php/biz/schedule/events_maker",
+              type : "POST",
+              dataType : "json",
+              data : {
+                userArr : checked_name,
+                search: search
+              },
+              success : function(data) {
+                successCallback(data);
+              }
+            });
+          }
+        }
+      },
+      {
+        events : function(info, successCallback, failureCallback) {
+            $.ajax({
+                url : "/index.php/biz/schedule/events_maker_company_schedule",
+                type : "POST",
+                dataType : "json",
+                data : {
+                    // search: search,
+                    csc: company_schedule_chk
+                  },
+                  cache:false,
+                  async:false,
+                  success : function(data) {
+                      successCallback(data);
+                }
+            });
+        }
+      }
+    ],
+    eventDidMount: function(info) {       //일정 마우스 오버시 툴팁 창
+      var elClass = $(info.el).attr("class");
+      if (elClass.indexOf('koHolidays')==-1){
+        var startDay = moment(info.event.start).format('YY-MM-DD');
+        var endDay = moment(info.event.end).format('YY-MM-DD');
+        var startTime =moment(info.event.start).format('HH:mm');
+        var endTime = moment(info.event.end).format('HH:mm');
+        var tilde = " ~ ";
+        var allDay = "";
+        if(endDay == "0000:00:00" || endDay == "Invalid date"){
+          endDay = "";
+        }
+        if(startTime == "Invalid date"){
+          startTime = "";
+        }
+        if(endTime == "Invalid date"){
+          endTime = "";
+        }
+        var icon = 'event_class_type';
+        var term = allDay+startDay+" "+startTime+tilde+ endDay+" "+endTime;
+        var participant = info.event.extendedProps.participant;
+        var title_participant = info.event.extendedProps.participant;
+        var work_type = info.event.extendedProps.work_type;
+        var sch_title = info.event.extendedProps.title;
+        var customer = info.event.extendedProps.customer;
+        var work_name = info.event.extendedProps.work_name;
+        var support_method = info.event.extendedProps.support_method;
+        var userName = info.event.extendedProps.user_name+" ("+info.event.extendedProps.insert_date+")";
+
+        title_participant = participant.split(',');
+
+        if (work_type == "tech"){
+          if (participant.indexOf(",")!=-1 ){
+            var title = "["+title_participant[0]+" 외 "+(title_participant.length-1)+"명"+"] ";
+          } else {
+            var title = "["+participant+"] ";
+          }
+
+          title += customer + '/' + work_name + '/' + support_method;
+
+          var tooltipTitle = '<h3><span class="event_color_button '+icon+info.event.extendedProps.work_color_seq+'"></span>&nbsp;'+title+'</h3><div>'+term+'</div>';
+        } else {
+          var tooltipTitle = '<h3><span class="event_color_button '+icon+info.event.extendedProps.work_color_seq+'"></span>&nbsp;'+sch_title+'</h3><div>'+term+'</div>';
+        }
+
+        if (info.event.extendedProps.customer!=''){
+          tooltipTitle += '<div><span class="text-point">[고객사]<span>&nbsp;<span class="text-normal">'+info.event.extendedProps.customer+'</span></div>';
+        }
+        tooltipTitle += '<div><span class="text-point">[구&nbsp;&nbsp;&nbsp;&nbsp;분]<span>&nbsp;<span class="text-normal">'+info.event.extendedProps.work_name+'</span></div>';
+
+        if((info.event.extendedProps.room_name != null) && (info.event.extendedProps.room_name != '')){
+          tooltipTitle += '<div><span class="text-point">[회의실]<span>&nbsp;<span class="text-normal">'+info.event.extendedProps.room_name+'</span></div>';
+        }
+
+        if((info.event.extendedProps.car_name != null) && (info.event.extendedProps.car_name != '')){
+          tooltipTitle += '<div><span class="text-point">[차량]<span>&nbsp;<span class="text-normal">'+info.event.extendedProps.car_name+'</span></div>';
+        }
+
+        if (info.event.extendedProps.support_method!=''){
+          tooltipTitle += '<div><span class="text-point">[지원방법]<span>&nbsp;<span class="text-normal">'+info.event.extendedProps.support_method+'</span></div>';
+        }
+
+        tooltipTitle += '<div><span class="text-point">[참석자]<span>&nbsp;<span class="text-normal">'+participant+'</span></div>';
+        tooltipTitle += '<div><span class="text-point">[등록자]<span>&nbsp;<span class="text-normal">'+userName+'</span></div>';
+
+        var tooltip = new Tooltip(info.el, {
+          title :tooltipTitle,
+          placement: 'right',
+          trigger: 'hover',
+          delay: {show:800},
+          html:true,
+          template: '<div class="tooltip tooltip-inner scheduleHint" role="tooltip"></div>',
+        });
+      }
+    },
+    //드래그 드랍시 날짜 업데이트
+    eventDrop: function(info){
+      var sessionId = $('#session_id').val();
+      var loginDuty = $('#login_user_duty').val();
+      var login_group = $('#login_group').val();
+      var login_pgroup = $('#login_pgroup').val();
+
+      if((sessionId == info.event.extendedProps.user_id)||(loginDuty =='팀장' && login_group == info.event.extendedProps.group)||(loginDuty =='이사' && login_pgroup == info.event.extendedProps.p_group)){
+        var seq = info.event.id;
+        var startDay = moment(info.event.start).format('YY-MM-DD');
+        var startTime =moment(info.event.start).format('HH:mm');
+        var endDay = moment(info.event.end).format('YY-MM-DD');
+        var endTime = moment(info.event.end).format('HH:mm');
+        //console.log(info.event.extendedProps.room_name);
+        if(info.event.extendedProps.car_name != '' && (info.event.extendedProps.room_name == '' || info.event.extendedProps.room_name == null)){
+          var name = info.event.extendedProps.car_name;
+          var type = 'car_name';
+        }else{
+          var name = info.event.extendedProps.room_name;
+          var type = 'room_name';
+        }
+
+        $.ajax({
+          type: "POST",
+          url:"/index.php/biz/schedule/duplicate_check",
+          // url:"<?php echo site_url();?>/biz/schedule/duplicate_checkcar",
+          dataType:"json",
+          data:{
+            schedule_seq: seq,
+            select_day: startDay,
+            start:startTime,
+            end:endTime,
+            name: name,
+            type: type
+          },
+          // cache:false,
+          // async:false,
+          success: function(data) {
+            // console.log(data);
+            if(data == 'dupl'){
+              alert('중복되는 차량 혹은 회의실 일정이 있습니다.');
+              // stopPropagation();
+              info.revert();
+              return false;
+            }else{
+
+              $.ajax({
+                type: 'POST',
+                url:"/index.php/biz/schedule/drop_update",
+                data:{
+                  seq: seq,
+                  start_day : startDay,
+                  start_time : startTime,
+                  end_day : endDay,
+                  end_time : endTime
+                },
+                // cache:false,
+                // async:false
+                success: function(data) {
+                  if (data == "report_written"){
+                    alert('보고서가 작성된 일정은 수정할 수 없습니다.');
+                    calendar.refetchEvents();
+                  }
+                  // console.log(data);
+                  if(data == 'OK'){
+                    // console.log('refetch');
+                    calendar.refetchEvents();
+                  }
+                }
+              });
+
+            }
+          }
+        });
+
+      }else{
+        alert("권한이 없습니다.");
+        info.revert();
+        return false;
+      }
+    },
+    //이벤트 리사이즈시 날짜 시간 업데이트
+    eventResize: function(info){
+      var sessionId = $('#session_id').val();
+      // console.log(sessionId);
+      var loginDuty = $('#login_user_duty').val();
+      var login_group = $('#login_group').val();
+      var login_pgroup = $('#login_pgroup').val();
+
+      if((sessionId == info.event.extendedProps.user_id)||(loginDuty =='팀장' && login_group == info.event.extendedProps.group)||(loginDuty =='이사' && login_pgroup == info.event.extendedProps.p_group)){
+        var seq = info.event.id;
+        var startDay = moment(info.event.start).format('YY-MM-DD');
+        var startTime =moment(info.event.start).format('HH:mm');
+        var endDay = moment(info.event.end).format('YY-MM-DD');
+        // var endDay = moment(info.event.end).subtract(1, 'days').format('YY-MM-DD');
+        var endTime = moment(info.event.end).format('HH:mm');
+        if(info.event.extendedProps.car_name != null && info.event.extendedProps.car_name != ''){
+          alert('차량 혹은 회의실 이용이 등록된 일정은 날짜 길이 변경이 불가합니다.\n설비를 이용하는 일정은 하루씩만 등록할 수 있습니다.');
+          info.revert();
+          return false;
+        }
+        if(info.event.extendedProps.room_name != null && info.event.extendedProps.room_name != ''){
+          alert('차량 혹은 회의실 이용이 등록된 일정은 날짜 길이 변경이 불가합니다.\n설비를 이용하는 일정은 하루씩만 등록할 수 있습니다.');
+          info.revert();
+          return false;
+        }
+        // alert(seq+"/////"+startDay +"////"+startTime+"///"+endDay+"//"+endTime);
+        $.ajax({
+          type: 'POST',
+          url:"/index.php/biz/schedule/drop_update",
+          data:{
+            seq: seq,
+            start_day : startDay,
+            start_time : startTime,
+            end_day : endDay,
+            end_time : endTime
+          },
+          cache:false,
+          success: function(data) {
+            // console.log(data);
+            if (data == "report_written"){
+              alert('보고서가 작성된 일정은 수정할 수 없습니다.');
+              calendar.refetchEvents();
+            }
+            if(data == 'OK'){
+              calendar.refetchEvents();
+            }
+          }
+        });
+      } else {
+        alert("권한이 없습니다.");
+        info.revert();
+        return false;
+      }
+    },
+    select: function(info) {
+      var startStr = moment(info.startStr).format('YYYY-MM-DD');
+      var startTime = moment(info.startStr).format('HH:mm');
+      if(startTime=="00:00"){
+        startTime = moment().format('HH:mm');
+      }
+      var endStr = moment(info.endStr).subtract(1, 'days').format('YYYY-MM-DD');
+      var endTime = moment(info.endStr).format('HH:mm');
+      if(endTime=="00:00"){
+        endTime = moment().add(1, 'h').format('HH:mm');
+      }
+      if(moment(endStr).diff(moment(startStr),'days') < 0){
+        endStr = startStr;
+      }
+      $('#startDay').val(startStr);
+      $('#startTime').val(startTime);
+      $('#endDay').val(endStr);
+      $('#endTime').val(endTime);
+      //KI1 20210125 새로 일정을 불렀을 때 이전 입력내용 삭제
+      $('#workname').val('');
+      $('#customerName').val('');
+      $('#customerName2').val('');
+      //KI1 20210208
+      $('#customerName').css('border-color','#00ff0000');
+      $('#customerName').attr('readonly',true);
+      $('#add_weekly_report').attr('checked',false);
+      $('#nondisclosure_sch').attr('checked',false);
+      // $('#tech_report').val('');
+      //KI1 20210208
+      $('#project').val('');
+      $('#customer').val('');
+      $('#supportMethod').val('');
+      $('#participant').val('');
+      $('#contents').val('');
+      $('#customer_manager').val('');
+      $('#customer_tmp').val('');
+      $('#customer').val('');
+      $('#forcasting_seq').val('');
+      $('#maintain_seq').val('');
+      $('#room_name').val('')
+      $('#car_name').val('')
+
+      if($("#myDropdown").is(':visible')){ //드롭박스가 열려있을 경우(true)
+        $("#myDropdown").toggle();
+      }
+      $('#addpopup').bPopup();
+    },
+    dateClick: function(info) {
+      $('#startDay').val(info.dateStr);
+      $('#endDay').val(info.dateStr);
+      //KI1 20210125 새로 일정을 불렀을 때 이전 입력내용 삭제
+      $('#workname').val('');
+      $('#customerName').val('');
+      $('#customerName2').val('');
+      //KI1 20210208
+      $('#customerName').css('border-color','#00ff0000');
+      $('#customerName').attr('readonly',true);
+      // $('#tech_report').val('');
+      //KI1 20210208
+      $('#project').val('');
+      $('#customer').val('');
+      $('#supportMethod').val('');
+      $('#participant').val('');
+      $('#participant_box').html('');
+      $('#contents').val('');
+      $('#customer_manager').val('');
+      $('#customer_tmp').val('');
+      $('#customer').val('');
+      $('#forcasting_seq').val('');
+      $('#maintain_seq').val('');
+      $('#title').val('');
+      $('#place').val('');
+      $('#room_name').val('')
+      $('#car_name').val('')
+      $('.except_nondisclosure_div').show();
+      if($("#myDropdown").is(':visible')){ //드롭박스가 열려있을 경우(true)
+        $("#myDropdown").toggle();
+      }
+      $('#usertree').jstree("deselect_all");
+      $('#usertree').jstree("close_all");
+      //KI2 20210125
+      $('#addpopup').bPopup();
+      },
+      eventClick: function(info) { //일정 클릭시 이벤트 상세페이지 이동
+        // function detail_modal 같이 수정!!!!
+        var seq = info.event.id;
+        $.ajax({
+          type: 'GET',
+          dataType : "json",
+          url:"/index.php/biz/schedule/tech_schedule_detail",
+          data:{
+            seq: seq
+          },
+          cache:false,
+          }).done(function(result){
+            if(result){
+              $('#updateSchedule').bPopup();
+              $('#techReportInsert, #techReportModify').hide();
+              $('#de_startTime').show();
+              $('#de_endTime').show();
+              $('#usertree').jstree("deselect_all");
+              $('#usertree').jstree("close_all");
+              // console.log(result);
+              var details = result.details;
+              var seq = details.seq;
+              var customer_manager = details.customer_manager;
+              var forcasting_seq = details.forcasting_seq;
+              var maintain_seq = details.maintain_seq;
+
+              var start_day = details.start_day;
+              var start_time = moment(details.start_time,'HH:mm').format('HH:mm');
+              // var start_time = details.start_time;
+              var end_day = details.end_day;
+              var end_time = moment(details.end_time,'HH:mm').format('HH:mm');
+              // var end_time = details.end_time;
+              var work_name = details.work_name;
+              var title = details.title;
+              var place = details.place;
+              var support_method = details.support_method;
+              var customer = details.customer;
+              var project = details.project;
+              var participant = details.participant;
+              var contents = details.contents;
+              var tech_report = details.tech_report;
+              var user_id = details.user_id;
+              var work_type = details.work_type;
+              var room_name = details.room_name;
+              var car_name = details.car_name;
+              var weekly_report = details.weekly_report;
+              var nondisclosure = details.nondisclosure;
+              if(work_type == 'tech'){
+                $('#de_work_type').val("tech");
+                $('.de_except_company_div').show();
+                $('.de_tech_div').show();
+                $('.de_general_div').hide();
+                $('.de_report_div').hide();
+              //회사 공지사항 일정 참석자 제거 or 생성
+              }else if(work_type == 'company'){
+                $('#de_work_type').val("company");
+                $('.de_except_company_div').hide();
+                $('.de_tech_div').hide();
+                $('.de_general_div').show();
+                $('.de_report_div').hide();
+              }else{
+                $('#de_work_type').val("general");
+                $('.de_except_company_div').show();
+                $('.de_tech_div').hide();
+                $('.de_general_div').show();
+                $('.de_report_div').show();
+              }
+              if(weekly_report == "Y"){
+                $('#de_add_weekly_report').attr('checked',true);
+              }else{
+                $('#de_add_weekly_report').attr('checked',false);
+              }
+              if(nondisclosure == "Y"){
+                $('#de_nondisclosure_sch').attr('checked',true);
+                $('.de_except_nondisclosure_div').hide();
+              }else{
+                $('#de_nondisclosure_sch').attr('checked',false);
+                $('.de_except_nondisclosure_div').show();
+              }
+              $('#de_seq').val(seq);
+              $('#de_work_type').val(work_type);
+              $('#de_customer_manager').val(customer_manager);
+              $('#de_forcasting_seq').val(forcasting_seq);
+              $('#de_maintain_seq').val(maintain_seq);
+              $('#de_room_name').val(room_name);
+              $('#de_car_name').val(car_name);
+
+              $('#de_startDay').val(start_day);
+              $('#de_startTime').val(start_time);
+              $('#de_endDay').val(end_day);
+              $('#de_endTime').val(end_time);
+              $('#de_title').val(title);
+              $('#de_place').val(place);
+              $('#de_customerName').val(customer);
+              $('#de_customerName2').val(customer);
+              $('#de_project').val(project);
+
+              // $('#de_participant').val(participant);
+              $('#de_participant').val('');
+              $('#de_participant_box').html('');
+              var split_de_participant = participant.split(',');
+              //console.log(split_de_participant);
+              insert_span_user_name(split_de_participant, 'de_participant');
+
+              $('#de_contents').val(contents);
+              $("#de_supportMethod").val(support_method).prop("selected",true);
+              $("#de_workname").val(work_name).prop("selected",true);
+              if(work_name == '납품설치' || work_name == '미팅' || work_name == '데모(BMT)지원'){
+                $('#de_customer').val(forcasting_seq);
+              } else {
+                $('#de_customer').val(maintain_seq);
+              }
+
+              if(start_time == '00:00:00' && end_time == '00:00:00'){
+                $("#de_startTime, #de_startTimeBtn, #de_endTime, #de_endTimeBtn").hide();
+                $("input:checkbox[id='de_alldayCheck']").prop("checked", true);
+              }
+
+              if($('#de_forcasting_seq').val() != "" && $('#de_maintain_seq').val()){
+                $('#de_customerName').attr('readonly',true);
+                $('#de_project').attr('readonly',true);
+              }
+
+              var register =details.user_id;
+              var regGroup =details.group;
+              var regPgruop =details.p_group;
+              //KI1 20210125
+              var regParticipant =details.participant;
+              var session_name =result.session_name;
+              var session_id =result.session_id;
+              var login_gruop = result.login_gruop;
+              var login_pgroup =result.login_pgroup;
+              var login_user_duty =result.login_user_duty;
+
+              //선영추가 20210326
+              var approval_yn = details.approval_yn;
+
+              //@@@
+              if(((register == session_id)||(login_user_duty=='팀장'&&login_gruop==regGroup)||(login_user_duty=='이사'&&login_pgroup==regPgruop)||(regParticipant.indexOf(session_name) > -1)) && approval_yn != "Y"){ //indexOf값이 -1이 아니면 regParticipant 안에 본인이 들어가 있다는 것
+                $("#updateSchedule").find("input, select, button, textarea").prop("disabled", false);
+                $("#schdule_contoller_btn").show();
+                $("#schdule_contoller_btn2").hide();
+              } else { //
+                $("#updateSchedule").find("input, select, button, textarea").prop("disabled",true);
+                $("#updateSubmit").prop("disabled",false);
+                $("#de_participant_input").prop("disabled",false);
+                $("#de_participant").prop("disabled",false);
+                // $("#updateSchedule").find("button[name=updateSubmit], input[name=de_participant_input], input[name=de_participant]").prop("disabled",false);
+                $("#schdule_contoller_btn").hide();
+                $("#schdule_contoller_btn2").show();
+              }
+
+              var sday = details.start_day;
+              sday = new Date(sday);
+              var eday = details.end_day;
+              eday = new Date(eday);
+              var today = new Date();
+
+              var dateDiff = Math.ceil((eday.getTime()-sday.getTime())/(1000*3600*24))+1;
+
+              if(tech_report == 0 && work_type == 'tech' && sday <= today){
+                $('#techReportModify').show();
+              }else if(tech_report > 0 && work_type == 'tech' && sday <= today){
+                $('#techReportInsert').show();
+                if (dateDiff>details.tech_report){
+                  $('#techReportModify').show();
+                }
+              }
+            }
+          });
+        },
+      });
+      calendar.render();
+
+      calendarRefresh = function() {
+        calendar.refetchEvents();
+      }
+      calendarChangeView = function() {
+        calendar.changeView('listYear');
+      }
+      $("#tree").click(function(){
+        calendarRefresh();
+      })
+
+
+
+  $('#workname, #de_workname').change(function(){
+    var work = $(this).val();
+    var check_work = ['납품설치', '설치지원', '장애지원', '기술지원', '정기점검', '데모(BMT)지원', '교육지원', '미팅', '정기점검2', '교육참석'];
+    if(check_work.indexOf(work) < 0){
+      $('.tech_div, .de_tech_div').hide();
+      $('.general_div, .de_general_div').show();
+      $('#work_type, #de_work_type').val('general');
+      $('#supportMethod, #customerName, #customerName2, #customer, #searchInput, #project, #de_supportMethod, #de_customerName, #de_customerName2, #de_customer, #de_searchInput, #de_project, #customer_manager, #de_customer_manager, #customer_tmp, #de_customer_tmp, #forcasting_seq, #de_forcasting_seq, #maintain_seq, #de_maintain_seq').val("");
+      //주간보고 체크값 유지안하기(구분 바뀔때마다 비워주기)
+      // $('#add_weekly_report, #de_add_weekly_report').prop('checked',false)
+      //비공개 체크값 유지안하기(구분 바뀔때마다 비워주기)
+      $('#nondisclosure_sch, #de_nondisclosure_sch').prop('checked',false)
+      // $('#tech_report, #de_tech_report').val("Y");
+
+      //회사 공지사항 일정 참석자 제거 or 생성
+      if(work == '공지사항'){
+        $('.except_company_div, .de_except_company_div').hide();
+        $('.report_div, .de_report_div').hide();
+        $('#work_type, #de_work_type').val('company');
+      }else{
+        $('.except_company_div, .de_except_company_div').show();
+        $('.report_div, .de_report_div').show();
+      }
+    } else {
+      $('.except_company_div, .de_except_company_div').show();
+      $('.general_div, .de_general_div,').hide();
+      $('.report_div, .de_report_div').hide();
+      $('.tech_div, .de_tech_div').show();
+      $('#work_type, #de_work_type').val("tech");
+      $('#title, #place, #de_title, #de_place').val("");
+      //비공개 체크값 유지안하기(구분 바뀔때마다 비워주기)
+      $('#nondisclosure_sch, #de_nondisclosure_sch').prop('checked',false)
+    }
+  })
+
+  $('#scheduleAdd').click(function(){
+    if($('#startDay').val() == ''){
+      alert('시작날짜를 입력해주세요.');
+      $('#startDay').focus();
+      return false;
+    }
+    if($('#endDay').val() == ''){
+      alert('종료날짜를 입력해주세요.');
+      $('#endDay').focus();
+      return false;
+    }
+    if($('#startTime').val() == ''){
+      alert('시작시간을 입력해주세요.');
+      $('#startTime').focus();
+      return false;
+    }
+    if($('#endTime').val() == ''){
+      alert('종료시간을 입력해주세요.');
+      $('#endTime').focus();
+      return false;
+    }
+    if($('#workname').val() == ''){
+      alert('작업구분을 입력해주세요.');
+      $('#workname').focus();
+      return false;
+    }
+    if($('#work_type').val()=='tech' && $('#supportMethod').val() == ''){
+      alert('지원방법을 입력해주세요.');
+      $('#supportMethod').focus();
+      return false;
+    }
+    if($('#work_type').val()=='tech' && $('#customerName').val() == ''){
+      alert('고객사를 선택해주세요.');
+      $('#customerName').focus();
+      return false;
+    }
+    if($('#work_type').val() == 'general' && $('#title').val()==''){
+      alert('제목을 입력해주세요.');
+      $('#title').focus();
+      return false;
+    }
+    // if(($('#participant').val() == '') && $('#work_type').val() != 'company'){
+    //   alert('참석자를 선택해주세요.');
+    //   $('#participant').focus();
+    //   return false;
+    // }
+
+    var startDay = $('#startDay').val();
+    var startTime = $('#startTime').val();
+    var endDay = $('#endDay').val();
+    var endTime = $('#endTime').val();
+    var workname = $('#workname').val();
+    //KI1@@@@@
+    // var customer = $('#customer').val();
+    var work_type = $('#work_type').val();
+    var customer = $('#customerName').val();
+    var customer2 = $('#customerName2').val();
+    var project = $('#project').val();
+    var forcasting_seq = $('#forcasting_seq').val();
+    //KI2@@@@@
+    var supportMethod = $('#supportMethod').val();
+    var participant = $('#participant').val();
+    var contents = $('#contents').val();
+    // var insertDirect = $('#insertDirect').val();
+    var title = $('#title').val();
+    var place = $('#place').val();
+    var maintain_seq = $('#maintain_seq').val();
+    // var customer_manager = $('#customer_manager').val();
+
+    var room_name = $('#room_name').val();
+    var car_name =$('#car_name').val();
+    if(room_name == '' && car_name != ''){
+      var type = 'car_name';
+      var name = car_name;
+    }else{
+      var type = 'room_name';
+      var name = room_name;
+    }
+    if($('#add_weekly_report').is(":checked") == true){
+      var weekly_report = 'Y';
+    }else{
+      var weekly_report = 'N';
+    }
+    if($('#nondisclosure_sch').is(":checked") == true){
+      var nondisclosure = 'Y';
+    }else{
+      var nondisclosure = 'N';
+    }
+
+    var seq = "nan";
+
+    var startTime_2 = moment(startTime,'HH:mm').format('HH:mm');
+    var endTime_2 = moment(endTime,'HH:mm').format('HH:mm');
+    if (startTime_2 == '' && endTime_2 != ''){
+      alert("시작시간을 먼저 작성해 주세요.");
+      $('#endTime').val('');
+      return false;
+    }
+    if((startDay == endDay) && (startTime_2 > endTime_2)) {
+        alert("종료시간이 시작시간보다 이전입니다.");
+        $('#endTime').val('');
+        return false;
+        stopPropagation();
+    }
+
+    $.ajax({
+      type: "POST",
+      url:"/index.php/biz/schedule/duplicate_check",
+      dataType:"json",
+      data:{
+        schedule_seq: seq,
+        select_day: startDay,
+        start:startTime,
+        end:endTime,
+        name: name,
+        type: type
+      },
+      cache:false,
+      async:false,
+      success: function(data) {
+        if(data == 'dupl'){
+          alert('중복되는 차량 혹은 회의실이 있습니다.');
+          stopPropagation();
+        }
+      }
+    });
+
+
+
+
+//20210326
+    if(work_type == 'tech' && duple_sch_chk === 'false'){
+      $.ajax({
+        type: "POST",
+        url:"/index.php/biz/schedule/sch_duplicate_check",
+        dataType:"json",
+        data:{
+          customer:customer,
+          startDay: startDay
+        },
+        cache:false,
+        async:false, //비동기방식
+        success: function(data) {
+          // alert(data.length);
+          if(data.length > 0){
+            $("#duple_sch_popup").bPopup();
+            //var i = 0;
+            var duple_sch = '';
+            duple_sch += '<tr><td colspan="10" height="2" bgcolor="#797c88"></td></tr><tr bgcolor="f8f8f9" class="t_top"><td width="5%" align="center" class="t_border">No.</td><td width="65%" align="center" class="t_border">일정</td><td width="15%" align="center" class="t_border">시작일</td><td width="15%" align="center" class="t_border">종료일</td></tr>';
+            for(var i=0; i<data.length; i++){
+            // data.forEach(function(){
+              // console.log(data[i].work_type);
+               duple_sch += '<tr><td colspan="5" height="1" bgcolor="#797c88"></td></tr><tr><td width="5%" height="10" align="center" style="font-weight:bold;">'+(i+1)+'</td><td width="65%" class="t_border" align="left" style="font-weight:bold;">&nbsp;['+data[i].participant+'] '+data[i].customer+'/'+data[i].work_name+'/'+data[i].support_method+'</td><td width="15%" class="t_border" align="center" style="font-weight:bold;">'+data[i].start_day+'<br>'+data[i].start_time+'</td><td width="15%" class="t_border" align="center" style="font-weight:bold;">'+data[i].end_day+'<br>'+data[i].end_time+'</td></tr>';
+               // i++;
+            // })
+            }
+            duple_sch += '<tr><td colspan="10" height="2" bgcolor="#797c88"></td></tr><tr><td>&nbsp;</td></tr>';
+            $('#duple_sch_list').html(duple_sch);
+            // stopPropagation();
+          }else{
+            duple_sch_chk = 'true';
+          }
+        }
+      });
+    }
+
+    if(work_type != 'tech' || duple_sch_chk === 'true'){
+      $.ajax({
+        type: "POST",
+        url:"/index.php/biz/schedule/add_schedule",
+        dataType:"json",
+        data:{
+          startDay:startDay,
+          startTime:startTime,
+          endDay:endDay,
+          endTime:endTime,
+          work_type:work_type,
+          workname:workname,
+          room_name:room_name,
+          car_name:car_name,
+          //KI1@@@@@
+          // customer:customer,
+          customer:customer,
+          customer2:customer2,
+          project:project,
+          forcasting_seq:forcasting_seq,
+          //KI2@@@@@
+          supportMethod:supportMethod,
+          participant:participant,
+          contents:contents,
+          title:title,
+          place:place,
+          maintain_seq:maintain_seq,
+          // customer_manager:customer_manager,
+          weekly_report:weekly_report,
+          nondisclosure:nondisclosure
+        },
+        cache:false,
+        async:false,
+        success: function(data) {
+          if (data == 'false') {
+            result = 'false';
+          }
+          alert("등록되었습니다.");
+          $('#addpopup').bPopup().close();
+          duple_sch_chk = 'false';
+          calendarRefresh();
+        },
+        error:function(request,status,error){
+          alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+        }
+      });
+    }
+
+  });
+
+  // 대시보드에서 예약하기 버튼 눌러서 접근했을 때
+  var dash_rez_date = sessionStorage.getItem('dash_rez_date');
+  if(dash_rez_date != null) {
+    var rez_date = dash_rez_date;
+
+    var sDate = new Date();
+    var st = sDate.getHours();
+    var sm = sDate.getMinutes();
+    sDate.setHours(sDate.getHours()+1);
+    var et = sDate.getHours();
+    if (sm < 10){
+      sm = "0"+sm;
+    }
+    var startTime = st + ':' + sm;
+    var endTime = et + ':' + sm;
+
+    $("#startDay").val(rez_date);
+    $("#endDay").val(rez_date);
+    $("#startTime").val(startTime);
+    $("#endTime").val(endTime);
+    $('#addpopup').bPopup();
+
+    sessionStorage.removeItem('dash_rez_date');
+  }
+});
+
+function func_search() {
+  if($('#searchText').val() == '' && $('#work_nameSelect').val() == '' && $('#support_methodSelect').val() == '' && $('#customerSelect').val() == ''){
+    alert('검색어를 입력하세요.');
+    // stopPropagation();
+    return false;
+  }
+  var search_text = $('#searchText').val();
+  var re_search_text = search_text.trim();
+  re_search_text = re_search_text.replace(/\s/gi, "");
+  $('#searchText').val(re_search_text);
+
+  search = 'true';
+  calendarRefresh();
+  calendarChangeView();
+
+  $('#excelDownload').show();
+  $('#searchReset').show();
+}
+
+// 엑셀 다운로드
+function excelExport() {
+  $(".fc-listYear-button").trigger("click");
+  var date = $(".fc-toolbar-title").text();
+  var title = "일정 리스트_"+date;
+
+  var tab_text = '<html xmlns:x="urn:schemas-microsoft-com:office:excel">';
+  tab_text = tab_text + '<head><meta http-equiv="content-type" content="application/vnd.ms-excel; charset=UTF-8">';
+  tab_text = tab_text + '<xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet>'
+  tab_text = tab_text + '<x:Name>Test Sheet</x:Name>';
+  tab_text = tab_text + '<x:WorksheetOptions><x:Panes></x:Panes></x:WorksheetOptions></x:ExcelWorksheet>';
+  tab_text = tab_text + '</x:ExcelWorksheets></x:ExcelWorkbook></xml></head><body>';
+  tab_text = tab_text + "<table border='1px'>";
+
+  var exportTable = $(".fc-list-table").clone();
+  exportTable.find(".tooltip").remove();
+  exportTable.find('.fc-list-event-graphic').remove();
+  exportTable.find('.fc-list-day-cushion').css("text-align","left");
+  exportTable.find("th").attr("colspan",2);
+  exportTable.find(".fc-list-day-text").each(function(){
+    $(this).text($(this).text()+" ");
+  })
+  exportTable.find('input').each(function(index, elem) {
+    $(elem).remove();
+  });
+
+  tab_text = tab_text + exportTable.html();
+  tab_text = tab_text + '</table></body></html>';
+
+  var data_type = 'data:application/vnd.ms-excel';
+  var ua = window.navigator.userAgent;
+  var msie = ua.indexOf("MSIE ");
+  var fileName = title + '.xls';
+  //Explorer 환경에서 다운로드
+  if (msie > 0 || !!navigator.userAgent.match(/Trident.*rv\:11\./)) {
+    if (window.navigator.msSaveBlob) {
+      var blob = new Blob([tab_text], {
+        type: "application/csv;charset=utf-8;"
+      });
+      navigator.msSaveBlob(blob, fileName);
+    }
+  } else {
+    var blob2 = new Blob([tab_text], {
+      type: "application/csv;charset=utf-8;"
+    });
+    var filename = fileName;
+    var elem = window.document.createElement('a');
+    elem.href = window.URL.createObjectURL(blob2);
+    elem.download = filename;
+    document.body.appendChild(elem);
+    elem.click();
+    document.body.removeChild(elem);
+  }
+}
+
+function customPop() {
+  $('#customPop').bPopup({follow:[false,false],position:["auto",0]});
+  $(document).scrollTop(0);
+}
+
+function colorCustom(el) {
+  var tr = $(el).closest('tr');
+  var color = $(el).val();
+  var type = $(el).attr('name');
+  // console.log(type);
+  if (type=="work_color"){
+    tr.find(".printDemo").css('background-color', color);
+  } else if (type=="text_color"){
+    tr.find(".printDemo").css('color', color);
+  }
+}
+
+function save_workColor() {
+  sessionStorage.setItem('workColor', 'y');
+  var tr = $("#workColor_tbl tr");
+  $("#workColor_tbl tr").each(function(){
+    var seq = $(this).attr('id');
+    var color = $(this).find('.work_color').val();
+    var textColor = $(this).find('.text_color').val();
+
+    $.ajax({
+      type: "POST",
+      // cache:false,
+      url: "/index.php/biz/schedule/updateWorkColor",
+      dataType: "json",
+      async: false,
+      data: {
+        seq: seq,
+        color: color,
+        textColor: textColor
+      },
+      success: function(data) {
+        if (data == 'false') {
+          result = 'false';
+        }
+      }
+    });
+  })
+  if (result = 'true'){
+    alert('저장을 성공하였습니다.');
+    window.location.reload();
+  } else {
+    alert('저장을 실패하였습니다.');
+    window.location.reload();
+  }
+}
+
+function save_workColor_close() {
+  $('#customPop').bPopup().close();
+}
+
+function colorChange(el) {
+  var text = $(el).text();
+
+  if (text == '사원별 보기'){
+    $(el).text('업무별 보기');
+    var type = 'user';
+  } else {
+    $(el).text('사원별 보기');
+    var type = 'type';
+  }
+
+  $.ajax({
+    type: 'POST',
+    url:"/index.php/biz/schedule/colorChange",
+    data:{
+      type: type
+    },
+    cache:false,
+    async:false
+  }).done(function(data){
+    // console.log(data);
+  })
+}
+
+function addUser_Btn(){
+  // $('#addUserpopup').bPopup({follow:[false,false]});
+  $('#addUserpopup').bPopup();
+}
+
+function closeBtn(){
+  $('#addUserpopup').bPopup().close();
+}
+
+function report_closeBtn(){
+  $('#unwrittenpopup').bPopup().close();
+}
+
+// function wow(){
+//   console.log("aaa");
+// }
+// 회의실 예약 창 띄운 후 달력이랑 타임피커 그리기
+function open_conference(mode){
+  $('#conference_div').bPopup();
+  conference_select_day(mode);
+  select_meeting_room(mode);
+
+  // 회의실에 값이 있을 때 날짜 시간에 맞게 그려주기
+  if(mode == 'insert'){
+    $('#add_conference_btn').attr({'name' : 'add_conference_btn'});
+    var room_val = $('#room_name').val();
+    var start = $('#startTime').val();
+    var start_time = parseInt(start.replace(":",""));
+    var end = $('#endTime').val();
+    var end_time = parseInt(end.replace(":",""));
+  } else {
+      $('#add_conference_btn').attr({'name' : 'update_conference_btn'});
+      var room_val = $('#de_room_name').val();
+      var start = $('#de_startTime').val();
+      var start_time = parseInt(start.replace(":",""));
+      var end = $('#de_endTime').val();
+      var end_time = parseInt(end.replace(":",""));
+  }
+
+  if(room_val != ''){
+    var room_arr = room_val.split("+");
+    for (var i = 0; i < room_arr.length; i++) {
+      var room_name = room_arr[i];
+      $("#selectable tr[id="+room_name+"] td").each(function(){
+        var td_id = $(this).attr('id');
+        if(td_id >= start_time && td_id <= end_time - 30){
+          $(this).addClass("ui-selected");
+        }
+      });
+
+    }
+    $("#selected_room_name").val(room_val);
+    $( "#select_room_result" ).append(start+end);
+  }
+}
+
+
+// 달력 날짜 바뀔 때 마다 그 날의 회의실 일정 가져와야되는거 추가
+function conference_select_day(mode){
+  if(mode == 'insert'){
+    var day = $('#startDay').val();
+  } else {
+    var day = $('#de_startDay').val();
+  }
+  // var day = $('#de_startDay').val();
+  $('#select_day').val(day);
+  var day = day.replace(/-/g, '/');
+  $('#select_date').datepicker({
+    clearBtn : false
+  })
+
+  // $('.datepicker').css('width','90%');
+  // $('.datepicker').css('height','98%');
+
+
+  $('#select_date').datepicker('setDate', day).on("changeDate", function(e){
+    var select_day = moment(e.date).format('YYYY-MM-DD');
+    // console.log(select_day);
+    $('#select_day').val(select_day);
+
+    select_meeting_room(mode);
+  });
+}
+
+
+function select_meeting_room(mode){
+  //  날짜가 바뀔 때 마다 새로운 타임피커 만들어주기 위해 초기화시킨다
+  $("#select_room_result" ).empty();
+  $('#selected_room_name').val('');
+  $("#selectable tr td[class='reserved']").each(function(){
+    $(this).removeClass("reserved ui-selected");
+    $(this).addClass("td_item ui-selectee");
+  })
+
+  $("#selectable td[id != 'room_name_td']").each(function(){
+    $(this).removeClass("ui-selected");
+    $(this).addClass("td_item ui-selectee");
+  });
+
+$('#selectable').sortable({
+  filter: ".dragable",
+  item:".dragable",
+  cancel:".reserved, .td_item",
+
+});
+  // 셀렉터블 타임피커 만들기
+  $('#selectable').selectable({
+    filter: ".td_item",
+    cancel: ".dragable, .reserved",
+    stop: function() {
+
+      var tr = $(this).closest('tr');
+      var tr_id = tr.attr('id');
+      $('#selected_room_name').val(tr_id);
+    //   $("#selectable tr[id!="+tr_id+"] td").each(function(){
+    //   $(this).removeClass("ui-selected");
+    // })
+
+    $(".selected_room").each(function(){
+      $(this).removeClass("selected_room");
+    });
+
+
+    // var result = $( "#select_room_result" ).empty();
+    // var index = $(this).find(".ui-selected").text();
+    // result.append( index );
+    // $('#selected_room_name').val(tr_id);
+    // var a = $('.ui-selected').closest('tr').attr('id');
+    $( "#select_room_result" ).empty();
+    // $("#select_room_name").empty();
+    var selected_room = [];
+    var selected_time = [];
+// $('.ui-selected').closest('tbody').attr('id')
+    $('.ui-selected').each(function(){
+    // $("#selectable td[class ='ui-selected']").each(function(){
+      var body = $(this).closest('tbody').attr('id');
+      if(body =="selectable"){
+          var id = $(this).closest('tr').attr('id');
+          // console.log(id);
+          if(selected_room.indexOf(id)== -1){
+            selected_room.push(id);
+          }
+      var time = $(this).text();
+      if(selected_time.indexOf(time)== -1){
+        selected_time.push(time);
+      }
+    }
+    })
+    // $("#select_room_name").append(selected_room);
+    $("#select_room_result").append(selected_time);
+
+    var tr_id = selected_room.join("+");
+    // console.log(tr_id);
+    $('#selected_room_name').val("");
+    $('#selected_room_name').val(tr_id);
+
+    // $("#selectable td[class ='ui-selected']").each(function(){
+    //   var a = $('.ui-selected').closest('tr').attr('id');
+    //   console.log(a);
+    //   $("#select_room_name").append(a);
+
+    // })
+    }
+  })
+
+  // 그 날의 예약된 회의실이 있는지 조회 후 reserved 클래스로 만들어주기
+  var select_day = $('#select_day').val();
+  // console.log(select_day);
+  $.ajax({
+    type: "GET",
+    url:"/index.php/biz/schedule/search_conference_room",
+    dataType:"json",
+    data:{
+      select_day: select_day
+    },
+    cache:false,
+    async:false,
+    success: function(data) {
+      //console.log(data);
+      if(data != 'false'){
+        var schedule_seq = 'nan';
+        if(mode =='detail'){
+          schedule_seq = $('#de_seq').val();
+
+        }
+        //////////////////////////
+        for (var i = 0; i < data.length; i++) {
+          // var room_name = data[i].room_name;
+          var reserve_room = data[i].room_name;
+          var room_arr = reserve_room.split("+");
+          for (var j = 0; j < room_arr.length; j++) {
+            var room_name = room_arr[j];
+            // console.log(room_name);
+
+          var seq = data[i].seq;
+          var start_time =data[i].start_time.substring(0,5);
+          var end_time =data[i].end_time.substring(0,5);
+          var id_start_time = parseInt(start_time.replace(":",""));
+          var id_end_time = parseInt(end_time.replace(":",""));
+          if(schedule_seq == seq){
+            $("#selectable tr[id="+room_name+"] td").each(function(){
+              var td_id = $(this).attr('id');
+              if (td_id >= id_start_time && td_id <= id_end_time - 30) {
+                $(this).addClass("ui-selected");
+                if(start_time != $('#de_startTime').val() || end_time !=$('#de_endTime').val() || reserve_room != $('#de_room_name').val()){
+                  $(this).removeClass("ui-selected");
+                }
+              }
+            })
+          }else{
+            var title = data[i].title;
+            var participant = data[i].participant;
+            // var tip = title + "<br/>" + participant + "<br/>" + "["+reserve_room+"]"+ start_time +"~"+end_time;
+            $("#selectable tr[id="+room_name+"] td").each(function(){
+              var td_id = $(this).attr('id');
+              if (td_id >= id_start_time && td_id <= id_end_time - 30) {
+                $(this).removeClass("td_item ui-selectee ui-selected");
+                $(this).addClass("reserved");
+                // $(this).attr('title', tip);
+              }
+            })
+          }
+        }
+      }
+        // ///////////////////////////
+      }
+    }
+  });
+}
+
+
+
+// 등록 버튼 눌렀을 때
+function add_conference(name){
+  if(name == 'update_conference_btn'){
+    var schedule_seq = $('#de_seq').val();
+    $('#de_car_name').val('');
+  } else {
+    var schedule_seq = 'nan';
+    $('#car_name').val('');
+  }
+
+  var select_day = $('#select_day').val();
+  var list = $( "#select_room_result" ).text();
+  var start = list.substring(0, 5);
+  var end = list.substring(list.length-5);
+  var room_name = $('#selected_room_name').val();
+  var type = 'room_name';
+  if(room_name !="" && start == end){
+    alert('이미 예약된 회의실입니다.')
+    // return false;
+    stopPropagation();
+  }
+
+  $.ajax({
+    type: "POST",
+    url:"/index.php/biz/schedule/duplicate_check",
+    dataType:"json",
+    data:{
+      schedule_seq: schedule_seq,
+      select_day: select_day,
+      start:start,
+      end:end,
+      name: room_name,
+      type: type
+    },
+    cache:false,
+    success: function(data) {
+      if(data == 'dupl'){
+        alert('이미 예약된 회의실입니다.')
+      }else{
+        var list = $( "#select_room_result" ).text();
+        var start = list.substring(0, 5);
+        var end = list.substring(list.length-5);
+        var select_day = $('#select_day').val();
+        if(name = 'update_conference_btn'){
+          $('#de_startTime').val(start);
+          $('#de_endTime').val(end);
+          // var room_name =($(".ui-selected").closest('tr').attr('id'));
+          $('#de_room_name').val(room_name);
+          // console.log($('.active day').html());
+          // console.log(select_day);
+          $('#de_startDay').val(select_day);
+          $('#de_endDay').val(select_day);
+        }
+        if(name = 'add_conference_btn'){
+          $('#startTime').val(start);
+          $('#endTime').val(end);
+          // var room_name =($(".ui-selected").closest('tr').attr('id'));
+          $('#room_name').val(room_name);
+          // console.log($('.active day').html());
+          // console.log(select_day);
+          $('#startDay').val(select_day);
+          $('#endDay').val(select_day);
+        }
+        $('#conference_div').bPopup().close();
+      }
+    }
+  });
+}
+
+// 회의실 등록하고 날짜바꾸면 등록없애
+function conference_room_del(mode){
+  if(mode=='insert'){
+    var start_day = $('#startDay').val();
+    var end_day = $('#endDay').val();
+    var room_name = $('#room_name').val();
+
+    if(room_name !='' && start_day != end_day){
+      $('#room_name').val('');
+    }
+  } else {
+    var start_day = $('#de_startDay').val();
+    var end_day = $('#de_endDay').val();
+    var room_name = $('#de_room_name').val();
+
+    if(room_name !='' && start_day != end_day){
+      $('#de_room_name').val('');
+    }
+  }
+}
+
+function open_car_reservation(mode){
+  $('#car_reservation_div').bPopup();
+  car_select_day(mode);
+  select_car(mode);
+  // 차량에 값이 있을 때 날짜 시간에 맞게 그려주기
+  if(mode == 'insert'){
+    $('#add_car_btn').attr({'name' : 'add_car_btn'});
+    var car_val = $('#car_name').val();
+    var start = $('#startTime').val();
+    var start_time = parseInt(start.replace(":",""));
+    var end = $('#endTime').val();
+    var end_time = parseInt(end.replace(":",""));
+  } else {
+    $('#add_car_btn').attr({'name' : 'update_car_btn'});
+    var car_val = $('#de_car_name').val();
+    var start = $('#de_startTime').val();
+    var start_time = parseInt(start.replace(":",""));
+    var end = $('#de_endTime').val();
+    var end_time = parseInt(end.replace(":",""));
+  }
+  if(car_val != ''){
+    $("#select_car_tbody tr[id="+car_val+"] td").each(function(){
+      var td_id = $(this).attr('id');
+      if(td_id >= start_time && td_id <= end_time - 30){
+        $(this).addClass("ui-selected");
+      }
+    });
+    $("#selected_car_name").val(car_val);
+    $( "#select_car_result" ).append(start+end);
+  }
+}
+
+// 달력 날짜 바뀔 때 마다 그 날의 차량 일정 가져와야되는거 추가
+function car_select_day(mode){
+  if(mode == 'insert'){
+    var day = $('#startDay').val();
+  }else{
+    var day = $('#de_startDay').val();
+  }
+  // var day = $('#de_startDay').val();
+  $('#select_car_day').val(day);
+  var day = day.replace(/-/g, '/');
+  $('#select_car_date').datepicker({
+    clearBtn : false
+  })
+  $('#select_car_date').datepicker('setDate', day).on("changeDate", function(e){
+    var select_car_day = moment(e.date).format('YYYY-MM-DD');
+    $('#select_car_day').val(select_car_day);
+    select_car(mode);
+  });
+}
+
+function select_car(mode){
+  //  날짜가 바뀔 때 마다 새로운 타임피커 만들어주기 위해 초기화시킨다
+  $("#select_car_result" ).empty();
+  $('#selected_car_name').val('');
+  $("#select_car_tbody tr td[class='reserved']").each(function(){
+    $(this).removeClass("reserved ui-selected");
+    $(this).addClass("td_item ui-selectee");
+  })
+
+  $("#select_car_tbody td[name != 'car_info']").each(function(){
+    $(this).removeClass("ui-selected");
+    $(this).addClass("td_item ui-selectee");
+  });
+  // 셀렉터블 타임피커 만들기
+  $('#select_car_tbody tr').selectable({
+    filter: ".td_item",
+    cancel: ".reserved",
+    stop: function() {
+      var tr = $(this).closest('tr');
+      var tr_id = tr.attr('id');
+      $('#selected_car_name').val(tr_id);
+      $("#select_car_tbody tr[id!="+tr_id+"] td").each(function(){
+        $(this).removeClass("ui-selected");
+      })
+      $(".selected_car").each(function(){
+        $(this).removeClass("selected_car");
+      });
+      var result = $( "#select_car_result" ).empty();
+      var index = tr.find(".ui-selected").text();
+      result.append( index );
+      $('#selected_car_name').val(tr_id);
+    }
+  });
+
+  // 그 날의 예약된 회의실이 있는지 조회 후 reserved 클래스로 만들어주기
+  var select_car_day = $('#select_car_day').val();
+  $.ajax({
+    type: "GET",
+    url:"/index.php/biz/schedule/search_car",
+    dataType:"json",
+    data:{
+      select_car_day: select_car_day
+    },
+    cache:false,
+    async:false,
+    success: function(data) {
+      // console.log(data);
+      if(data != 'false'){
+        var schedule_seq = 'nan';
+        if(mode =='detail'){
+          schedule_seq = $('#de_seq').val();
+        }
+        for (var i = 0; i < data.length; i++) {
+          var seq = data[i].seq;
+          var car_name = data[i].car_name;
+          var start_time =data[i].start_time.substring(0,5);
+          var end_time =data[i].end_time.substring(0,5);
+          var id_start_time = parseInt(start_time.replace(":",""));
+          var id_end_time = parseInt(end_time.replace(":",""));
+          if(schedule_seq == seq){
+            $("#select_car_tbody tr[id="+car_name+"] td").each(function(){
+              var td_id = $(this).attr('id');
+              if (td_id >= id_start_time && td_id <= id_end_time - 30) {
+                $(this).addClass("ui-selected");
+                if(start_time != $('#de_startTime').val() || end_time !=$('#de_endTime').val() || car_name != $('#de_car_name').val()){
+                  $(this).removeClass("ui-selected");
+                }
+              }
+            })
+          } else {
+            $("#select_car_tbody tr[id="+car_name+"] td").each(function(){
+              var td_id = $(this).attr('id');
+              if (td_id >= id_start_time && td_id <= id_end_time - 30) {
+                $(this).removeClass("td_item ui-selectee ui-selected");
+                $(this).addClass("reserved");
+              }
+            })
+          }
+        }
+      }
+    }
+  });
+}
+
+// 등록 버튼 눌렀을 때
+function add_car(name){
+  if(name == 'update_car_btn'){
+    var schedule_seq = $('#de_seq').val();
+    $('#de_room_name').val('');
+  } else {
+    var schedule_seq = 'nan';
+    $('#room_name').val('');
+  }
+
+  var select_car_day = $('#select_car_day').val();
+  var list = $( "#select_car_result" ).text();
+  var start = list.substring(0, 5);
+  var end = list.substring(list.length-5);
+  var car_name = $('#selected_car_name').val();
+  var type ='car_name';
+  // alert(start+"~"+end+"/"+car_name);
+  // return false;
+  // stopPropagation();
+  $.ajax({
+    type: "POST",
+    url:"/index.php/biz/schedule/duplicate_check",
+    dataType:"json",
+    data:{
+      schedule_seq: schedule_seq,
+      select_day: select_car_day,
+      start:start,
+      end:end,
+      name: car_name,
+      type: type
+    },
+    cache:false,
+    // async:false,
+    success: function(data) {
+      // console.log(data);
+      if(data == 'dupl'){
+          alert('이미 예약된 차량입니다.')
+      } else {
+        var list = $( "#select_car_result" ).text();
+        var start = list.substring(0, 5);
+        var end = list.substring(list.length-5);
+        var select_car_day = $('#select_car_day').val();
+        if(name = 'update_car_btn'){
+          $('#de_startTime').val(start);
+          $('#de_endTime').val(end);
+          $('#de_car_name').val(car_name);
+          $('#de_startDay').val(select_car_day);
+          $('#de_endDay').val(select_car_day);
+        }
+        if(name = 'add_car_btn'){
+          $('#startTime').val(start);
+          $('#endTime').val(end);
+          $('#car_name').val(car_name);
+          $('#startDay').val(select_car_day);
+          $('#endDay').val(select_car_day);
+        }
+        $('#car_reservation_div').bPopup().close();
+      }
+    }
+  });
+}
+
+// 차량 등록하고 날짜바꾸면 등록없애
+function car_reservation_del(mode){
+  if(mode=='insert'){
+    var start_day = $('#startDay').val();
+    var end_day = $('#endDay').val();
+    var car_name = $('#car_name').val();
+
+    if(car_name !='' && start_day != end_day){
+      $('#car_name').val('');
+    }
+  } else {
+    var start_day = $('#de_startDay').val();
+    var end_day = $('#de_endDay').val();
+    var car_name = $('#de_car_name').val();
+
+    if(car_name !='' && start_day != end_day){
+      $('#de_car_name').val('');
+    }
+  }
+}
+
+// 참석자 조직도 트리 생성
+var checked_text = [];
+$(function() {
+  $('#usertree').jstree({
+    "checkbox" : {
+      "keep_selected_style" : false
+    },
+    'plugins': ["wholerow", "checkbox"],
+    'core' : {
+      'themes' : {
+        'name': 'proton',
+        "icons" : false
+      }
+    }
+  });
+  $("#usertree").bind("changed.jstree",function (e, data) {
+    var reg = /^[가-힣]*$/;
+    checked_text.length = 0;
+    $.each($("#usertree").jstree("get_checked",true),function() {
+      if (reg.test(this.id)){
+        checked_text.push(this.text);
+      }
+    })
+  });
+});
+
+//참석자 중복제거 함수
+function unique(array) {
+  var result = [];
+  $.each(array, function(index, element) {
+    if ($.inArray(element, result) == -1) {
+      result.push(element);
+    }
+  });
+  return result;
+}
+
+// 참석자 추가
+function addUser(idVal){
+  if(idVal == 'searchChosenBtn') {
+    var noneOverlapArr = unique(checked_text_select);
+
+    var searchName ='';
+    var searchNameArr = [];
+    //직급 제거하기
+    $.each(noneOverlapArr,function() {
+      searchName = $(this)[0];
+      searchName = searchName.split(' ')[0];
+      searchNameArr.push(searchName)
+    })
+    var searchAdduser = searchNameArr.join(",");
+    $('#searchText').val('');
+    $('#searchText').val(searchAdduser);
+    $('#searchAddUserpopup').bPopup().close(); //모달 닫기
+  } else {
+    var noneOverlapArr = unique(checked_text);
+    // console.log(noneOverlapArr)
+    // alert(noneOverlapArr);
+
+    var participantName ='';
+    var participantNameArr = [];
+    // 직급 제거하기
+    $.each(noneOverlapArr,function(){
+      participantName = $(this)[0];
+      participantName = participantName.split(' ')[0];
+      participantNameArr.push(participantName);
+    })
+    // console.log(participantNameArr)
+    $('#participant_box').html('');
+    $('#participant').val('');
+    $('#de_participant_box').html('');
+    $('#de_participant').val('');
+    insert_span_user_name(participantNameArr,'participant')
+    insert_span_user_name(participantNameArr,'de_participant')
+    // var participantAdduser = participantNameArr.join(",");
+    // $('#participant').val('');
+    // $('#participant').val(participantAdduser);
+    // $('#de_participant').val('');
+    // $('#de_participant').val(participantAdduser);
+
+    // $('#engineer').val(noneOverlapArr);
+    $('#addUserpopup').bPopup().close(); //모달 닫기
+  }
+}
+
+function searchSelFunc(){
+  var selectVal = $('#searchSelect').val();
+  if(selectVal == 'work_name'){
+    $('#changeDiv').hide();
+    $('#changeDiv3').hide();
+    $('#changeDiv4').hide();
+    $('#changeDiv2').show();
+    $('#support_methodSelect').val('');
+    $('#customerSelect').val('');
+    $('#searchText').val('');
+  } else if (selectVal == 'support_method'){;
+    $('#changeDiv').hide();
+    $('#changeDiv2').hide();
+    $('#changeDiv4').hide();
+    $('#changeDiv3').show();
+    $('#work_nameSelect').val('');
+    $('#customerSelect').val('');
+    $('#searchText').val('');
+  } else if (selectVal == 'customer'){
+    $('#changeDiv').hide();
+    $('#changeDiv2').hide();
+    $('#changeDiv3').hide();
+    $('#changeDiv4').show();
+    $('#work_nameSelect').val('');
+    $('#support_methodSelect').val('');
+    $('#searchText').val('');
+  } else {
+    if(selectVal == 'participant'){
+      $('#selectParticipantBtn').show(); //participant일 때 조직도 이미지 생성
+      // $('#searchText').attr('onClick','searchAddUserBtn()'); //participant일 때 조직도 생성
+      // $('#searchText').attr('readonly',true); ///participant일때 수기 입력 불가
+      // $('#searchText').removeAttr('onkeyup'); //user_name일 아닐 때 한글만 입력 제거
+    } else if (selectVal == 'user_name'){
+      $('#selectParticipantBtn').hide();//participant일 때 조직도 이미지 제거
+      // $('#searchText').attr('onkeyup','this.value = onlyKor(this.value)'); //user_name일 때 한글만 입력
+      $('#searchText').removeAttr('onClick'); //participant가 아닐 때 조직도 제거
+      $('#searchText').attr('readonly',false); ///participant일때 수기 입력 가능
+    } else {
+      $('#selectParticipantBtn').hide();//participant일 때 조직도 이미지 제거
+      // $('#searchText').removeAttr('onkeyup'); //user_name일 아닐 때 한글만 입력 제거
+      $('#searchText').removeAttr('onClick'); //participant가 아닐 때 조직도 제거
+      $('#searchText').attr('readonly',false); ///participant일때 수기 입력 가능
+    }
+    $('#changeDiv2').hide();
+    $('#changeDiv3').hide();
+    $('#changeDiv4').hide();
+    $('#changeDiv').show();
+    $('#work_nameSelect').val('');
+    $('#support_methodSelect').val('');
+    $('#customerSelect').val('');
+    $('#searchText').val('');
+  }
+}
+
+//엔터키로 검색
+function onFoc(objId){
+  $("#"+objId).keydown(function(event){
+    if(event.keyCode == 13){
+      $("#searchBtn").click();
+      return false;
+    }
+  });
+ }
+
+function searchAddUserBtn(){
+ // $('#searchAddUserpopup').bPopup({follow:[false,false]});
+ $('#searchAddUserpopup').bPopup();
+}
+
+function searchCloseBtn(){
+  $('#searchAddUserpopup').bPopup().close();
+}
+
+// 참석자 검색 시 조직도 트리 생성
+var checked_text_select = [];
+$(function() {
+  $('#search-usertree').jstree({
+    "checkbox" : {
+      "keep_selected_style" : false
+    },
+    'plugins': ["wholerow", "checkbox"],
+    'core' : {
+      'themes' : {
+        'name': 'proton',
+        'icons' : false
+      }
+    }
+  });
+  $("#search-usertree").bind("changed.jstree", function (e, data) {
+    var reg = /^[가-힣]*$/;
+    checked_text_select.length = 0;
+    $.each($("#search-usertree").jstree("get_checked",true),function() {
+      if (reg.test(this.id)) {
+        checked_text_select.push(this.text);
+      }
+    })
+  });
+});
+
+
+$(function() {
+  var cookiedata = document.cookie;
+  if ( cookiedata.indexOf("todayCookie=done") < 0 ){
+    //오늘날짜 구하기
+    function getTimeStamp() {
+      var d = new Date();
+      var s =
+        leadingZeros(d.getFullYear(), 4) + '-' +
+        leadingZeros(d.getMonth() + 1, 2) + '-' +
+        leadingZeros(d.getDate(), 2);
+      return s;
+    }
+    function leadingZeros(n, digits) {
+      var zero = '';
+      n = n.toString();
+      if (n.length < digits) {
+        for (i = 0; i < digits - n.length; i++) {
+          zero += '0';
+        }
+      }
+      return zero + n;
+    }
+
+    var today = getTimeStamp();
+    var sessionName = $('#session_name').val();
+
+    //오늘날짜를 송신해 날짜가 지났고 보고서가 미입력된 일정들 불러오기
+    $.ajax({
+      type: "POST",
+      url:"/index.php/biz/schedule/tech_report",
+      dataType:"json",
+      data: {
+        today:today,
+        sessionName:sessionName
+      },
+      success: function(data) {
+        var unwrittenText = '';
+        $.each(data,function(index,item) {
+          unwrittenText += '<li style="cursor:pointer;" onClick="reportClick('+item.seq+')">'+item.start_day+" ~ "+item.end_day+' <br>['+item.participant+']'+item.customer+'/'+item.work_name+'/'+item.support_method+'</li><br>';
+        })
+        var unwrittenModal = '';
+        unwrittenModal += '<div id="unwritten-modal-body">';
+        unwrittenModal += '<div class="unwritten">';
+        unwrittenModal += '<h4>미완료된 일정</h4>';
+        unwrittenModal += '</div>';
+        unwrittenModal += '<div id="report_notice_list">';
+        unwrittenModal += '<ul style="margin-right : 20px;">';
+        unwrittenModal += unwrittenText;
+        unwrittenModal += '</ul>';
+        unwrittenModal += '</div>';
+        unwrittenModal += '<div id="report_notice_coment" class="unwritten">';
+        unwrittenModal += '<span>※위 일정에 대한 기술지원보고서가 작성되지 않았습니다.※<br>일정을 클릭해 기술지원보고서를 작성해주세요.</span>';
+        unwrittenModal += '</div>';
+        unwrittenModal += '<div>';
+        unwrittenModal += '<input type="checkbox" name="=" id="hideAllday" onclick="hideAlldayModal()" value=""><span>오늘 하루 이 창을 보지않기.</span>';
+        unwrittenModal += '</div>';
+        $('#unwrittenpopup').append(unwrittenModal);
+         // unwrittenModal += '<span>'+unwrittenText+'</span>';
+         // unwrittenModal += '</div>';
+        if(data.length !=0){
+            $('#unwrittenpopup').bPopup({follow:[false,false]});
+        }
+      }
+    });
+  } else {
+    $("#unwrittenpopup").bPopup().close();
+  }
+ });
+
+ function reportClick(seq){
+   $('#de_hiddenSeq').val(seq);
+   $("#unwrittenpopup").bPopup().close();
+   detail_modal(seq)
+ }
+
+ function hideAlldayModal(){
+   setCookie( "todayCookie", "done" , 1);
+   $("#unwrittenpopup").bPopup().close();
+ }
+ // $(document).ready(function () {
+ //     $("#hideAllday").click(function () {
+ //         setCookieMobile( "todayCookie", "done" , 1);
+ //         $("#unwrittenpopup").bPopup().close();
+ //     });
+ // });
+ // 24시간 기준 쿠키 설정하기
+ // expiredays 후의 클릭한 시간까지 쿠키 설정
+ function setCookie( name, value, expiredays ) {
+   var todayDate = new Date();
+   todayDate.setDate( todayDate.getDate() + expiredays );
+   document.cookie = name + "=" + escape( value ) + "; path=/; expires=" + todayDate.toGMTString() + ";"
+ }
+
+ // function getCookie() {
+ //     var cookiedata = document.cookie;
+ //     if ( cookiedata.indexOf("todayCookie=done") < 0 ){
+ //       alert( cookiedata.indexOf("todayCookie=done"));
+ //       $("#unwrittenpopup").bPopup({follow:[false,false]});
+ //     }else {
+ //       alert( "no");
+ //       $("#unwrittenpopup").bPopup().close();
+ //     }
+ // }
+ // getCookie();
+
+
+ function searchTextChange(participant){
+   if(participant == 'participant'){
+
+   }else{
+     $('#searchText').removeattr("onClick");
+     $('#searchText').attr("onClick","searchAddUserBtn()");
+   }
+ }
+
+
+ $( document ).ready( function() {
+ // $(".koHolidays").css({'background-color' : 'black'});
+   var agent = navigator.userAgent.toLowerCase();
+
+   if ( (navigator.appName == 'Netscape' && navigator.userAgent.search('Trident') != -1) || (agent.indexOf("msie") != -1) ) {
+     $("#body_contain").css("height","1050px");
+   }
+
+ });
+
+ function date_compare(type) {
+  var startDate = $('#'+type+'startDay').val();
+  var endDate = $('#'+type+'endDay').val();
+
+  if (startDate == '' && endDate != ''){
+    alert("시작날짜를 먼저 작성해 주세요.");
+    $('#'+type+'endDay').val('');
+    return false;
+  }
+
+  var startArray = startDate.split('-');
+  var endArray = endDate.split('-');
+  var start_date = new Date(startArray[0], startArray[1], startArray[2]);
+  var end_date = new Date(endArray[0], endArray[1], endArray[2]);
+  if(start_date.getTime() > end_date.getTime()) {
+      alert("종료날짜가 시작날짜보다 이전입니다.");
+      $('#'+type+'endDay').val('');
+      return false;
+  }
+ }
+
+// 미완료된 일정 모달 띄울 때 tr클릭하면 해당 일정 상세모달 띄우는 함수
+// function detail_modal 수정시
+// 일정 클릭시 이벤트 상세페이지 이동 부분도 같이 수정!!!
+//
+function detail_modal(seq){
+  $.ajax({
+    type: 'GET',
+    dataType : "json",
+    url:"/index.php/biz/schedule/tech_schedule_detail",
+    data:{
+      seq: seq
+    },
+    cache:false,
+    // async:false
+  }).done(function(result){
+    if(result){
+      $('#updateSchedule').bPopup();
+      $('#techReportInsert, #techReportModify').hide();
+      $('#de_startTime').show();
+      $('#de_endTime').show();
+      $('#usertree').jstree("deselect_all");
+      $('#usertree').jstree("close_all");
+      // console.log(result);
+      var details = result.details;
+      var seq = details.seq;
+      var customer_manager = details.customer_manager;
+      var forcasting_seq = details.forcasting_seq;
+      var maintain_seq = details.maintain_seq;
+
+      var start_day = details.start_day;
+      var start_time = moment(details.start_time,'HH:mm').format('HH:mm');
+      // var start_time = details.start_time;
+      var end_day = details.end_day;
+      var end_time = moment(details.end_time,'HH:mm').format('HH:mm');
+      // var end_time = details.end_time;
+      var work_name = details.work_name;
+      var title = details.title;
+      var place = details.place;
+      var support_method = details.support_method;
+      var customer = details.customer;
+      var project = details.project;
+      var participant = details.participant;
+      var contents = details.contents;
+      var tech_report = details.tech_report;
+      var user_id = details.user_id;
+      var work_type = details.work_type;
+      var room_name = details.room_name;
+      var car_name = details.car_name;
+      if(work_type == 'tech'){
+        $('#de_work_type').val("tech");
+        $('.de_except_company_div').show();
+        $('.de_tech_div').show();
+        $('.de_general_div').hide();
+        $('.de_report_div').hide();
+      //회사 공지사항 일정 참석자 제거 or 생성
+      }else if(work_type == 'company'){
+        $('#de_work_type').val("company");
+        $('.de_except_company_div').hide();
+        $('.de_tech_div').hide();
+        $('.de_general_div').show();
+        $('.de_report_div').hide();
+      }else{
+        $('#de_work_type').val("general");
+        $('.de_except_company_div').show();
+        $('.de_tech_div').hide();
+        $('.de_general_div').show();
+        $('.de_report_div').show();
+      }
+      $('#de_seq').val(seq);
+      $('#de_work_type').val(work_type);
+      $('#de_customer_manager').val(customer_manager);
+      $('#de_forcasting_seq').val(forcasting_seq);
+      $('#de_maintain_seq').val(maintain_seq);
+      $('#de_room_name').val(room_name);
+      $('#de_car_name').val(car_name);
+
+      $('#de_startDay').val(start_day);
+      $('#de_startTime').val(start_time);
+      $('#de_endDay').val(end_day);
+      $('#de_endTime').val(end_time);
+      $('#de_title').val(title);
+      $('#de_place').val(place);
+      $('#de_customerName').val(customer);
+      $('#de_customerName2').val(customer);
+      // if(work_type == "general"){
+      //   $('#de_customerName2').val(customer);
+      // }else if(work_type == "tech"){
+      //   $('#de_customerName').val(customer);
+      // }else{
+      //   $('#de_customerName').val('');
+      // }
+      $('#de_project').val(project);
+
+      // $('#de_participant').val(participant);
+      var split_de_participant = participant.split(',');
+      // console.log(split_de_participant);
+      insert_span_user_name(split_de_participant, 'de_participant');
+
+      $('#de_contents').val(contents);
+      $("#de_supportMethod").val(support_method).prop("selected",true);
+      $("#de_workname").val(work_name).prop("selected",true);
+      if(work_name == '납품설치' || work_name == '미팅' || work_name == '데모(BMT)지원'){
+        $('#de_customer').val(forcasting_seq);
+      } else {
+        $('#de_customer').val(maintain_seq);
+      }
+
+      if(start_time == '00:00:00' && end_time == '00:00:00'){
+        $("#de_startTime, #de_startTimeBtn, #de_endTime, #de_endTimeBtn").hide();
+        $("input:checkbox[id='de_alldayCheck']").prop("checked", true);
+      }
+
+      if($('#de_forcasting_seq').val() != "" && $('#de_maintain_seq').val()){
+        $('#de_customerName').attr('readonly',true);
+        $('#de_project').attr('readonly',true);
+      }
+
+      var register =details.user_id;
+      var regGroup =details.group;
+      var regPgruop =details.p_group;
+      //KI1 20210125
+      var regParticipant =details.participant;
+      var session_name =result.session_name;
+      var session_id =result.session_id;
+      var login_gruop = result.login_gruop;
+      var login_pgroup =result.login_pgroup;
+      var login_user_duty =result.login_user_duty;
+      //선영
+      var approval_yn = details.approval_yn;
+
+      if(((register == session_id)||(login_user_duty=='팀장'&&login_gruop==regGroup)||(login_user_duty=='이사'&&login_pgroup==regPgruop)||(regParticipant.indexOf(session_name) > -1)) && approval_yn != "Y" ){ //indexOf값이 -1이 아니면 regParticipant 안에 본인이 들어가 있다는 것
+        $("#updateSchedule").find("input, select, button, textarea").prop("disabled", false);
+        $("#schdule_contoller_btn").show();
+        $("#schdule_contoller_btn2").hide();
+      } else { //
+        $("#updateSchedule").find("input, select, button, textarea").prop("disabled",true);
+        $("#de_participant_input").prop("disabled",false);
+        $("#de_participant").prop("disabled",false);
+        $("#updateSubmit").prop("disabled",false);
+        // $("#updateSchedule").find("button[name=updateSubmit], input[name=de_participant_input], input[name=de_participant]").prop("disabled",false);
+        $("#schdule_contoller_btn").hide();
+        $("#schdule_contoller_btn2").show();
+      }
+
+      var sday = details.start_day;
+      sday = new Date(sday);
+      var eday = details.end_day;
+      eday = new Date(eday);
+      var today = new Date();
+
+      var dateDiff = Math.ceil((eday.getTime()-sday.getTime())/(1000*3600*24))+1;
+
+      if(tech_report == 0 && work_type == 'tech' && sday <= today){
+        $('#techReportModify').show();
+      }else if(tech_report > 0 && work_type == 'tech' && sday <= today){
+        $('#techReportInsert').show();
+        if (dateDiff>details.tech_report){
+          $('#techReportModify').show();
+        }
+      }
+    }
+  });
+}
+
+
+function company_schedule_check(){
+  var chk = $('#company_schedule_checkbox').prop("checked");
+  if(chk){
+    company_schedule_chk = 'true';
+    calendarRefresh();
+  }else{
+    company_schedule_chk = 'false';
+    calendarRefresh();
+  }
+}
+
+//검색으로 참석자 span추가
+function keypress(event,value,id){
+  // console.log(event);
+  if(event.keyCode == 13){
+    if(value == '' || value == null){
+      alert("검색어가 없습니다.");
+      return false;
+    }
+    // alert(13);
+    $.ajax({
+      type: 'post',
+      dataType : "json",
+      url:"/index.php/biz/schedule/search_entered_participant",
+      data:{
+        val: value
+      },
+      cache:false,
+      // async:false
+      success: function(data) {
+        // var user_name = '';
+        // for(var i=0; data.length; i++){
+        //   console.log(data[i].user_name);
+        //   if(user_name != ''){
+        //     user_name += ',';
+        //     user_name += data[i].user_name;
+        //     alert(user_name);
+        //   }else{
+        //     user_name += data[i].user_name;
+        //     alert(user_name);
+        //   }
+        // }
+        // $('#participant').val(user_name);
+
+        // var length = data.length;
+        // var user_name = data[length].user_name;
+        // $('#participant').val(user_name);
+        if(data === 'false'){
+          alert("검색된 사용자가 없습니다.");
+          $('#'+id+'_input').val('');
+        // }else if(data === 'too many participant'){
+        //   $('#addUserpopup').bPopup();
+        }else{
+          var user_name_arr = [];
+          for(var i=0; i<data.length; i++){
+            // console.log(user_name_arr);
+            // if(user_name_arr.length <= 0){
+              user_name_arr.push(data[i].user_name);
+            //   console.log(1+' '+user_name_arr);
+            // }else{
+            //   user_name_arr.push(','+data[i].user_name);
+            //   console.log(2+' '+user_name_arr);
+            // }
+          }
+          // alert(user_name_arr);
+          insert_span_user_name(user_name_arr,id)
+          user_name_arr = [];
+        }
+      }
+    });
+  }
+}
+
+function insert_span_user_name(data,id){
+  if(data === 'false'){
+    alert("검색된 사용자가 없습니다.");
+    $('#'+id+'_input').val('');
+  // }else if(data === 'too many participant'){
+  //   $('#addUserpopup').bPopup();
+  }else{
+
+    var old_hidden_val = '';
+    // var old_hidden_val = $('#'+id).val();
+    var new_hidden_val = '';
+    var old_val = $('#'+id+'_box').html();
+    var new_val = '';
+
+    for(var i=0; i<data.length; i++){
+      // console.log(data);
+      old_hidden_val = $('#'+id).val();
+      //여기서 중복확인하고 없으면 추가 있으면 continue
+      // console.log(old_hidden_val);
+      var indexOf_val = old_hidden_val.indexOf(data[i])
+      // console.log(indexOf_val);
+      if(indexOf_val  >= 0){
+        $('#'+id+'_input').val('');
+        // return false;
+        continue;
+      }
+      // if(indexOf_val  > -1){
+      //
+        new_val += '<span class="tag" style="border-radius:5; background-color:lightgray; padding:2px 5px; margin-right:5px; margin-bottom:5px; white-space:nowrap;"><span>';
+        new_val += data[i];
+        new_val += '</span>&nbsp;<a id="a'+data[i]+'" onclick="delete_this_user_name(this.id,'+"'"+id+"'"+')" style="cursor:pointer;" value="'+data[i]+'">x</a></span>';
+        if(old_hidden_val == ''){
+          new_hidden_val += data[i];
+          // console.log(1+' '+new_hidden_val)
+        }else{
+          new_hidden_val += old_hidden_val;
+          new_hidden_val += ',';
+          new_hidden_val += data[i];
+          // console.log(2+' '+new_hidden_val)
+        }
+        // total_hidden_val = old_hidden_val+new_hidden_val;
+        // $('#'+id).val(total_hidden_val);
+
+        $('#'+id).val(new_hidden_val);
+        new_hidden_val = '';
+        $('#usertree').jstree('select_node', data[i]);
+        // console.log($('#'+id).val());
+      // }
+    }
+
+    var total_val = old_val+new_val;
+    // var total_hidden_val = old_hidden_val+new_hidden_val;
+
+    $('#'+id+'_box').html(total_val);
+    // $('#'+id).val(total_hidden_val);
+    $('#'+id+'_input').val('');
+    // console.log("new "+new_hidden_val);
+    // console.log("total "+$('#'+id).val());
+    // alert($('#'+id).val());
+  }
+}
+
+//참석자 x로 삭제
+function delete_this_user_name(this_id,input_id){
+  var p_span = $('#'+this_id).parent('span');
+  //a태그에는 value값이 없어서 .value로 받아올 수 없기에 임의의 'value'를 지정해 해당 값을 받아온다.
+  var n_span = $('#'+this_id).attr('value');
+  var participant = $('#'+input_id).val();
+  // var participant = $('#'+input_id.id).val();
+  // split(explode)로 문자열을 ','로 나눠서 배열로 만들기
+  var split_participant = participant.split(',');
+  // var ex_participant = explode(',',participant);
+  // 필터함수로 participant에서 삭제할 이름을 제거
+  var filter_participant = split_participant.filter(function(element){return element !== n_span});
+  // var filter_participant = split_participant.filter((element) => element !== n_span);
+  // join(implode)로 배열을 다시 ','로 구분한 문자열로 만들기
+  var join_participant = filter_participant.join(',');
+  // console.log(join_participant);
+
+  $('#'+input_id).val(join_participant);
+  // $('#'+input_id.id).val(join_participant);
+  // console.log($('#'+input_id.id).val());
+  $('#usertree').jstree('deselect_node', n_span);
+  p_span.remove();
+
+  // var participant = $('#'+input_id).val();
+  // var ex_participant = explode(',',participant);
+  // var filter_participant = ex_participant.filter(function(element){element !== n_span});
+  // var filter_participant = ex_participant.filter((element) => element !== n_span);
+  // var im_participant = implode(',',filter_participant);
+  //
+  // $('#'+input_id).val(im_participant);
+  // p_span.remove();
+}
+
+function nondisclosure_form(value){
+  if(value=='nondisclosure'){
+    var div = 'except_nondisclosure_div';
+  }else{
+    var div = 'de_except_nondisclosure_div';
+  }
+
+  if($('#'+value+'_sch').is(":checked") == true){
+    $('.'+div).hide();
+    // $('#add_weekly_report').prop('readonly',true);
+  }else{
+    $('.'+div).show();
+    // $('#add_weekly_report').removeAttr('checked');
+  }
+
+  $('#add_weekly_report').click(function(){
+    if($('#'+value+'_sch').is(":checked") == true){
+      alert('비공개 일정은 주간업무보고를 작성할 수 없습니다.');
+      return false;
+      // $('#add_weekly_report').attr('checked',false);
+    }
+  });
+
+}

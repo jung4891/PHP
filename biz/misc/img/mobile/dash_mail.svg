@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36">
+  <g id="그룹_860" data-name="그룹 860" transform="translate(-40 -276)">
+    <g id="그룹_859" data-name="그룹 859">
+      <path id="email" d="M28.975,6.75H4.306A2.056,2.056,0,0,0,2.25,8.806V25.252a2.056,2.056,0,0,0,2.056,2.056H28.975a2.056,2.056,0,0,0,2.056-2.056V8.806A2.056,2.056,0,0,0,28.975,6.75ZM26.713,8.806,16.64,15.774,6.567,8.806ZM4.306,25.252V9.741l11.749,8.131a1.028,1.028,0,0,0,1.171,0L28.975,9.741v15.51Z" transform="translate(41.348 276.959)" fill="#1c1c1c"/>
+      <rect id="사각형_1161" data-name="사각형 1161" width="20" height="2" rx="1" transform="translate(47 298)" fill="#1a8dff"/>
+    </g>
+    <g id="그룹_844" data-name="그룹 844" transform="translate(1127 9991)">
+      <rect id="사각형_1021" data-name="사각형 1021" width="36" height="36" transform="translate(-1087 -9715)" fill="none" opacity="0.5"/>
+    </g>
+  </g>
+</svg>

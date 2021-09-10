@@ -1,0 +1,125 @@
+<?php
+	include $this->input->server('DOCUMENT_ROOT')."/include/base.php";
+	include $this->input->server('DOCUMENT_ROOT')."/include/sales_top.php";
+?>
+
+<body>
+    <table id="checkMember">
+    </table>
+</body>
+<script>
+  var seq = "<?php echo $_GET['seq'] ; ?>";
+  $.ajax({
+    type: "POST",
+    cache: false,
+    url: "<?php echo site_url();?>/ajax/groupView",
+    dataType: "json",
+    async: false,
+    data: {
+      group: seq
+    },
+    success: function(data) {
+        var text = "";
+        $("#checkMember").html("");
+        for(i=0; i<data.length; i++){
+          var num='';
+          text += "<tr><td><img src='<?php echo $misc; ?>img/person.png' width=50 style='margin-bottom:60px;'></td><td width=300><div>"+data[i].user_name+" "+data[i].user_duty+"</div><div id='userPart'>";
+          for(j=0; j<(data[i].user_part).length; j++){
+            if((data[i].user_part).substr(j,1) != "0"){
+              num++;
+              text += "<div><select id='"+data[i].seq+"'name='"+data[i].seq+"' class='input'  onchange='changeLevel(this)'><option value=100";
+              if(j == "0" && (data[i].user_part).substr(j,1) != "0"){
+                text += " selected";
+              }
+              text += ">영업</option><option value=10"; 
+              if(j == "1" && (data[i].user_part).substr(j,1) != "0"){
+                text += " selected"; 
+              }
+              text += ">기술</option><option value=1";
+              if(j == "2" && (data[i].user_part).substr(j,1) != "0"){
+                text += " selected";
+              }
+              text += ">관리자</option></select><select id='"+data[i].seq+"'name='"+data[i].seq+"' class='input' onchange='changeLevel(this)'><option value=1";
+              if((data[i].user_part).substr(j,1) == "1"){
+                text += " selected" 
+              } 
+              text += ">일반</option><option value=3";
+              if((data[i].user_part).substr(j,1) == "3"){
+                text += " selected" 
+              } 
+              text += ">관리자</option></select>";
+              if(num == 1){
+                text += "<img src='<?php echo $misc;?>img/btn_add.jpg' style='cursor:pointer;margin-left:20px;' onclick='addUserPart("+data[i].seq+");'></div>";
+              }else{
+                text += "<img src='<?php echo $misc;?>img/btn_del0.jpg' style='cursor:pointer;margin-left:20px;' onclick='removeUserPart(this);'></div>";
+              }
+            }
+          }
+            text += "</div><div>"+data[i].user_tel+"</div><div>"+data[i].user_email+"</div></td><td><input type='button' value='수정' onclick='changeUserPart("+data[i].seq+")'></td><tr height=20></tr>";
+            $("#checkMember").html(text);
+        }
+
+    }
+  });
+
+  function changeUserPart(seq){
+    var changeUserPart = '';
+
+    for( i=0; i<document.getElementsByName(seq).length; i=i+2){
+      changeUserPart = Number(changeUserPart)+(document.getElementsByName(seq)[i].value)*(document.getElementsByName(seq)[i+1].value);
+    }
+
+    var check = confirm("권한을 수정 하시겠습니까?")
+
+    if(check == true){
+      $.ajax({
+        type: "POST",
+        cache: false,
+        url: "<?php echo site_url();?>/ajax/changeUserPart",
+        dataType: "json",
+        async: false,
+        data: {
+          seq:seq,
+          userPart:pad(changeUserPart,3)
+        },
+        success: function (data) {
+          if(data==true){
+            alert("정상적으로 처리 되었습니다.")
+          }else{
+            alert("정상적으로 처리되지 못했습니다.")
+          }
+          opener.location.reload();
+        }
+      });
+    }else{
+      location.reload();
+    }
+  }
+
+  //11을 011로 자릿수에 맞춰주는 함수
+  function pad(n, width) {
+    n = n + '';
+    return n.length >= width ? n : new Array(width - n.length + 1).join('0') + n;
+  }
+
+  function addUserPart(id){
+    var txt = '<div><select name="'+id+'" id="'+id+'" class="input" onchange="noDuplication(id,this);"><option value=100>영업</option> <option value=10>기술</option><option value=1>관리자</option></select>';
+    txt += '<select name="'+id+'" id="'+id+'" class="input"><option value=1>일반</option><option value=3>관리자</option></select>';
+    txt += '<img src="<?php echo $misc; ?>img/btn_del0.jpg" style="cursor:pointer;float:right;margin-right:20px;" onclick="removeUserPart(this);"></div>';
+    $("#userPart").append(txt);
+  }W
+
+  function removeUserPart(btn){
+    $(btn).parent().remove();
+  }
+
+  function noDuplication(seq,change){
+    for(i=0; i<document.getElementsByName(seq).length-2; i=i+2){
+      if(document.getElementsByName(seq)[i].value == change.value){
+        alert("회원구분 파트가 중복되었습니다. 다시 선택해주세요");
+        change.value=100; //default값인 영업으로 되돌리기.
+      }
+    }
+  }
+</script>
+</html>

@@ -1,0 +1,160 @@
+<style>
+.nav_item img {margin-right: 10px;}
+.nav_container {
+	display: grid;
+  grid-template-columns: 1fr 1fr;
+  color:#ffffff;
+  font-family:"Noto Sans KR", sans-serif;
+
+}
+.nav_item:nth-child(1) {
+  grid-column: 1 / span 2;
+  padding: 15px;
+	/* grid-column: 1 / 4; */
+	/* grid-row: 1 / 2; */
+}
+.nav_item h2{
+  padding-left: 15px;
+}
+.nav_item a{
+
+  padding-left: 20px;
+  display:flex;
+  align-items: center;
+}
+
+.menu2{
+  margin: 12px 0px 12px 0px!important;
+  color:#ffffff !important;
+  font-weight : 600 !important;
+  font-size : 17px !important;
+}
+
+.menu3{
+  /* margin: 10px 0px 0px 0px!important; */
+  color:#ffffff !important;
+  /* font-weight : 450 !important; */
+  foint-heigth: 20;
+  /* font-size : 15px !important; */
+}
+
+
+.logout_contain{
+
+  height:33%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family:"Noto Sans KR", sans-serif;
+}
+
+.skyBtn{
+ cursor:pointer;
+ height:40px;
+ width:100px;
+ background-color:#41beeb;
+ color:#FFFFFF;
+ vertical-align:top;
+ font-size:16px;
+ font-weight:bold;
+ border: none;
+ border-radius: 19px;
+ outline:none;
+ margin:5px;
+}
+</style>
+<script type="text/javascript" src="/misc/js/jquery.bpopup-0.1.1.min.js"></script>
+<script type="text/javascript">
+
+function nav_open(){
+
+  $("#mobile_nav").bPopup({
+    position: [0, 0],
+    speed: 500,
+    transition: 'slideIn',
+    transitionClose: 'slideIn'
+  });
+}
+
+function logoutopen(){
+  $("#logout_div").bPopup({
+    speed: 450,
+    transition: 'slideDown'
+  })
+}
+</script>
+<!-- 네비 영역 -->
+<div id="mobile_nav" style="height:100vh;width:80%;background-color:#3C3C3C; display:none; border-radius: 0px 50px 50px 0px;">
+  <div class="nav_container">
+    <div class="nav_item">
+<img src="<?php echo $misc;?>img/mobile/list.png" height="25" onclick="$('#mobile_nav').bPopup().close();">
+    </div>
+
+    <div class="nav_item">
+      <?php if($biz_lv > 0){ ?>
+        <h2>BIZ</h2>
+
+    		<a href="<?php echo site_url();?>/biz/schedule/tech_schedule" class="menu2"><img src="<?php echo $misc;?>img/sideicon/schedule.png" width="20"> 일정관리</a>
+    		<a href="<?php echo site_url();?>/biz/approval/electronic_approval_list?type=standby" class="menu2"><img src="<?php echo $misc;?>img/sideicon/electronic.png" width="20"> 전자결재</a>
+    		<a href="<?php echo site_url();?>/biz/attendance/attendance_user" class="menu2"><img src="<?php echo $misc;?>img/sideicon/attendance.png" width="20"> 근태관리</a>
+        <a href="<?php echo site_url();?>/biz/weekly_report/weekly_report_list" class="menu2"><img src="<?php echo $misc;?>img/sideicon/weekly_report.png" width="20"> 주간보고</a>
+        <a href="<?php echo site_url();?>/biz/durian_car/car_drive_list" class="menu2"><img src="<?php echo $misc;?>img/sideicon/car_drive.png" width="20"> 차량일지</a>
+        <a href="<?php echo site_url();?>/biz/meeting_minutes/mom_list?type=y" class="menu2"><img src="<?php echo $misc;?>img/sideicon/meeting_minutes.png" width="20"> 회의록</a>
+        <a href="<?php echo site_url();?>/biz/board/notice_list" class="menu2"><img src="<?php echo $misc;?>img/sideicon/notice.png" width="20"> 공지사항</a>
+        <?php } ?>
+
+        <?php if($tech_lv > 0){ ?>
+        <h2>TECH</h2>
+        <a href="<?php echo site_url();?>/tech/board/manual_list" class="menu2"><img src="<?php echo $misc;?>img/sideicon/notice.png" width="20"> 자료실</a>
+        <a href="<?php echo site_url();?>/tech/board/edudata_list" class="menu2"><img src="<?php echo $misc;?>img/sideicon/eduevent.png" width="20"> 교육자료</a>
+        <a href="<?php echo site_url();?>/tech/board/release_note_list" class="menu2"><img src="<?php echo $misc;?>img/sideicon/attendance.png" width="20"> 릴리즈노트</a>
+        <a href="<?php echo site_url();?>/tech/tech_board/tech_device_list" class="menu2"><img src="<?php echo $misc;?>img/sideicon/manual_list.png" width="20"> 장비/시스템등록</a>
+        <a href="<?php echo site_url();?>/tech/tech_board/tech_doc_list?type=Y" class="menu2"><img src="<?php echo $misc;?>img/sideicon/customer.png" width="20"> 고객사</a>
+        <?php } ?>
+
+
+    </div>
+    <div class="nav_item">
+      <?php if($sales_lv > 0){ ?>
+        <h2>SALES</h2>
+        <a href="<?php echo site_url();?>/sales/funds/funds_list" class="menu2"><img src="<?php echo $misc;?>img/sideicon/fundlist.png" width="20"> 매출현황</a>
+        <a href="<?php echo site_url();?>/sales/board/manual_list" class="menu2"><img src="<?php echo $misc;?>img/sideicon/notice.png" width="20"> 영업자료</a>
+        <a href="<?php echo site_url();?>/sales/forcasting/forcasting_list?mode=forcasting" class="menu2"><img src="<?php echo $misc;?>img/sideicon/forecasting.png" width="20"> 포캐스팅</a>
+        <a href="<?php echo site_url();?>/sales/forcasting/order_completed_list" class="menu2"><img src="<?php echo $misc;?>img/sideicon/order_completed.png" width="20"> 수주완료</a>
+        <a href="<?php echo site_url();?>/sales/maintain/maintain_list" class="menu2"><img src="<?php echo $misc;?>img/sideicon/maintain.png" width="20"> 유지보수</a>
+        <?php if($group == "CEO" || $group=="경영지원실" || $group == "기술연구소" || $parent_group == "영업본부" ){?>
+        <a href="<?php echo site_url();?>/sales/fundreporting/fundreporting_list/page/200?company=DUIT" class="menu2"><img src="<?php echo $misc;?>img/sideicon/fund_reporting.png" width="20"> 자금관리</a>
+        <?php }
+        }?>
+
+        <?php if($admin_lv > 0){ ?>
+        <h2>ADMIN</h2>
+        <!-- <a href="<?php echo site_url();?>/admin/company/companynum_list" class="menu2">사업자등록번호</a> -->
+        <a href="<?php echo site_url();?>/admin/company/product_list" class="menu2"><img src="<?php echo $misc;?>img/sideicon/product_name.png" width="20"> 제품명</a>
+        <a href="<?php echo site_url();?>/admin/customer/customer_list" class="menu2"><img src="<?php echo $misc;?>img/sideicon/customer_list.png" width="20"> 거래처</a>
+        <?php if($admin_lv == 3){?>
+        <a href="<?php echo site_url();?>/admin/equipment/car_list" class="menu2"><img src="<?php echo $misc;?>img/sideicon/manual_list.png" width="20"> 설비관리</a>
+        <?php } ?>
+        <a href="<?php echo site_url();?>/admin/account/user" class="menu2"><img src="<?php echo $misc;?>img/sideicon/user.png" width="20"> 회원관리</a>
+        <?php } ?>
+        <?php if($admin_lv == 3 && ($group =="경영지원실" || $group == "기술연구소" || $group == "CEO")){?>
+        <a href="<?php echo site_url()?>/admin/attendance_admin/attendance_user_list" class="menu2"><img src="<?php echo $misc;?>img/sideicon/attendance.png" width="20"/>근태관리</a>
+      <?php } ?>
+    </div>
+  </div>
+</div>
+<!-- 로그아웃 창 영역 -->
+<div id="logout_div" style="height:30%;width:90%;background-color:#ffffff; display:none;border-radius:2em;">
+  <!-- <div class="logout_contain"> -->
+    <div class="logout_contain" style="font-size:24px;font-weight:bold;">
+      로그아웃
+    </div>
+    <div class="logout_contain" style="font-size:18px; color:#B0B0B080;font-weight:bold;">
+      로그아웃 하시겠습니까?
+    </div>
+    <div class="logout_contain">
+      <button type="button" name="button" class="skyBtn" onclick="location.href='<?php echo site_url();?>/account/logout'">확인</button>
+      <button type="button" name="button" class="skyBtn" style="background-color:#FF6666;" onclick="$('#logout_div').bPopup().close();">취소</button>
+    </div>
+<!-- </div> -->
+</div>

@@ -1,0 +1,185 @@
+<?php
+	include $this->input->server('DOCUMENT_ROOT')."/include/base.php";
+	include $this->input->server('DOCUMENT_ROOT')."/include/sales_top.php";
+?>
+<link rel="stylesheet" href="/misc/css/dashboard.css">
+<script language="javascript">
+function filedel(seq, filename) {
+	if (confirm("정말 삭제하시겠습니까?") == true){
+		location.href = "<?php echo site_url();?>/biz/board/notice_filedel/" + seq + "/" + filename;
+		return false;
+	}
+}
+
+</script>
+<script language="javascript">
+//$(document).ready(function() {
+//   $('li > ul').show();
+//});
+</script>
+<body>
+<?php
+	include $this->input->server('DOCUMENT_ROOT')."/include/sales_header.php";
+?>
+<div align="center">
+<div class="dash1-1">
+<table width="100%" height="100%" border="0" cellspacing="0" cellpadding="0" class="dash_tbl1-1">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.12/summernote-lite.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.12/summernote-lite.js"></script>
+<form id="cform" name="cform" action="<?php echo site_url();?>/biz/board/notice_input_action" method="post" enctype="multipart/form-data" onSubmit="javascript:chkForm();return false;">
+<input type="hidden" name="seq" value="<?php echo $seq;?>">
+<input type="hidden" id="type" name="type" value="0" />
+<tr height="5%">
+  <td class="dash_title"><img src="<?php echo $misc;?>img/dashboard/title_notice_list.png"/></td>
+</tr>
+  <tr>
+    <td align="center" valign="top">
+    <table width="90%" height="100%" cellspacing="0" cellpadding="0" >
+        <tr>
+            <td width="90%" align="center" valign="top">
+            <table width="90%" border="0" style="margin-top:50px; margin-bottom: 50px;">
+
+              <tr>
+                <td><table width="100%" border="0" cellspacing="0" cellpadding="0">
+                  <tr>
+                    <td colspan="6" height="2" bgcolor="#797c88"></td>
+                  </tr>
+									<tr>
+										<td height="40" align="center" bgcolor="f8f8f9" style="font-weight:bold;">카테고리</td>
+										<td class="t_border" style="padding-left:10px;">
+											<select name="category_code" id="category_code" class="input" onchange="change_category(this);">
+												<option value="001" <?php if($view_val['category_code'] == '001'){ echo 'selected'; } ?>>운영공지</option>
+												<?php
+													if($group == '기술연구소'){
+														echo '<option value="002"';
+														if($view_val['category_code'] == '002'){
+															echo 'selected';
+														}
+														echo '>개발공지</option>';
+														echo '<option value="003"';
+														if($view_val['category_code'] == '003'){
+															echo 'selected';
+														}
+														echo '>버전관리</option>';
+														// if($view_val['category_code'] == '002'){
+														// 	echo '<option value="002" selected >개발공지</option>';
+														// 	echo '<option value="003" >버전관리</option>';
+														// }else if($view_val['category_code'] == '003'){
+														// 	echo '<option value="002" >개발공지</option>';
+														// 	echo '<option value="003" selected >버전관리</option>';
+														// }
+													}
+												?>
+												<!-- <option value="002" <?php if($view_val['category_code'] == '002'){ echo 'selected'; } ?>>개발공지</option>
+												<option value="003" <?php if($view_val['category_code'] == '003'){ echo 'selected'; } ?>>버전관리</option> -->
+											</select>
+										</td>
+                    <td align="center" bgcolor="f8f8f9" style="font-weight:bold;">날짜</td>
+                    <td align="center" class="t_border"><?php echo $view_val['update_date'];?></td>
+										<td align="center" bgcolor="f8f8f9" class="t_border" style="font-weight:bold;">등록자</td>
+										<td align="center" class="t_border"><?php echo $view_val['user_name'];?></td>
+                  </tr>
+                  <tr>
+                    <td colspan="6" height="1" bgcolor="#e8e8e8"></td>
+                  </tr>
+                  <tr>
+                    <td height="40" align="center" bgcolor="f8f8f9" style="font-weight:bold;">제목</td>
+                    <td colspan="4" class="t_border" style="padding-left:10px;">
+											<input type="text" name="subject" id="subject" class="input2" value="<?php echo stripslashes($view_val['subject']);?>"/>
+										</td>
+                  </tr>
+                  <tr>
+                    <td colspan="6" height="1" bgcolor="#797c88"></td>
+                  </tr>
+                  <tr>
+										<td colspan="6" style="padding:20px;">
+											<div id="summernote" style="margin-top:30px;"><?php echo $view_val['contents'];?></div>
+											<input type="hidden" name="contents" id="contents" >
+										</td>
+                  </tr>
+									<tr>
+                    <td colspan="6" height="1" bgcolor="#797c88"></td>
+                  </tr>
+                  <tr>
+                    <td colspan="6" height="40" align="center" bgcolor="f8f8f9" style="font-weight:bold;">
+											<div style="margin-top:30px;">
+												 <img src="<?php echo $misc; ?>/img/file_upload.png" style="width:20px;float:left;vertical-align:middle;"><h3 style="float:left;margin:0px;">&nbsp;파일업로드</h3><br>
+												 <!-- <form name="uploadForm" id="uploadForm" enctype="multipart/form-data" method="post" > -->
+														<?php
+															 $file_html = "";
+															 if($view_val['file_realname'] != ""){
+																	$file = explode('*/*',$view_val['file_realname']);
+																	for($i=0; $i<count($file); $i++){
+																		 $file_html .= "<tr id='dbfileTr_{$i}'>";
+																		 $file_html .= "<td class='left' >";
+																		 $file_html .= $file[$i]." <a href='#' onclick='dbDeleteFile({$i}); return false;' class='btn small bg_02'><img src='{$misc}/img/btn_del2.jpg' style='vertical-align:middle;'></a>";
+																		 $file_html .= "</td>";
+																		 $file_html .= "</tr>";
+																	}
+															 }
+														?>
+														<table class="basic_table" width="100%" bgcolor="f8f8f9" height="auto" border="1px" style="margin-top:20px;" >
+																	<tbody id="fileTableTbody">
+																		 <tr>
+																				<td id="dropZone" height="100px">
+																							이곳에 파일을 드래그 하세요.
+																				</td>
+																		 </tr>
+																	</tbody>
+																	<?php echo $file_html; ?>
+														</table>
+												 <!-- </form> -->
+												 <!-- <a href="#" onclick="uploadFile(); return false;" class="btn bg_01">파일 업로드</a> -->
+											</div>
+										</td>
+                  </tr>
+                  <tr>
+                  <tr>
+                    <td colspan="6" height="2" bgcolor="#797c88"></td>
+                  </tr>
+                </table></td>
+              </tr>
+              <tr>
+                <td>&nbsp;</td>
+              </tr>
+              <tr>
+                <td align="center">
+									<input type="image" src="<?php echo $misc;?>img/dashboard/btn/btn_adjust.png" width="64" height="31" style="cursor:pointer" onClick="javascript:chkForm();return false;"/>
+									<img src="<?php echo $misc;?>img/dashboard/btn/btn_cancel.png" width="64" height="31" onClick="javascript:history.go(-1)" style="cursor:pointer"/>
+								</td>
+              </tr>
+              <tr>
+                <td>&nbsp;</td>
+              </tr>
+            </table>
+
+
+            </td>
+
+        </tr>
+     </table>
+</div>
+</div>
+    </td>
+  </tr>
+</form>
+</table>
+<?php include $this->input->server('DOCUMENT_ROOT')."/include/sales_bottom.php"; ?>
+</body>
+<script type="text/javascript">
+var file_realname = "<?php echo $view_val['file_realname']; ?>".split("*/*");
+var file_changename = "<?php echo $view_val['file_changename']; ?>".split("*/*");
+
+var loc = $("#category_code option:selected").val();
+
+var request_url = "<?php echo site_url(); ?>/biz/board/notice_input_action";
+var response_url = "<?php echo site_url(); ?>/biz/board/notice_list?category="+loc;
+
+function change_category(el) {
+	loc = $(el).val();
+	response_url = "<?php echo site_url(); ?>/biz/board/notice_list?category="+loc;
+}
+
+</script>
+<script type="text/javascript" src="/misc/js/board/board_script.js"></script>
+</html>

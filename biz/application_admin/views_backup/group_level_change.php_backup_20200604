@@ -1,0 +1,92 @@
+<?php
+	include $this->input->server('DOCUMENT_ROOT')."/include/base.php";
+	include $this->input->server('DOCUMENT_ROOT')."/include/sales_top.php";
+?>
+<style>
+  ul{
+   list-style:none;
+   }
+  input{
+    margin-left : 5px;
+    width : 100px;
+    font-family: 'Nanum Gothic', '나눔고딕', Tahoma, 'Georgia', '맑은 고딕', sans-serif;
+    line-height: 150%;
+    font-size: 12px;
+    color: #333;
+    /* border-color:f; */
+    /* border :none; */
+  }
+  /* input:focus {background-color:skyblue;} */
+</style>
+
+<body>
+  <table>
+    <tr><td style="text-align:center;">부서</td><td style="text-align:center;">권한</td></tr>
+    <tr height="20px"></tr>
+    <tr>
+      <td>
+        <select id="group" name="group" class="input" >
+        </select>
+      </td>
+      <td id="userPart" align="left" class="t_border" style="padding-left:10px;">
+        <div>
+          <select name="user_part1" id="user_part1" class="input">
+            <option value=1 selected>영업</option> 
+            <option value=2>기술</option>
+            <option value=3>관리자</option>
+          </select>
+          <select name="user_part2" id="user_part2" class="input">
+            <option value=1>일반</option> 
+            <option value=3>관리자</option>
+          </select>
+          <!-- <img src="<?php echo $misc; ?>img/btn_add.jpg" style="cursor:pointer;float:right;margin-top:1px;margin-right:20px;" onclick = "addUserPart();"> -->
+        </div>
+      </td>
+  </tr>
+  <tr height="50px"></tr>
+  <tr><td><input type="button" value="권한부여" onclick="groupLevelChange();"></td></tr>
+  </table>
+</body>
+<script>
+$.ajax({
+    type: "POST",
+    cache: false,
+    url: "<?php echo site_url(); ?>/ajax/group",
+    dataType: "json",
+    async: false,
+    data: {
+    },
+    success: function (data) {
+      var txt;
+      for(i=0; i<data.length; i++){
+        txt += '<option value="'+data[i].groupName+'">'+data[i].groupName+'</option>'
+      }
+      $("#group").append(txt);
+    }
+});
+
+function groupLevelChange(){
+  $.ajax({
+    type: "POST",
+    cache: false,
+    url: "<?php echo site_url(); ?>/ajax/groupChangeUserPart",
+    dataType: "json",
+    async: false,
+    data: {
+      groupName:$("#group").val(),
+      userPart:$("#user_part1").val(),
+      userLevel:$("#user_part2").val()
+    },
+    success: function (data) {
+      if(data==true){
+            alert("정상적으로 처리 되었습니다.")
+      }else{
+        alert("정상적으로 처리되지 못했습니다.")
+      }
+      opener.location.reload();
+    }
+  });
+}
+
+</script>
+</html>

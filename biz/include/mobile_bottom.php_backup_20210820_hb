@@ -1,0 +1,24 @@
+<style media="screen">
+  .footer {
+    height: 50px;
+    background-color:#fff;
+    /* position: fixed; */
+    bottom: 0;
+    width: 100%;
+  }
+</style>
+<div class="footer">
+  <table style="height:100%;width:100%;margin-top:20px;">
+    <tr>
+      <td width="33.3%" align="center" style="vertical-align:middle;">
+        <img src="<?php echo $misc;?>img/mobile/footer_home.svg" width="30px">
+      </td>
+      <td width="33.3%" align="center" style="vertical-align:middle;">
+        <img src="<?php echo $misc;?>img/mobile/footer_schedule.svg" width="30px" onclick="go_page('schedule');">
+      </td>
+      <td width="33.3%" align="center" style="vertical-align:middle;">
+        <img src="<?php echo $misc;?>img/mobile/footer_search.svg" width="30px">
+      </td>
+    </tr>
+  </table>
+</div>

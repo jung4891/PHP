@@ -1,0 +1,689 @@
+@charset "utf-8";
+/* CSS Document */
+
+* Nanum Gothic (Korean) http://www.google.com/webfonts/earlyaccess
+
+ */
+
+@font-face {
+
+  font-family: 'Nanum Gothic';
+
+  font-style: normal;
+
+  font-weight: 700;
+
+  src: url(//themes.googleusercontent.com/static/fonts/earlyaccess/nanumgothic/v3/NanumGothic-Bold.eot);
+
+  src: url(//themes.googleusercontent.com/static/fonts/earlyaccess/nanumgothic/v3/NanumGothic-Bold.eot?#iefix) format('embedded-opentype'),
+
+       url(//themes.googleusercontent.com/static/fonts/earlyaccess/nanumgothic/v3/NanumGothic-Bold.woff2) format('woff2'),
+
+       url(//themes.googleusercontent.com/static/fonts/earlyaccess/nanumgothic/v3/NanumGothic-Bold.woff) format('woff'),
+
+       url(//themes.googleusercontent.com/static/fonts/earlyaccess/nanumgothic/v3/NanumGothic-Bold.ttf) format('truetype');
+
+}
+
+@font-face {
+
+  font-family: 'Nanum Gothic';
+
+  font-style: normal;
+
+  font-weight: 400;
+
+  src: url(//themes.googleusercontent.com/static/fonts/earlyaccess/nanumgothic/v3/NanumGothic-Regular.eot);
+
+  src: url(//themes.googleusercontent.com/static/fonts/earlyaccess/nanumgothic/v3/NanumGothic-Regular.eot?#iefix) format('embedded-opentype'),
+
+       url(//themes.googleusercontent.com/static/fonts/earlyaccess/nanumgothic/v3/NanumGothic-Regular.woff2) format('woff2'),
+
+       url(//themes.googleusercontent.com/static/fonts/earlyaccess/nanumgothic/v3/NanumGothic-Regular.woff) format('woff'),
+
+       url(//themes.googleusercontent.com/static/fonts/earlyaccess/nanumgothic/v3/NanumGothic-Regular.ttf) format('truetype');
+
+}
+
+@font-face {
+
+  font-family: 'Nanum Gothic';
+
+  font-style: normal;
+
+  font-weight: 800;
+
+  src: url(//themes.googleusercontent.com/static/fonts/earlyaccess/nanumgothic/v3/NanumGothic-ExtraBold.eot);
+
+  src: url(//themes.googleusercontent.com/static/fonts/earlyaccess/nanumgothic/v3/NanumGothic-ExtraBold.eot?#iefix) format('embedded-opentype'),
+
+       url(//themes.googleusercontent.com/static/fonts/earlyaccess/nanumgothic/v3/NanumGothic-ExtraBold.woff2) format('woff2'),
+
+       url(//themes.googleusercontent.com/static/fonts/earlyaccess/nanumgothic/v3/NanumGothic-ExtraBold.woff) format('woff'),
+
+       url(//themes.googleusercontent.com/static/fonts/earlyaccess/nanumgothic/v3/NanumGothic-ExtraBold.ttf) format('truetype');
+
+}
+
+
+html, body { width:100%;
+             height:100%;
+             /* min-width: 1300px; */
+			 }
+body {
+	margin: 0;
+	font-family: 'Nanum Gothic', '나눔고딕', Tahoma, 'Georgia', '맑은 고딕', sans-serif;
+	line-height:150%;
+	font-size:12px;
+	color: #333;
+	border:0;
+}
+
+/*body.noscroll {
+	/* also avoids bounce effect in Chrome and Safari
+	overflow: hidden;
+} */
+
+
+
+.title1 {
+	color: #ffffff;
+	font-size:32px;
+	font-weight:bold;
+}
+.title2 {
+	color: #ffffff;
+	font-size:16px;
+	font-weight:normal;
+}
+.title3 {
+	font-size:24px;
+	font-weight:bold;
+}
+h1 {
+	color: #ffffff;
+    font-size:32px;
+}
+h5 {
+	color: #ffffff;
+    font-size:16px;
+}
+.bt_border {
+	border-bottom-width:1px;
+	border-bottom-style:solid;
+	border-bottom-color:#d7d7d7;
+}
+.t_border {
+	border-left-width:1px;
+	border-left-style:solid;
+	border-left-color:#d7d7d7;
+}
+.t_border1 {
+	border-left-width:1px;
+	border-left-style:solid;
+	border-left-color:#d7d7d7;
+	border-right-width:1px;
+	border-right-style:solid;
+	border-right-color:#d7d7d7;
+}
+.t_border2 {
+	border-left-width:1px;
+	border-left-style:solid;
+	border-left-color:#d7d7d7;
+	border-top-width:1px;
+	border-top-style:solid;
+	border-top-color:#d7d7d7;
+	border-bottom-width:1px;
+	border-bottom-style:solid;
+	border-bottom-color:#d7d7d7;
+	font-size: 12px;
+	font-weight: normal;
+	margin-top:1px;
+
+}
+
+.t_border3 {
+	border-left-width:1px;
+	border-left-style:solid;
+	border-left-color:#b0b0b0;
+	border-right-width:1px;
+	border-right-style:solid;
+	border-right-color:#b0b0b0;
+	border-bottom-width:1px;
+	border-bottom-style:solid;
+	border-bottom-color:#b0b0b0;
+	margin-top:1px;
+
+}
+
+.t_border4 {
+	border-top-width:1px;
+	border-top-style:solid;
+	border-top-color:#185e94;
+	border-left-width:1px;
+	border-left-style:solid;
+	border-left-color:#185e94;
+	border-right-width:1px;
+	border-right-style:solid;
+	border-right-color:#185e94;
+	border-bottom-width:1px;
+	border-bottom-style:solid;
+	border-bottom-color:#185e94;
+	margin-top:1px;
+
+}
+
+.title {
+	color: #666;
+	font-size:24px;
+	font-weight: bold;
+}
+.title_ststs {
+	color: #000000;
+	font-size:18px;
+	font-weight: normal;
+}
+.title_ststs2 {
+	color: #ff0000;
+	font-size:18px;
+	font-weight: normal;
+}
+.title_ststs3 {
+	color: #0066ff;
+	font-size:18px;
+	font-weight: normal;
+}
+.text_user {
+	color: #ffcc00;
+	font-size:24px;
+	font-weight: bold;
+}
+.text_user2 {
+	color: #00ff33;
+	font-size:24px;
+	font-weight: bold;
+}
+.text_user3 {
+	color: #00ff33;
+	font-size:14px;
+	font-weight: bold;
+}
+.text_user4 {
+	color: #ffcc00;
+	font-size:14px;
+	font-weight: bold;
+}
+.text_user5 {
+	color: #ff6600;
+	font-size:12px;
+	font-weight: bold;
+}
+
+.text_user6 {
+	color: #444444;
+	font-size:11px;
+	font-weight: normal;}
+
+.text_copyright {
+	font-family: 'Nanum Gothic', '나눔고딕', Tahoma, 'Georgia', '맑은 고딕', sans-serif;
+	color: #444444;
+	font-size:11px;
+	font-weight: normal;}
+
+.text_copyright2 {
+	font-family: 'Nanum Gothic', '나눔고딕', Tahoma, 'Georgia', '맑은 고딕', sans-serif;
+	color: #eee;
+	font-size:11px;
+	font-weight: normal;}
+
+.topnavi {
+	color: #FFFFFF;
+	font-size:12px;
+	font-weight: bold;
+}
+.left_menu_title {
+	color: #383838;
+	font-size:16px;
+	font-weight: bold;
+}
+
+.left_menu {
+	font-family: '굴림', Tahoma, 'Georgia', '맑은 고딕', sans-serif;
+	color: #383838;
+	font-size:10pt;
+	font-weight: bold;
+}
+.left_menu_2 {
+	font-family: '굴림', Tahoma, 'Georgia', '맑은 고딕', sans-serif;
+	color: #383838;
+	font-size:12px;
+	font-weight: normal;
+}
+
+.f_white0 {
+	color: #FFFFFF;
+	font-weight: normal;
+	font-size:12px;
+	line-height:18px;
+}
+
+.f_white {
+	color: #FFFFFF;
+	font-weight: normal;
+}
+
+.f_white1 {
+	color: #FFFFFF;
+	font-weight: bold;
+}
+
+.f_white2 {
+	color: #FFFFFF;
+	font-size:18px;
+}
+.f_carnum {
+	color: #00ff33;
+	font-size:18px;
+}
+
+.section {
+	color: #dedede;
+}
+.section2 {
+	color: #999999;
+}
+
+.search { border:1px solid #b4b4b4; height:20px;width:100px;
+}
+
+.t_top{
+	 font-weight:bold;
+}
+.t_title {
+	 font-weight:normal;
+	 font-size:12px;
+	 border-left-width:1px;
+	 border-left-style:solid;
+	 border-left-color:#d7d7d7;
+}
+
+.t_login {
+	 font-size:12px;
+	 color: #666;
+}
+
+.menutd1{
+	 background:url("http://1.235.57.42:5001/rms/misc/img/menu_s01_d.jpg"); no-repeat; left top; text-decoration: none;
+	 color: #fff;
+	 font-weight: bold;
+}
+.menutd2{
+	 background:url("http://1.235.57.42:5001/rms/misc/img/menu_s01.jpg"); no-repeat; left top; text-decoration: none;
+	 color: #fff;
+	 font-weight: bold;
+}
+
+a {
+	color: #333333;
+	text-decoration:none;}
+
+a:hover {
+	color: #000000;}
+
+a:visited {
+	color: #333333;}
+
+
+a.login:link    {font-family: 'Nanum Gothic', '나눔고딕'; font-size:12px; font-weight:normal; color:#383838; text-decoration:none;}
+a.login:hover   {font-family: 'Nanum Gothic', '나눔고딕'; font-size:12px; font-weight:normal; color:#00ccff; text-decoration:none;}
+
+a.menu:link    {font-family: '굴림'; font-weight:normal; color:#383838; text-decoration:none;}
+a.menu:hover   {font-family: '굴림'; font-weight:normal; color:#383838; text-decoration:none;}
+a.menu:visited {font-family: '굴림'; font-weight:normal; color:#383838; text-decoration:underline;}
+
+a.menu2:link    {font-family: '굴림'; font-weight:bold; font-size:10pt; color:#383838; text-decoration:none;}
+a.menu2:hover   {font-family: '굴림'; font-weight:bold; font-size:10pt; color:#383838; text-decoration:none;}
+a.menu2:visited {font-family: '굴림'; font-weight:bold; font-size:10pt; color:#383838; text-decoration:none;}
+
+a.menu3:link    {font-family: '굴림'; font-weight:bold; font-size:10pt; color:#ffffff; text-decoration:none;}
+a.menu3:hover   {font-family: '굴림'; font-weight:bold; font-size:10pt; color:#ffffff; text-decoration:none;}
+a.menu3:visited {font-family: '굴림'; font-weight:bold; font-size:10pt; color:#ffffff; text-decoration:none;}
+
+a.menu4:link    {font-family: '굴림'; font-weight: bold; color:#ffffff; text-decoration:none;}
+a.menu4:hover   {font-family: '굴림'; font-weight: bold; color:#ffffff; text-decoration:none;}
+a.menu4:visited {font-family: '굴림'; font-weight: bold; color:#ffffff; text-decoration:none;}
+
+a.menu5:link    {font-family: '굴림'; font-weight: nomal; color:#383838; text-decoration:none; }
+a.menu5:hover   {font-family: '굴림'; font-weight: nomal; color:#ffffff; text-decoration:none; background-color:#06bcfe;}
+a.menu5:visited {font-family: '굴림'; font-weight: nomal; color:#ffffff; text-decoration:none; background-color:#06bcfe;}
+
+/*.duty_menu5:hover   {font-family: '굴림'; font-weight: nomal; color:#ffffff; text-decoration:none; background-color:#06bcfe;}*/
+
+a.num:link    {font-family: '굴림'; font-weight: bold; color:#383838; text-decoration:none;}
+a.num:hover   {font-family: '굴림'; font-weight: bold; color:#06bcfe; text-decoration:underline;}
+a.num:visited {font-family: '굴림'; font-weight: bold; color:#06bcfe; text-decoration:underline;}
+
+a.num2:link    {font-family: '굴림'; color:#666666; text-decoration:none;}
+a.num2:hover   {font-family: '굴림'; color:#d50c0c; text-decoration:underline;}
+
+a.code:link    {font-weight: bold; color:#e60021; text-decoration:none;}
+a.code:hover   {font-weight: bold; color:#e60021; text-decoration:underline;}
+a.code:visited {font-weight: bold; color:#666; text-decoration:underline;}
+
+
+img {
+  border: 0;
+}
+
+.pop_title {
+	color: #FFFFFF;
+	font-size:18px;
+}
+
+#login-form td.input {
+	width: 80%;
+	font-family: Arial, Helvetica, sans-serif;
+	border:2px #999999 solid;
+ 	font-size: 12px;
+ 	height: 30px;
+ 	line-height: 18px;
+ 	color: #666666;
+ 	padding: 0;
+ 	margin: 0;
+ 	vertical-align: middle;
+}
+
+#login-form input[type="text"],
+#login-form input[type="password"] {
+	width: 228px;
+	height: 30px;
+}
+
+#login-form td.title {
+	width: 25%;
+	font-size: 12px;
+	white-space: nowrap;
+	color: #444;
+/*	text-shadow: 0px 1px 1px black;*/
+	text-align: center;
+	padding-right: 1em;
+}
+ //.style1 {
+	color: #EDEDED;
+	font-weight: bold;
+}
+.style1 {
+	color: #0d88e6;
+	font-weight: bold;
+}
+
+.com {
+	font-family:굴림,seoul;
+	color:#ffffff;
+	font-size: 12px;
+	margin-top:1px;
+	border:1px solid #b4b4b4;
+	background-color:#666666;
+	height:20px;
+	width:180px;
+}
+
+
+.main_input {
+	font-family:굴림,seoul;
+	font-size: 12px;
+	margin-top:1px;
+	border:1px solid #82797e;
+	background-color:#82797e;
+	height:25px;
+	width:250px;
+	color:#ffffff;
+}
+
+.ask_input {
+	font-family:굴림,seoul;
+	font-size: 12px;
+	margin-top:1px;
+	border:1px solid #e1e3e1;
+	height:23px;
+	width:100%;
+	color:#9e9f9f;
+}
+
+.login_input {
+	font-family:굴림,seoul;
+	font-size: 12px;
+	margin-top:1px;
+	border:1px solid #e1e3e1; line-height:50px; padding-left:5px;
+	height:50px;
+	width:100%;
+	color:#999;
+}
+.login_tex {font-size:12px; color:#666; line-height:50px; padding-left:10px; }
+
+.login_input2 {
+	font-family:굴림,seoul;
+	font-size: 12px;
+	margin-top:1px;
+	border:1px solid #e1e3e1;
+	height:400px;
+	width:100%;
+	color:#9e9f9f;
+}
+
+.input00 {
+	font-family:굴림,seoul;
+	font-size: 12px;
+	margin-top:1px;
+	border:1px solid #b4b4b4;
+	height:42px;
+	width:350px;
+	color:#383838;
+}
+
+.input0 {
+	font-family:굴림,seoul;
+	font-size: 12px;
+	margin-top:1px;
+	border:1px solid #b4b4b4;
+	height:20px;
+	width:60px;
+}
+
+.input1 {
+	font-family:굴림,seoul;
+	font-size: 12px;
+	margin-top:1px;
+	border:1px solid #b4b4b4;
+	height:20px;
+	width:75px;
+}
+
+.input {
+	font-family:굴림,seoul;
+	font-size: 12px;
+	margin-top:1px;
+	border:1px solid #b4b4b4;
+	height:20px;
+	width:120px;
+}
+
+
+.input2 {
+	font-family:굴림,seoul;
+	font-size: 12px;
+	margin-top:1px;
+	border:1px solid #b4b4b4;
+	height:20px;
+	width:250px;
+}
+
+/* 김수성 추가 */
+.input2_red {
+	font-family:굴림,seoul;
+	font-size: 12px;
+	margin-top:1px;
+	border:1px solid #D34826;
+	height:20px;
+	width:250px;
+}
+
+.input2_blue {
+	font-family:굴림,seoul;
+	font-size: 12px;
+	margin-top:1px;
+	border:1px solid #4289c9;
+	height:20px;
+	width:250px;
+}
+/* 추가 끝 */
+
+.input4 {
+	font-family: '굴림';
+	font-size: 12px;
+	margin-top:1px;
+	border:1px solid #b4b4b4;
+	height:300px;
+	width:100%;
+}
+.input8 {
+        font-family: '굴림';
+        font-size: 12px;
+        margin-top:1px;
+        border:1px solid #b4b4b4;
+        height:20px;
+        width:100px;
+}
+
+
+.input5 {
+	font-family: '굴림';
+	font-size: 12px;
+	margin-top:1px;
+	border:1px solid #b4b4b4;
+	height:20px;
+	width:100px;
+}
+.input6 {
+	font-family: '굴림';
+	font-size: 12px;
+	margin-top:1px;
+	border:1px solid #b4b4b4;
+	height:20px;
+	width:475px;
+}
+
+.input7 {
+	font-family: '굴림';
+	font-size: 12px;
+	margin-top:1px;
+	border:1px solid #b4b4b4;
+	height:20px;
+	width:95%;
+}
+
+.input_answer1 {
+	font-family: '굴림';
+	font-size: 12px;
+	border:1px solid #b4b4b4;
+}
+
+.point {
+	color:#3CF;
+}
+
+.point2 {
+	color:#3CF;
+	font-weight:bold;
+}
+
+.button { height:24px; line-height:24px; vertical-align:middle; padding:0 15px; background-color:#ddd; border:1px solid #aaa; font-size:12px; color:#333; text-align:center; cursor:pointer;}
+
+.answer {
+	font-size:13px;
+	color:#7e5c3a; font-weight:bold;
+}
+
+.answer2 {
+	padding:10px;
+}
+
+#css_tabs {
+     font-family:'nanumgothic', '나눔고딕', 'malgun gothic', '맑은 고딕', 'dotum', '돋움', sans-serif
+ }
+
+ /* 탭 선택 시 표시할 요소(div) 정의(1번 탭 선택 시 첫 번째 div 요소 표시) */
+ #css_tabs input:nth-of-type(1), #css_tabs input:nth-of-type(1) ~ div:nth-of-type(1),
+ #css_tabs input:nth-of-type(2), #css_tabs input:nth-of-type(2) ~ div:nth-of-type(2),
+ #css_tabs input:nth-of-type(3), #css_tabs input:nth-of-type(3) ~ div:nth-of-type(3),
+ #css_tabs input:nth-of-type(4), #css_tabs input:nth-of-type(4) ~ div:nth-of-type(4) {
+     display:none
+ }
+ #css_tabs input:nth-of-type(1):checked ~ div:nth-of-type(1),
+ #css_tabs input:nth-of-type(2):checked ~ div:nth-of-type(2),
+ #css_tabs input:nth-of-type(3):checked ~ div:nth-of-type(3),
+ #css_tabs input:nth-of-type(4):checked ~ div:nth-of-type(4) {
+     display:block
+ }
+
+ /* 라벨 기본 스타일 지정 */
+ #css_tabs > label {
+     display:inline-block;
+     font-variant:small-caps;
+     font-size:.9em;
+	 font-weight: bold;
+     padding:5px;
+     text-align:center;
+     width:15%;
+     line-height:1.8em;
+     font-weight:983;
+     border-radius:3px 3px 0 0;
+     background:#eee;
+     color:#777;
+     border:1px solid #ccc;
+     border-width:1px 1px 0
+ }
+ #css_tabs > label:hover {
+     cursor:pointer
+ }
+ #css_tabs label[for=tab1] {
+     margin-left:0em
+ }
+
+ /* 선택된 라벨, 커서를 올린 라벨 스타일 지정 */
+ #css_tabs input:nth-of-type(1):checked ~ label:nth-of-type(1), #css_tabs > label[for=tab1]:hover {
+     background:#fff;
+     color:red;
+ }
+ #css_tabs input:nth-of-type(2):checked ~ label:nth-of-type(2), #css_tabs > label[for=tab2]:hover {
+     background:#fff;
+     color:red;
+ }
+ #css_tabs input:nth-of-type(3):checked ~ label:nth-of-type(3), #css_tabs > label[for=tab3]:hover {
+     background:#fff;
+     color:red;
+ }
+ #css_tabs input:nth-of-type(4):checked ~ label:nth-of-type(4), #css_tabs > label[for=tab4]:hover {
+     background:#fff;
+     color:red;
+ }
+
+ /* 실제 내용이 담긴 div 요소 스타일 지정 */
+ #css_tabs .tab1_content, #css_tabs .tab2_content, #css_tabs .tab3_content, #css_tabs .tab4_content {
+     /*padding:2em; 컨텐츠 간격*/
+	 padding:1em 0 0 0;
+     /*border:1px solid #ddd; 테이블라인*/
+	 border-top:1px solid #ddd;
+     width:100%;
+     height:100%
+ }
+
+ .basicBtn{
+	cursor:pointer;
+	height:31px;
+	background-color:#292929;
+	color:#E2E2E2;
+	vertical-align:top;
+	font-weight:bold;
+	border: none;
+ }

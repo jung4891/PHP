@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40">
+  <g id="그룹_423" data-name="그룹 423" transform="translate(0 -0.109)">
+    <g id="window" transform="translate(3.935 6.123)">
+      <path id="패스_507" data-name="패스 507" d="M27.546,4.218H3.935A1.968,1.968,0,0,0,1.968,6.185V25.861a1.968,1.968,0,0,0,1.968,1.968H27.546a1.968,1.968,0,0,0,1.968-1.968V6.185A1.968,1.968,0,0,0,27.546,4.218ZM3.935,2.25A3.935,3.935,0,0,0,0,6.185V25.861A3.935,3.935,0,0,0,3.935,29.8H27.546a3.935,3.935,0,0,0,3.935-3.935V6.185A3.935,3.935,0,0,0,27.546,2.25Z" transform="translate(0 -2.25)" fill="#fff" fill-rule="evenodd"/>
+      <path id="패스_508" data-name="패스 508" d="M29.784,13.224H2.25V11.25H29.784Z" transform="translate(-0.276 -3.382)" fill="#fff" fill-rule="evenodd"/>
+      <path id="패스_509" data-name="패스 509" d="M6.474,7.737a.987.987,0,1,1-.987-.987A.987.987,0,0,1,6.474,7.737Zm2.96,0a.987.987,0,1,1-.987-.987A.987.987,0,0,1,9.434,7.737Zm2.96,0a.987.987,0,1,1-.987-.987A.987.987,0,0,1,12.394,7.737Z" transform="translate(-0.553 -2.803)" fill="#fff"/>
+    </g>
+    <rect id="사각형_1025" data-name="사각형 1025" width="40" height="40" transform="translate(0 0.109)" fill="none" opacity="0.5"/>
+  </g>
+</svg>

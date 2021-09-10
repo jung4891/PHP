@@ -1,0 +1,53 @@
+<?php
+header("Content-type: text/html; charset=utf-8");
+
+class Ajax extends CI_Controller {
+	var $id = '';
+
+	function __construct() {
+		 parent::__construct();
+		$this->id = $this->phpsession->get( 'id', 'stc' );
+	}
+
+	function index() {
+		redirect('');
+	}
+	
+	// 아이디체크
+	function idcheck() {
+		$uid = $this->input->post( 'id' );
+		
+		if( $uid == null ) {
+			redirect('');
+		} else {
+			$this->load->Model(array('STC_User', 'STC_Common'));
+			$result = $this->STC_User->idcheck($uid);
+			
+			if($result == false) {
+				$arr = array('result' => 'false');
+				echo json_encode($arr);	
+			} else {
+				$arr = array('result' => 'true');
+				echo json_encode($arr);
+			}
+		}
+	}
+
+	// wakeup
+	function wakeup() {
+		$this->load->model('WF_Command');
+
+		
+		$hp_ip = $this->input->post( 'hp_ip' );
+		$hp_no = $this->input->post( 'hp_no' );
+		$mc_ip = $this->input->post( 'mip' );
+		
+		$return_flag = $this->WF_Command->csocket(8, $hp_ip, $hp_no, $mc_ip);
+		
+		
+		$arr = array('socket_result' => $return_flag);
+		echo json_encode($arr);
+	}
+
+}
+?>

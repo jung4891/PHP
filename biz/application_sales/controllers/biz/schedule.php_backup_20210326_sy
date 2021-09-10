@@ -1,0 +1,1004 @@
+<?php
+
+class Schedule extends CI_Controller {
+
+  function __construct(){
+    parent::__construct();
+
+    $this->id = $this->phpsession->get( 'id', 'stc' );
+    $this->name = $this->phpsession->get( 'name', 'stc' );
+    $this->lv = $this->phpsession->get( 'lv', 'stc' );
+    $this->cnum = $this->phpsession->get( 'cnum', 'stc' );
+    $this->group = $this->phpsession->get( 'group', 'stc' );
+    $this->pGroupName = $this->phpsession->get( 'pGroupName', 'stc' );
+    $this->company = $this->phpsession->get( 'company', 'stc' );
+    $this->load->database();
+    ob_start();
+    $config['url_suffix'] = 'html';
+    // // $this->load->Model('stc_schedule');
+    $this->load->Model(array('tech/STC_User', 'STC_Common', 'biz/STC_Schedule', 'tech/STC_Tech_doc'));
+    $this->load->helper('url');
+
+  }
+
+  //일정 페이지 메인화면 출력
+  function tech_schedule(){
+    // $this->output->enable_profiler(TRUE);
+    if( $this->id === null ) {
+          redirect( 'account' );
+        }
+        $pGroupName =  $this->pGroupName;
+        $group = $this->group;
+        //패치 전 수정
+  //       if($pGroupName != 'CEO' && $pGroupName != '기술본부'){
+  //       echo "<script>alert('접근할수 없는 메뉴입니다.');location.href='".site_url()."';</script>";
+  // }
+
+    $participant = $this->name;
+
+
+
+
+    //KI1 20210125 고객사를 불러오기 위해 doc모델을 연결
+    // $this->load->Model('STC_schedule');
+    // // $this->load->Model(array('STC_tech_doc','STC_schedule'));
+    //KI2 20210125
+    $data['events'] = $this->STC_Schedule->schedule_list($participant);
+
+    $data['report'] = $this->STC_Schedule->weekly_report_list();
+    //KI1 20210125 고객사를 불러오는 부분
+    // $data['customer'] = $this->STC_Schedule->customer_list();
+    $data['customer'] = $this->STC_Schedule->get_customer();
+    $data['search_customer'] = $this->STC_Schedule->ser_customer();
+    $data['customer2'] = $this->STC_Schedule->get_customer2();
+    // $data['customer'] = $this->STC_tech_doc->get_customer();
+    //KI2 20210125
+    // $data['color'] = $result["color"];
+    // $data['textColor'] = $result["textColor"];
+//////////////////KI
+    $data['session_id'] = $this->id;
+    $data['session_name'] = $this->name;
+    $data['parentGroup'] = $this->STC_Schedule->parentGroup();
+    $data['user_group'] = $this->STC_Schedule->user_group();
+    $data['userInfo'] = $this->STC_Schedule->userInfo();
+    $data['userDepth'] = $this->STC_Schedule->userDepth();
+    $data['work_color'] = $this->STC_Schedule->work_color_list();
+    $data['work_name'] = $this->STC_Schedule->group_list();
+    $data['pGroupName'] = $this->pGroupName;
+
+    $data['group'] = $this->group;
+    $data['login_group'] = $this->STC_Schedule->my_group($this->id)->user_group;
+    $data['login_user_duty'] = $this->STC_Schedule->login_user_duty($this->id)->user_duty;
+
+    $data['rooms'] = $this->STC_Schedule->rooms();
+    $data['cars'] = $this->STC_Schedule->cars();
+
+
+    $this->load->view('biz/tech_schedule', $data);
+
+  }
+
+
+  function events_maker(){
+
+  if($_POST['search'] == 'true'){
+
+    // $params = $this->input->post('userArr');
+    // $data['participant'] = $params;
+    $data['searchTarget'] = $this->input->post('searchOpt');
+    $searchUser = $this->input->post('segment');
+    $searchArr = explode( ',', $searchUser );
+    // $searchArr = $searchUser.split(', ');
+    $data['searchKeyword'] = $searchArr;
+    // $data['searchKeyword'] = $this->input->get('search_keyword');
+
+    // $data['events'] = $this->STC_Schedule->search($data);
+    $list = $this->STC_Schedule->search($data);
+  }else{
+
+    $params = $this->input->post('userArr');
+    // echo print_r($params);
+    // var_dump($params);
+    // $param_flag = isset($params) && !empty($params);
+    $user['participant'] = $params;
+    $list = $this->STC_Schedule->schedule_list_user($user);
+  }
+
+  // var_dump($data);
+  // $list = $this->STC_Schedule->schedule_list($participant);
+  $events = array();
+
+  foreach ($list as $event) {
+    if($event->start_time == "00:00:00" && $event->end_time == "00:00:00"){
+      $arr['start'] = $event->start_day;
+      $arr['end'] = $event->end_day;
+    }else{
+      $arr['start'] = $event->start_day."T".$event->start_time;
+      $arr['end'] = $event->end_day."T".$event->end_time;
+    }
+    $arr['id'] = $event->seq;
+    $participant = $event->participant;
+    $exp_participant = explode(",", $participant);
+    $cnt = count($exp_participant)-1;
+    if($cnt == 0){
+      $participant = $exp_participant[0];
+    }else{
+      $participant = $exp_participant[0]." 외 ".$cnt."명";
+    }
+
+    if($event->work_name==""){
+      $work_name = "";
+    }else{
+      $work_name = "/".$event->work_name;
+    }
+
+
+    if($event->support_method ==""){
+      $support_method = "";
+    }else{
+      $support_method = "/".$event->support_method;
+    }
+
+    if($event->work_type == 'tech'){
+      $arr['title'] = "[".$participant."]"." ".$event->customer.$work_name.$support_method;
+    }else{
+      if($event->customer != '' || $event->customer != null){
+        $arr['title'] = "[".$participant."]"." ".$event->work_name."/".$event->customer."/".$event->title;
+      }else{
+        $arr['title'] = "[".$participant."]"." ".$event->work_name."/".$event->title;
+      }
+      $arr['extendedProps']['place'] = $event->place;
+    }
+
+    $arr['extendedProps']['project'] = $event->project;
+    $arr['extendedProps']['title'] = $event->title;
+    $arr['extendedProps']['customer'] = $event->customer;
+    $arr['extendedProps']['work_name'] = $event->work_name;
+    $arr['extendedProps']['support_method'] = $event->support_method;
+    $arr['extendedProps']['work_color_seq'] = $event->work_color_seq;
+    $arr['extendedProps']['participant'] = $event->participant;
+    $arr['extendedProps']['user_name'] = $event->user_name;
+    $arr['extendedProps']['user_id'] = $event->user_id;
+    $arr['extendedProps']['group'] = $event->group;
+    $arr['extendedProps']['p_group'] = $event->p_group;
+    $arr['extendedProps']['insert_date'] = $event->insert_date;
+    $arr['extendedProps']['room_name'] = $event->room_name;
+    $arr['extendedProps']['car_name'] = $event->car_name;
+    $arr['extendedProps']['work_type'] = $event->work_type;
+
+    $arr['color'] = $event->color;
+    $arr['textColor'] = $event->textColor;
+    $arr['display'] = 'block';
+
+    if(($event->tech_report > 0) && ($event->start_day < date("Y-m-d")) && ($event->end_day < date("Y-m-d"))){
+      // $arr['borderColor'] = "#a2ff00"; //형광연두
+      $arr['borderColor'] = "#ff0000"; //제일 빨간색
+      // var borderColor = "#DB4455"; //빨간색
+    }else{
+      $arr['borderColor'] = $event->color; //배경색이랑 동일
+      // $arr['borderColor'] = "#00ff0000"; //투명
+    }
+    array_push($events, $arr);
+  }
+
+  echo json_encode($events);
+}
+
+
+
+
+
+
+
+function events_maker_company_schedule(){
+
+  // if($_POST['csc'] === 'true'){
+    $data['csc'] = $_POST['csc'];
+    $list = $this->STC_Schedule->company_schedule($data);
+  // }else{
+  //   return false;
+  // }
+
+  $events = array();
+
+  foreach ($list as $event) {
+    if($event->start_time == "00:00:00" && $event->end_time == "00:00:00"){
+      $arr['start'] = $event->start_day;
+      $arr['end'] = $event->end_day;
+    }else{
+      $arr['start'] = $event->start_day."T".$event->start_time;
+      $arr['end'] = $event->end_day."T".$event->end_time;
+    }
+    $arr['id'] = $event->seq;
+
+    if($event->work_name==""){
+      $work_name = "";
+    }else{
+      $work_name = "/".$event->work_name;
+    }
+
+    if($event->support_method ==""){
+      $support_method = "";
+    }else{
+      $support_method = "/".$event->support_method;
+    }
+
+    $arr['title'] = "[공지사항]".$event->title;
+    $arr['extendedProps']['project'] = $event->project;
+    $arr['extendedProps']['title'] = $event->title;
+    $arr['extendedProps']['customer'] = $event->customer;
+    $arr['extendedProps']['work_name'] = $event->work_name;
+    $arr['extendedProps']['support_method'] = $event->support_method;
+    $arr['extendedProps']['work_color_seq'] = $event->work_color_seq;
+    $arr['extendedProps']['participant'] = "두리안정보기술";
+    $arr['extendedProps']['user_name'] = $event->user_name;
+    $arr['extendedProps']['user_id'] = $event->user_id;
+    $arr['extendedProps']['group'] = $event->group;
+    $arr['extendedProps']['p_group'] = $event->p_group;
+    $arr['extendedProps']['insert_date'] = $event->insert_date;
+    $arr['extendedProps']['room_name'] = $event->room_name;
+    $arr['extendedProps']['car_name'] = $event->car_name;
+    $arr['extendedProps']['work_type'] = $event->work_type;
+
+    $arr['color'] = $event->color;
+    $arr['textColor'] = $event->textColor;
+    $arr['display'] = 'block';
+    $arr['borderColor'] = $event->color; //배경색이랑 동일
+
+    array_push($events, $arr);
+  }
+echo json_encode($events);
+}
+
+// BH
+  function modify(){
+    //수정 요청이 있을 시
+    $seq = $this->input->get('seq');
+    $work_type = $this->input->get('work_type');
+    $customer_manager = $this->input->get('customer_manager');
+    $startDay = $this->input->get('startDay');
+    $startTime = $this->input->get('startTime');
+    $endDay = $this->input->get('endDay');
+    $endTime = $this->input->get('endTime');
+    $workname = $this->input->get('workname');
+    //KI1 20210125 고객사를 포캐스팅형으로 변경하여 새로 추가되는 부분
+    // $customer = $this->input->post('customer');
+    // $customer = $this->input->get('customerName');
+    if($work_type == "tech"){
+      $customer = $this->input->get('customerName');
+    }else if($work_type == "general"){
+      if($this->input->get('customerName2') == '' || $this->input->get('customerName2') == null){
+        $customer = '';
+      }else{
+        $customer = $this->input->get('customerName2');
+      }
+    }else{
+      $customer = '';
+    }
+    if($this->input->get('forcasting_seq') == ''){
+      $forcasting_seq = null;
+    }else{
+      $forcasting_seq = $this->input->get('forcasting_seq');
+    }
+    if($this->input->get('maintain_seq') == ''){
+      $maintain_seq = null;
+    }else{
+      $maintain_seq = $this->input->get('maintain_seq');
+    }
+
+    if($this->input->get('room_name') == ''){
+      $room_name = null;
+    }else{
+      $room_name = $this->input->get('room_name');
+    }
+
+    if($this->input->get('car_name') == ''){
+      $car_name = null;
+    }else{
+      $car_name = $this->input->get('car_name');
+    }
+
+
+    $project = $this->input->get('project');
+
+    $supportMethod = $this->input->get('supportMethod');
+    //주간업무보고
+    $weekly_report = $this->input->get('weekly_report');
+    //공지사항
+    if($work_type === 'company'){
+      $participant = "";
+    }else{
+      if($this->input->get('participant') == '' || $this->input->get('participant') == null){
+        $participant = $this->name;
+      }else{
+        $participant = $this->input->get('participant');
+      }
+    }
+    //공지사항
+    $contents = $this->input->get('contents');
+    $title = $this->input->get('title');
+    $place = $this->input->get('place');
+    $modifyDay = date("Y-m-d H:i:s");
+
+    $user_id = $this->id;
+    $my_group = $this->STC_Schedule->my_group($user_id)->user_group;
+    $data = array(
+      'seq' => $seq,
+      'work_type' => $work_type,
+      'customer_manager' => $customer_manager,
+      'start_day' => $startDay,
+      'start_time' => $startTime,
+      'end_day' => $endDay,
+      'end_time' => $endTime,
+      'work_name' => $workname,
+      //KI1 20210125 고객사를 포캐스팅형으로 변경하여 새로 추가되는 부분
+      'customer' => $customer,
+      'forcasting_seq' => $forcasting_seq,
+      'maintain_seq' => $maintain_seq,
+      'project' => $project,
+      //KI2 20210125
+      'support_method' => $supportMethod,
+      'participant' => $participant,
+      'contents' => $contents,
+      'user_id' => $user_id,
+      'user_name' => $this->name,
+      'modify_date' => $modifyDay,
+      'group' => $my_group,
+      'p_group' => $this->pGroupName,
+      //KI1 20210208
+      // 'tech_report' => $tech_report,
+      'title' => $title,
+      'place' => $place,
+      'room_name' => $room_name,
+      'car_name' => $car_name,
+      'weekly_report' => $weekly_report
+      //KI2 20210208
+
+    );
+
+    $written_rep_cnt = $this->STC_Schedule->written_rep_cnt($seq)->cnt;
+    if ($written_rep_cnt > 0){
+      echo json_encode("report_written");
+      return false;
+    }
+
+    $work_type = $this->STC_Schedule->details($seq)->work_type;
+    $before_sday = $this->STC_Schedule->details($seq)->start_day;
+    $before_eday = $this->STC_Schedule->details($seq)->end_day;
+    if ($work_type=='tech'){
+      if ($startDay != $before_sday || $endDay != $before_eday){
+        $report_cnt = abs(strtotime($startDay) - strtotime($endDay))/60/60/24+1;
+        $written_rep_cnt = $this->STC_Schedule->written_rep_cnt($seq)->cnt;
+        $data['tech_report'] = $report_cnt - $written_rep_cnt;
+      }
+    }
+
+
+
+    $result = $this->STC_Schedule->schedule_update($data);
+    echo json_encode($result);
+
+
+    if($work_type == 'tech' || $weekly_report == "Y"){
+      $writer = preg_replace("/\s+/", "", $participant);
+      $writer = explode( ',', $writer );
+      $num = count($writer);
+      $group_arr = array();
+      for ($i=0; $i < $num ; $i++) {
+        $linker = $writer[$i];
+        $linker_data = $this->STC_Schedule->linker_group($linker);
+        if($linker_data != 'false'){
+          array_push($group_arr, $linker_data);
+        }
+
+      }
+
+
+        if (! function_exists('array_column')) {
+          function array_column(array $input, $columnKey, $indexKey = null) {
+              $array = array();
+              foreach ($input as $value) {
+                  if ( !array_key_exists($columnKey, $value)) {
+                      trigger_error("Key \"$columnKey\" does not exist in array");
+                      return false;
+                  }
+                  if (is_null($indexKey)) {
+                      $array[] = $value->$columnKey;
+                  }
+                  else {
+                      if ( !array_key_exists($indexKey, $value)) {
+                          trigger_error("Key \"$indexKey\" does not exist in array");
+                          return false;
+                      }
+                      if ( ! is_scalar($value[$indexKey])) {
+                          trigger_error("Key \"$indexKey\" does not contain scalar value");
+                          return false;
+                      }
+                      $array[$value[$indexKey]] = $value[$columnKey];
+                  }
+              }
+              return $array;
+          }
+        }
+
+
+      $temp = array_unique(array_column($group_arr, 'user_group'));
+      $group_arr = array_intersect_key($group_arr, $temp);
+
+      foreach ($group_arr as $group_arr4) {
+         $user_group = $group_arr4->user_group;
+         $user_pgroup = $group_arr4->parentGroupName;
+         $writer_group = $user_group;
+         $writer_pgroup = $user_pgroup;
+         if($writer_pgroup == '기술본부' && $writer_group <> '기술연구소'){
+           $data = array(
+             'schedule_seq'=>$seq,
+             // 'group_name'=>$my_group,
+             'work_name'=>$workname,
+             'customer'=>$customer,
+             'writer'=>$participant,
+             'income_time'=>$startDay,
+             'update_time' => date("Y-m-d H:i:s")
+           );
+           $this->STC_Schedule->update_next_week_doc($data);
+         }else{
+           $data = array(
+             'schedule_seq'=>$seq,
+             'customer'=>$customer,
+             'subject'=>$contents,
+             'writer'=>$participant,
+             'income_time'=>$startDay,
+             'update_time' => date("Y-m-d H:i:s")
+           );
+           $this->STC_Schedule->update_current_week_doc($data);
+           $this->STC_Schedule->update_next_week_doc($data);
+         }
+      }
+    // }else if($work_type != 'tech' && $weekly_report == "N"){
+    //   $this->STC_Schedule->delete_current_week_doc($seq);
+    //   $this->STC_Schedule->delete_next_week_doc($seq);
+    }
+
+    // if ($work_type == 'tech') {
+    //   $data = array(
+    //     'schedule_seq'=>$seq,
+    //     // 'group_name'=>$my_group,
+    //     'work_name'=>$workname,
+    //     'customer'=>$customer,
+    //     'writer'=>$participant,
+    //     'income_time'=>$startDay,
+    //     'update_time' => date("Y-m-d H:i:s")
+    //   );
+    //   $this->STC_Schedule->update_next_week_doc($data);
+    // }
+    // redirect("/biz/schedule/tech_schedule", "refresh") ;
+  }
+
+  //KI1 20210208_modify 분리
+  function delete(){
+    $seq = $this->input->post('seq');
+
+    $written_rep_cnt = $this->STC_Schedule->written_rep_cnt($seq)->cnt;
+    if ($written_rep_cnt > 0){
+      echo json_encode("report_written");
+      return false;
+    }
+
+    $result = $this->STC_Schedule->schedule_delete($seq);
+    echo json_encode($result);
+    $this->STC_Schedule->delete_next_week_doc($seq);
+    $this->STC_Schedule->delete_current_week_doc($seq);
+    // redirect("/biz/schedule/tech_schedule", "refresh") ;
+  }
+  //KI2 20210208_modify 분리
+
+
+// BH 일정 추가
+  function add_schedule(){
+    // $this->output->enable_profiler(TRUE);
+
+
+      $startDay = $this->input->post('startDay');
+      $startTime = $this->input->post('startTime');
+      $endDay = $this->input->post('endDay');
+      $endTime = $this->input->post('endTime');
+      $work_type = $this->input->post('work_type');
+      $workname = $this->input->post('workname');
+
+      $room_name = $this->input->post('room_name');
+      $car_name = $this->input->post('car_name');
+      //KI1 20210125 고색사 포캐스팅형으로 변경하여 새로 추가되는 부분
+      // $customer = $this->input->post('customer');
+      if($work_type == "general"){
+        if($this->input->post('customer2') == '' || $this->input->post('customer2') == null){
+          $customer = '';
+        }else{
+          $customer = $this->input->post('customer2');
+        }
+      }else if($work_type == "tech"){
+        $customer = $this->input->post('customer');
+      }else{
+        $customer = '';
+      }
+      $project = $this->input->post('project');
+      if($this->input->post('forcasting_seq') == ''){
+        $forcasting_seq = null;
+      }else{
+        $forcasting_seq = $this->input->post('forcasting_seq');
+      }
+      if($this->input->post('maintain_seq') == ''){
+        $maintain_seq = null;
+      }else{
+        $maintain_seq = $this->input->post('maintain_seq');
+      }
+      $customer_manager = $this->input->post('customer_manager');
+      //KI2 20210125
+      $supportMethod = $this->input->post('supportMethod');
+      //주간업무보고
+      $weekly_report = $this->input->post('weekly_report');
+      //공지사항
+      if($work_type === 'company'){
+        $participant = "";
+      }else{
+        if($this->input->post('participant') == '' || $this->input->post('participant') == null){
+          $participant = $this->name;
+        }else{
+          $participant = $this->input->post('participant');
+        }
+      }
+      //공지사항
+      $title = $this->input->post('title');
+      $place = $this->input->post('place');
+      $contents = $this->input->post('contents');
+      $curday = date("Y-m-d");
+      $user_id = $this->id;
+      $my_group = $this->STC_Schedule->my_group($user_id)->user_group;
+
+
+      // // $this->load->Model('stc_schedule');
+      // $writer = preg_replace("/\s+/", "", $participant);
+      // $writer = explode( ',', $writer );
+      // $num = count($writer);
+
+      $data = array(
+        'start_day' => $startDay,
+        'start_time' => $startTime,
+        'end_day' => $endDay,
+        'end_time' => $endTime,
+        'work_type'=>$work_type,
+        'work_name' => $workname,
+        'room_name' => $room_name,
+        'car_name' => $car_name,
+        //KI1 20210125 고객사 포캐스팅형으로 변경하여 새로 추가되는 부분
+        'customer' => $customer,
+        'project' => $project,
+        'forcasting_seq' => $forcasting_seq,
+        'maintain_seq' => $maintain_seq,
+        'customer_manager' => $customer_manager,
+        //KI2 20210125
+        'support_method' => $supportMethod,
+        'participant'=> $participant,
+        'title'=> $title,
+        'place'=> $place,
+        'contents' => $contents,
+        'user_id' => $user_id,
+        'user_name' => $this->name,
+        'group' => $my_group,
+        'p_group' => $this->pGroupName,
+        'weekly_report' => $weekly_report
+        // 'tech_report' => 'N',
+      );
+
+      if ($work_type=='tech'){
+        $report_cnt = abs(strtotime($startDay) - strtotime($endDay))/60/60/24+1;
+        $data['tech_report'] = $report_cnt;
+      }
+
+     $result = $this->STC_Schedule->schedule_insert($data);
+
+     echo json_encode($result);
+
+
+     if($work_type == 'tech' || $weekly_report == "Y"){
+     // if($work_type == 'tech'){
+       $tech_seq = $this->STC_Schedule->check_tech_seq();
+       $tech_seq = $tech_seq->m1;
+       $writer = preg_replace("/\s+/", "", $participant);
+       $writer = explode( ',', $writer );
+       $num = count($writer);
+       $group_arr = array();
+       for ($i=0; $i < $num ; $i++) {
+         $linker = $writer[$i];
+         $linker_data = $this->STC_Schedule->linker_group($linker);
+         if($linker_data != 'false'){
+           array_push($group_arr, $linker_data);
+           // $linker_group = $linker_data->user_group;
+           // array_push($group_arr, $linker_group);
+         }
+
+       }
+       // 그룹 중복제거
+       // $group_arr = array_unique($group_arr);
+       // 배열의 키값 초기화
+       // $group_arr = array_values($group_arr);
+       // $group_num = count($group_arr);
+
+       // //user_group 컬럼만으로 새배열 생성
+       // $group_arr_c = array_column($group_arr, 'user_group');
+       // //group_arr_c 배열의 중복제거(user_group의 중복이 제거됨)
+       // $group_arr_u = array_unique($group_arr_c);
+       // //user_group중복이 제거되고 key와 value값이 살아있는 상태로 새배열 생성
+       // $group_arr = array_filter($group_arr, function ($key, $value) use ($group_arr_u) {
+       //      return in_array($value, array_keys($group_arr_u));
+       // }, ARRAY_FILTER_USE_BOTH);
+
+       // 그룹 중복제거
+       if (! function_exists('array_column')) {
+         function array_column(array $input, $columnKey, $indexKey = null) {
+             $array = array();
+             foreach ($input as $value) {
+                 if ( !array_key_exists($columnKey, $value)) {
+                     trigger_error("Key \"$columnKey\" does not exist in array");
+                     return false;
+                 }
+                 if (is_null($indexKey)) {
+                     $array[] = $value->$columnKey;
+                 }
+                 else {
+                     if ( !array_key_exists($indexKey, $value)) {
+                         trigger_error("Key \"$indexKey\" does not exist in array");
+                         return false;
+                     }
+                     if ( ! is_scalar($value[$indexKey])) {
+                         trigger_error("Key \"$indexKey\" does not contain scalar value");
+                         return false;
+                     }
+                     $array[$value[$indexKey]] = $value[$columnKey];
+                 }
+             }
+             return $array;
+         }
+       }
+       $temp = array_unique(array_column($group_arr, 'user_group'));
+       $group_arr = array_intersect_key($group_arr, $temp);
+
+
+       // for ($i=0; $i<$group_num; $i++) {
+       foreach ($group_arr as $group_arr2) {
+          $user_group = $group_arr2->user_group;
+          $user_pgroup = $group_arr2->parentGroupName;
+          $writer_group = $user_group;
+          $writer_pgroup = $user_pgroup;
+          // $writer_group = $group_arr[$i];
+          $before_day =  date("Y-m-d", strtotime($startDay." -7day"));
+          $check_report = $this ->STC_Schedule->check_report($before_day, $writer_group);
+          // $report_seq = "NULL";
+          // $year = "NULL";
+          // $month = "NULL";
+          // $week = "NULL";
+          if($check_report != 'false'){
+            $report_seq = $check_report->seq;
+            $year = $check_report->year;
+            $month = $check_report->month;
+            $week = $check_report->week;
+            $this->STC_Schedule->insert_next_week_doc($tech_seq, $workname, $customer, $writer_group, $participant, $startDay, $contents, $report_seq, $year, $month, $week, $writer_pgroup);
+          }
+      };
+
+       // for ($i=0; $i<$group_num; $i++) {
+       foreach ($group_arr as $group_arr3) {
+          $user_group = $group_arr3->user_group;
+          $user_pgroup = $group_arr3->parentGroupName;
+          $writer_group = $user_group;
+          $writer_pgroup = $user_pgroup;
+          if($writer_pgroup <> '기술본부'){
+          // $writer_group = $group_arr[$i];
+            $check_report = $this ->STC_Schedule->check_report($startDay, $writer_group);
+            if($check_report != 'false'){
+              $report_seq = $check_report->seq;
+              $year = $check_report->year;
+              $month = $check_report->month;
+              $week = $check_report->week;
+              $this->STC_Schedule->insert_current_week_doc($tech_seq, $customer, $writer_group, $participant, $startDay, $contents, $report_seq, $year, $month, $week);
+            }
+          };
+       }
+     }
+  }
+
+// B일정 상세보기
+function tech_schedule_detail(){
+  // $this->output->enable_profiler(TRUE);
+  if( $this->id === null ) {
+        redirect( 'account' );
+      }
+      $data['session_id'] = $this->id;
+      $data['session_name'] = $this->name;
+      $data['login_pgroup'] = $this->pGroupName;
+      $data['login_gruop'] = $this->group;
+      $data['login_user_duty'] = $this->STC_Schedule->login_user_duty($this->id)->user_duty;
+      //패치 전 수정
+  //     if($pGroupName != 'CEO' && $pGroupName != '기술본부'){
+  //   echo "<script>alert('접근할수 없는 메뉴입니다.');location.href='".site_url()."';</script>";
+  // }
+
+  $seq = $this->input->get('seq');
+
+  // $this->load->Model('stc_schedule');
+  // // $this->load->Model(array('STC_tech_doc','STC_schedule'));
+//KI2 20210125
+
+  $data['details'] = $this->STC_Schedule->details($seq);
+  // $custo = $data['details']->customer;
+  // $data['direct_yn'] = $this ->STC_Schedule->direct_check($custo);
+
+  //KI1 20210125 고객사를 불러오는 부분
+  // $data['customer'] = $this->stc_stc_schedule->customer_list();
+  // $data['customer'] = $this->STC_tech_doc->get_customer();
+  //이게 납품 데모 미팅? 일때 포캐스팅에서
+  $data['customer'] = $this->STC_Schedule->get_customer();
+  //나머지는 유지보수에서
+  $data['customer2'] = $this->STC_Schedule->get_customer2();
+  //KI2 20210125
+  $data['search_customer'] = $this->STC_Schedule->ser_customer();
+
+
+  // $result = $this->STC_Schedule->group_list();
+  $data['work_name'] = $this->STC_Schedule->group_list();
+  //////////////////KI
+  $data['parentGroup'] = $this->STC_Schedule->parentGroup();
+  $data['user_group'] = $this->STC_Schedule->user_group();
+  $data['userInfo'] = $this->STC_Schedule->userInfo();
+  $data['userDepth'] = $this->STC_Schedule->userDepth();
+//////////////////////////
+  // $data['login_gruop'] = $this->input->get('login_group');
+  // $data['login_pgroup'] = $this->input->get('login_pgroup');
+  // $data['login_user_duty'] = $this->input->get('login_user_duty');
+
+
+  echo json_encode($data);
+  // $this->load->view('biz/tech_schedule_detail', $data);
+
+}
+
+// BH 일정 드래그시 날짜 업데이트
+  function drop_update(){
+    $seq = $this->input->post("seq");
+    $start_day = $this->input->post("start_day");
+    $start_time = $this->input->post("start_time");
+    $end_day = $this->input->post("end_day");
+    $end_time = $this->input->post("end_time");
+    $modifyDay = date("Y-m-d H:i:s");
+    $data = array(
+      'seq' => $seq,
+      'start_day' => $start_day,
+      'start_time' => $start_time,
+      'end_day' => $end_day,
+      'end_time' => $end_time,
+      'user_id' => $this->id,
+      'user_name' =>$this->name,
+      'modify_date' => $modifyDay
+    );
+    $data2 = array(
+      'schedule_seq'=>$seq,
+      'income_time'=>$start_day
+    );
+    $written_rep_cnt = $this->STC_Schedule->written_rep_cnt($seq)->cnt;
+    if ($written_rep_cnt > 0){
+      echo "report_written";
+      return false;
+    }
+
+    $work_type = $this->STC_Schedule->details($seq)->work_type;
+    $before_sday = $this->STC_Schedule->details($seq)->start_day;
+    $before_eday = $this->STC_Schedule->details($seq)->end_day;
+    if ($work_type=='tech'){
+      if ($start_day != $before_sday || $end_day != $before_eday){
+        $report_cnt = abs(strtotime($start_day) - strtotime($end_day))/60/60/24+1;
+        $written_rep_cnt = $this->STC_Schedule->written_rep_cnt($seq)->cnt;
+        $data['tech_report'] = $report_cnt - $written_rep_cnt;
+      }
+    }
+    $this->STC_Schedule->update_next_week_doc($data2);
+    $this->STC_Schedule->update_current_week_doc($data2);
+    $result = $this->STC_Schedule->schedule_update($data);
+
+    echo "OK";
+  }
+
+  // KI 유저DB에 조회할 대상 입력
+function user333(){
+  // $this->output->enable_profiler(TRUE);
+////////////BH
+    $data['events2'] = array();
+
+    $result = $this->STC_Schedule->group_list();
+    $len = $result["len"];
+    // $result = $this->STC_Schedule->selectUser($this->name);
+    // $user_schecdule = $result["user_schecdule"];
+    for ($i=0; $i <= $len-1 ; $i++) {
+      $user['work_name'] = $result["work_list"][$i]->work_name;
+      $userArr = $_POST['userArr'];
+      // echo $userArr;
+      // var_dump($userArr);
+      $user['participant'] = $userArr;
+      // $user['user_name'] = $this->name;
+      $event = $this->STC_Schedule->schedule_list($user);
+      // var_dump($event);
+      array_push($data['events2'], $event);
+  }
+  $data['report'] = $this->STC_Schedule->weekly_report_list();
+  $data['customer'] = $this->STC_Schedule->customer_list();
+  $data['work_name'] = $result["work_list"];
+
+  $data['parentGroup'] = $this->STC_Schedule->parentGroup();
+  $data['user_group'] = $this->STC_Schedule->user_group();
+  $data['userInfo'] = $this->STC_Schedule->userInfo();
+  $data['userDepth'] = $this->STC_Schedule->userDepth();
+
+  // $this->load->view('tech/tech_schedule', $data);
+  return $event;
+}
+
+function user(){
+  $result_obj = new stdClass();
+  // $data['events'] = array();
+
+  $params = $this->input->post('userArr');
+  $param_flag = isset($params) && !empty($params);
+
+
+    $userArr = $_POST['userArr'];
+    $user['participant'] = $userArr;
+    $data['events'] = $this->STC_Schedule->schedule_list_user($user);
+
+
+
+  echo json_encode($data['events']);
+}
+
+function user_null() {
+  $participant = $this->name;
+
+  $data['events'] = $this->STC_Schedule->schedule_list($participant);
+
+  echo json_encode($data['events']);
+}
+
+
+
+  function updateWorkColor(){
+    $seq = $this->input->post('seq');
+    $data['color'] = $this->input->post('color');
+    $data['textColor'] = $this->input->post('textColor');
+
+    $updateResult = $this->STC_Schedule->updateWorkColor($data, $seq);
+
+    if($updateResult == 'true'){
+      echo json_encode("true");
+    } else {
+      echo json_encode("false");
+    }
+  }
+
+  // function search() {
+  //     $data['searchTarget'] = $this->input->post('searchOpt');
+  //     $searchUser = $this->input->post('segment');
+  //     $searchArr = explode( ',', $searchUser );
+  //     // $searchArr = $searchUser.split(', ');
+  //     $data['searchKeyword'] = $searchArr;
+  //     // $data['searchKeyword'] = $this->input->get('search_keyword');
+  //
+  //     $data['events'] = $this->STC_Schedule->search($data);
+  //     echo json_encode($data['events']);
+  //     // $data['listview'] = 'true';
+  // }
+
+
+  function tech_report(){
+    $reportData['today'] = $this->input->post('today');
+    $reportData['sessionName'] = $this->input->post('sessionName');
+    $data['unwritten_report'] = $this->STC_Schedule->search_tech_report($reportData);
+    echo json_encode($data['unwritten_report']);
+  }
+
+  //@@@
+    function tech_seq_find(){
+      $data['schedule_seq'] = $this->input->post('schedule_seq');
+      $data['start_day'] = $this->input->post('start_day');
+      $data['customer'] = $this->input->post('customer');
+      // $data['participant'] = $this->name;
+
+      $result = $this->STC_Schedule->tech_seq_find($data);
+      if($result === 'false'){
+        $data['tech_doc_seq'] = $this->STC_Schedule->same_report_schedule($data);
+      }else{
+        $data['tech_doc_seq'] = $result;
+      }
+      echo json_encode($data['tech_doc_seq']);
+    }
+
+
+  // KI1 20210125 고객사 담당자를 불러오는 부분
+  function search_manager(){
+    $seq = $this->input->get('seq');
+    $mode = $this->input->get('mode');
+    // // $this->load->Model(array('STC_tech_doc','STC_schedule'));
+    $data = $this->STC_Schedule->search_manager($seq, $mode);
+    echo json_encode($data);
+  }
+  // KI2 20210125
+
+
+  function search_conference_room(){
+    $search_day = $this->input->get('select_day');
+    $data = $this->STC_Schedule->search_conference_room($search_day);
+
+    echo json_encode($data);
+  }
+
+  // function duplicate_checkroom(){
+  //   $seq = $this->input->post('schedule_seq');
+  //   $search_day = $this->input->post('select_day');
+  //   $search_start = $this->input->post('start');
+  //   $search_end = $this->input->post('end');
+  //   $search_room = $this->input->post('room_name');
+  //
+  //   $data = $this->STC_Schedule->duplicate_checkroom($seq, $search_day, $search_start, $search_end, $search_room);
+  //
+  //   echo json_encode($data);
+  // }
+
+  function search_car(){
+    $search_car_day = $this->input->get('select_car_day');
+    $data = $this->STC_Schedule->search_car($search_car_day);
+
+    echo json_encode($data);
+  }
+
+  function duplicate_check(){
+    $seq = $this->input->post('schedule_seq');
+    $search_day = $this->input->post('select_day');
+    $search_start = $this->input->post('start');
+    $search_end = $this->input->post('end');
+    $search_place = $this->input->post('name');
+    $search_place_name = $this->input->post('type');
+    // if(($this->input->post('room_name') != '' || $this->input->post('room_name') != null) && ($this->input->post('car_name') == '' || $this->input->post('car_name') == null)){
+    //   $search_place = $this->input->post('room_name');
+    //   $search_place_name = 'room_name';
+    // }else if(($this->input->post('room_name') == '' || $this->input->post('room_name') == null) && ($this->input->post('car_name') != '' || $this->input->post('car_name') != null)){
+    //   $search_place = $this->input->post('car_name');
+    //   $search_place_name = 'car_name';
+    // }
+
+    $data = $this->STC_Schedule->duplicate_check($seq, $search_day, $search_start, $search_end,  $search_place, $search_place_name);
+
+    echo json_encode($data);
+  }
+
+  function select_report_day(){
+    $seq = $this->input->post('seq');
+
+    $result = $this->STC_Schedule->select_report_day($seq);
+
+    echo json_encode($result);
+  }
+
+  // function check_weekly_doc(){
+  //   $seq = $this->input->post('schedule_seq');
+  //   $data['check_current_seq'] = $this->STC_Schedule->check_current_week_doc($seq);
+  //   $data['check_next_seq'] = $this->STC_Schedule->check_next_week_doc($seq);
+  //   echo json_encode($data);
+  // }
+
+  function search_entered_participant(){
+    $val = $this->input->post('val');
+    $result = $this->STC_Schedule->search_entered_participant($val);
+    echo json_encode($result);
+  }
+
+
+}
+
+
+?>

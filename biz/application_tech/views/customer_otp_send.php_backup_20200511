@@ -1,0 +1,45 @@
+<?php
+//메일 보낼 seq, 수신인 mailaddress
+$otp = $_POST['otp'];
+echo $otp;
+$mailInfo = explode(';',$_POST['loginMail']);
+$addr = array_unique($mailInfo); // 이렇게 하면 이메일 중복된거 사라지고 한개만 남눈당
+print_r($addr);
+
+
+// //메일 제목 작성
+$subject = "사용자 인증 번호 발송 메일입니다.";
+$subject = "=?EUC-KR?B?".base64_encode(iconv("UTF-8","EUC-KR",$subject))."?=\r\n";
+
+// //메일 본문 작성
+$html_code =$otp;
+
+$to='';
+for($i=0; $i<count($addr); $i++){
+    if($to==''){
+        $to = trim($addr[$i]);
+    }else{
+        $to = $to.','.trim($addr[$i]);
+    }
+}
+
+$message = "$html_code";
+
+$headers = "From: =?utf-8?B?".base64_encode("support@durianit.co.kr")."?= <support@durianit.co.kr> \n";
+$headers .= 'Cc: tech@durianit.co.kr' . "\r\n";
+$headers .= 'MIME-Version: 1.0' . "\r\n"; 
+$headers .= 'Content-type: text/html; charset=utf-8' . "\r\n";
+$headers .= 'Content-Transfer-Encoding: quoted-printable';
+$headers .= 'Message-ID: <' . $i . ">";	
+// $strto = explode("@", $to);
+
+//메일 보내기
+$result = mail($to, $subject, $message, $headers);
+
+if($result){
+    echo "<script>alert('정상적으로 처리되었습니다.');window.close();</script>";
+} else { 
+        echo "<script>alert('정상적으로 처리되지 못했습니다. 다시 입력해 주세요.')</script>";
+}
+$headers = "";
+?>

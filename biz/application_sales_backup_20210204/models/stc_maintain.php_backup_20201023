@@ -1,0 +1,455 @@
+<?php
+header("Content-type: text/html; charset=utf-8");
+
+class STC_Maintain extends CI_Model
+{
+
+	function __construct()
+	{
+		parent::__construct();
+		$this->id = $this->phpsession->get('id', 'stc');
+		$this->name = $this->phpsession->get('name', 'stc');
+		$this->lv = $this->phpsession->get('lv', 'stc');
+		$this->cnum = $this->phpsession->get('cnum', 'stc');
+	}
+
+	// 포캐스팅 기본사항 추가및 수정
+	function maintain_insert($data,$seq ){
+		$sql = "update sales_forcasting set customer_companyname=?,customer_username=?,dept=?,customer_tel=?,customer_email=?,project_name=?,progress_step=?,type=?,cooperation_companyname=?,cooperation_username=?,cooperation_tel=?,cooperation_email=?,sales_companyname=?,sales_username=?,sales_tel=?,sales_email=?,exception_saledate2=?,exception_saledate3=?,complete_status=?,update_date=now(),manage_team=?,maintain_cycle=?,maintain_date=?,maintain_user=?,maintain_type=?,maintain_result=?,forcasting_sales=?,forcasting_purchase=?,forcasting_profit=?,division_month=?,sub_project_add=? where seq=?";
+
+		$this->db->query($sql, array($data['customer_companyname'], $data['customer_username'], $data['dept'], $data['customer_tel'], $data['customer_email'], $data['project_name'], $data['progress_step'], $data['type'], $data['cooperation_companyname'], $data['cooperation_username'], $data['cooperation_tel'], $data['cooperation_email'], $data['sales_companyname'], $data['sales_username'], $data['sales_tel'], $data['sales_email'], $data['exception_saledate2'], $data['exception_saledate3'], $data['complete_status'], $data['manage_team'], $data['maintain_cycle'], $data['maintain_date'], $data['maintain_user'], $data['maintain_type'], $data['maintain_result'], $data['forcasting_sales'], $data['forcasting_purchase'], $data['forcasting_profit'], $data['division_month'],$data['sub_project_add'], $seq));
+
+		//제품 업데이트
+		$update_product_array = explode("||", $data['update_product_array']);
+		$update_column = explode(",","product_code,product_licence,product_serial,product_state,maintain_begin,maintain_expire,maintain_yn,maintain_target,product_sales,product_purchase,product_profit");
+
+		for ($i = 1; $i < count($update_product_array); $i++) {
+			$product_list = explode("~", $update_product_array[$i]);
+			$sql2 = "update sales_forcasting_product set forcasting_seq={$seq},";
+			for($j=0; $j<count($update_column); $j++){
+				$sql2 .= "{$update_column[$j]} = '{$product_list[$j]}',";
+			}
+			$sql2 .= "update_date=now() where seq={$product_list[count($update_column)]}";
+			$this->db->query($sql2);
+		}
+
+		//연계 프로젝트 제품 업데이트
+		$update_sub_product_array = explode("||", $data['update_sub_product_array']);
+		
+		for ($i = 1; $i<count($update_sub_product_array); $i++) {
+			$product_list = explode("~", $update_sub_product_array[$i]);
+			$sql3 = "update sales_forcasting_product set ";
+			for($j=0; $j<count($update_column); $j++){
+				$sql3 .= "{$update_column[$j]} = '{$product_list[$j]}',";
+			}
+			$sql3 .= "update_date=now() where seq={$product_list[count($update_column)]}";
+			$this->db->query($sql3);
+
+			$sql4 = "SELECT forcasting_seq,SUM(product_sales) AS forcasting_sales,SUM(product_purchase) AS forcasting_purchase ,SUM(product_profit) AS forcasting_profit FROM sales_forcasting_product WHERE forcasting_seq = (select forcasting_seq from sales_forcasting_product where seq = {$product_list[count($update_column)]});";
+
+			$updateColumn = $this->db->query($sql4)->row_array();
+			
+			$sql5 = "update sales_forcasting set forcasting_sales ='{$updateColumn['forcasting_sales']}',forcasting_purchase='{$updateColumn['forcasting_purchase']}',forcasting_profit='{$updateColumn['forcasting_profit']}' where seq ={$updateColumn['forcasting_seq']}";
+			
+			$this->db->query($sql5);
+
+		}
+
+		//forcasting_mcompany_delete
+		$delete_main_array = explode(",", $data['delete_main_array']); 
+
+		for($i=1; $i<count($delete_main_array); $i++){
+			$sql5 = "delete from sales_forcasting_mcompany where seq = {$delete_main_array[$i]}";
+			$this->db->query($sql5);
+		}
+
+		//forcasting_mcompany 업데이트
+		$update_main_array = explode("||", $data['update_main_array']);
+
+		$update_column = explode(",","main_companyname,main_username,main_tel,main_email");
+
+		for ($i = 1; $i < count($update_main_array); $i++) {
+			$main_list = explode("~", $update_main_array[$i]);
+
+			$sql4 = "update sales_forcasting_mcompany set forcasting_seq={$seq},";
+			for($j=0; $j<count($update_column); $j++){
+				$sql4 .= "{$update_column[$j]} = '{$main_list[$j]}',";
+			}
+			$sql4 .= "update_date=now() where seq={$main_list[count($update_column)]}";
+			$result = $this->db->query($sql4);
+		}
+		return $result;
+	}
+
+	//	포캐스팅 뷰내용 가져오기(기본)
+	function maintain_view($seq = 0)
+	{
+		$sql = "select * from sales_forcasting where seq = ?";
+		$query = $this->db->query($sql, $seq);
+
+		if ($query->num_rows() <= 0) {
+			return false;
+		} else {
+			return $query->row_array();
+		}
+	}
+
+	//	포캐스팅 뷰내용 가져오기(주사업자)
+	function maintain_view2($seq = 0)
+	{
+		$sql = "select * from sales_forcasting_mcompany where forcasting_seq = ?";
+		$query = $this->db->query($sql, $seq);
+
+		if ($query->num_rows() <= 0) {
+			return false;
+		} else {
+			return $query->result_array();
+		}
+	}
+
+	//	포캐스팅 뷰내용 가져오기(제품명)
+	function maintain_view3($seq = 0)
+	{
+		$sql = "select sp.seq, sp.product_code, sp.product_licence, sp.product_serial, sp.product_state, p.product_company, p.product_type, p.product_name, p.product_item,sp.maintain_begin,sp.maintain_expire,sp.product_version,sp.custom_title,sp.custom_detail,sp.maintain_yn,sp.maintain_target,sp.product_check_list,sp.product_host,sp.product_sales,sp.product_purchase,sp.product_profit from sales_forcasting_product sp, product p where sp.product_code = p.seq and sp.forcasting_seq = ? order by sp.seq asc, p.product_company desc";
+		$query = $this->db->query($sql, $seq);
+
+		if ($query->num_rows() <= 0) {
+			return false;
+		} else {
+			return $query->result_array();
+		}
+	}
+
+	// 포캐스팅 삭제
+	function maintain_delete($seq)
+	{
+		//연계프로젝트 삭제 되었을때 연계프로젝트들의 sub_project_add컬럼에서 삭제되는 seq 지워주기
+		$subProject = "select seq from sales_forcasting WHERE sub_project_add =(SELECT sub_project_add FROM sales_forcasting WHERE seq={$seq}) AND sub_project_add regexp seq AND sub_project_add IS NOT null ";
+		$subSeq = $this->db->query($subProject);
+
+		$parentProject ="select seq from sales_forcasting WHERE sub_project_add =(SELECT sub_project_add FROM sales_forcasting WHERE seq={$seq}) AND sub_project_add NOT regexp seq AND sub_project_add IS NOT null ";
+		$parentSeq = $this->db->query($parentProject);
+		$parentRow = $parentSeq->row_array();
+
+		if($parentSeq->num_rows() > 0 && $subSeq->num_rows() > 0){
+			if($parentRow['seq'] == $seq){
+				foreach($subSeq->result_array() as $row){
+					$subUpdate = "UPDATE sales_forcasting SET sub_project_add = null WHERE seq ={$row['seq']}";
+					$this->db->query($subUpdate);
+				}
+			}else{
+					foreach($subSeq->result_array() as $row){
+						$subUpdate = "UPDATE sales_forcasting SET sub_project_add = trim(BOTH ',' from replace(sub_project_add,'{$seq}','')) WHERE seq ={$row['seq']}";
+						$this->db->query($subUpdate);
+					}
+
+					$subUpdate = "UPDATE sales_forcasting SET sub_project_add = trim(BOTH ',' from replace(sub_project_add,'{$seq}','')) WHERE seq = {$parentRow['seq']}";
+					$this->db->query($subUpdate);
+			}
+
+		}
+		
+		$sql = "delete from sales_forcasting where seq = ?";
+		$this->db->query($sql, $seq);
+		$sql2 = "delete from sales_forcasting_mcompany where forcasting_seq = ?";
+		$this->db->query($sql2, $seq);
+		$sql3 = "delete from sales_forcasting_product where forcasting_seq = ?";
+		$this->db->query($sql3, $seq);
+		$sql4 = "delete from sales_forcasting_comment where forcasting_seq = ?";
+		$this->db->query($sql4, $seq);
+		$sql5 = "delete from sales_forcasting_complete_status_comment where forcasting_seq = ?";
+		$query = $this->db->query($sql5, $seq);
+
+		return	$query;
+	}
+
+	// 포캐스팅 리스트
+	function maintain_list($searchkeyword, $searchkeyword2, $search1, $search2, $start_limit = 0, $offset = 0, $cnum)
+	{
+		$keyword = "%" . $searchkeyword . "%";
+
+		if ($searchkeyword != "") {
+			if ($search2 == "001") {
+				$searchstring = " and sf.customer_companyname like ? ";
+			} else if ($search2 == "002") {
+				$searchstring = " and sf.project_name like ? ";
+			} else if ($search2 == "003") {
+				$searchstring = " and p.product_company like ? ";
+			} else if ($search2 == "004") {
+				$searchstring = " and p.product_item like ? ";
+			} else if ($search2 == "005") {
+				$searchstring = " and p.product_name like ? ";
+			} else if ($search2 == "006") {
+				$searchstring = " and sf.cooperation_username like ? ";
+			} else if ($search2 == "007") {
+				$searchstring = " and sf.exception_saledate2 < ? ";
+				$keyword = $searchkeyword;
+			} else if ($search2 == "008") {
+				$searchstring = " and sf.exception_saledate3 < ? ";
+				$keyword = $searchkeyword;
+			} else if ($search2 == "009") {
+				$searchstring = " and sf.manage_team=? and sf.maintain_result=" . $searchkeyword2;
+				$keyword = $searchkeyword;
+			} else if ($search2 == "010") {
+				if ($searchkeyword == "판매") {
+					$keyword = 1;
+				} else if ($searchkeyword == "용역") {
+					$keyword = 2;
+				} else if ($searchkeyword == "미지정") {
+					$keyword = 0;
+				}
+				$searchstring = " and sf.type =? ";
+			}
+		} else {
+			$searchstring = "";
+		}
+
+		if ($this->lv == 1) {
+			$sql = "select * from(select sf.seq,sf.type,sf.manage_team,sf.maintain_cycle, sf.customer_companyname, sf.project_name, sf.maintain_result, sf.progress_step, sf.write_id, sf.exception_saledate2, sf.exception_saledate3, sf.company_num, sf.sub_project_add, p.product_company, p.product_item, p.product_name,sf.forcasting_sales,sf.forcasting_purchase,sf.forcasting_profit from sales_forcasting sf, (select * from sales_forcasting_product group by forcasting_seq) sp, product p where sf.seq = sp.forcasting_seq and p.seq = sp.product_code" . $searchstring . " and company_num = ? and progress_step>'014' and (sub_project_add not REGEXP sf.seq or sub_project_add IS NULL) order by replace(sf.exception_saledate2,'-','') DESC)a left join(SELECT sub_project_add,SUM(forcasting_sales) AS sum_forcasting_sales,SUM(forcasting_purchase) AS sum_forcasting_purchase,SUM(forcasting_profit) AS sum_forcasting_profit FROM sales_forcasting GROUP BY sub_project_add)b ON a.sub_project_add = b.sub_project_add";
+			if ($offset <> 0)
+				$sql = $sql . " limit ?, ?";
+
+			if ($searchkeyword != "")
+				$query = $this->db->query($sql, array($keyword, $cnum, $start_limit, $offset));
+			else
+				$query = $this->db->query($sql, array($cnum, $start_limit, $offset));
+		} else {
+			$sql = "select * from(select sf.seq,sf.type,sf.manage_team,sf.maintain_cycle, sf.customer_companyname, sf.project_name, sf.maintain_result, sf.progress_step, sf.write_id, sf.exception_saledate2,sf.exception_saledate3,sf.company_num,sf.sub_project_add, p.product_company, p.product_item, p.product_name,sf.forcasting_sales,sf.forcasting_purchase,sf.forcasting_profit from stc.sales_forcasting sf, (select * from stc.sales_forcasting_product group by forcasting_seq) sp, stc.product p where sf.seq = sp.forcasting_seq and p.seq = sp.product_code" . $searchstring . " and progress_step>'014' and (sub_project_add not REGEXP sf.seq or sub_project_add IS NULL) order by replace(sf.exception_saledate2,'-','') DESC)a left join (SELECT sub_project_add,SUM(forcasting_sales) AS sum_forcasting_sales,SUM(forcasting_purchase) AS sum_forcasting_purchase,SUM(forcasting_profit) AS sum_forcasting_profit FROM sales_forcasting GROUP BY sub_project_add)b ON a.sub_project_add = b.sub_project_add";
+			if ($offset <> 0)
+				$sql = $sql . " limit ?, ?";
+
+			if ($searchkeyword != "")
+				$query = $this->db->query($sql, array($keyword, $start_limit, $offset));
+			else
+				$query = $this->db->query($sql, array($start_limit, $offset));
+		}
+
+		return array('count' => $query->num_rows(), 'data' => $query->result_array());
+	}
+
+	//포캐스팅 리스트개수
+	function maintain_list_count($searchkeyword, $searchkeyword2, $search1, $search2, $cnum)
+	{
+		$keyword = "%" . $searchkeyword . "%";
+
+		if ($searchkeyword != "") {
+			if ($search2 == "001") {
+				$searchstring = " and sf.customer_companyname like ? ";
+			} else if ($search2 == "002") {
+				$searchstring = " and sf.project_name like ? ";
+			} else if ($search2 == "003") {
+				$searchstring = " and p.product_company like ? ";
+			} else if ($search2 == "004") {
+				$searchstring = " and p.product_item like ? ";
+			} else if ($search2 == "005") {
+				$searchstring = " and p.product_name like ? ";
+			} else if ($search2 == "006") {
+				$searchstring = " and sf.cooperation_username like ? ";
+			} else if ($search2 == "007") {
+				$searchstring = " and sf.exception_saledate2 < ? ";
+				$keyword = $searchkeyword;
+			} else if ($search2 == "008") {
+				$searchstring = " and sf.exception_saledate3 < ? ";
+				$keyword = $searchkeyword;
+			} else if ($search2 == "009") {
+				$searchstring = " and sf.manage_team=? and sf.maintain_result=" . $searchkeyword2;
+				$keyword = $searchkeyword;
+			} else if ($search2 == "010") {
+				if ($searchkeyword == "판매") {
+					$keyword = 1;
+				} else if ($searchkeyword == "용역") {
+					$keyword = 2;
+				} else if ($searchkeyword == "미지정") {
+					$keyword = 0;
+				}
+				$searchstring = " and sf.type =? ";
+			}
+		} else {
+			$searchstring = "";
+		}
+
+		if ($this->lv == 1) {
+			$sql = "select count(sf.seq) as ucount from sales_forcasting sf, (select * from sales_forcasting_product group by forcasting_seq) sp, product p where sf.seq = sp.forcasting_seq and p.seq = sp.product_code" . $searchstring . " and company_num = ? and progress_step>'014' and (sub_project_add not REGEXP sf.seq or sub_project_add IS NULL) order by replace(sf.exception_saledate2,'-','') DESC";
+
+			if ($searchkeyword != "")
+				$query = $this->db->query($sql, array($keyword, $cnum));
+			else
+				$query = $this->db->query($sql, $cnum);
+		} else {
+			$sql = "select count(sf.seq) as ucount from sales_forcasting sf, (select * from sales_forcasting_product group by forcasting_seq) sp, product p where sf.seq = sp.forcasting_seq and p.seq = sp.product_code" . $searchstring . " and progress_step>'014' and (sub_project_add not REGEXP sf.seq or sub_project_add IS NULL) order by replace(sf.exception_saledate2,'-','') DESC";
+
+			if ($searchkeyword != "")
+				$query = $this->db->query($sql, $keyword);
+			else
+				$query = $this->db->query($sql);
+		}
+		return $query->row();
+	}
+
+	// 포캐스팅 코멘트 추가
+	function maintain_comment_insert($data)
+	{
+		return $this->db->insert('sales_forcasting_comment', $data);
+	}
+
+	// 포캐스팅 코멘트 등록시 본문 카운트 증가
+	function maintain_cnum_update($seq = 0)
+	{
+		$sql = "update sales_forcasting set cnum = cnum + 1 where seq = ?";
+		$query = $this->db->query($sql, $seq);
+
+		return	$query;
+	}
+
+	// 포캐스팅 코멘트 리스트
+	function maintain_comment_list($seq)
+	{
+		$sql = "select seq, forcasting_seq, user_id, user_name, contents, insert_date from sales_forcasting_comment where forcasting_seq = ? order by seq desc";
+		$query = $this->db->query($sql, $seq);
+
+		return $query->result_array();
+	}
+
+	// 포캐스팅 코멘트 삭제
+	function maintain_comment_delete($seq, $cseq)
+	{
+		$sql = "delete from sales_forcasting_comment where seq = ? and forcasting_seq = ?";
+		$query = $this->db->query($sql, array($cseq, $seq));
+
+		return	$query;
+	}
+
+	// 포캐스팅 코멘트 삭제시 본문 카운트 감소
+	function maintain_cnum_update2($seq = 0)
+	{
+		$sql = "update sales_forcasting set cnum = cnum - 1 where seq = ?";
+		$query = $this->db->query($sql, $seq);
+
+		return	$query;
+	}
+
+	//연계 프로젝트 조회
+	function sub_project_select($seq)
+	{
+		$sql1 = " and customer_companyname REGEXP (SELECT customer_companyname FROM sales_forcasting WHERE seq=?)";
+        $sql2 = " and customer_companyname REGEXP (SUBSTRING_INDEX((SELECT customer_companyname FROM sales_forcasting WHERE seq=?),'(',1)";
+		$sql = "select seq,customer_companyname,project_name from sales_forcasting where (sub_project_add is null or sub_project_add = '') and progress_step>'014' and project_name <>(SELECT project_name FROM sales_forcasting WHERE seq=?) and ((SELECT customer_companyname FROM sales_forcasting WHERE seq=?) not like '%(%'" . $sql1 . " or (SELECT customer_companyname FROM sales_forcasting WHERE seq=?) like '%(%'" . $sql2 . ")) order by replace(exception_saledate,'-','') ASC";
+		$query = $this->db->query($sql, array($seq, $seq, $seq, $seq, $seq));
+
+		return $query->result_array();
+	}
+
+	//조회추가 한 연계 프로젝트 조회(조회취소할때 사용)
+	function sub_project_cancle($seq)
+	{
+		$sql = "select seq,customer_companyname,project_name from sales_forcasting WHERE sub_project_add =(SELECT sub_project_add FROM sales_forcasting WHERE seq=?) AND sub_project_add regexp seq AND sub_project_add IS NOT null order by replace(exception_saledate,'-','') ASC";
+		$query = $this->db->query($sql, $seq);
+
+		return $query->result_array();
+	}
+
+	//선택한 연계 프로젝트 제품
+	function subProjectAdd($subProjectSeq)
+	{
+		$sql = "select sf.project_name, sf.seq as sfSeq ,sf.exception_saledate,sp.seq, sp.product_code, sp.product_licence, sp.product_serial, sp.product_state, p.product_company,p.product_type, p.product_name, p.product_item,sp.maintain_begin,sp.maintain_expire,sp.product_version,sp.custom_title,sp.custom_detail,sp.maintain_yn,sp.maintain_target,sp.product_check_list,sp.product_host,sp.product_sales,sp.product_purchase,sp.product_profit from sales_forcasting_product sp, product p,sales_forcasting sf where sp.product_code = p.seq and sp.forcasting_seq = ? and sf.seq =? order by sp.seq asc, p.product_company desc";
+		$query = $this->db->query($sql, array($subProjectSeq, $subProjectSeq));
+		// if ($query->num_rows() <= 0) {
+		// 	return false;
+		// } else {
+		// 	return true;
+		// }
+		return $query->result_array();
+	}
+
+	//연계 프로젝트add sub_project_add update문
+	function sub_project_add_update($seq,$subProjectSeq)
+	{
+		if($subProjectSeq == ""){
+			$subProjectSeq = null;
+		}
+		$sql = "UPDATE sales_forcasting SET sub_project_add =? WHERE seq =?";
+		$query = $this->db->query($sql, array($subProjectSeq, $seq));
+		return $query;
+	}
+
+	//연계 프로젝트remove sub_project_add update문
+	function sub_project_remove_update($seq)
+	{
+		$sql = "UPDATE sales_forcasting SET sub_project_add = null WHERE seq =?";
+		$query = $this->db->query($sql, $seq);
+		return $query;
+	}
+
+	// 유지보수 excel download
+	function maintain_excel_download($searchkeyword, $searchkeyword2, $search1, $search2,$cnum)
+	{
+		$keyword = "%" . $searchkeyword . "%";
+
+		if ($searchkeyword != "") {
+			if ($search2 == "001") {
+				$searchstring = " and sf.customer_companyname like ? ";
+			} else if ($search2 == "002") {
+				$searchstring = " and sf.project_name like ? ";
+			} else if ($search2 == "003") {
+				$searchstring = " and p.product_company like ? ";
+			} else if ($search2 == "004") {
+				$searchstring = " and p.product_item like ? ";
+			} else if ($search2 == "005") {
+				$searchstring = " and p.product_name like ? ";
+			} else if ($search2 == "006") {
+				$searchstring = " and sf.cooperation_username like ? ";
+			} else if ($search2 == "007") {
+				$searchstring = " and sf.exception_saledate2 < ? ";
+				$keyword = $searchkeyword;
+			} else if ($search2 == "008") {
+				$searchstring = " and sf.exception_saledate3 < ? ";
+				$keyword = $searchkeyword;
+			} else if ($search2 == "009") {
+				$searchstring = " and sf.manage_team=? and sf.maintain_result=" . $searchkeyword2;
+				$keyword = $searchkeyword;
+			} else if ($search2 == "010") {
+				if ($searchkeyword == "판매") {
+					$keyword = 1;
+				} else if ($searchkeyword == "용역") {
+					$keyword = 2;
+				} else if ($searchkeyword == "미지정") {
+					$keyword = 0;
+				}
+				$searchstring = " and sf.type =? ";
+			}
+		} else {
+			$searchstring = "";
+		}
+
+		if ($this->lv == 1) {
+			$sql = "select * from(select sf.seq,sf.type,sf.manage_team,sf.maintain_cycle, sf.customer_companyname, sf.project_name, sf.maintain_result, sf.progress_step, sf.write_id, sf.exception_saledate2, sf.exception_saledate3, sf.company_num, sf.sub_project_add, p.product_company, p.product_item, p.product_name,sf.forcasting_sales,sf.forcasting_purchase,sf.forcasting_profit from sales_forcasting sf, (select * from sales_forcasting_product group by forcasting_seq) sp, product p where sf.seq = sp.forcasting_seq and p.seq = sp.product_code" . $searchstring . " and company_num = ? and progress_step>'014' and (sub_project_add not REGEXP sf.seq or sub_project_add IS NULL) order by replace(sf.exception_saledate2,'-','') DESC)a left join(SELECT sub_project_add,SUM(forcasting_sales) AS sum_forcasting_sales,SUM(forcasting_purchase) AS sum_forcasting_purchase,SUM(forcasting_profit) AS sum_forcasting_profit FROM sales_forcasting GROUP BY sub_project_add)b ON a.sub_project_add = b.sub_project_add";
+
+			if ($searchkeyword != "")
+				$query = $this->db->query($sql, array($keyword, $cnum));
+			else
+				$query = $this->db->query($sql, array($cnum));
+		} else {
+			$sql = "select * from(select sf.seq,sf.type,sf.manage_team,sf.maintain_cycle, sf.customer_companyname, sf.project_name, sf.maintain_result, sf.progress_step, sf.write_id, sf.exception_saledate2,sf.exception_saledate3,sf.company_num,sf.sub_project_add, p.product_company, p.product_item, p.product_name,sf.forcasting_sales,sf.forcasting_purchase,sf.forcasting_profit from stc.sales_forcasting sf, (select * from stc.sales_forcasting_product group by forcasting_seq) sp, stc.product p where sf.seq = sp.forcasting_seq and p.seq = sp.product_code" . $searchstring . " and progress_step>'014' and (sub_project_add not REGEXP sf.seq or sub_project_add IS NULL) order by replace(sf.exception_saledate2,'-','') DESC)a left join (SELECT sub_project_add,SUM(forcasting_sales) AS sum_forcasting_sales,SUM(forcasting_purchase) AS sum_forcasting_purchase,SUM(forcasting_profit) AS sum_forcasting_profit FROM sales_forcasting GROUP BY sub_project_add)b ON a.sub_project_add = b.sub_project_add";
+
+			if ($searchkeyword != "")
+				$query = $this->db->query($sql, array($keyword));
+			else
+				$query = $this->db->query($sql);
+		}
+
+		return array('count' => $query->num_rows(), 'data' => $query->result_array());
+	}
+
+	//유지보수 만료 30일전부터 가져오기
+	function maintain_expiration_mail(){
+		$sql1 = "SELECT sf.*,p.product_name FROM sales_forcasting AS sf JOIN sales_forcasting_product AS sfp on sf.seq =sfp.forcasting_seq JOIN product AS p on sfp.product_code = p.seq WHERE sf.exception_saledate3 = DATE_FORMAT(DATE_ADD(NOW(),INTERVAL 30 DAY), '%Y-%m-%d')";
+		$sql2 = "SELECT sf.*,p.product_name FROM sales_forcasting AS sf JOIN sales_forcasting_product AS sfp on sf.seq =sfp.forcasting_seq JOIN product AS p on sfp.product_code = p.seq WHERE sf.exception_saledate3 = DATE_FORMAT(NOW(),'%Y-%m-%d')";
+		$sql3 = "SELECT sf.*,p.product_name FROM sales_forcasting AS sf JOIN sales_forcasting_product AS sfp on sf.seq =sfp.forcasting_seq JOIN product AS p on sfp.product_code = p.seq WHERE DATE_FORMAT(DATE_ADD(sf.exception_saledate3,INTERVAL 15 DAY), '%Y-%m-%d') = DATE_FORMAT(NOW(), '%Y-%m-%d')";
+		$query1 = $this->db->query($sql1);
+		$query2 = $this->db->query($sql2);
+		$query3 = $this->db->query($sql3);
+
+		return array('before_expiration' => $query1->result_array(), 'expiration_day' => $query2->result_array(),'after_expiration' => $query3->result_array());
+	}
+	
+}

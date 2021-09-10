@@ -1,0 +1,581 @@
+#sd_contain  {
+  width: 96%;
+  min-height: 800px;
+  height: 100%;
+  margin: 0px;
+  padding: 10px;
+  /* border: 1px solid #bcbcbc; */
+}
+
+#scheduleTop {
+  width:99.9%;
+  height:5%;
+  /* height:13%; */
+  /* border: 1px solid #bcbcbc; */
+  position: relative;
+}
+
+/* 20210504 */
+#calendar{
+        width: 78%; /* 20210504 */
+        height: 100%;
+        /* width: 80%; */
+        /* height: 85%; */
+        /* padding: 20px; */
+        /* margin-bottom: 20px; */
+        float: right;
+        /* border: 1px solid #bcbcbc; */
+      }
+
+@media(min-width:1650px) {
+  #calendar {
+    width: 84%;
+    height: 100%;
+  }
+  #scheduleSidebar {
+    height: height:1163px;
+  }
+}
+/* 20210504 */
+#scheduleSidebar  {
+        width: 14.5%; /* 20210504 */
+        /* width: 18%; */
+        height:85%;
+        /* padding-top: 20px; */
+        /* margin-bottom: 20px; */
+        float: left;
+        /* border: 1px solid #bcbcbc; */
+        overflow:hidden;
+      }
+
+
+#groupTree{
+      width:270px;
+      height:90%;
+      overflow-y:scroll;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-size: 14px;
+}
+/* #calendar {
+  max-width: 1100px;
+  margin: 50px auto;
+} */
+.tooltip{
+    background: white;
+    color:black;
+    font-size:12px;
+    z-index :10000;
+    /* width: auto;
+    min-width: 300px; */
+    border: 1px solid #bcbcbc;
+}
+
+
+.tg  {border:none;border-collapse:collapse;border-color:#aabcfe;border-spacing:0;}
+.tg td{background-color:#e8edff;border-color:#aabcfe;border-style:solid;border-width:0px;color:#669;
+  font-size:16px;overflow:hidden;padding:10px 5px;word-break:normal;}
+.tg th{background-color:#b9c9fe;border-color:#aabcfe;border-style:solid;border-width:0px;color:#039;
+  font-size:16px;font-weight:normal;overflow:hidden;padding:10px 5px;word-break:normal;}
+.tg .tg-l6li{border-color:inherit;font-size:14px;text-align:left;vertical-align:top}
+.tg .tg-zd5i{border-color:inherit;font-size:16px;text-align:left;vertical-align:top}
+.tg .tg-73a0{border-color:inherit;font-size:14px;text-align:left;vertical-align:top}
+
+/* KI1 20210125 참여자 추가 형태를 검색 참여자 추가 형태로 바꾸면서 사라지는 css */
+/* 참여자 모달 */
+/* #addUserpopup {
+  display: none;
+  background-color: gray;
+  width: 600px;
+  height: 400px;
+  position: absolute;
+}
+#modal-body {
+  margin: top;
+  background-color: white;
+  width: 560px;
+  height: 365px;
+  position: relative;
+  padding: 20px;
+}
+
+
+#modal-grouptree {
+  float: left;
+  border: 1px solid black;
+  width: 250px;
+  height: 330px;
+  overflow:hidden;
+}
+
+
+#usertree {
+  width: 285px;
+  height: 330px;
+  overflow-y:scroll;
+}
+
+
+#modal-btn {
+  float: left;
+  width: 20px;
+}
+
+#modal-participant {
+  float: right;
+  border: 1px solid black;
+  width: 250px;
+  height: 330px;
+  overflow:hidden;
+}
+
+#insertParticipant {
+  width: 285px;
+  height: 300px;
+  overflow-y:scroll;
+}
+
+.kipark {
+  list-style: none;
+   padding-left: 10px;
+}
+
+#btnDiv {
+  display: inline-block;
+  margin-top: 5px;
+  width: 560px;
+  height: auto;
+} */
+/* KI2 20210125 */
+
+#tree  {
+  width: 100%;
+  height:90%;
+  overflow-y:auto;
+}
+
+
+.koHolidays {
+  font-style: italic !important;
+  font-weight: bold !important;
+  font-style: normal !important;
+  font-size: 15px !important;
+  color:#F90303 ;
+}
+/* 추가시작 */
+.btn {
+  cursor:pointer;
+  /* vertical-align:middle; */
+}
+
+.searchbox {
+  vertical-align:middle;
+  float: left;
+  margin-left: 3px;
+  /* position: absolute; */
+  /* position: relative; */
+  bottom: 5px;
+  font-family:"Noto Sans KR", sans-serif !important;
+}
+.changeDiv, .changeDiv2, .changeDiv3, .changeDiv4 {
+  width: auto;
+}
+
+/* KI1 20210125 참여자 추가 형태를 검색 참여자 추가 형태로 바꾸면서 옮겨온 css 해당 요소들 */
+/* 참여자 모달 */
+#searchAddUserpopup, #addUserpopup {
+  display: none;
+  background-color: gray;
+  width: 300px;
+  height: 400px;
+  position: absolute;
+}
+
+
+#search-modal-body, #modal-body {
+  margin: top;
+  background-color: white;
+  /* width: 600px; */
+  width: 260px;
+  /* height: 380px; */
+  height: 365px;
+  position: relative;
+  padding: 20px;
+}
+
+
+#search-modal-grouptree, #modal-grouptree {
+  float: left;
+  border: 1px solid black;
+  width: 100%;
+  height: 330px;
+  overflow:hidden;
+}
+
+
+#search-usertree, #usertree {
+  width: 285px;
+  /* height: 365px; */
+  height: 330px;
+  overflow-y:scroll;
+}
+
+
+#search-btnDiv, #btnDiv {
+  /* float: bottom; */
+  /* bottom: 0px; */
+  display: inline-block;
+  margin-top: 5px;
+  width: 100%;
+  height: auto;
+}
+/* KI1 20210125 */
+
+
+#unwrittenpopup {
+  display:none;
+  width:auto;
+  height:auto;
+  background-color:white;
+}
+#unwritten-modal-body {
+  width:auto;
+  height:auto;
+  position: relative;
+}
+.unwritten {
+  margin-left: 50px;
+  margin-right: 50px;
+  width:auto;
+  vertical-align: middle;
+  text-align: center;
+}
+#report_notice_coment {
+  margin-bottom: 30px;
+  margin-top: 10px;
+}
+#report_notice_list {
+  width:auto;
+  margin-left: 10px;
+  margin-right: 10px;
+  vertical-align: middle;
+  border: 1px solid black
+}
+/* .moreBorder{
+  border: 5px !important;
+} */
+.fc-daygrid-event{
+  border-width: 3px !important;
+}
+
+/* KI1 20210125 고객사 등록을 포캐스팅형으로 변경하기 위해 추가한 css */
+/* Dropdown Button */
+.dropbtn {
+  font-size: 13px;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+  background-color: #eee;
+  margin: 0px 0px 0px 0px;
+  width: 100px;
+  display: inline-block;
+  text-align: center;
+  border: 4px solid #eee;
+}
+
+/* Dropdown button on hover & focus */
+.dropbtn:hover,
+.dropbtn:focus {
+  /* background-color: #3e8e41; */
+}
+
+/* The search field */
+.searchInput {
+  box-sizing: border-box;
+  background-position: 14px 12px;
+  background-repeat: no-repeat;
+  font-size: 16px;
+  padding: 14px 20px 12px 45px;
+  border: none;
+  border-bottom: 1px solid #ddd;
+}
+
+/* The search field when it gets focus/clicked on */
+.searchInput:focus {
+  outline: 3px solid #ddd;
+}
+
+/* The container <div> - needed to position the dropdown content */
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+/* Dropdown Content (Hidden by Default) */
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #f6f6f6;
+  min-width: 230px;
+  border: 1px solid #ddd;
+  z-index: 1;
+}
+
+/* Links inside the dropdown */
+.dropdown-content a {
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+}
+
+/* Change color of dropdown links on hover */
+.dropdown-content a:hover {
+  background-color: #f1f1f1
+}
+
+/* Show the dropdown menu (use JS to add this class to the .dropdown-content container when the user clicks on the dropdown button) */
+.show {
+  display: block;
+}
+
+/* KI2 20210125 */
+
+/* 예약 시간 선택기 */
+.select_time  {
+  border-collapse:collapse;
+  border-spacing:0;
+  font-size: 20px;
+}
+.select_time td{
+  border-color:black;
+  border-style:solid;
+  border-width:1px;
+  overflow:hidden;
+  word-break:normal;
+  padding: 10px;
+}
+.select_time th{
+  background-color: #c9cfd6;
+  border-color:black;
+  border-style:solid;
+  border-width:1px;
+  font-weight:normal;
+  overflow:hidden;
+  word-break:normal;
+  padding: 10px;
+}
+
+.td_item{
+  font-size:0;
+}
+
+.reserved{
+  font-size:0;
+  background: #eb173e;
+  color: white;
+  /* pointer-events: none; */
+}
+
+.selected_room{
+  font-size:0;
+  background: #52b1fa;
+  color: white;
+}
+
+.td_item #selectedroom{
+  /* font-size:0; */
+  background: #52b1fa;
+  color: white;
+}
+
+.fc-event-title-container{
+  overflow: hidden;
+}
+
+
+.basicBtn {
+    cursor: pointer;
+    height: 31px;
+    background-color: #292929;
+    color: #E2E2E2;
+    vertical-align: top;
+    font-weight: bold;
+    border: none;
+    width:50px;
+    border-radius:5px;
+}
+.basicBtn2 {
+    cursor: pointer;
+    /* background-color: #eee; */
+    background-color: #B0B0B0;
+    color: white;
+    vertical-align: top;
+    font-weight: bold;
+    border: none;
+    width:15px;
+    height:15px;
+    border-radius:50%;
+    font-size:10px;
+    text-align: center;
+    padding-right:12px;
+    margin-top: 4px;
+    margin-left: 3px;
+}
+
+
+.layerpop {
+    display: none;
+    z-index: 1000;
+    border: 2px solid #ccc;
+    background: #fff;
+    /* cursor: move;  */
+    cursor: default;
+   }
+
+.layerpop_area .modal_title {
+    padding: 30px 10px 0px 20px;
+    /* border: 0px solid #aaaaaa; */
+    font-size: 20px;
+    font-weight: bold;
+    line-height: 24px;
+    text-align: left !important;
+   }
+
+.layerpop_area .layerpop_close {
+    width: 25px;
+    height: 25px;
+    display: block;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: transparent url('btn_exit_off.png') no-repeat;
+  }
+
+.layerpop_area .layerpop_close:hover {
+    background: transparent url('btn_exit_on.png') no-repeat;
+    cursor: pointer;
+  }
+
+.layerpop_area .content {
+    width: 96%;
+    margin: 2%;
+    color: #828282;
+  }
+
+.tech_div{
+  display:none;
+}
+
+.select2-container .select2-selection--single .select2-selection__rendered {
+  height: 30px !important;
+  border-color: #B6B6B6 !important;
+  border-radius: 3px !important;
+  color: #B0B0B0 !important;
+  vertical-align: middle !important;
+}
+
+#scheduleSidebar{
+  border: thin solid #DFDFDF !important;
+  border-radius: 5px;
+  padding-left: 10px;
+}
+#company_schedule_checkbox {
+  margin-right: 10px;
+  vertical-align: middle;
+}
+#company_schedule {
+  height: 30px;
+  font-size: 16px;
+  font-weight: bold;
+  padding-top:10px;
+  border-bottom: thin solid #DFDFDF !important;
+  margin-bottom: 20px;
+}
+#tree a {
+  margin-bottom: 10px;
+}
+#bold a {
+  font-weight: bold;
+}
+.jstree-open > .jstree-anchor, .jstree-closed > .jstree-anchor {
+    font-weight:bold;
+}
+#j3_4_anchor {
+  font-weight: bold;
+}
+
+.jstree-proton {
+  font-family:"Noto Sans KR", sans-serif !important;
+}
+.fc-timegrid-axis {
+  /* background-color: #F4F4F4; */
+}
+#addpopup {
+  margin-top: 10px;
+  background-color: white;
+  border-radius:5px;
+  display: none;
+  min-width: 450px;
+  padding-bottom: 10px;
+}
+#updateSchedule {
+  margin-top: 10px;
+  background-color: white;
+  border-radius:5px;
+  /* display: none; */
+  min-width: 450px;
+  padding-bottom: 10px;
+}
+#addpopup div, #addUserpopup div {
+  /* display: inline !important; */
+}
+.modal-input-tbl {
+  border-spacing: 0;
+}
+.modal-input-tbl tr {
+  height: 60px;
+  /* background-clip: padding-box; */
+  /* border-bottom: thin solid #DFDFDF !important; */
+  background-color: white !important;
+}
+.modal-input-tbl td {
+  height: 40px;
+  border-bottom-color: #DFDFDF !important;
+  border-bottom-style: solid !important;
+  border-bottom-width:1px !important;
+  /* border-bottom: thin solid #DFDFDF !important; */
+  background-color: white !important;
+}
+.modal-input-tbl {
+  margin-bottom: 10px;
+}
+.none-tr {
+  height: 10px !important;
+}
+.none-tr td {
+  height: 10px !important;
+  border-bottom: none !important;
+}
+.participant_box {
+  height:40px;
+  margin-top: 10px;
+}
+.participant-box {
+  display: inline-block;
+  border: thin solid #B0B0B0;
+  background-color: #DFDFDF;
+  margin-right:10px;
+  margin-bottom:5px;
+  padding-left:15px;
+  padding-right:15px;
+  padding-top: 2px;
+  padding-bottom: 2px;
+  border-radius:2px;
+}
+.dateBtn {
+  background: url(/misc/img/datepickerbtn.svg) no-repeat !important;
+}

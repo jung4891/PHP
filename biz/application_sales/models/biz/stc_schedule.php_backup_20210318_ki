@@ -1,0 +1,607 @@
+<?php
+
+class STC_Schedule extends CI_Model{
+  function __construct(){
+    parent::__construct();
+
+    $this->id = $this->phpsession->get( 'id', 'stc' );
+    $this->name = $this->phpsession->get( 'name', 'stc' );
+    $this->lv = $this->phpsession->get( 'lv', 'stc' );
+    $this->cnum = $this->phpsession->get( 'cnum', 'stc' );
+    $this->group = $this->phpsession->get( 'group', 'stc' );
+    $this->pGroupName = $this->phpsession->get( 'pGroupName', 'stc' );
+    $this->load->database();
+    ob_start();
+    // $this->load->library('session');
+    $config['url_suffix'] = 'html';
+
+
+  }
+
+// BH 업무 숫자, 목록 가져오기
+function group_list(){
+  $sql = "SELECT work_name FROM tech_schedule_work";
+  $query = $this->db->query($sql);
+  // $result["len"] = $query->num_rows();
+  $result = $query->result();
+  return $result;
+}
+
+// BH 업무별 리스트 가져오기
+function schedule_list($participant){
+
+  $company_schedule_chk = " WHERE a.work_type != 'company'";
+  // $company_schedule_chk = "";
+  $sql = "SELECT a.*, b.work_name, b.color, b.textColor, b.seq as work_color_seq from (SELECT * FROM tech_schedule_list WHERE participant regexp '{$participant}' or user_name regexp '{$participant}') a left join tech_schedule_work b on a.work_name = b.work_name".$company_schedule_chk;
+  // $sql = "SELECT a.*, b.work_name, b.color, b.textColor from (SELECT * FROM tech_schedule_list WHERE participant regexp '{$participant}' or user_name regexp '{$participant}') a left join tech_schedule_work b on a.work_name = b.work_name";
+  $query = $this->db->query($sql);
+  return $query->result();
+
+}
+
+// BH 주간업무보고 리스트 가져오기
+function weekly_report_list(){
+  $query = $this ->db->get('weekly_report_doc');
+  return $query->result();
+}
+
+
+
+// BH 일정 추가
+function schedule_insert($data){
+    // var_dump($data);
+  $result = $this->db->insert('tech_schedule_list', $data);
+  if($result){
+    return "true";
+  }else{
+    return "false";
+  }
+
+}
+
+// BH 상세페이지 보기
+function details($seq){
+  // $query = $this->db->get_where('tech_schedule_list', array('seq' => $seq));
+  // $result = $query->row();
+  // return $result;
+  $where = "WHERE seq={$seq}";
+  // if($seq ==''){
+  //   $where = '';
+  // }
+  $sql = "SELECT * FROM tech_schedule_list {$where}";
+  // $sql = "SELECT A.*, B.user_duty FROM tech_schedule_list A LEFT OUTER JOIN user B ON A.user_name = B.user_name {$where}";
+  $query = $this->db->query($sql);
+  $result = $query->row();
+  return $result;
+
+}
+//직접입력인지 확인
+function direct_check($customer){
+  $sql="SELECT customer_companyname as customer FROM sales_forcasting WHERE customer_companyname = '{$customer}' GROUP BY customer";
+  $query = $this->db->query($sql);
+  if($query->num_rows() > 0){
+    return 'y';
+  }else{
+    return 'n';
+  }
+}
+
+// BH 일정 수정
+function schedule_update($data){
+  $seq = $data['seq'];
+  $this->db->where('seq', $seq);
+  $result = $this->db->update('tech_schedule_list', $data);
+
+  if($result){
+    return 'true';
+  } else {
+    return 'false';
+  }
+}
+
+//BH 일정 삭제
+function schedule_delete($seq){
+  $this->db->where('seq', $seq);
+  $result = $this->db->delete('tech_schedule_list');
+
+  if($result){
+    return 'true';
+  } else {
+    return 'false';
+  }
+}
+
+// 고객사 리스트 가져오기
+function customer_list(){
+  $sql = "SELECT customer_companyname as customer FROM sales_forcasting GROUP BY customer";
+  $query = $this->db->query($sql);
+  $result = $query->result();
+  return $result;
+}
+
+  function select_user(){
+    $sql = "SELECT user_name FROM user";
+    $query = $this->db->query($sql);
+    $result = $query->result();
+    return $result;
+  }
+
+  function parentGroup() {
+    $sql = "SELECT * from user_group order by seq";
+    return $this->db->query($sql)->result();
+  }
+
+  function userInfo() {
+    $sql = "SELECT * from user order by seq";
+    return $this->db->query($sql)->result();
+  }
+
+  function user_group() {
+    $sql = "SELECT * from user_group order by seq";
+    return $this->db->query($sql)->result();
+  }
+
+  function userDepth() {
+    $sql = "SELECT a.*, b.user_name, b.user_id, b.user_duty from (select * from user_group where childGroupNum>1 and depth = 1) a join (select * from user) b on a.groupName = b.user_group";
+    return $this->db->query($sql)->result();
+  }
+
+  function work_color_list(){
+    $sql = "SELECT seq, work_name, color, textColor, work_type FROM tech_schedule_work ORDER BY work_name";
+    return $this->db->query($sql)->result();
+  }
+
+  function updateWorkColor($data, $seq){
+    $where = "seq = '{$seq}'";
+    $result = $this->db->update('tech_schedule_work',$data,$where);
+
+    if($result){
+      return 'true';
+    } else {
+      return 'false';
+    }
+  }
+
+
+  function schedule_list_user($group_list){
+
+    // if(is_array($group_list['participant'])){
+    //   $participant = implode( '|', $group_list['participant'] );
+    // }else{
+    //   $participant = "nonononononono";
+    // }
+    if(is_array($group_list['participant'])){
+      $participant_name = implode( '|', $group_list['participant'] );
+      $participant = " WHERE participant regexp '{$participant_name}' or user_name regexp '{$participant_name}'";
+    }else{
+      $participant_name = "no_one";
+      $participant = " WHERE participant regexp '{$participant_name}' or user_name regexp '{$participant_name}'";
+    }
+    // if($group_list['csc'] == 'true'){
+    //   $company_schedule_chk = "";
+    // }else{
+      $company_schedule_chk = " WHERE a.work_type != 'company'";
+    // }
+
+    // if($group_list['csc'] == 'true'){
+    //   $company_schedule_chk1 = "SELECT c.* FROM (";
+    //     $company_schedule_chk2 = ") c  join tech_schedule_list d on WHERE d.work_type = 'company'";
+    // }else{
+    //   $company_schedule_chk1 = "";
+    //   $company_schedule_chk2 = "";
+    // }
+
+    // $sql = $company_schedule_chk1."SELECT a.*, b.work_name, b.color, b.textColor, b.seq as work_color_seq from (SELECT * FROM tech_schedule_list {$participant}) a left join tech_schedule_work b on a.work_name = b.work_name".$company_schedule_chk2;
+
+    $sql = "SELECT a.*, b.work_name, b.color, b.textColor, b.seq as work_color_seq from (SELECT * FROM tech_schedule_list {$participant}) a left join tech_schedule_work b on a.work_name = b.work_name".$company_schedule_chk;
+
+    // $sql = "SELECT a.*, b.work_name, b.color, b.textColor, b.seq as work_color_seq from (SELECT * FROM tech_schedule_list WHERE participant regexp '{$participant}' or user_name regexp '{$participant}') a left join tech_schedule_work b on a.work_name = b.work_name".$company_schedule_chk;
+    $query = $this->db->query($sql);
+    return $query->result();
+  }
+
+  function company_schedule($bool){
+
+    if($bool['csc'] === 'false'){
+      $notice = 'no_one';
+    }else{
+      $notice = '공지사항';
+    }
+    $sql = "SELECT a.*, b.work_name, b.color, b.textColor, b.seq as work_color_seq from (SELECT * FROM tech_schedule_list WHERE work_name = '{$notice}') a left join tech_schedule_work b on a.work_name = b.work_name";
+    $query = $this->db->query($sql);
+    return $query->result();
+  }
+
+  function my_group($id) {
+    $sql = "SELECT user_group from user where user_id = '{$id}'";
+    return $this->db->query($sql)->row();
+  }
+
+  function login_user_duty($id) {
+    $sql = "SELECT user_duty from user where user_id = '{$id}'";
+    return $this->db->query($sql)->row();
+  }
+
+
+  function search($data){
+
+    // if(is_array($data['participant'])){
+    //   // echo implode( ' | ', $group_list['participant']);
+    //   $participant = implode( '|', $data['participant'] );
+    // }else{
+    //   // $participant = $group_list['participant'];
+    //   $participant = "nononononono";
+    //   // echo $partcipant;
+    // }
+
+     $seaechTarget = $data['searchTarget'];
+
+     if($seaechTarget == 'participant'){
+       if(is_array($data['searchKeyword'])){
+         // $searchKeyword = implode( ',', $data['searchKeyword'] );
+         $searchKeyword = $data['searchKeyword'];
+         $word='';
+         for($i=0;$i<count($searchKeyword);$i++){
+           if($word ==''){
+             // $word = "AND {$seaechTarget} LIKE '%{$searchKeyword[$i]}%'";
+             $word = "{$seaechTarget} LIKE '%{$searchKeyword[$i]}%'";
+           }else{
+             $word = $word." AND {$seaechTarget} LIKE '%{$searchKeyword[$i]}%'";
+           }
+         }
+         $sql = "SELECT a.*, b.work_name, b.color, b.textColor, b.seq as work_color_seq from (SELECT * FROM tech_schedule_list WHERE {$word}) a left join tech_schedule_work b on a.work_name = b.work_name";
+         // $sql = "SELECT a.*, b.work_name, b.color, b.textColor, b.seq as work_color_seq from (SELECT * FROM tech_schedule_list WHERE participant regexp '{$participant}' or user_name regexp '{$participant}' {$word}) a left join tech_schedule_work b on a.work_name = b.work_name";
+         // $sql = "SELECT a.*, b.work_name, b.color, b.textColor from (SELECT * FROM tech_schedule_list WHERE $word) a left join tech_schedule_work b on a.work_name = b.work_name";
+       }else{
+         $searchKeyword = $data['searchKeyword'];
+         $sql = "SELECT a.*, b.work_name, b.color, b.textColor, b.seq as work_color_seq from (SELECT * FROM tech_schedule_list WHERE {$seaechTarget} in ({$searchKeyword})) a left join tech_schedule_work b on a.work_name = b.work_name";
+         // $sql = "SELECT a.*, b.work_name, b.color, b.textColor, b.seq as work_color_seq from (SELECT * FROM tech_schedule_list WHERE participant regexp '{$participant}' or user_name regexp '{$participant}' AND {$seaechTarget} in ({$searchKeyword})) a left join tech_schedule_work b on a.work_name = b.work_name";
+         // $sql = "SELECT a.*, b.work_name, b.color, b.textColor from (SELECT * FROM tech_schedule_list WHERE {$seaechTarget} in ({$searchKeyword})) a left join tech_schedule_work b on a.work_name = b.work_name";
+       }
+       // $sql = "SELECT * FROM tech_schedule_list WHERE {$seaechTarget} regexp '{$searchKeyword}'";
+       $query = $this->db->query($sql);
+       return $query->result();
+     }else{
+
+       if(is_array($data['searchKeyword'])){
+         $searchKeyword = implode( '|', $data['searchKeyword'] );
+       }else{
+         $searchKeyword = $data['searchKeyword'];
+       }
+       // $searchKeyword = $data['searchKeyword'];
+       $sql = "SELECT a.*, b.work_name, b.color, b.textColor, b.seq as work_color_seq from (SELECT * FROM tech_schedule_list WHERE {$seaechTarget} regexp '{$searchKeyword}') a left join tech_schedule_work b on a.work_name = b.work_name";
+       // $sql = "SELECT * FROM tech_schedule_list WHERE {$seaechTarget} regexp '{$searchKeyword}'";
+       $query = $this->db->query($sql);
+       return $query->result();
+
+     }
+   }
+
+
+ function rooms(){
+   $sql = "SELECT * FROM meeting_room";
+   $query = $this->db->query($sql);
+   $result = $query->result();
+   return $result;
+ }
+
+ function cars(){
+   $sql = "SELECT * FROM admin_car";
+   $query = $this->db->query($sql);
+   $result = $query->result();
+   return $result;
+ }
+
+function search_conference_room($search_day){
+  $sql = "SELECT seq, start_time, end_time, room_name FROM tech_schedule_list WHERE start_day = '{$search_day}' AND room_name is not null";
+  $query = $this->db->query($sql);
+  if ($query->num_rows() > 0){
+    return $query->result();
+  }else{
+    return 'false';
+  }
+}
+
+// function duplicate_checkroom($seq, $day, $start, $end, $room){
+//   if($seq =='nan'){
+//     $and_seq = '';
+//   }else{
+//     $and_seq = " AND seq != '{$seq}'";
+//   }
+//
+//   if($room ==''){
+//     return 'ok';
+//   }else{
+//     $sql = "SELECT start_time, end_time, room_name FROM tech_schedule_list WHERE start_day = '{$day}' AND START_time < '{$end}' AND end_time > '{$start}' AND room_name = '{$room}'{$and_seq}";
+//
+//     $query = $this->db->query($sql);
+//     if ($query->num_rows() > 0){
+//       return 'dupl';
+//     }else{
+//       return 'ok';
+//     }
+//   }
+// }
+
+function search_car($search_car_day){
+  $sql = "SELECT seq, start_time, end_time, car_name FROM tech_schedule_list WHERE start_day = '{$search_car_day}' AND car_name is not null";
+  $query = $this->db->query($sql);
+  if ($query->num_rows() > 0){
+    return $query->result();
+  }else{
+    return 'false';
+  }
+}
+
+// function duplicate_checkcar($seq, $day, $start, $end, $car){
+//   if($seq =='nan'){
+//     $and_seq = '';
+//   }else{
+//     $and_seq = " AND seq != '{$seq}'";
+//   }
+//
+//   if($car ==''){
+//     return 'ok';
+//   }else{
+//     $sql = "SELECT start_time, end_time, car_name FROM tech_schedule_list WHERE start_day = '{$day}' AND start_time < '{$end}' AND end_time > '{$start}' AND car_name = '{$car}'{$and_seq}";
+//
+//     $query = $this->db->query($sql);
+//     if ($query->num_rows() > 0){
+//       return 'dupl';
+//     }else{
+//       return 'ok';
+//     }
+//   }
+// }
+
+function duplicate_check($seq, $day, $start, $end, $check_place, $check_place_name){
+  if($seq =='nan'){
+    $and_seq = '';
+  }else{
+    $and_seq = " AND seq != '{$seq}'";
+  }
+
+  if($check_place ==''){
+    return 'ok';
+  }else{
+    $sql = "SELECT start_time, end_time, car_name FROM tech_schedule_list WHERE start_day = '{$day}' AND start_time < '{$end}' AND end_time > '{$start}' AND {$check_place_name} = '{$check_place}'{$and_seq}";
+
+    $query = $this->db->query($sql);
+    if ($query->num_rows() > 0){
+      return 'dupl';
+    }else{
+      return 'ok';
+    }
+  }
+}
+
+// tech일 때 기술연구소 그룹을 제외한 참석자의 그룹가져오기
+  function linker_group($name){
+    $sql = "SELECT a.user_group, b.parentGroupName FROM user a JOIN user_group b ON a.user_group = b.groupName WHERE a.user_name = '{$name}'";
+    // $sql = "SELECT user_group, user_id FROM user WHERE user_name = '{$name}' AND user_group !='기술연구소'";
+    $query = $this->db->query($sql);
+    if ($query->num_rows() > 0){
+      return $query->row();
+    }else{
+      return 'false';
+    }
+  }
+
+  // function linker_id($name){
+  //   $sql = "SELECT user_id FROM user WHERE user_name = '{$name}'";
+  //   return $this->db->query($sql)->row();
+  // }
+
+  // 이미 작성된 주간업무보고서가 있는지 확인
+    function check_report($income_time, $linker_group){
+      $sql = "SELECT * FROM weekly_report WHERE s_date <= '{$income_time}' AND e_date >= '{$income_time}' AND group_name = '{$linker_group}'";
+      $query = $this->db->query($sql);
+      if ($query->num_rows() > 0){
+        return $query->row();
+      }else{
+        return 'false';
+      }
+    }
+
+    function check_tech_seq(){
+      $sql2 = "SELECT MIN(tech_seq)-1 as m1 from next_weekly_report_doc";
+      $query = $this->db->query($sql2);
+      // $tech_seq = $query->m1;
+      return $query->row();
+    }
+
+
+   //  // 차주 주간업무 insert
+     function insert_next_week_doc($tech_seq, $work_name, $customer, $writer_group, $participant, $income_time, $contents, $report_seq, $year, $month, $week, $writer_pgroup){
+
+       $sql1 = "SELECT AUTO_INCREMENT FROM information_schema.tables WHERE table_name = 'tech_schedule_list' AND table_schema = DATABASE( )";
+       $query = $this->db->query($sql1)->row();
+       $schedule_seq = $query->AUTO_INCREMENT-1;
+
+       $insert_time = date("Y-m-d H:i:s");
+
+       if($report_seq !='NULL'){
+         if($writer_pgroup =='기술본부' && $writer_group <> '기술연구소'){
+           $sql3 = "INSERT INTO next_weekly_report_doc (tech_seq, schedule_seq, group_name, work_name, customer, subject, writer, income_time, report_seq, year, month, week, insert_time) VALUES ($tech_seq, $schedule_seq, '{$writer_group}', '{$work_name}', '{$customer}', '{$contents}', '{$participant}', '{$income_time}', '{$report_seq}', '{$year}', '{$month}', '{$week}', '{$insert_time}');";
+         }else{
+           $sql3 = "INSERT INTO next_weekly_report_doc (tech_seq, schedule_seq, group_name, customer, subject, writer, income_time, report_seq, year, month, week, insert_time) VALUES ($tech_seq, $schedule_seq, '{$writer_group}', '{$customer}', '{$contents}', '{$participant}', '{$income_time}', '{$report_seq}', '{$year}', '{$month}', '{$week}', '{$insert_time}');";
+         }
+         $query = $this->db->query($sql3);
+       }
+
+
+     // $before_day =  date("Y-m-d", strtotime($income_time." -7day"));
+     // $sql = "SELECT seq FROM weekly_report WHERE s_date <= '{$before_day}' AND e_date >= '{$before_day}' AND group_name = '기술본부'";
+     // $query = $this->db->query($sql);
+     // if ($query->num_rows() > 0 && $group_name !="기술본부" && $schedule_seq >0){
+     //   $rep_seq = $query->row()->seq;
+     //   $sql4 = "INSERT INTO next_weekly_report_doc (tech_seq, schedule_seq, group_name, work_name, customer, writer, income_time, linker, report_seq, year, month, week) VALUES ($tech_seq, $schedule_seq, '기술본부', '{$work_name}', '{$customer}', '{$writer}', '{$income_time}', '{$linker}', $rep_seq, $year, $month, $week );";
+     //   $query = $this->db->query($sql4);
+     // }
+
+   }
+
+   function update_next_week_doc($data){
+     $seq = $data['schedule_seq'];
+     // $income_time = $data['income_time'];
+     // $update_data = array(
+     //           'income_time' => $data['income_time'],
+     //           'work_name' => $data['work_name'],
+     //           'customer' => $data['customer'],
+     //           'writer' => $data['writer'],
+     //           'update_time' => date("Y-m-d H:i:s")
+     //        );
+     $this->db->where('schedule_seq', $seq);
+     // $this->db->or_where('schedule_seq', $seq*-1);
+     $this->db->update('next_weekly_report_doc', $data);
+   }
+
+   function delete_next_week_doc($seq){
+     $this->db->where('schedule_seq', $seq);
+     // $this->db->or_where('schedule_seq', $seq*-1);
+     $this->db->delete('next_weekly_report_doc');
+   }
+
+   //  // 금주 주간업무 insert(영업,경영)
+   function insert_current_week_doc($tech_seq, $customer, $writer_group, $participant, $income_time, $contents, $report_seq, $year, $month, $week){
+       $sql1 = "SELECT AUTO_INCREMENT FROM information_schema.tables WHERE table_name = 'tech_schedule_list' AND table_schema = DATABASE( )";
+       $query = $this->db->query($sql1)->row();
+       $schedule_seq = $query->AUTO_INCREMENT-1;
+
+       $insert_time = date("Y-m-d H:i:s");
+
+       if($report_seq !='NULL'){
+         $sql3 = "INSERT INTO weekly_report_doc (tech_seq, schedule_seq, group_name, customer, subject, writer, income_time, report_seq, year, month, week, insert_time) VALUES ($tech_seq, $schedule_seq, '{$writer_group}', '{$customer}', '{$contents}', '{$participant}', '{$income_time}', '{$report_seq}', '{$year}', '{$month}', '{$week}', '{$insert_time}');";
+
+         $query = $this->db->query($sql3);
+       }
+   }
+
+
+   function update_current_week_doc($data){
+     $seq = $data['schedule_seq'];
+     $this->db->where('schedule_seq', $seq);
+     $this->db->update('weekly_report_doc', $data);
+   }
+
+   function delete_current_week_doc($seq){
+     $this->db->where('schedule_seq', $seq);
+     $this->db->delete('weekly_report_doc');
+   }
+
+   function check_current_week_doc($seq){
+     $sql = "SELECT seq FROM weekly_report_doc WHERE schedule_seq = {$seq}";
+     $query = $this->db->query($sql);
+     if($query->num_rows() <= 0){
+       return 'false';
+     }else{
+       return 'true';
+     }
+   }
+   function check_next_week_doc($seq){
+     $sql = "SELECT seq FROM next_weekly_report_doc WHERE schedule_seq = {$seq}";
+     $query = $this->db->query($sql);
+     if($query->num_rows() <= 0){
+       return 'false';
+     }else{
+       return 'true';
+     }
+   }
+
+
+/////////////////기지보 관련
+function search_tech_report($reportData){
+  $today = $reportData['today'];
+  $sessionName = $reportData['sessionName'];
+
+  $sql = "SELECT * FROM tech_schedule_list  WHERE work_type = 'tech' AND tech_report > 0 AND start_day < '{$today}' AND (participant LIKE '%{$sessionName}%') order by start_day;";
+
+  $query = $this->db->query($sql);
+  return $query->result();
+}
+
+function tech_seq_find($data){
+  $schedule_seq = $data['schedule_seq'];
+  $where = "WHERE schedule_seq={$schedule_seq}";
+  $sql = "SELECT seq FROM tech_doc_basic {$where}";
+  $query = $this->db->query($sql);
+  if($query->num_rows() <= 0){
+    return 'false';
+  }else{
+    return $query->result();
+  }
+}
+
+//@@@
+function same_report_schedule($data){
+  $start_day = $data['start_day'];
+  $customer = $data['customer'];
+  // $participant = $data['participant'];
+
+  $sql = "SELECT seq FROM tech_doc_basic WHERE income_time = '{$start_day}' AND customer ='{$customer}' AND schedule_seq IS NOT null";
+  // $sql = "SELECT seq FROM tech_doc_basic WHERE income_time = '{$start_day}' AND work_name = '{$work_name}' AND customer ='{$customer}' AND engineer regexp '{$participant}' AND schedule_seq IS NOT null";
+  $query = $this->db->query($sql);
+
+  if($query->num_rows() <= 0){
+    return false;
+  }else{
+    return $query->result();
+  }
+}
+
+//KI1 20210125 고객사 포캐스팅형으로 변경하여 고객사 리스트 불러오기
+// 고객사 정보 가저오기
+//카테고리 알아오기
+function get_customer() {
+  // $sql = "select seq as forcasting_seq, customer_companyname as customer, customer_username, exception_saledate2 as maintain_start, exception_saledate3 as maintain_end , project_name from sales_forcasting WHERE (sub_project_add IS NULL) or (sub_project_add IS not NULL AND sub_project_add not like CONCAT('%',seq,'%')) order by binary(customer)";
+	$sql = "select seq as maintain_seq, forcasting_seq , customer_companyname as customer, customer_username, exception_saledate2 as maintain_start, exception_saledate3 as maintain_end , project_name from sales_maintain WHERE CURDATE() between exception_saledate2 AND exception_saledate3 order by binary(customer_companyname)";
+
+//	$sql = "select distinct (customer_companyname) as customer from sales_forcasting order by binary(customer)";
+  $query = $this->db->query($sql);
+  return $query->result_array();
+}
+
+function ser_customer(){
+  	$sql = "select distinct (customer_companyname) as customer from sales_forcasting order by binary(customer)";
+    $query = $this->db->query($sql);
+    return $query->result_array();
+}
+
+function get_customer2() {
+  $sql = "select t1.seq as forcasting_seq,t1.customer_companyname as customer,t1.customer_username, t1.exception_saledate2 as maintain_start, t1.exception_saledate3 as maintain_end , t1.project_name from sales_forcasting AS t1 order by binary(customer_companyname)";
+  $query = $this->db->query($sql);
+  return $query->result_array();
+}
+//KI2 20210125
+
+
+function search_manager($seq, $mode){
+  if($mode == 'maintain'){
+    $sql = "select * from sales_maintain where seq='{$seq}'";
+  }else{
+    $sql = "select * from sales_forcasting where seq='{$seq}'";
+  }
+  $query = $this->db->query($sql);
+  return $query->result();
+}
+
+function select_report_day($seq){
+  $sql = "SELECT seq, date_format(income_time, '%Y-%m-%d') as income_time FROM tech_doc_basic where schedule_seq = {$seq}";
+  $query = $this->db->query($sql);
+  $result = $query->result();
+  return $result;
+}
+
+function written_rep_cnt($seq){
+	  $sql = "SELECT count(*) as cnt from tech_doc_basic where schedule_seq = {$seq}";
+	  $query = $this->db->query($sql);
+	  $result = $query->row();
+	  return $result;
+	}
+
+
+
+}
+
+
+ ?>

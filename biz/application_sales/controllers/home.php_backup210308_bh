@@ -1,0 +1,38 @@
+<?php
+header("Content-type: text/html; charset=utf-8");
+
+class Home extends CI_Controller {
+
+	var $site_type = '';
+	var $id = '';
+
+	function __construct() {
+		parent::__construct();
+		$this->id = $this->phpsession->get( 'id', 'stc' );
+		$this->name = $this->phpsession->get( 'name', 'stc' );
+		$this->lv = $this->phpsession->get( 'lv', 'stc' );
+		$this->load->helper('alert');
+		$this->load->Model(array('STC_Common','biz/STC_Approval'));
+	}
+
+	function index() {
+		if(strpos(site_url(),"biz.durianit.co.kr") === false){
+			header( 'Location: http://biz.durianit.co.kr' );
+		}else{
+			if( $this->id === null ) {
+				redirect( 'account' );
+			}
+			$data['category'] = $this->STC_Approval->select_format_category();
+			$data['standby_approval'] = $this->STC_Approval->approval_list("standby");
+			$data['delegation'] = $this->STC_Approval->delegation_list();
+			$data['periodic_inspection']=$this->STC_Common->periodic_inspection();
+			$this->load->view('home_view',$data);
+		}
+	}
+
+	function sessiton_destroy()
+	{
+		session_destroy();
+	}
+}
+?>

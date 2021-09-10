@@ -1,0 +1,184 @@
+<?php
+header("Content-type: text/html; charset=utf-8");
+
+class STC_Attendance_admin extends CI_Model {
+
+	function __construct() {
+
+		parent::__construct();
+//		$this->user_id = $this->phpsession->get( 'id', 'stc' );
+	}
+
+
+  function attendance_user_list( $searchkeyword, $search1, $search2, $start_limit = 0, $offset = 0) {
+    $sql = "SELECT u.seq, u.user_name, u.user_duty, a.card_num, a.ws_time, a.wc_time FROM user u left JOIN attendance_user a ON u.seq = a.user_seq order by a.card_num, u.seq";
+    if  ( $offset <> 0 )
+    $sql = $sql." limit ?, ?";
+
+    if  ( $searchkeyword != "" )
+    $query = $this->db->query( $sql, array( $keyword, $start_limit, $offset ) );
+    else
+    $query = $this->db->query( $sql, array( $start_limit, $offset ) );
+
+    return array( 'count' => $query->num_rows(), 'data' => $query->result_array() );
+  }
+
+
+  function attendance_user_list_count($searchkeyword, $search1, $search2) {
+    $sql = "SELECT count(u.seq) as ucount FROM user u left JOIN attendance_user a ON u.seq = a.user_seq";
+
+    if  ( $searchkeyword != "" )
+    $query = $this->db->query( $sql, $keyword  );
+    else
+    $query = $this->db->query( $sql );
+
+		// echo $sql;
+    return $query->row();
+  }
+
+
+  function attendance_list( $searchkeyword, $start_limit = 0, $offset = 0) {
+		if ($searchkeyword != ""){
+			$searchstring='';
+			$searchstring2='';
+
+			$searchkeyword = explode(',',$searchkeyword);
+			if(trim($searchkeyword[0])!='' && $searchkeyword[1]!=''){ // day or period
+				$start_day = date("Ymd", strtotime($searchkeyword[1]));
+				$end_day = date("Ymd", strtotime($searchkeyword[2]));
+				if ($searchkeyword[0]=='day'){
+					$searchstring = " AND date=".$start_day;
+				} else if ($searchkeyword[0]=='period'){
+					$searchstring = " AND (date>={$start_day} AND date<={$end_day})";
+				}
+			}
+			if(trim($searchkeyword[3])!=''){ // user_name
+				$searchstring2 = " AND user_name like '%{$searchkeyword[4]}%'";
+			}
+			$searchstring = $searchstring.$searchstring2;
+			$searchstring = " where ".ltrim($searchstring," AND");
+
+		} else {
+			$searchstring = "";
+		}
+
+    // $sql = "SELECT uau.*, result3.* from (SELECT u.user_name, u.user_duty, au.user_seq, card_num, ws_time AS designate_ws, wc_time AS disignate_wc FROM user u LEFT JOIN attendance_user au ON u.seq = au.user_seq) uau RIGHT JOIN (SELECT result2.*, am.wc_ip_address FROM attendance_manual am RIGHT JOIN ( SELECT result.*, am.ws_ip_address FROM attendance_manual am RIGHT JOIN ( SELECT amutsw.workdate, MIN(amutsw.wstime) AS wstime, MAX(amutsw.wctime) AS wctime, amutsw.card_num FROM ( SELECT DATE AS workdate, MIN(am.ws_time) AS wstime, MAX(am.wc_time) AS wctime, au.card_num FROM attendance_manual am JOIN attendance_user au ON am.user_seq = au.user_seq GROUP BY am.user_seq, am.DATE UNION SELECT workdate, if(wstime='', NULL,wstime) AS wstime, if(wctime='', NULL,wctime) AS wctime, cardno AS card_num FROM t_secom_workhistory) amutsw GROUP BY workdate, card_num) result ON am.card_num = result.card_num AND am.ws_time = result.wstime) result2 ON am.card_num = result2.card_num AND am.wc_time = result2.wctime) result3 ON uau.card_num = result3.card_num where user_seq is not null {$searchstring}{$searchstring2} ORDER BY workdate, cast(user_seq AS UNSIGNED)";
+	// SELECT u.user_name, u.user_duty,au.user_seq, am.card_num,am.date AS work_date,am.ws_time AS designate_ws,am.wc_time  AS disignate_wc ,am.ws_ip_address,am.wc_ip_address,am.update_time FROM attendance_manual as am
+	// LEFT JOIN attendance_user AS au
+	// ON am.card_num = au.card_num
+	// LEFT JOIN user AS u
+	// ON au.user_seq = u.seq ;
+
+ 	$sql = "SELECT u.user_name, u.user_duty,au.user_seq, am.seq, am.card_num,am.date AS workdate,am.ws_time as wstime,am.wc_time as wctime,am.ws_ip_address,am.wc_ip_address,am.update_time,am.status, am.date_type FROM attendance_manual as am
+	LEFT JOIN attendance_user AS au
+	ON am.card_num = au.card_num
+	JOIN user AS u
+	ON au.user_seq = u.seq  {$searchstring} order by am.date desc, cast(user_seq AS UNSIGNED)";
+
+	// echo $sql;
+
+	if  ( $offset <> 0 ){
+		$sql = $sql." limit ?, ?";
+	}
+
+    $query = $this->db->query( $sql, array( $start_limit, $offset ) );
+		// echo $sql;
+
+    return array( 'count' => $query->num_rows(), 'data' => $query->result_array() );
+  }
+
+
+  function attendance_list_count($searchkeyword) {
+	if ($searchkeyword != ""){
+		$searchstring='';
+		$searchstring2='';
+
+		$searchkeyword = explode(',',$searchkeyword);
+		if(trim($searchkeyword[0])!='' && $searchkeyword[1]!=''){ // day or period
+			$start_day = date("Ymd", strtotime($searchkeyword[1]));
+			$end_day = date("Ymd", strtotime($searchkeyword[2]));
+			if ($searchkeyword[0]=='day'){
+				$searchstring = " AND date=".$start_day;
+			} else if ($searchkeyword[0]=='period'){
+				$searchstring = " AND (date>={$start_day} AND date<={$end_day})";
+			}
+		}
+		if(trim($searchkeyword[3])!=''){ // user_name
+			$searchstring2 = " AND user_name like '%{$searchkeyword[4]}%'";
+		}
+		$searchstring = $searchstring.$searchstring2;
+		$searchstring = " where ".ltrim($searchstring," AND");
+
+	} else {
+		$searchstring = "";
+	}
+    // $sql = "SELECT count(*) as ucount from (SELECT u.user_name, u.user_duty, au.user_seq, card_num, ws_time AS designate_ws, wc_time AS disignate_wc FROM user u LEFT JOIN attendance_user au ON u.seq = au.user_seq) uau RIGHT JOIN (SELECT result2.*, am.wc_ip_address FROM attendance_manual am RIGHT JOIN ( SELECT result.*, am.ws_ip_address FROM attendance_manual am RIGHT JOIN ( SELECT amutsw.workdate, MIN(amutsw.wstime) AS wstime, MAX(amutsw.wctime) AS wctime, amutsw.card_num FROM ( SELECT DATE AS workdate, MIN(am.ws_time) AS wstime, MAX(am.wc_time) AS wctime, au.card_num FROM attendance_manual am JOIN attendance_user au ON am.user_seq = au.user_seq GROUP BY am.user_seq, am.DATE UNION SELECT workdate, if(wstime='', NULL,wstime) AS wstime, if(wctime='', NULL,wctime) AS wctime, cardno AS card_num FROM t_secom_workhistory) amutsw GROUP BY workdate, card_num) result ON am.card_num = result.card_num AND am.ws_time = result.wstime) result2 ON am.card_num = result2.card_num AND am.wc_time = result2.wctime) result3 ON uau.card_num = result3.card_num where user_seq is not null {$searchstring}{$searchstring2} ORDER BY workdate, cast(user_seq AS UNSIGNED)";
+	$sql = "SELECT count(*) as ucount
+	FROM attendance_manual as am
+	LEFT JOIN attendance_user AS au
+	ON am.card_num = au.card_num
+	JOIN user AS u
+	ON au.user_seq = u.seq  {$searchstring} order by am.date desc, cast(user_seq AS UNSIGNED)";
+    $query = $this->db->query( $sql );
+    return $query->row();
+  }
+
+	function user_count(){
+		$sql = "SELECT count(*) as ucount from attendance_user where card_num is not null";
+		$query = $this->db->query($sql);
+		return $query->row();
+	}
+
+
+  function attendance_user_info($seq){
+    $sql = "SELECT u.seq, u.user_name, u.user_duty, a.card_num, a.ws_time, a.wc_time FROM user u left JOIN attendance_user a ON u.seq = a.user_seq WHERE u.seq = {$seq}";
+    $query = $this->db->query($sql);
+	  return $query->result_array();
+  }
+
+  function attendance_card_info($name){
+    $sql = "SELECT DISTINCT(cardno) FROM T_SECOM_WORKHISTORY WHERE NAME LIKE '%{$name}%'";
+    $query = $this->db->query($sql);
+	  return $query->result_array();
+  }
+
+  function attendance_user_count($user_seq){
+    $sql = "SELECT count(seq) as ucount from attendance_user where user_seq={$user_seq}";
+    $query = $this->db->query( $sql );
+    return $query->row();
+  }
+
+  function attendance_user_insert( $data, $mode = 0 , $user_seq = 0) {
+    if( $mode == 0 ) {
+      return $this->db->insert('attendance_user', $data );
+    }
+    else {
+      return $this->db->update('attendance_user', $data, array('user_seq' => $user_seq));
+    }
+  }
+
+  function attendance_individual($type,$data){
+	if($type == 0){
+		$sql = "SELECT u.user_name, u.user_duty,au.user_seq, am.seq, am.card_num,am.date AS workdate,am.ws_time as wstime,am.wc_time as wctime,am.ws_ip_address,am.wc_ip_address,am.update_time,am.status FROM attendance_manual as am
+		LEFT JOIN attendance_user AS au
+		ON am.card_num = au.card_num
+		LEFT JOIN user AS u
+		ON au.user_seq = u.seq where am.seq = {$data}";
+		$query = $this->db->query($sql);
+
+		if ($query->num_rows() <= 0) {
+			return false;
+		} else {
+			return $query->row_array();
+		}
+	}else if ($type == 1){ //seq 로 update
+		return $this->db->update('attendance_manual', $data, array('seq' => $data['seq']));
+	}else if ($type ==2){ //오늘꺼 출퇴근 기록 찾아서 업데이트!
+		$today = date("Ymd");
+		return $this->db->update('attendance_manual', $data, array('card_num' => $data['card_num'],'date' => $today));
+	}
+  }
+
+
+}
+?>

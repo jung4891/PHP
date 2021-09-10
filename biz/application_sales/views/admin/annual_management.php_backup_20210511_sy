@@ -1,0 +1,283 @@
+<?php
+  include $this->input->server('DOCUMENT_ROOT')."/include/base.php";
+  include $this->input->server('DOCUMENT_ROOT')."/include/sales_top.php";
+?>
+<style>
+	p, div, span, a, a:hover, a:visited, a:active, label, input, h1,h2,h3,h4,h5,h6{font-family: "Noto Sans KR";}
+	.contents td{
+		border-bottom: 1px solid #e8e8e8;
+		height:40px;
+	}
+	.sticky-th {
+		position:sticky; 
+		top:0px;
+		background-color:#fff;
+	}
+</style>
+<link rel="stylesheet" href="/misc/css/dashboard.css">
+<link href="https://fonts.googleapis.com/css?family=Noto+Sans+KR" rel="stylesheet">
+<link rel="stylesheet" href="/misc/css/bootstrap-datepicker.css">
+<!-- <link rel="stylesheet" href="/misc/css/bootstrap-timepicker.css"> -->
+<!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"> -->
+<!-- <script type="text/javascript" src="/misc/js/bootstrap-timepicker.js"></script> -->
+<!-- <script type="text/javascript" src="/misc/js/jquery.bpopup-0.1.1.min.js"></script> -->
+<body>
+<?php
+  include $this->input->server('DOCUMENT_ROOT')."/include/sales_header.php";
+?>
+
+<div align="center">
+	<div class="dash1-1">
+		<table width="100%" height="100%" border="0" cellspacing="0" cellpadding="0" class="dash_tbl1-1">
+			<tbody>
+				<tr height="5%">
+					<td class="dash_title">
+						<img src="<?php echo $misc; ?>img/dashboard/title_annual.png"/>
+					</td>
+				</tr>
+				<tr height="13%">
+        		</tr>
+				<tr style="max-height:45%">
+					<td colspan="2" valign="top" style="padding:10px 0px;">
+						<table class="content_dash_tbl" align="center" width="100%"  border="0" cellspacing="0" cellpadding="0">
+							<tr>
+								<td align="center" valign="top">
+									<!-- <input type="hidden" name="cur_page" value="<?php echo $cur_page; ?>"> -->
+									<input type="hidden" name="seq" value="">
+									<input type="hidden" name="mode" value="">
+								</td>
+							</tr>
+							<tr>
+								<td>
+									<div style="width:100%; height:500px; overflow:auto">
+									<table width="100%" class="contents" border="0" cellspacing="0" cellpadding="0">
+										<colgroup>
+											<col width="10%" />
+											<col width="5%" />
+											<col width="10%" />
+											<col width="10%" />
+											<col width="5%" />
+											<col width="5%" />
+											<col width="10%" />
+											<col width="10%" />
+											<col width="10%" />
+											<col width="10%" />
+											<col width="5%" />
+											<col width="10%" />
+										</colgroup>
+										<thead>
+											<tr class="t_top">
+												<th class="sticky-th" ></th>
+												<th class="sticky-th" height="40" align="center">성명</th>
+												<th class="sticky-th" align="center">부서</th>
+												<th class="sticky-th" align="center">입사일</th>
+												<th class="sticky-th" align="center">근속년수</th>
+												<th class="sticky-th" align="center">기준연도</th>
+												<th class="sticky-th" align="center">연차사용기간</th>
+												<th class="sticky-th" align="center">발생연차</th>
+												<th class="sticky-th" align="center">사용연차(승인)</th>
+												<th class="sticky-th" align="center">잔여연차</th>
+												<th class="sticky-th" align="center">사용연차(결재중)</th>
+												<th class="sticky-th" ></th>
+											</tr>
+										</thead>
+										<tbody>
+										<?php
+										if (count($view_val) > 0) {
+											foreach($view_val as $val){?>
+											<tr >
+												<td></td>
+												<td  align="center"><?php echo $val['user_name']; ?></td>
+												<td  align="center"><?php echo $val['user_group']; ?></td>
+												<td  align="center"><?php echo $val['join_company_date']; ?></td>
+												<td  align="center"><?php if($val['annual_period']-substr($val['join_company_date'],0,4)-1 < 0){echo 0;}else{
+													echo $val['annual_period']-substr($val['join_company_date'],0,4)-1;
+												} ?> </td>
+												<td  align="center"><?php echo $val['annual_period']; ?></td>
+												<td  align="center"><?php echo $val['annual_period'];?>-01-01 ~ <?php echo $val['annual_period'];?>-12-31</td>
+												<td  align="center"><?php echo $val['annual_cnt'];?></td>
+												<td  align="center"><?php echo $val['use_annual_cnt'];?></td>
+												<td  align="center"><?php echo $val['remainder_annual_cnt'];?></td>
+												<td  align="center"><?php echo $val['approval_cnt'];?></td>
+												<td></td>
+											</tr>
+										<?php
+										    }
+										} else {
+										?>
+										<tr onmouseover="this.style.backgroundColor='#FAFAFA'" onmouseout="this.style.backgroundColor='#fff'">
+											<td width="100%" height="40" align="center" colspan="7">등록된 게시물이 없습니다.</td>
+										</tr>
+										<?php
+										}
+									?> 
+									</tbody>
+									</table>
+									</div>
+								</td>
+							</tr>
+												
+						</table>
+									
+					</td>
+				</tr>
+			</table>
+	</div>
+</div>
+
+<!--하단-->
+<?php include $this->input->server('DOCUMENT_ROOT')."/include/sales_bottom.php"; ?>
+<!--//하단-->
+
+<!-- 입력 모달 -->
+<div id="attendance_input" style="display:none; position: absolute; background-color: white; width: auto; height: auto;">
+	<form name="cform" action="<?php echo site_url();?>/admin/attendance_admin/attendance_input_action" method="post" onSubmit="javascript:chkForm();return false;">
+		<table width="400" style="margin-left:10px">
+			<tr>
+				<td class="modal_title" align="center" colspan="2" style="padding:20px 0px 20px 0px">
+				근태정보
+				</td>
+			</tr>
+			<tr>
+				<td style="font-weight:bold;">이름</td>
+			</tr>
+			<tr>
+				<td align="left">
+					<input type="text" class="input2" name="type" id="user_name" value="" style="width:95%" readonly>
+          <input type="hidden" name="user_seq" id="user_seq" value="">
+				</td>
+			</tr>
+			<tr>
+				<td style="font-weight:bold;">카드번호</td>
+			</tr>
+			<tr>
+				<td align="left">
+          <!-- <input type="text" class="input2" name="card_num" id="card_num" value="" style="width:95%"> -->
+          <select class="select7" name="card_num" id="card_num" style="width:97%">
+
+          </select>
+				</td>
+			</tr>
+			<tr>
+				<td style="font-weight:bold;">출근시간</td>
+			</tr>
+			<tr>
+				<td align="left">
+					<input type="text" class="input2" name="ws_time" id="ws_time" value="" style="width:95%" autocomplete="off">
+				</td>
+			</tr>
+			<tr>
+				<td style="font-weight:bold;">퇴근시간</td>
+			</tr>
+			<tr>
+				<td align="left">
+					<input type="text" class="input2" name="wc_time" id="wc_time" value="" style="width:95%" autocomplete="off">
+				</td>
+			</tr>
+			<tr>
+				<td align="center">
+					<div style="margin-top:50px;">
+						<img src="<?php echo $misc;?>img/dashboard/btn/btn_add.png" width="64" height="31" style="cursor:pointer" onclick="javascript:chkForm();return false;"/>
+						<img src="<?php echo $misc;?>img/dashboard/btn/btn_cancel.png" width="64" height="31" style="cursor:pointer" onClick="$('#attendance_input').bPopup().close();"/>
+					</div>
+				</td>
+			</tr>
+		</table>
+	</form>
+</div>
+</body>
+<script type="text/javascript">
+
+//   $(function(){
+//     $('#ws_time, #wc_time').timepicker({
+//         minuteStep: 30,
+//         // template: 'modal',
+//         // appendWidgetTo: 'body',
+//         // showSeconds: true,
+//         showMeridian: false,
+//         // defaultTime: false
+//         // container:'#attendance_input'
+//     });
+//   })
+
+  function input_attendance(seq){
+    $.ajax({
+      type:"POST",
+      async:false,
+      url:"/index.php/admin/attendance_admin/attendance_user_info",
+      dataType:"json",
+      data:{
+        seq:seq
+      },
+      success: function(data) {
+        var name = data[0].user_name;
+        var card_num = data[0].card_num;
+        $("#user_seq").val(data[0].seq);
+        $("#user_name").val(name);
+        $("#card_num").val(card_num);
+        var ws_time = data[0].ws_time;
+        var wc_time = data[0].wc_time;
+        if (ws_time!=null){
+          ws_time = ws_time.substring(0,5);
+        } else {
+          ws_time = "09:00";
+        }
+        if (wc_time!=null){
+          wc_time = wc_time.substring(0,5);
+        } else {
+          wc_time = "18:00";
+        }
+        $("#ws_time").val(ws_time);
+        $("#wc_time").val(wc_time);
+
+        $.ajax({
+          type:"POST",
+          async:false,
+          url:"/index.php/admin/attendance_admin/attendance_card_info",
+          dataType:"json",
+          data:{
+            name:name
+          },
+          success: function (data){
+            var options = "<option selected disabled hidden>선택하세요</option>";
+            for(var i=0;i<data.length;i++){
+              if (data[i].cardno==card_num){
+                options+="<option value='"+data[i].cardno+"' selected>"+data[i].cardno+"</option>";
+              } else {
+                options+="<option value='"+data[i].cardno+"'>"+data[i].cardno+"</option>";
+              }
+            }
+            $("#card_num").html(options);
+          }
+        })
+
+      }
+    })
+
+    $("#attendance_input").bPopup();
+  }
+
+  function chkForm () {
+  	var mform = document.cform;
+
+  	if (mform.card_num.value == "") {
+  		mform.card_num.focus();
+  		alert("카드번호를 입력해 주세요.");
+  		return false;
+  	}
+  	if (mform.ws_time.value == "") {
+  		mform.ws_time.focus();
+  		alert("출근시간을 입력해 주세요.");
+  		return false;
+  	}
+  	if (mform.wc_time.value == "") {
+  		mform.wc_time.focus();
+  		alert("퇴근시간을 입력해 주세요.");
+  		return false;
+  	}
+
+  	mform.submit();
+  	return false;
+  }
+</script>
+</html>

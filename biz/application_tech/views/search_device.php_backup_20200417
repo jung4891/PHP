@@ -1,0 +1,116 @@
+<?php
+	include $this->input->server('DOCUMENT_ROOT')."/include/base.php";
+	include $this->input->server('DOCUMENT_ROOT')."/include/customer_top.php";
+  // tech_device_list 김수성
+?>
+<body>
+<form name="tb1">            
+            <table width="890" border="0" style="margin-top:20px;">
+              <tr>
+                <td class="title3">장비검색</td>
+              </tr>
+            </table>
+            <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                  <tr>
+                    <td colspan="6" height="2" bgcolor="#797c88"></td>
+                  </tr>
+                  <tr bgcolor="f8f8f9" class="t_top">
+                    <td width="5%" height="40" align="center" class="t_border"><input type="checkbox" id="checkAll" name="checkAll" onChange="allCheck();"></td>
+                    <td width="15%" align="center" class="t_border">장비/시스템명</td>
+                    <td width="15%" align="center" class="t_border">하드웨어</td>
+                    <td width="10%" align="center" class="t_border">Serial</td>
+                    <td width="20%" align="center" class="t_border">버전</td>
+                    <td width="25%" align="center" class="t_border">라이선스</td>
+                  </tr>
+		 <?php
+
+			foreach($input as $entry){
+
+?>
+                 <tr bgcolor="f8f8f9" class="t_top">
+
+                    <td width="5%" align="center" class="t_border"><input type="checkbox" name="check"></td>
+                    <td width="15%" align="center" class="t_border"><input type="hidden" name="product_name"  value="<?php echo $entry->product_name?>"><?php echo $entry->product_name;?></td>
+                    <td width="15%" align="center" class="t_border"><input type="hidden" name="product_item"  value="<?php echo $entry->product_item?>"><?php echo $entry->product_item;?></td>
+                    <td width="10%" align="center" class="t_border"><input type="hidden" name="product_serial"  value="<?php echo $entry->product_serial?>"><?php echo $entry->product_serial;?></td>
+                    <td width="20%" align="center" class="t_border"><input type="hidden" name="product_version"  value="<?php echo $entry->product_version?>"><?php echo $entry->product_version;?></td>
+                    <td width="25%" align="center" class="t_border"><input type="hidden" name="product_license"  value="<?php echo $entry->product_licence?>"><?php echo $entry->product_licence;?></td>
+                  </tr>
+<?php
+			}
+		?>
+
+                  <tr>
+                    <td colspan="6" height="1" bgcolor="#797c88"></td>
+                  </tr>
+              <tr>
+                <td height="10"></td>
+              </tr>
+              <tr>
+                <td colspan="2" align="left"><input type='submit' name="check" value='선택' onclick="submitCharge();">
+              </tr>
+            </table>
+</form>
+</body>
+</html>
+ 
+<script>
+
+function allCheck(){
+
+
+
+if(document.tb1.checkAll.checked){
+   for(i= 0; i<document.getElementsByName('check').length-1;i++){
+
+        if(!document.getElementsByName('check')[i].checked){
+
+            document.getElementsByName('check')[i].checked=true;
+	}
+  }
+}else{
+
+   for(i= 0; i<document.getElementsByName('check').length-1;i++){
+
+        if(document.getElementsByName('check')[i].checked){
+
+            document.getElementsByName('check')[i].checked=false;
+   }
+}
+
+}
+}
+function submitCharge(){
+
+	len = document.getElementsByName('check').length;
+	total_dev_id="";
+	id_check="_";
+	total_dev_name="";
+	total_dev_hardware="";
+	total_dev_serial="";
+	total_dev_version="";
+	total_dev_license="";
+	name_check=", ";
+for(i = 0; i<len-1;i++){
+
+        if(document.getElementsByName('check')[i].checked){
+        
+        total_dev_name += document.getElementsByName('product_name')[i].value + name_check;
+        total_dev_hardware += document.getElementsByName('product_item')[i].value + name_check;
+        total_dev_serial +=  document.getElementsByName('product_serial')[i].value + name_check;
+        total_dev_version += document.getElementsByName('product_version')[i].value + name_check;
+        total_dev_license += document.getElementsByName('product_license')[i].value + name_check;
+        }
+
+}
+
+//alert(total_dev_serial);
+
+opener.document.cform.produce.value=total_dev_name.substr(0,(total_dev_name.length-2));
+opener.document.cform.hardware.value=total_dev_hardware.substr(0,(total_dev_hardware.length-2));
+opener.document.cform.serial.value=total_dev_serial.substr(0,(total_dev_serial.length-2));
+opener.document.cform.version.value=total_dev_version.substr(0,(total_dev_version.length-2));
+opener.document.cform.license.value=total_dev_license.substr(0,(total_dev_license.length-2));
+self.close();
+}
+</script>

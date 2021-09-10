@@ -1,0 +1,592 @@
+<?php
+  include $this->input->server('DOCUMENT_ROOT')."/include/base.php";
+  include $this->input->server('DOCUMENT_ROOT')."/include/customer_top.php";
+
+?>
+
+<html>
+  <head>
+
+    <meta charset="utf-8">
+    <title></title>
+
+  </head>
+
+  <!-- <script type="text/javascript" src="/misc/js/jquery-1.8.3.min"></script> -->
+  <link href='/misc/css/tech_schedule/tech_schedule.css' rel='stylesheet' />
+  <link href='/misc/css/tech_schedule/main.css' rel='stylesheet' />
+  <link rel="stylesheet" href="/misc/css/bootstrap-datepicker.css">
+  <link rel="stylesheet" href="/misc/css/bootstrap-timepicker.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/themes/default/style.min.css" /> <!-- 조직도 생성 -->
+  <link rel="stylesheet" href="/misc/css/tech_schedule/proton/style.min.css" /> <!-- 조직도 생성 -->
+  <link rel="stylesheet" href="/misc/css/tech_schedule/jquery.minicolors.css" />
+  <link rel="stylesheet" href="/misc/css/chosen.css">
+  <!-- <link rel="stylesheet" href="/misc/css/bootstrap.css"> -->
+  <script src='/misc/js/tech_schedule/main.js'></script>
+  <script src='/misc/js/tech_schedule/ko.js'></script>
+  <script src='/misc/js/chosen.jquery.js'></script>
+  <script src='/misc/js/tech_schedule/tech_schedule.js'></script>
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/js/select2.min.js"></script>
+  <!-- <script src='/misc/js/select2.min.js'></script> -->
+  <script type="text/javascript" src="/misc/js/bootstrap-datepicker.js"></script>
+  <script type="text/javascript" src="/misc/js/bootstrap-timepicker.js"></script>
+  <script type="text/javascript" src="/misc/js/jquery.bpopup-0.1.1.min.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.11.0/moment.min.js"></script>
+  <script src="https://unpkg.com/popper.js/dist/umd/popper.min.js"></script>
+  <script src="https://unpkg.com/tooltip.js/dist/umd/tooltip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/jstree.min.js"></script> <!-- 조직도 생성 -->
+  <script type="text/javascript" src="/misc/js/tech_schedule/jquery.minicolors.js"></script>
+
+
+  <script>
+  //오늘 날짜 가져오기
+  let today = new Date();
+  let year = today.getFullYear(); // 년도
+  let month = today.getMonth() + 1;  // 월
+  let date = today.getDate();  // 날짜
+  let day = today.getDay();  // 요일
+
+  document.addEventListener('DOMContentLoaded', function() {
+    if(sessionStorage.getItem('workColor')!=null){
+      $('#customPop').bPopup({follow:[false,false],position:["auto",0]});
+    }
+    sessionStorage.removeItem('workColor');
+
+    var calendarEl = document.getElementById('calendar');
+    var calendar = new FullCalendar.Calendar(calendarEl, {
+
+      // googleCalendarApiKey: 'AIzaSyDaKrURvXhNj_960m5JPkHiOI32UCNwdlk',
+      locale: 'ko', //언어 설정
+      // selectable: true,
+      // selectHelper: true,
+      editable: true, // 일정 드래그 가능 여부
+      // aspectRatio: 1.8,
+      eventOverlap: true, //동일 날짜 시간 중복등록 가능
+      scrollTime: '08:00', // 포커스 되는 시간
+      navLinks: true, //날짜 클릭시 그날 일정으로 가는 거
+      dayMaxEventRows: true,
+      // dayMaxEvent: true,
+      //버튼 만들기
+      customButtons: {
+        //일정 추가 버튼
+        addSchedule: {
+          text: '일정추가',
+          click: function() {
+            $('#addpopup').bPopup();
+          }
+        }
+
+      },
+      headerToolbar: {
+        left: 'today prev,next', //왼쪽버튼
+        center: 'title', //중앙 버튼
+        right: 'addSchedule dayGridMonth,listMonth timeGridWeek,listWeek timeGridDay,listDay' //dayGridWeek//오른쪽 버튼
+
+      },
+      initialView: 'dayGridMonth',
+
+      // 일정 그리기
+      eventSources:[
+
+        <?php
+      if (empty($events)==false){
+        // echo "{events:[";
+          foreach ($events as $val) {
+            if ($val->start_time=="00:00:00" && $val->end_time=="00:00:00") {
+              $start = $val->start_day;
+              $end = $val->end_day;
+            }else {
+              $start = $val->start_day."T".$val->start_time;
+              $end = $val->end_day."T".$val->end_time;
+            }
+            $participant = $val->participant;
+            $participant = explode(',',$participant);
+            $partyLen = count($participant) - 1;
+            if($partyLen == 0){
+              $participant = $participant[0];
+            } else {
+              $participant = $participant[0]." 외 ".$partyLen."명";
+            }
+
+            $modifyDate = $val->modify_date;
+            if($modifyDate == ""){
+              $modifyDate = $val->insert_date;
+            }
+            // echo "{ start: '".$start."', end:'".$end."', title: '[".$participant."] ".$val->customer."-".$val->work_name."' ,id:'".$val->seq."', },";
+            echo "{events:[{ start: '".$start."', end:'".$end."', title: '[".$participant."] ".$val->customer."-".$val->work_name."' ,id:'".$val->seq."', extendedProps: {participant: '".$val->participant."', user_name: '".$val->user_name."', insert_date:'".$modifyDate."'}, color:'{$val->color}', textColor : '{$val->textColor}' }]},";
+          }
+          // echo "]},";
+        }
+        ?>
+
+        ], //이벤트 리소스 끝
+        dayCellContent: function (arg) {
+        return arg.date.getDate();
+      },
+
+        eventClick: function(info) { //일정 클릭시 이벤트 상세페이지 이동
+          var seq = info.event.id;
+          $('#hiddenSeq').val(seq);
+          $('#seqBtn').click();
+          ///////////////////////////////////////////
+
+
+        },
+
+        eventDidMount: function(info) {       //일정 마우스 오버시 툴팁 창
+          var startDay = moment(info.event.start).format('YY-MM-DD HH:mm');
+          var endDay = moment(info.event.end).format('YY-MM-DD HH:mm');
+          var participant = info.event.extendedProps.participant;
+          var userName = info.event.extendedProps.user_name+" "+info.event.extendedProps.insert_date;
+          var tooltip = new Tooltip(info.el, {
+            title: "<table class='tg' style='undefined;table-layout: fixed; width: 300px'><colgroup><col style='width: 300px'></colgroup><thead><tr><th class='tg-zd5i'>"+info.event.title+"</th></tr></thead><tbody><tr><td class='tg-l6li'>"+ startDay +" ~ "+ endDay +"</td></tr><tr><td class='tg-73a0'>[참석자] "+participant+"</td></tr><tr><td class='tg-73a0'>[등록자] "+userName+"</td></tr></tbody></table>",
+            placement: 'right',
+            trigger: 'hover',
+            delay: {show:800},
+            html:true,
+            template: '<div class="tooltip" role="tooltip"><div class="tooltip-inner"></div></div>',
+          });
+        },
+
+
+        //드래그 드랍시 날짜 업데이트
+        eventDrop: function(info){
+          var seq = info.event.id;
+          var startDay = moment(info.event.start).format('YY-MM-DD');
+          var startTime =moment(info.event.start).format('HH:mm');
+          var endDay = moment(info.event.end).format('YY-MM-DD');
+          var endTime = moment(info.event.end).format('HH:mm');
+          // alert(seq+"/////"+startDay +"////"+startTime+"///"+endDay+"//"+endTime);
+          $.ajax({
+            type: 'POST',
+            url:"/index.php/schedule/drop_update",
+            data:{
+              seq: seq,
+              start_day : startDay,
+              start_time : startTime,
+              end_day : endDay,
+              end_time : endTime
+            },
+            cache:false,
+            async:false
+          })
+          .done(function(result){
+            if(result == 'OK'){
+              $('#calendar').fullCalendar("refetchEvents");
+            }
+          });
+
+        },
+
+        //이벤트 리사이즈시 날짜 시간 업데이트
+        eventResize: function(info){
+          var seq = info.event.id;
+          var startDay = moment(info.event.start).format('YY-MM-DD');
+          var startTime =moment(info.event.start).format('HH:mm');
+          var endDay = moment(info.event.end).format('YY-MM-DD');
+          var endTime = moment(info.event.end).format('HH:mm');
+          // alert(seq+"/////"+startDay +"////"+startTime+"///"+endDay+"//"+endTime);
+          $.ajax({
+            type: 'POST',
+            url:"/index.php/schedule/drop_update",
+            data:{
+              seq: seq,
+              start_day : startDay,
+              start_time : startTime,
+              end_day : endDay,
+              end_time : endTime
+            },
+            cache:false,
+            async:false
+          })
+          .done(function(result){
+            if(result == 'OK'){
+              $('#calendar').fullCalendar("refetchEvents");
+            }
+          });
+
+        }
+
+
+      });
+      calendar.render();
+
+      // calendarRefresh = function() {
+      //     calendar.refetchEvents();
+      // }
+
+      $('.demo').each( function() {
+        $(this).minicolors({
+          control: $(this).attr('data-control') || 'hue',
+          defaultValue: $(this).attr('data-defaultValue') || '',
+          format: $(this).attr('data-format') || 'hex',
+          keywords: $(this).attr('data-keywords') || '',
+          inline: $(this).attr('data-inline') === 'true',
+          letterCase: $(this).attr('data-letterCase') || 'lowercase',
+          opacity: $(this).attr('data-opacity'),
+          position: $(this).attr('data-position') || 'bottom',
+          swatches: $(this).attr('data-swatches') ? $(this).attr('data-swatches').split('|') : [],
+          change: function(value, opacity) {
+            if( !value ) return;
+            if( opacity ) value += ', ' + opacity;
+            if( typeof console === 'object' ) {
+              // console.log(value);
+            }
+          },
+          theme: 'bootstrap'
+        });
+
+      });
+    });
+
+    $(".fc-prev-button").click(function() {
+        alert(1);
+      });
+
+
+  </script>
+<body>
+<table width="100%" height="100%" border="0" cellspacing="0" cellpadding="0">
+<?php
+  include $this->input->server('DOCUMENT_ROOT')."/include/tech_header.php";
+  // var_dump($events);
+?>
+  <tr>
+    <td align="center" valign="top">
+      <!-- //여기부터 -->
+
+      <!-- 일정 추가 팝업 -->
+        <div id='addpopup' style="display: none; background-color: white; width: 530px; height: 530px;">
+          <table>
+            <thead align="center">
+                <h2>일정등록</h2>
+
+            </thead>
+            <tbody align="left">
+
+            <tbody>
+              <tr>
+                <td>
+                  기&nbsp;&nbsp;&nbsp;간
+                </td>
+                <td>
+                 <input type="text" name="startDay" id="startDay" size="7" value="" autocomplete="off">
+                 <input type="button" name="" id="startBtn" class="dateBtn" value=" " onclick="openStartDate();">
+                 <input type="text" name="startTime" id="startTime" size="2" value="" autocomplete="off"> ~
+                 <!-- <input type="button" name="" id="startTimeBtn" class="timeBtn" value=" " onclick=""> ~ -->
+                 <input type="text" name="endDay" id="endDay" size="7" value="" autocomplete="off">
+                 <input type="button" name="" id="endBtn" class="dateBtn" value=" " onclick="openEndDate();">
+                 <input type="text" name="endTime" id="endTime" size="2" value="" autocomplete="off">
+                 <!-- <input type="button" name="" id="endTimeBtn" class="timeBtn" value=" " onclick=""> -->
+                 <label><input type="checkbox" name="alldayCheck" value="" onChange="hideTime();">종일</label>
+                </td>
+              </tr>
+              <tr>
+                <td>구&nbsp;&nbsp;&nbsp;분</td>
+                <td>
+                  <select name="workname" id="workname" >
+                    <option value="">선택하세요</option>
+<?php
+foreach ($work_name as $val) {
+  echo "<option value = '{$val->work_name}'>{$val->work_name}</option>";
+}
+?>
+                  </select>
+                  &nbsp;지원방법
+                  <select name="supportMethod" id="supportMethod">
+                    <option value="">------------</option>
+                    <option value="방문지원">방문지원</option>
+                    <option value="원격지원">원격지원</option>
+                  </select>
+                </td>
+
+              </tr>
+              <tr>
+                <td>고객사</td>
+                <td>
+                  <select name="customer" id="customer" onmouseover="select2(this);" onchange="insertDirect(this);">
+                  <option value=""></option>
+                  <option value="직접입력">직접입력</option>
+<?php
+foreach ($customer as $val) {
+  echo "<option value = '{$val->customer}'>{$val->customer}</option>";
+}
+?>
+                    <!-- <option value="" selected disabled hidden>선택하세요</option> -->
+                  </select>
+                  <input style="width:80%; border:solid 1px black; display:none;" type="text" name="insertDirect" id="insertDirect" class="insertDirect" value="">
+                  <td>
+                  </tr>
+              <tr>
+                <td>참석자</td>
+                <td>
+                  <input type="text" name="participant" id="participant" value="<?php echo $name; ?>" placeholder="" size='40' multiple="multiple">
+                  <button type="button" id="addUserBtn" name="addUserBtn" onclick="addUserBtn()">추가</button>
+                  <!-- <select name="adduser" id='adduser'> -->
+                    <!-- <option value=""></option> -->
+<?php
+// foreach ($select_user as $val) {
+  // echo "<option value = '{$val->user_name}'>{$val->user_name}</option>";
+// }
+?>
+                  <!-- </select> -->
+                <!-- <button type="button" id="addUser" name="addUser" onclick="addUser();">추가</button> -->
+                </td>
+              </tr>
+              <tr>
+                <td>내&nbsp;&nbsp;&nbsp;용</td>
+                <td>
+                  <textarea cols="54" rows="22" name='contents' id="contents" placeholder="상세내용"></textarea>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                </td>
+                <td>
+                  <button type="button" name="scheduleAdd" id="scheduleAdd"  onclick="scheduleAdd();">등록</button>
+                </td>
+              </tr>
+
+            </tbody>
+          </table>
+        </div>
+<!-- 팝업 끝 -->
+
+<!-- 참여자 팝업 추가 -->
+<div id="addUserpopup">
+  <a href="#" style="margin:0% 0% 0% 96%;"><span id="addUserpopupCloseBtn" onclick="closeBtn()"><span style="color:white;">X</span></span></a>
+  <div id="modal-body">
+    <div id="modal-grouptree">
+      <div id="usertree">
+        <ul>
+          <li>(주)두리안정보기술
+            <ul>
+            <?php
+            foreach ($parentGroup as $pg){
+            ?>
+
+            <?php
+            if ($pg->childGroupNum==1 && $pg->depth==1){
+            ?>
+              <li>
+                <?php echo $pg->parentGroupName;
+                  foreach ($userInfo as $ui){
+                      if ($pg->groupName==$ui->user_group){
+                ?>
+                <ul>
+                  <li id="<?php echo $ui->user_name; ?>"><?php echo $ui->user_name." ".$ui->user_duty; ?></li>
+                </ul>
+                <?php
+                      }
+                  }
+                ?>
+              </li>
+              <?php
+              } else if ($pg->childGroupNum>1 && $pg->depth==1){
+              ?>
+              <li>
+              <?php echo $pg->parentGroupName;
+              foreach ($user_group as $ug) {
+                if ($pg->parentGroupName==$ug->parentGroupName){
+              ?>
+                <ul>
+                  <?php
+                  foreach ($userDepth as $ud){
+                      if ($ug->groupName == $ud->groupName){
+                        echo '<li id="'.$ud->user_name.'">'.$ud->user_name." ".$ud->user_duty.'</li>';
+                      }
+                  }
+                  if ($ug->groupName != $ud->groupName){
+                    echo "<li>".$ug->groupName;
+                  }
+                  ?>
+                    <ul>
+                    <?php
+                      foreach($userInfo as $ui) {
+                        if ($ug->groupName==$ui->user_group){
+                          echo '<li id="'.$ui->user_name.'">'.$ui->user_name." ".$ui->user_duty.'</li>';
+                        }
+                      }
+                    ?>
+                    </ul>
+                  </li>
+                </ul>
+              <?php
+                }
+              }
+              ?>
+              </li>
+              <?php
+              }
+              ?>
+            <?php
+            }
+            ?>
+            </ul>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div id="modal-btn">
+          <ul class="kipark">
+            <li><a href="#" onclick="insertUser()"><img src="/misc/img/btn_right2.jpg" id="insertUserBtn"></a></li>
+            <li><a href="#" onclick="deleteUser()"><img src="/misc/img/btn_left2.jpg" id="insertUserBtn"></a></li>
+            <li><a href="#" onclick="reset()"><img src="/misc/img/btn_return.jpg" id="insertUserBtn"></a></li>
+          </ul>
+        </div>
+        <div id="modal-participant">
+          <ul id="insertParticipant">
+          </ul>
+        </div>
+        <div id="btnDiv">
+        <input type="button" style="float:right;" id="chosenBtn" name="" value="적용" onclick="addUser()">
+        </div>
+      </div>
+    </div>
+    <!-- 참여자 팝업 끝 -->
+
+<!-- 색상 커스터미이징 팝업 -->
+
+      <div id='customPop' style="display : none; background-color: white; width: 500px; height: 700px;">
+        <h3 style="text-align:center; color:#aaa;">작업별 색상 설정</h3>
+        <div class="well">
+          <div class="row">
+            <table id="workColor_tbl">
+              <tbody style="width:100%">
+
+
+<?php
+foreach($work_color as $val){
+  echo '<tr id="'.$val->seq.'" style="border-bottom: 30px solid #f5f5f5; width:100%; height:90%;">';
+  echo '<td style="width:30%"><label for="hue-demo">'.$val->work_name.'</label>';
+  echo '<input style="height:30px" type="text" name="work_color" class="form-control demo work_color" data-control="hue" value="'.$val->color.'" onchange="colorCustom(this);"/></td>';
+  echo '<td style="width:30%"><label for="saturation-demo">글자색</label>';
+  echo '<input style="height:30px" type="text" name="text_color" class="form-control demo text_color" data-control="saturation" value="'.$val->textColor.'" onchange="colorCustom(this);"/></td>';
+  echo '<td style="width:30%"><label for="saturation-demo">출력</label>';
+  echo '<input type="text" class="form-control printDemo" data-control="saturation" value="'.$val->work_name.'" style="background-color:'.$val->color.'; color:'.$val->textColor.'; height:30px"/></td></tr>';
+}
+ ?>
+            </tbody>
+          </table>
+          <button style="float:right" type="button" class="btn" name="button" onclick="save_workColor_close();">닫기</button>
+          <button style="float:right" type="button" class="btn" name="button" onclick="save_workColor();">저장</button>
+
+          </div>
+        </div>
+      </div>
+<!-- 색상 커스터미이징 팝업 끝-->
+
+      <div id='updateform' style="display: none; background-color: white; width: 450px; height: 500px;">
+        <form name="hiddenSeq" action="<?php echo site_url();?>/schedule/tech_schedule_detail" method="post">
+          <input type="input" name="hiddenSeq" id="hiddenSeq" value="">
+          <input type="submit" name="seqBtn" id="seqBtn" >
+        </form>
+      </div>
+
+      <div id="sd_contain">
+        <div id="scheduleTop">
+          <button type="button" name="button" onclick="excelExport();" class="fc-addSchedule-button fc-button fc-button-primary">엑셀 다운(월 일정)</button>
+          <button <?php if($session_id!='kkj'){echo 'style="display:none;"';} ?> type="button" name="button" onclick="customPop();" class="fc-addSchedule-button fc-button fc-button-primary">색상 설정</button>
+          <!-- <button type="button" name="button" onclick="colorChange(this);" class="fc-addSchedule-button fc-button fc-button-primary">사원별 보기</button> -->
+        </div>
+        <div id="scheduleSidebar" style="text-align: left;">
+          <h2>sidebar</h2>
+          <!-- @@ ↓ -->
+
+          <div id="tree">
+            <ul>
+              <li>(주)두리안정보기술
+                <ul>
+<?php
+foreach ($parentGroup as $pg){
+?>
+
+<?php
+if ($pg->childGroupNum==1 && $pg->depth==1){
+?>
+                  <li>
+<?php echo $pg->parentGroupName;
+  foreach ($userInfo as $ui){
+      if ($pg->groupName==$ui->user_group){
+?>
+
+                    <ul>
+                      <li id="<?php echo $ui->user_name; ?>"><?php echo $ui->user_name." ".$ui->user_duty; ?></li>
+                    </ul>
+
+<?php
+      }
+    }
+    ?>
+                  </li>
+    <?php
+  } else if ($pg->childGroupNum>1 && $pg->depth==1){
+    ?>
+                  <li>
+<?php echo $pg->parentGroupName;
+    foreach ($user_group as $ug) {
+      if ($pg->parentGroupName==$ug->parentGroupName){
+      ?>
+                    <ul>
+<?php
+      foreach ($userDepth as $ud){
+          if ($ug->groupName == $ud->groupName){
+            echo '<li id="'.$ud->user_name.'">'.$ud->user_name." ".$ud->user_duty.'</li>';
+          }
+          }
+          if ($ug->groupName != $ud->groupName){
+            echo "<li>".$ug->groupName;
+          }
+?>
+                        <ul>
+<?php
+      foreach($userInfo as $ui) {
+        if ($ug->groupName==$ui->user_group){
+          echo '<li id="'.$ui->user_name.'">'.$ui->user_name." ".$ui->user_duty.'</li>';
+        }
+      }
+ ?>
+                        </ul>
+                      </li>
+                    </ul>
+      <?php
+      }
+    }
+?>
+
+                  </li>
+    <?php
+  }
+?>
+
+<?php
+}
+ ?>
+                </ul>
+              </li>
+            </ul>
+
+          </div>
+          <!-- @@ ↑ -->
+        </div>
+        <div id='calendar'></div>
+      </div>
+
+      </div>
+      <!-- //여기까지 -->
+    </td>
+  </tr>
+  <!--하단-->
+  <tr>
+    <td align="center" height="100" bgcolor="#CCCCCC"><table width="1130" cellspacing="0" cellpadding="0" >
+      <tr>
+        <td width="197" height="100" align="center" background="<?php echo $misc;?>img/customer_f_bg.png"><img src="<?php echo $misc;?>img/f_ci.png"/></td>
+        <td><?php include $this->input->server('DOCUMENT_ROOT')."/include/customer_bottom.php"; ?></td>
+        </tr>
+        </table></td>
+        </tr>
+        </table>
+
+        </body>
+
+        </html>

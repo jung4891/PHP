@@ -1,0 +1,1511 @@
+<?php
+   include $this->input->server('DOCUMENT_ROOT')."/include/base.php";
+   include $this->input->server('DOCUMENT_ROOT')."/include/sales_top.php";
+?>
+<link rel="stylesheet" href="/misc/css/dashboard.css">
+<style>
+.dash_tbl1-1{
+  margin:20px;
+  display:grid;
+}
+
+.item_div{
+   width: 100%;
+   max-height: 800px;
+   overflow: auto;
+   -ms-overflow-style: none; /*ie, edge*/
+   scrollbar-width: none; /*파이어폭스란다*/
+}
+
+.item_div::-webkit-scrollbar{ /*롬크*/
+    display:none;
+ }
+
+
+.contents_tbl{
+  width: 95%;
+  border-color:black;
+  border-style:solid;
+  border-width:2px;
+  text-align:center;
+   position: relative;
+
+}
+
+.contents_tbl thead td{
+   font-size:14px;
+   font-weight:bold;
+   border-bottom: 1px solid black;
+   background-color:#e8e8e8;
+   /* position: sticky; */
+   /* top:35px; */
+}
+
+.total_sum {
+   border-top: 1px double black;
+}
+
+.contents_tbl:not(.total_tbl) th {
+   height:30px;
+   font-size: 16px;
+   background-color: #d4d4d4;
+   border-bottom: 1px solid black;
+   /* position: sticky; */
+   /* top:0px; */
+}
+
+.contents_tbl td, .total_tbl th{
+   border-left-color:black;
+     border-left-style:solid;
+     border-left-width:1px;
+   /* font-size: 7px; */
+   word-break:break-all;
+   border-bottom: 1px solid;
+}
+
+.project_division td{
+   border-top-color:black;
+  border-top-style:solid;
+  border-top-width:1px;
+}
+
+.fixed_tr td{
+   position: sticky;
+   bottom:0px;
+   background-color: #c1e7f7;
+}
+
+
+#operating_div input, #dbs_ma_div input{
+   text-align:center;
+   width:90%;
+
+}
+
+
+input:disabled {
+   background: white;
+   border:none;
+
+}
+
+
+.minus_tr{
+   color: red;
+}
+
+.minus_tr input{
+   color: red;
+}
+
+#operating_div button{
+   display:none;
+}
+
+#dbs_ma_div button{
+   display:none;
+}
+
+.td_input{
+   display:none;
+}
+
+</style>
+<body>
+  <?php
+    include $this->input->server('DOCUMENT_ROOT')."/include/sales_header.php";
+  ?>
+
+  <!-- <div align="center"> -->
+     <div class="dash_tbl1-1" align="center">
+	        <div>
+							<table width="100%" height="100%" border="0" cellspacing="0" cellpadding="0" class="">
+		        	<tr height="5%">
+		          	<td class="dash_title">
+		            	<img src="<?php echo $misc;?>img/dashboard/btn/1234.png"/>매입매출대장타이틀이미지넣어야돼
+			          </td>
+			        </tr>
+			      </table>
+					</div>
+
+      <div align="left" style="margin:40px;">
+               <form class="month_form" name="month_form" action="<?php echo site_url();?>/sales/purchase_sales/purchase_sales_view" method="get">
+
+                  <select class="select7" id="company" name="company" onchange="quarter_change();" style="width:150px;">
+                     <?php
+                     if(isset($_GET['company'])){
+                        $get_company = $_GET['company'];
+                     }else {
+                        $get_company = "DUIT";
+                     }
+                      ?>
+                     <option value="DUIT" <?php if ($get_company == "DUIT") { echo "selected"; }?>>두리안정보기술</option>
+                     <option value="ICT" <?php if ($get_company == "ICT") { echo "selected"; }?>>두리안정보통신기술</option>
+                     <option value="MG" <?php if ($get_company == "MG") { echo "selected"; }?>>더망고</option>
+                     <option value="DBS" <?php if ($get_company == "DBS") { echo "selected"; }?>>두리안정보기술부산지점</option>
+                  </select>
+                  <select class="select7" name="year" id="select_year">
+                     <?php $toYear = date('Y'); ?>
+                     <option value="<?php echo $toYear ?>" selected><?php echo $toYear ?>년</option>
+                  </select>
+                  <select class="select7" name="month" id="select_month">
+                     <?php
+                  if(isset($_GET['month'])){
+                     $month = $_GET['month'];
+                  }else{
+                     $month = date('m');
+                  }
+                     for($i=1; $i<=12; $i++){?>
+                        <option value="<?php echo sprintf('%02d',$i); ?>" <?php echo $month == $i ? 'selected': ''?>><?php echo $i; ?>월</option>
+                     <?php } ?>
+                  </select>
+                  <img src="<?php echo $misc;?>img/dashboard/btn/btn_search.png" width="20" onclick ="return GoSearch();" >
+               </form>
+      </div>
+         <!-- 합계 황현빈 추가 -->
+
+         <span align="left" style="margin-left:5vh;">
+            <img width="30" name="hide_img" src="<?php echo $misc; ?>/img/dashboard/btn/btn_top.png" onclick="div_toggle('to_div', this);" style="cursor:pointer;">
+         </span>
+         <div class="item_div" id="to_div">
+            <table class="contents_tbl total_tbl" cellspacing=0 cellpadding=0>
+               <colgroup>
+                  <col width="5%" /><!-- 구분-->
+                  <col width="7%" /> <!-- 공급가액-->
+                  <col width="7%" /> <!-- 세액-->
+                  <col width="7%" /> <!-- 합계 -->
+                  <col width="5%" /> <!-- 구분 -->
+                  <col width="8%" /> <!--국세청전송건수-->
+                  <col width="5%" /> <!--구분-->
+                  <col width="8%" /> <!--국세청전송건수-->
+                  <col width="9%" /> <!--공백-->
+                  <col width="5%" /> <!--구분-->
+                  <col width="7%" /> <!--공급가액-->
+                  <col width="7%" /> <!-- 세액 -->
+                  <col width="7%" /> <!--합계-->
+                  <col width="5%" /> <!--구분-->
+                  <col width="8%" /> <!--국세청전송건수-->
+               </colgroup>
+               <thead>
+                     <th>구분</th>
+                     <th>공급가액</th>
+                     <th>세액</th>
+                     <th>합계</th>
+                     <th>구분</th>
+                     <th>국세청전송건수</th>
+                     <th>구분</th>
+                     <th>국세청전송건수</th>
+                     <th style="border-bottom:none"></th>
+                     <th>구분</th>
+                     <th>공급가액</th>
+                     <th>세액</th>
+                     <th>합계</th>
+                     <th>구분</th>
+                     <th>국세청전송건수</th>
+               </thead>
+               <tbody>
+                  <?php
+                  // var_dump($maintain_ext);
+                  $category = array('상품', '용역', '조달', '운영비');
+                  $category2 = array('전자계산서', '종이계산서', '', '');
+                  $total_income = array(
+                     'issuance_amount' => 0,
+                     'tax_amount' => 0,
+                     'total_amount' => 0,
+                     'cnt' => 0
+                  );
+                  $total_outcome = array(
+                     'issuance_amount' => 0,
+                     'tax_amount' => 0,
+                     'total_amount' => 0,
+                     'cnt' => 0
+                  );
+                  for ($i=0; $i<count($category); $i++){
+                     $data = array();
+                     $data = $monthly_sum[$i];
+                  ?>
+                  <tr>
+                     <td>
+                        <?php echo $category[$i]; if($i<3){echo '매입';} ?>
+                     </td>
+                     <td class="total_num iss_income" align="right" style="padding-right:5px">
+                        <?php if(isset($data[0]['issuance_amount'])){echo number_format($data[0]['issuance_amount']);$total_income['issuance_amount']+=$data[0]['issuance_amount'];} ?>
+                     </td>
+                     <td class="total_num tax_income" align="right" style="padding-right:5px">
+                        <?php if(isset($data[0]['tax_amount'])){echo number_format($data[0]['tax_amount']);$total_income['tax_amount']+=$data[0]['tax_amount'];} ?>
+                     </td>
+                     <td class="total_num to_income" align="right" style="padding-right:5px">
+                        <?php if(isset($data[0]['total_amount'])){echo number_format($data[0]['total_amount']);$total_income['total_amount']+=$data[0]['total_amount'];} ?>
+                     </td>
+                     <td>
+                        <?php echo $category[$i]; if($i<3){echo '매입';} ?>
+                     </td>
+                     <td class="total_num cnt_income" align="right" style="padding-right:5px">
+                        <?php if(isset($data[0]['cnt'])){echo number_format($data[0]['cnt']);$total_income['cnt']+=$data[0]['cnt'];} ?>
+                     </td>
+                     <td>
+                        <?php echo $category2[$i]; ?>
+                     </td>
+                     <td <?php if($i<2){echo 'class="total_num" align="right" style="padding-right:5px"';} ?>>
+                        <?php if(isset($sum_bill_cnt[$i])){echo $sum_bill_cnt[$i]['cnt'];} ?>
+                     </td>
+                     <td style="background-color:#e8e8e8"></td>
+                     <td>
+                        <?php echo $category[$i]; if($i<3){echo '매출';} ?>
+                     </td>
+                     <td class="total_num iss_outcome" align="right" style="padding-right:5px">
+                        <?php if(isset($data[1]['issuance_amount'])){echo number_format($data[1]['issuance_amount']);$total_outcome['issuance_amount']+=$data[1]['issuance_amount'];} ?>
+                     </td>
+                     <td class="total_num tax_outcome" align="right" style="padding-right:5px">
+                        <?php if(isset($data[1]['tax_amount'])){echo number_format($data[1]['tax_amount']);$total_outcome['tax_amount']+=$data[1]['tax_amount'];} ?>
+                     </td>
+                     <td class="total_num to_outcome" align="right" style="padding-right:5px">
+                        <?php if(isset($data[1]['total_amount'])){echo number_format($data[1]['total_amount']);$total_outcome['total_amount']+=$data[1]['total_amount'];} ?>
+                     </td>
+                     <td>
+                        <?php echo $category[$i]; if($i<3){echo '매출';} ?>
+                     </td>
+                     <td class="total_num cnt_outcome" align="right" style="padding-right:5px">
+                        <?php if(isset($data[1]['cnt'])){echo number_format($data[1]['cnt']);$total_outcome['cnt']+=$data[1]['cnt'];} ?>
+                     </td>
+                  </tr>
+                  <?php
+                  }
+                   ?>
+                  <tr>
+                      <td class="total_sum" style="background-color:#c1e7f7">매입액</td>
+                      <td class="total_sum" align="right" style="padding-right:5px;background-color:#c1e7f7"><?php echo number_format($total_income['issuance_amount']); ?></td>
+                      <td class="total_sum" align="right" style="padding-right:5px;background-color:#c1e7f7"><?php echo number_format($total_income['tax_amount']); ?></td>
+                      <td class="total_sum" align="right" style="padding-right:5px;background-color:#c1e7f7"><?php echo number_format($total_income['total_amount']); ?></td>
+                     <td class="total_sum" style="padding-right:5px">총계</td>
+                     <td class="total_sum" align="right" style="padding-right:5px"><?php echo number_format($total_income['cnt']); ?></td>
+                     <td colspan="2" style="border-top: 1px double black;"></td>
+                     <td style="background-color:#e8e8e8"></td>
+                     <td class="total_sum" style="background-color:#c1e7f7;">매출액</td>
+                     <td class="total_sum" id="total_sum_iss" align="right" style="padding-right:5px;background-color:#c1e7f7"><?php echo number_format($total_outcome['issuance_amount']); ?></td>
+                     <td class="total_sum" id="total_sum_tax" align="right" style="padding-right:5px;background-color:#c1e7f7"><?php echo number_format($total_outcome['tax_amount']); ?></td>
+                     <td class="total_sum" id="total_sum_sum" align="right" style="padding-right:5px;background-color:#c1e7f7"><?php echo number_format($total_outcome['total_amount']) ?></td>
+                     <td class="total_sum" style="padding-right:5px">총계</td>
+                     <td class="total_sum" id="total_sum_count" align="right" style="padding-right:5px"><?php echo number_format($total_outcome['cnt']); ?></td>
+                  </tr>
+               </tbody>
+               </thead>
+            </table>
+         </div>
+
+<?php if($get_company != 'DBS') { ?>
+   <span align="left" style="margin-left:5vh;">
+      <img width=30 name="hide_img" src="<?php echo $misc;?>img/dashboard/btn/btn_top.png" onclick="div_toggle('fo_div', this);" style="cursor:pointer;">
+   </span>
+   <div class="item_div" id="fo_div">
+      <table id="forcasting_purchase_sales" class="contents_tbl" cellspacing=0 cellpadding=5>
+         <colgroup>
+            <col width="3%" /><!-- 사업부-->
+            <col width="10%" /> <!-- 계삼서no-->
+            <col width="5%" /> <!-- 일자-->
+            <col width="5%" /> <!-- 매입처 -->
+            <col width="9%" /> <!-- 품목 -->
+            <col width="5%" /> <!--공급가액-->
+            <col width="5%" /> <!--세액-->
+            <col width="5%" /> <!--합계-->
+            <col width="9%" /> <!--엔드유저-->
+            <col width="5%" /> <!--일자-->
+            <col width="5%" /> <!--매출처-->
+            <col width="9%" /> <!-- 품목 -->
+            <col width="5%" /> <!--공급가액-->
+            <col width="5%" /> <!--세액-->
+            <col width="5%" /> <!--합계-->
+            <col width="10%" /> <!--세금계산서넘버-->
+         </colgroup>
+      <thead>
+         <tr>
+            <!-- type 002 -->
+            <th colspan="8">매입(상품)</th>
+            <th></th>
+            <!-- type 001 -->
+            <th colspan="7">매출(상품)</th>
+         </tr>
+         <tr>
+            <td>사업부</td>
+            <td>세금계산서No.</td>
+            <td>일자</td>
+            <td>매입처</td>
+            <td>품목</td>
+            <td>공급가액</td>
+            <td>세액</td>
+            <td>합계</td>
+            <td>End-User</td>
+            <td>일자</td>
+            <td>매출처</td>
+            <td>품목</td>
+            <td>공급가액</td>
+            <td>세액</td>
+            <td>합계</td>
+            <td>세금계산서No</td>
+         </tr>
+      </thead>
+      <tbody>
+      <?php
+         $idx=0;
+         foreach($forcasting_val as $val){ ?>
+         <tr>
+            <?php
+            $cnt = 0;
+            $first_row = "";
+            for($i=0; $i<count($forcasting_val); $i++){
+               if($val['seq'] != ""){
+                  if($forcasting_val[$i]['seq'] == $val['seq']){
+                     if($cnt == 0){
+                        $first_row = $i;
+                     }
+                     $cnt ++;
+                  }
+               }else{
+                  $first_row = $idx;
+                  $cnt = 1;
+               }
+            }
+            if($first_row == $idx){
+               echo '<td rowspan="'.$cnt.'">';
+               if($val['dept'] != ""){
+                  echo $val['dept'];
+               }else{
+                  echo $val['s_dept'];
+               }
+               echo '</td>';
+            }
+            ?>
+         <?php
+            if($idx != 0 && $val['seq'] == $forcasting_val[$idx-1]['seq'] && $val['seq'] != ""){
+                  // echo "<td colspan=7></td>";
+            }else{?>
+               <td class='p_tax_approval_number' <?php if($first_row == $idx){echo 'rowspan="'.$cnt.'"';} ?><?php if(strpos($val['issuance_date'],$toYear.'-'.$month) === false){echo 'style="background-color:#FCD5B4;"';} ?>><?php echo $val['tax_approval_number']; ?></td>
+               <td class='p_issuance_date' <?php if($first_row == $idx){echo 'rowspan="'.$cnt.'"';} ?><?php if(strpos($val['issuance_date'],$toYear.'-'.$month) === false){echo 'style="background-color:#FCD5B4;"';} ?>><?php echo $val['issuance_date']; ?></td>
+               <td class='p_company_name' <?php if($first_row == $idx){echo 'rowspan="'.$cnt.'"';} ?><?php if(strpos($val['issuance_date'],$toYear.'-'.$month) === false){echo 'style="background-color:#FCD5B4;"';} ?>><?php echo $val['company_name']; ?></td>
+               <td class='p_project_name' <?php if($first_row == $idx){echo 'rowspan="'.$cnt.'"';} ?><?php if(strpos($val['issuance_date'],$toYear.'-'.$month) === false){echo 'style="background-color:#FCD5B4;"';} ?>><?php echo $val['project_name']; ?></td>
+               <td <?php if($first_row == $idx){echo 'rowspan="'.$cnt.'"';} ?><?php if(strpos($val['issuance_date'],$toYear.'-'.$month) === false){echo 'style="background-color:#FCD5B4;"';}else{echo 'class="p_issuance_amount"';} ?>><?php echo $val['issuance_amount'] == "" ? "" : number_format($val['issuance_amount']); ?></td>
+               <td <?php if($first_row == $idx){echo 'rowspan="'.$cnt.'"';} ?><?php if(strpos($val['issuance_date'],$toYear.'-'.$month) === false){echo 'style="background-color:#FCD5B4;"';}else{echo 'class="p_tax_amount"';} ?>><?php echo $val['tax_amount'] == "" ? "" : number_format($val['tax_amount']); ?></td>
+               <td <?php if($first_row == $idx){echo 'rowspan="'.$cnt.'"';} ?><?php if(strpos($val['issuance_date'],$toYear.'-'.$month) === false){echo 'style="background-color:#FCD5B4;"';}else{echo 'class="p_total_amount"';} ?>><?php echo $val['total_amount'] == "" ? "" : number_format($val['total_amount']); ?></td>
+         <?php } ?>
+
+            <td class='customer_companyname' style="background-color:#e8e8e8;">
+            <?php
+            if($val['customer_companyname'] != ""){
+               echo $val['customer_companyname'];
+            }else{
+               echo $val['s_customer_companyname'];
+
+            }?>
+            </td>
+         <?php
+            $s_cnt = 0;
+            $s_first_row = "";
+            for($i=0; $i<count($forcasting_val); $i++){
+               if($val['s_seq'] != ""){
+                  if($forcasting_val[$i]['s_seq'] == $val['s_seq']){
+                     if($s_cnt == 0 ){
+                        $s_first_row = $i;
+                     }
+                     $s_cnt ++;
+                  }
+               }else{
+                  $s_first_row = $idx;
+                  $s_cnt = 1;
+               }
+            }
+
+            if($idx != 0 && $val['s_seq'] == $forcasting_val[$idx-1]['s_seq'] && $val['s_seq'] != ""){
+                  // echo "<td colspan=7></td>";
+            }else{?>
+            <?php if($val['s_issuance_date'] != ""){ ?>
+            <td class='s_issuance_date' <?php if($s_first_row == $idx){echo 'rowspan="'.$s_cnt.'"';} ?><?php if(strpos($val['s_issuance_date'],$toYear.'-'.$month) === false){echo 'style="background-color:#FCD5B4;"';} ?>><?php echo $val['s_issuance_date']; ?></td>
+            <td class='s_company_name' <?php if($s_first_row == $idx){echo 'rowspan="'.$s_cnt.'"';} ?><?php if(strpos($val['s_issuance_date'],$toYear.'-'.$month) === false){echo 'style="background-color:#FCD5B4;"';} ?>><?php echo $val['s_company_name']; ?></td>
+            <td class='s_project_name' <?php if($s_first_row == $idx){echo 'rowspan="'.$s_cnt.'"';} ?><?php if(strpos($val['s_issuance_date'],$toYear.'-'.$month) === false){echo 'style="background-color:#FCD5B4;"';} ?>><?php echo $val['s_project_name']; ?></td>
+            <td <?php if($s_first_row == $idx){echo 'rowspan="'.$s_cnt.'"';} ?><?php if(strpos($val['s_issuance_date'],$toYear.'-'.$month) === false){echo 'style="background-color:#FCD5B4;"';}else{echo 'class="s_issuance_amount"';}  ?>><?php echo $val['s_issuance_amount'] == "" ? "" : number_format($val['s_issuance_amount']); ?></td>
+            <td <?php if($s_first_row == $idx){echo 'rowspan="'.$s_cnt.'"';} ?><?php if(strpos($val['s_issuance_date'],$toYear.'-'.$month) === false){echo 'style="background-color:#FCD5B4;"';}else{echo 'class="s_tax_amount"';} ?>><?php echo $val['s_tax_amount'] == "" ? "" : number_format($val['s_tax_amount']); ?></td>
+            <td <?php if($s_first_row == $idx){echo 'rowspan="'.$s_cnt.'"';} ?><?php if(strpos($val['s_issuance_date'],$toYear.'-'.$month) === false){echo 'style="background-color:#FCD5B4;"';}else{echo 'class="s_total_amount"';} ?>><?php echo $val['s_total_amount'] == "" ? "" : number_format($val['s_total_amount']); ?></td>
+            <td class='s_tax_approval_number' <?php if($s_first_row == $idx){echo 'rowspan="'.$s_cnt.'"';} ?><?php if(strpos($val['s_issuance_date'],$toYear.'-'.$month) === false){echo 'style="background-color:#FCD5B4;"';}else{echo 'class="s_total_amount"';} ?>><?php echo $val['s_tax_approval_number']; ?></td>
+            <?php }else{?>
+            <td colspan=7 style="background-color:#FCD5B4;"><?php echo $val['issue_schedule_date']." 매출"; ?></td>
+            <?php } ?>
+         <?php } ?>
+         </tr>
+      <?php
+         $idx++;
+      }
+      ?>
+
+      <tr class="project_division fixed_tr">
+         <td colspan= "5">합 계</td>
+         <td class="p_sum_issuance_amount">공급가액더하기</td>
+         <td class="p_sum_tax_amount">세액더하기</td>
+         <td class="p_sum_total_amount">합계더하기</td>
+         <td></td>
+         <td colspan= "3">합 계</td>
+         <td class="s_sum_issuance_amount">공급가액더하기</td>
+         <td class="s_sum_tax_amount">세액더하기</td>
+         <td class="s_sum_total_amount">합계더하기</td>
+         <td></td>
+      </tr>
+      </tbody>
+      </table>
+   </div>
+
+   <span align="left" style="margin-left:5vh;">
+      <img width=30 name="hide_img" src="<?php echo $misc;?>img/dashboard/btn/btn_top.png" onclick="div_toggle('ma_div', this);" style="cursor:pointer;">
+   </span>
+   <div class="item_div" id="ma_div">
+
+      <table id="maintain_purchase_sales" class="contents_tbl" cellspacing=0 cellpadding=5>
+   <colgroup>
+      <col width="5%" /><!-- 사업부-->
+      <col width="9%" /> <!-- 계삼서no-->
+      <col width="5%" /> <!-- 일자-->
+      <col width="5%" /> <!-- 매입처 -->
+      <col width="9%" /> <!-- 품목 -->
+      <col width="5%" /> <!--공급가액-->
+      <col width="5%" /> <!--세액-->
+      <col width="5%" /> <!--합계-->
+      <col width="9%" /> <!--엔드유저-->
+      <col width="5%" /> <!--일자-->
+      <col width="5%" /> <!--매출처-->
+      <col width="9%" /> <!-- 품목 -->
+      <col width="5%" /> <!--공급가액-->
+      <col width="5%" /> <!--세액-->
+      <col width="5%" /> <!--합계-->
+      <col width="9%" /> <!--세금계산서넘버-->
+   </colgroup>
+      <thead>
+         <tr>
+            <th colspan="8">매입(용역)</th>
+            <th></th>
+            <th colspan="7">매출(용역)</th>
+         </tr>
+         <tr>
+            <td>사업부</td>
+            <td>세금계산서No.</td>
+            <td>일자</td>
+            <td>매입처</td>
+            <td>품목</td>
+            <td>공급가액</td>
+            <td>세액</td>
+            <td>합계</td>
+   <td>End-User</td>
+            <td>일자</td>
+            <td>매출처</td>
+            <td>품목</td>
+            <td>공급가액</td>
+            <td>세액</td>
+            <td>합계</td>
+            <td>세금계산서No</td>
+         </tr>
+      </thead>
+<tbody>
+   <?php
+      $idx=0;
+      foreach($distinct_maintain_seq as $dms){
+         $row_cnt = 0;
+         $purchase_row =array();
+         $purchase_cnt =0;
+         $sales_row =array();
+         $sales_cnt =0;
+         for($i=0; $i<count($maintain_val); $i++){
+            if($dms['rseq'] == $maintain_val[$i]['rseq']){
+               if($row_cnt < $maintain_val[$i]['cnt']){
+                  $row_cnt = $maintain_val[$i]['cnt'] ;
+               }
+               if($maintain_val[$i]['type'] == "002"){
+                     $issuance_amount = $maintain_val[$i]['issuance_amount'] == "" ? "" : number_format($maintain_val[$i]['issuance_amount']);
+                     $tax_amount = $maintain_val[$i]['tax_amount'] == "" ? "" : number_format($maintain_val[$i]['tax_amount']);
+                     $total_amount = $maintain_val[$i]['total_amount'] == "" ? "" : number_format($maintain_val[$i]['total_amount']);
+                     $purchase_row[$purchase_cnt] =
+                     "<td class='p_tax_approval_number'>{$maintain_val[$i]['tax_approval_number']}</td>
+                     <td class='p_issuance_date'>{$maintain_val[$i]['issuance_date']}</td>
+                     <td class='p_company_name'>{$maintain_val[$i]['company_name']}</td>
+                     <td class='p_project_name'>{$dms['project_name']}</td>
+                     <td class='p_issuance_amount'>{$issuance_amount}</td>
+                     <td class='p_tax_amount'>{$tax_amount}</td>
+                     <td class='p_total_amount'>{$total_amount}</td>";
+                     $purchase_cnt++;
+               }
+
+               if($maintain_val[$i]['type'] == "001"){
+                  $issuance_amount = $maintain_val[$i]['issuance_amount'] == "" ? "" : number_format($maintain_val[$i]['issuance_amount']);
+                  $tax_amount = $maintain_val[$i]['tax_amount'] == "" ? "" : number_format($maintain_val[$i]['tax_amount']);
+                  $total_amount = $maintain_val[$i]['total_amount'] == "" ? "" : number_format($maintain_val[$i]['total_amount']);
+                  $sales_row[$sales_cnt] =
+                     "<td class='s_issuance_date'>{$maintain_val[$i]['issuance_date']} </td>
+                     <td class='s_company_name'>{$maintain_val[$i]['company_name']} </td>
+                     <td class='s_project_name'>{$dms['project_name']} </td>
+                     <td class='s_issuance_amount'>{$issuance_amount}</td>
+                     <td class='s_tax_amount'>{$tax_amount}</td>
+                     <td class='s_total_amount'>{$total_amount}</td>
+                     <td class='s_tax_approval_number'>{$maintain_val[$i]['tax_approval_number']}</td>";
+                     $sales_cnt++;
+               }
+            }
+         }
+         // echo "<script>console.log('{$idx},{$dms['customer_companyname']},{$row_cnt},{$purchase_cnt},{$sales_cnt}')</script>";
+         for($i=0; $i<count($maintain_val); $i++){
+            if($dms['rseq'] == $maintain_val[$i]['rseq']){
+               for($j=0; $j<$row_cnt; $j++){
+                  echo "<tr>";
+                  echo "<td class='dept'>{$dms['dept']}</td>";
+                  if(isset($purchase_row[$j])){
+                     echo $purchase_row[$j];
+                  }else{
+                     echo "<td colspan=7></td>";
+                  }
+                  echo "<td class='customer_companyname' style='background-color:#e8e8e8;'>{$dms['customer_companyname']}</td>";
+                  if(isset($sales_row[$j])){
+                     echo $sales_row[$j];
+                  }else{
+                     echo "<td colspan=7></td>";
+                  }
+                  echo "</tr>";
+               }
+               $i = $i+$sales_cnt+$purchase_cnt;
+            }
+         }
+         $idx++;
+      }
+   ?>
+
+      <tr class="project_division fixed_tr">
+         <td colspan= "5">합 계</td>
+         <td class="p_sum_issuance_amount">공급가액더하기</td>
+         <td class="p_sum_tax_amount">세액더하기</td>
+         <td class="p_sum_total_amount">합계더하기</td>
+         <td></td>
+         <td colspan= "3">합 계</td>
+         <td class="s_sum_issuance_amount">공급가액더하기</td>
+         <td class="s_sum_tax_amount">세액더하기</td>
+         <td class="s_sum_total_amount">합계더하기</td>
+         <td></td>
+      </tr>
+      </tbody>
+      </table>
+
+   </div>
+
+   <span align="left" style="margin-left:5vh;">
+      <img width=30 name="hide_img" src="<?php echo $misc;?>img/dashboard/btn/btn_top.png" onclick="div_toggle('procure_div', this);" style="cursor:pointer;">
+   </span>
+   <div class="item_div" id="procure_div">
+      <table id="procurement_purchase_sales" class="contents_tbl" cellspacing=0 cellpadding=5>
+         <colgroup>
+            <col width="5%" /><!-- 사업부-->
+            <col width="9%" /> <!-- 계삼서no-->
+            <col width="5%" /> <!-- 일자-->
+            <col width="5%" /> <!-- 매입처 -->
+            <col width="9%" /> <!-- 품목 -->
+            <col width="5%" /> <!--공급가액-->
+            <col width="5%" /> <!--세액-->
+            <col width="5%" /> <!--합계-->
+            <col width="9%" /> <!--엔드유저-->
+            <col width="5%" /> <!--일자-->
+            <col width="5%" /> <!--매출처-->
+            <col width="9%" /> <!-- 품목 -->
+            <col width="5%" /> <!--공급가액-->
+            <col width="5%" /> <!--세액-->
+            <col width="5%" /> <!--합계-->
+            <col width="9%" /> <!--세금계산서넘버-->
+         </colgroup>
+      <thead>
+         <tr>
+            <!-- type 002 -->
+            <th colspan="8">매입(조달)</th>
+            <th></th>
+            <!-- type 001 -->
+            <th colspan="7">매출(조달)</th>
+         </tr>
+         <tr>
+            <td>사업부</td>
+            <td>세금계산서No.</td>
+            <td>일자</td>
+            <td>매입처</td>
+            <td>품목</td>
+            <td>공금가액</td>
+            <td>세액</td>
+            <td>합계</td>
+            <td>End-User</td>
+            <td>일자</td>
+            <td>매출처</td>
+            <td>품목</td>
+            <td>공급가액</td>
+            <td>세액</td>
+            <td>합계</td>
+            <td>세금계산서No</td>
+         </tr>
+      </thead>
+      <tbody>
+      <?php
+         $idx=0;
+         foreach($procurement_val as $val){ ?>
+         <tr>
+            <?php
+            $cnt = 0;
+            $first_row = "";
+            for($i=0; $i<count($procurement_val); $i++){
+               if($val['seq'] != ""){
+                  if($procurement_val[$i]['seq'] == $val['seq']){
+                     if($cnt == 0){
+                        $first_row = $i;
+                     }
+                     $cnt ++;
+                  }
+               }else{
+                  $first_row = $idx;
+                  $cnt = 1;
+               }
+            }
+            if($first_row == $idx){
+               echo '<td rowspan="'.$cnt.'">';
+               if($val['dept'] != ""){
+                  echo $val['dept'];
+               }else{
+                  echo $val['s_dept'];
+               }
+               echo '</td>';
+            }
+            ?>
+         <?php
+            if($idx != 0 && $val['seq'] == $procurement_val[$idx-1]['seq'] && $val['seq'] != ""){
+                  // echo "<td colspan=7></td>";
+            }else{?>
+               <td class="p_tax_approval_number" <?php if($first_row == $idx){echo 'rowspan="'.$cnt.'"';} ?><?php if(strpos($val['issuance_date'],$toYear.'-'.$month) === false){echo 'style="background-color:#FCD5B4;"';} ?>><?php echo $val['tax_approval_number']; ?></td>
+               <td class="p_issuance_date" <?php if($first_row == $idx){echo 'rowspan="'.$cnt.'"';} ?><?php if(strpos($val['issuance_date'],$toYear.'-'.$month) === false){echo 'style="background-color:#FCD5B4;"';} ?>><?php echo $val['issuance_date']; ?></td>
+               <td class="p_company_name" <?php if($first_row == $idx){echo 'rowspan="'.$cnt.'"';} ?><?php if(strpos($val['issuance_date'],$toYear.'-'.$month) === false){echo 'style="background-color:#FCD5B4;"';} ?>><?php echo $val['company_name']; ?></td>
+               <td class="p_project_name" <?php if($first_row == $idx){echo 'rowspan="'.$cnt.'"';} ?><?php if(strpos($val['issuance_date'],$toYear.'-'.$month) === false){echo 'style="background-color:#FCD5B4;"';} ?>><?php echo $val['project_name']; ?></td>
+               <td <?php if($first_row == $idx){echo 'rowspan="'.$cnt.'"';} ?><?php if(strpos($val['issuance_date'],$toYear.'-'.$month) === false){echo 'style="background-color:#FCD5B4;"';}else{echo 'class="p_issuance_amount"';} ?>><?php echo $val['issuance_amount'] == "" ? "" : number_format($val['issuance_amount']); ?></td>
+               <td <?php if($first_row == $idx){echo 'rowspan="'.$cnt.'"';} ?><?php if(strpos($val['issuance_date'],$toYear.'-'.$month) === false){echo 'style="background-color:#FCD5B4;"';}else{echo 'class="p_tax_amount"';} ?>><?php echo $val['tax_amount'] == "" ? "" : number_format($val['tax_amount']); ?></td>
+               <td <?php if($first_row == $idx){echo 'rowspan="'.$cnt.'"';} ?><?php if(strpos($val['issuance_date'],$toYear.'-'.$month) === false){echo 'style="background-color:#FCD5B4;"';}else{echo 'class="p_total_amount"';} ?>><?php echo $val['total_amount'] == "" ? "" : number_format($val['total_amount']); ?></td>
+         <?php } ?>
+            <td class="customer_companyname" style="background-color:#e8e8e8;">
+            <?php
+            if($val['customer_companyname'] != ""){
+               echo $val['customer_companyname'];
+            }else{
+               echo $val['s_customer_companyname'];
+
+            }?>
+            </td>
+         <?php
+            $s_cnt = 0;
+            $s_first_row = "";
+            for($i=0; $i<count($procurement_val); $i++){
+               if($val['s_seq'] != ""){
+                  if($procurement_val[$i]['s_seq'] == $val['s_seq']){
+                     if($s_cnt == 0 ){
+                        $s_first_row = $i;
+                     }
+                     $s_cnt ++;
+                  }
+               }else{
+                  $s_first_row = $idx;
+                  $s_cnt = 1;
+               }
+            }
+
+            if($idx != 0 && $val['s_seq'] == $procurement_val[$idx-1]['s_seq'] && $val['s_seq'] != ""){
+                  // echo "<td colspan=7></td>";
+            }else{?>
+            <?php if($val['s_issuance_date'] != ""){ ?>
+            <td class="s_issuance_date" <?php if($s_first_row == $idx){echo 'rowspan="'.$s_cnt.'"';} ?><?php if(strpos($val['s_issuance_date'],$toYear.'-'.$month) === false){echo 'style="background-color:#FCD5B4;"';} ?>><?php echo $val['s_issuance_date']; ?></td>
+            <td class="s_company_name" <?php if($s_first_row == $idx){echo 'rowspan="'.$s_cnt.'"';} ?><?php if(strpos($val['s_issuance_date'],$toYear.'-'.$month) === false){echo 'style="background-color:#FCD5B4;"';} ?>><?php echo $val['s_company_name']; ?></td>
+            <td class="s_project_name" <?php if($s_first_row == $idx){echo 'rowspan="'.$s_cnt.'"';} ?><?php if(strpos($val['s_issuance_date'],$toYear.'-'.$month) === false){echo 'style="background-color:#FCD5B4;"';} ?>><?php echo $val['s_project_name']; ?></td>
+            <td <?php if($s_first_row == $idx){echo 'rowspan="'.$s_cnt.'"';} ?><?php if(strpos($val['s_issuance_date'],$toYear.'-'.$month) === false){echo 'style="background-color:#FCD5B4;"';}else{echo 'class="s_issuance_amount"';} ?>><?php echo $val['s_issuance_amount'] == "" ? "" : number_format($val['s_issuance_amount']); ?></td>
+            <td <?php if($s_first_row == $idx){echo 'rowspan="'.$s_cnt.'"';} ?><?php if(strpos($val['s_issuance_date'],$toYear.'-'.$month) === false){echo 'style="background-color:#FCD5B4;"';}else{echo 'class="s_tax_amount"';} ?>><?php echo $val['s_tax_amount'] == "" ? "" : number_format($val['s_tax_amount']); ?></td>
+            <td <?php if($s_first_row == $idx){echo 'rowspan="'.$s_cnt.'"';} ?><?php if(strpos($val['s_issuance_date'],$toYear.'-'.$month) === false){echo 'style="background-color:#FCD5B4;"';}else{echo 'class="s_total_amount"';} ?>><?php echo $val['s_total_amount'] == "" ? "" : number_format($val['s_total_amount']); ?></td>
+            <td class="s_tax_approval_number" <?php if($s_first_row == $idx){echo 'rowspan="'.$s_cnt.'"';} ?><?php if(strpos($val['s_issuance_date'],$toYear.'-'.$month) === false){echo 'style="background-color:#FCD5B4;"';} ?>><?php echo $val['s_tax_approval_number']; ?></td>
+            <?php }else{?>
+            <td style="background-color:#FCD5B4;"><?php echo $val['issue_schedule_date']." 매출"; ?></td>
+            <?php } ?>
+         <?php } ?>
+         </tr>
+      <?php
+         $idx++;
+      }
+      ?>
+
+      <tr class="project_division fixed_tr">
+         <td colspan= "5">합 계</td>
+         <td class="p_sum_issuance_amount">공급가액더하기</td>
+         <td class="p_sum_tax_amount">세액더하기</td>
+         <td class="p_sum_total_amount">합계더하기</td>
+         <td></td>
+         <td colspan= "3">합 계</td>
+         <td class="s_sum_issuance_amount">공급가액더하기</td>
+         <td class="s_sum_tax_amount">세액더하기</td>
+         <td class="s_sum_total_amount">합계더하기</td>
+         <td></td>
+      </tr>
+      </tbody>
+      </table>
+   </div>
+      <?php }else{ ?>
+
+         <span align="left" style="margin-left:5vh;">
+            <img width=30 name="hide_img" src="<?php echo $misc;?>img/dashboard/btn/btn_top.png" onclick="div_toggle('dbs_ma_div', this);" style="cursor:pointer;">
+            <button class="skyBtn" type="button" name="button" onclick="operating_edit(this);">수정</button>
+            <button class="skyBtn" type="button" name="button" id="save_btn" onclick="operating_save();" style="display:none;">저장</button>
+         </span>
+   <form class="" id="operating_form" name="operating_form" method="post">
+         <div class="item_div" id="dbs_ma_div">
+        <table class="contents_tbl" id="dbs_ma_tbl" cellspacing=0 cellpadding=5>
+               <colgroup>
+                  <col width="10%" /><!-- enduser-->
+                  <col width="10%" /> <!-- 일자-->
+                  <col width="10%" /> <!-- 매출처 -->
+                  <col width="10%" /> <!-- 품목 -->
+                  <col width="10%" /> <!--공급가액-->
+                  <col width="10%" /> <!--세액-->
+                  <col width="10%" /> <!--합계-->
+                  <col width="10%" /> <!-- 계삼서no-->
+                  <col width="10%" /> <!--바튼-->
+
+               </colgroup>
+        <thead>
+          <tr>
+                  <!-- type 002 -->
+            <th colspan="9">매출(용역)</th>
+
+
+          </tr>
+          <tr>
+                  <td>일자</td>
+            <td>End-User</td>
+                  <td>매출처</td>
+                  <td>품목</td>
+                  <td>공금가액</td>
+                  <td>세액</td>
+                  <td>합계</td>
+            <td>세금계산서No</td>
+                  <td><button type="button" name="button" onclick="plus_content(this, 'head');">+</button></td>
+
+
+          </tr>
+        </thead>
+        <tbody>
+               <tr>
+                  <?php foreach ($operating_val as $ov){
+                     if(number_format((int)$ov->total_amount) < 0 ){
+                           $class = " minus_tr";
+                     }else{
+                        $class = " project_division";
+                     }
+
+                     if($ov->oper_yn == 'N'){
+                      ?>
+                  <tr class="old_tr<?php echo $class ?>">
+                     <td>
+                        <p class="td_text"><?php echo $ov->issuance_date ?></p>
+                        <input class="td_input" type="date" name="issuance_month[]" value="<?php echo $ov->issuance_date ?>" title="<?php echo $ov->issuance_date ?>">
+                     </td>
+                     <td>
+                        <p class="td_text"><?php echo $ov->customer_name ?></p>
+                        <input class="td_input" type="text" name="customer[]" value="<?php echo $ov->customer_name ?>" title ="<?php echo $ov->customer_name ?>">
+                     </td>
+                     <td>
+                        <p class="td_text"><?php echo $ov->end_user ?></p>
+                        <input class="td_input" type="text" name="enduser[]" value="<?php echo $ov->end_user ?>" title ="<?php echo $ov->end_user ?>">
+
+                     </td>
+                     <td>
+                           <p class="td_text"><?php echo $ov->item ?></p>
+                           <input class="td_input" type="text" name="project_name[]" value="<?php echo $ov->item ?>" title ="<?php echo $ov->item ?>">
+                     </td>
+                     <td>
+                        <p class="td_text"><?php echo number_format($ov->issuance_amount) ?></p>
+                           <input class="td_input issuance" type="text" name="issuance[]" value="<?php echo number_format($ov->issuance_amount) ?>" title ="<?php echo number_format($ov->issuance_amount) ?>" onfocus='deCommaStr(this);' onBlur='this.value=commaStr(this.value)' onKeyup='onlyNumHipen(this);' onchange='calc_money(this);'>
+                     </td>
+                     <td>
+                        <p class="td_text"><?php echo number_format($ov->tax_amount) ?></p>
+                           <input class="td_input tax" type="text" name="tax[]" value="<?php echo number_format($ov->tax_amount) ?>" title = "<?php echo number_format($ov->tax_amount) ?>" onfocus='deCommaStr(this);' onBlur='this.value=commaStr(this.value)' onKeyup='onlyNumHipen(this);' onchange='calc_money(this);' >
+                     </td>
+                     <td>
+                        <p class="td_text"><?php echo number_format($ov->total_amount) ?></p>
+                           <input class="td_input tr_sum" type="text" name="sum[]" value="<?php echo number_format($ov->total_amount) ?>" title = "<?php echo number_format($ov->total_amount) ?>" readonly>
+                     </td>
+                     <td>
+                        <p class="td_text"><?php echo $ov->bill_type ?></p>
+                           <input class="td_input" type="text" class='tax_type' name="tax_type[]" value="<?php echo $ov->bill_type ?>" title = "<?php echo $ov->bill_type ?>" onchange='calc_money(this);'>
+                     </td>
+                     <td>
+                        <input type="hidden" class="operating_seq" name="operating_seq[]" value="<?php echo $ov->seq ?>">
+                        <input type="hidden" class="type" name="type[]" value="<?php echo $ov->type ?>">
+                        <input type="hidden" name="oper_yn[]" value="<?php echo $ov->oper_yn ?>">
+                      <button type='button' name='button' onclick='del_content(this);'>-</button>
+                       <button type='button' name='button' onclick='plus_content(this,"tbody");'>+</button>
+                       <!-- <button type='button' name='minus_button' onclick='minus_tax(this);'>D</button> -->
+                     </td>
+
+
+                  </tr>
+                  <?php }
+                     }
+                  ?>
+
+
+          </tr>
+
+          <tr class="project_division fixed_tr">
+             <td colspan= "4">합 계</td>
+             <td name=total_issuance></td>
+             <td name=total_tax></td>
+             <td name=total_sum></td>
+             <td></td>
+            <td></td>
+          </tr>
+        </tbody>
+        </table>
+
+      </div>
+
+
+
+      <?php } ?>
+
+         <div align="left" style="margin-left:5vh;">
+            <img width=30 name="hide_img" src="<?php echo $misc;?>img/dashboard/btn/btn_top.png" onclick="div_toggle('operating_div', this);" style="cursor:pointer;">
+            <?php if ($get_company != "DBS") {  ?>
+            <button class="skyBtn" type="button" name="button" onclick="operating_edit(this);">수정</button>
+            <button class="skyBtn" type="button" name="button" id="save_btn" onclick="operating_save();" style="display:none;">저장</button>
+         <?php } ?>
+      </div>
+         <?php if ($get_company != "DBS") {  ?>
+            <form class="" id="operating_form" name="operating_form" method="post">
+            <?php } ?>
+         <div class="item_div" id="operating_div">
+            <input type="hidden" name="dept" value="<?php echo $company ?>">
+            <table class="contents_tbl" id="operating_p_tbl" cellspacing=0 style="max-width:46%; float:left; margin-left:5vh;">
+               <colgroup>
+                  <col width="10%" /><!-- 일자-->
+                  <col width="15%" /> <!-- 거래처-->
+                  <col width="15%" /> <!-- 엔유-->
+                  <col width="20%" /> <!-- 품목 -->
+                  <col width="8%" /> <!--공급가액-->
+                  <col width="6%" /> <!--세액-->
+                  <col width="10%" /> <!--합계-->
+                  <col width="6%" /> <!-- 종류 -->
+                  <col width="10%" /> <!--바튼-->
+               </colgroup>
+            <thead>
+               <tr>
+                  <!-- type 002 -->
+                  <th colspan="8">매입세금계산서(운영비)</th>
+                  <th></th>
+                  <!-- type 001 -->
+
+               </tr>
+               <tr>
+                  <td>일자</td>
+                  <td>거래처</td>
+                  <td>End-user</td>
+                  <td>품목</td>
+                  <td>공금가액</td>
+                  <td>세액</td>
+                  <td>합계</td>
+                  <td>종류</td>
+                  <td><button type="button" name="button" onclick="plus_content(this, 'head');">+</button></td>
+               </tr>
+            </thead>
+            <tbody>
+               <?php foreach ($operating_val as $ov){
+                  if(number_format((int)$ov->total_amount) < 0 ){
+                        $class = " minus_tr";
+                  }else{
+                     $class = " project_division";
+                  }
+
+                  if($ov->type == '002' && $ov->oper_yn == 'Y'){
+                   ?>
+               <tr class="old_tr<?php echo $class ?>">
+                  <td>
+                     <p class="td_text"><?php echo $ov->issuance_date ?></p>
+                     <input class="td_input" type="date" name="issuance_month[]" value="<?php echo $ov->issuance_date ?>" title="<?php echo $ov->issuance_date ?>">
+
+                  </td>
+                  <td>
+                     <p class="td_text"><?php echo $ov->customer_name ?></p>
+                     <input class="td_input" type="text" name="customer[]" value="<?php echo $ov->customer_name ?>" title ="<?php echo $ov->customer_name ?>">
+
+                  </td>
+                  <td>
+                     <p class="td_text"><?php echo $ov->end_user ?></p>
+                        <input class="td_input" type="text" name="enduser[]" value="<?php echo $ov->end_user ?>" title ="<?php echo $ov->end_user ?>">
+                  </td>
+                  <td>
+                     <p class="td_text"><?php echo $ov->item ?></p>
+                        <input class="td_input" type="text" name="project_name[]" value="<?php echo $ov->item ?>" title ="<?php echo $ov->item ?>">
+                  </td>
+                  <td>
+                     <p class="td_text"><?php echo number_format($ov->issuance_amount) ?></p>
+                        <input class="td_input issuance" type="text" name="issuance[]" value="<?php echo number_format($ov->issuance_amount) ?>" title ="<?php echo number_format($ov->issuance_amount) ?>" onfocus='deCommaStr(this);' onBlur='this.value=commaStr(this.value)' onKeyup='onlyNumHipen(this);' onchange='calc_money(this);'>
+                  </td>
+                  <td>
+                     <p class="td_text"><?php echo number_format($ov->tax_amount) ?></p>
+                        <input class="td_input tax" type="text" name="tax[]" value="<?php echo number_format($ov->tax_amount) ?>" title = "<?php echo number_format($ov->tax_amount) ?>" onfocus='deCommaStr(this);' onBlur='this.value=commaStr(this.value)' onKeyup='onlyNumHipen(this);' onchange='calc_money(this);'>
+                  </td>
+                  <td>
+                     <p class="td_text"><?php echo number_format($ov->total_amount) ?></p>
+                        <input class="td_input tr_sum" type="text" name="sum[]" value="<?php echo number_format($ov->total_amount) ?>" title = "<?php echo number_format($ov->total_amount) ?>" readonly>
+                  </td>
+                  <td>
+                     <p class="td_text"><?php echo $ov->bill_type ?></p>
+                        <input class="td_input tax_type" type="text" name="tax_type[]" value="<?php echo $ov->bill_type ?>" title = "<?php echo $ov->bill_type ?>" onchange='calc_money(this);'>
+                  </td>
+                  <td>
+                     <input type="hidden" class="operating_seq" name="operating_seq[]" value="<?php echo $ov->seq ?>">
+                     <input type="hidden" class="type" name="type[]" value="<?php echo $ov->type ?>">
+                     <input type="hidden" name="oper_yn[]" value="<?php echo $ov->oper_yn ?>">
+                   <button type='button' name='button' onclick='del_content(this);'>-</button>
+                    <button type='button' name='button' onclick='plus_content(this,"tbody");'>+</button>
+                    <!-- <button type='button' name='minus_button' onclick='minus_tax(this);'>D</button> -->
+                  </td>
+
+
+               </tr>
+               <?php }
+                  }
+               ?>
+
+            </tbody>
+            <tfoot>
+               <tr class="project_division fixed_tr">
+                  <td colspan= "4">합 계</td>
+                  <td name=total_issuance></td>
+                  <td name=total_tax></td>
+                  <td name=total_sum></td>
+                  <td></td>
+                  <td></td>
+               </tr>
+               <tr class="project_division fixed_tr">
+                  <td colspan= "4" ></td>
+                  <td colspan= "2">계산서 합계</td>
+                  <td name=bill_sum></td>
+                  <td></td>
+                  <td></td>
+               </tr>
+               <tr class="project_division fixed_tr">
+                  <td colspan= "4" ></td>
+                  <td colspan= "2">전자 계산서 합계</td>
+                  <td name=elec_bill_sum></td>
+                  <td></td>
+                  <td></td>
+               </tr>
+            </tfoot>
+            </table>
+
+
+
+         <table class="contents_tbl" id="operating_s_tbl" cellspacing=0 style="max-width:46%;float:right;margin-right:5vh;">
+            <colgroup>
+               <col width="10%" /><!-- 일자-->
+               <col width="15%" /> <!-- 거래처-->
+               <col width="15%" /> <!-- 엔유-->
+               <col width="20%" /> <!-- 품목 -->
+               <col width="8%" /> <!--공급가액-->
+               <col width="6%" /> <!--세액-->
+               <col width="10%" /> <!--합계-->
+               <col width="6%" /> <!-- 종류 -->
+               <col width="10%" /> <!--바튼-->
+            </colgroup>
+         <thead>
+            <tr>
+               <!-- type 002 -->
+               <th colspan="8">매출세금계산서(운영비)</th>
+               <th></th>
+               <!-- type 001 -->
+
+            </tr>
+            <tr>
+               <td>일자</td>
+               <td>거래처</td>
+               <td>End-user</td>
+               <td>품목</td>
+               <td>공금가액</td>
+               <td>세액</td>
+               <td>합계</td>
+               <td>종류</td>
+               <td><button type="button" name="button" onclick="plus_content(this, 'head');">+</button></td>
+            </tr>
+         </thead>
+         <tbody>
+            <?php foreach ($operating_val as $ov){
+               if(number_format((int)$ov->total_amount) < 0 ){
+                     $class = " minus_tr";
+               }else{
+                  $class = " project_division";
+               }
+
+               if($ov->type == '001' && $ov->oper_yn == 'Y'){
+                ?>
+            <tr class="old_tr<?php echo $class ?>">
+               <td>
+                  <p class="td_text"><?php echo $ov->issuance_date ?></p>
+                  <input class="td_input" type="date" name="issuance_month[]" value="<?php echo $ov->issuance_date ?>" title="<?php echo $ov->issuance_date ?>">
+
+               </td>
+               <td>
+                  <p class="td_text"><?php echo $ov->customer_name ?></p>
+                  <input class="td_input" type="text" name="customer[]" value="<?php echo $ov->customer_name ?>" title ="<?php echo $ov->customer_name ?>">
+
+               </td>
+               <td>
+                  <p class="td_text"><?php echo $ov->end_user ?></p>
+                     <input class="td_input" type="text" name="enduser[]" value="<?php echo $ov->end_user ?>" title ="<?php echo $ov->end_user ?>">
+               </td>
+               <td>
+                    <p class="td_text"><?php echo $ov->item ?></p>
+                     <input class="td_input" type="text" name="project_name[]" value="<?php echo $ov->item ?>" title ="<?php echo $ov->item ?>">
+               </td>
+               <td>
+                  <p class="td_text"><?php echo number_format($ov->issuance_amount) ?></p>
+                  <input class="td_input issuance" type="text" name="issuance[]" value="<?php echo number_format($ov->issuance_amount) ?>" title ="<?php echo number_format($ov->issuance_amount) ?>" onfocus='deCommaStr(this);' onBlur='this.value=commaStr(this.value)' onKeyup='onlyNumHipen(this);' onchange='calc_money(this);'>
+               </td>
+               <td>
+                  <p class="td_text"><?php echo number_format($ov->tax_amount) ?></p>
+                     <input class="td_input tax" type="text" name="tax[]" value="<?php echo number_format($ov->tax_amount) ?>" title = "<?php echo number_format($ov->tax_amount) ?>" onfocus='deCommaStr(this);' onBlur='this.value=commaStr(this.value)' onKeyup='onlyNumHipen(this);' onchange='calc_money(this);'>
+               </td>
+               <td>
+                  <p class="td_text"><?php echo number_format($ov->total_amount) ?></p>
+                     <input class="td_input tr_sum" type="text" name="sum[]" value="<?php echo number_format($ov->total_amount) ?>" title = "<?php echo number_format($ov->total_amount) ?>" readonly>
+               </td>
+               <td>
+                     <p class="td_text"><?php echo $ov->bill_type ?></p>
+                     <input class="td_input tax_type" type="text" name="tax_type[]" value="<?php echo $ov->bill_type ?>" title = "<?php echo $ov->bill_type ?>" onchange='calc_money(this);'>
+               </td>
+               <td>
+                  <input type="hidden" class="operating_seq" name="operating_seq[]" value="<?php echo $ov->seq ?>">
+                  <input type="hidden" class="type" name="type[]" value="<?php echo $ov->type ?>">
+                  <input type="hidden" name="oper_yn[]" value="<?php echo $ov->oper_yn ?>">
+                  <button type='button' name='button' onclick='del_content(this);'>-</button>
+                  <button type='button' name='button' onclick='plus_content(this,"tbody");'>+</button>
+                  <!-- <button type='button' name='minus_button' onclick='minus_tax(this);'>D</button> -->
+               </td>
+
+
+            </tr>
+            <?php }
+               }
+            ?>
+
+         </tbody>
+         <tfoot>
+            <tr class="project_division fixed_tr">
+               <td colspan= "4">합 계</td>
+               <td name=total_issuance></td>
+               <td name=total_tax></td>
+               <td name=total_sum></td>
+               <td></td>
+               <td></td>
+            </tr>
+            <tr class="project_division fixed_tr">
+               <td colspan= "4" ></td>
+               <td colspan= "2">계산서 합계</td>
+               <td name=bill_sum></td>
+               <td></td>
+               <td></td>
+            </tr>
+            <tr class="project_division fixed_tr">
+               <td colspan= "4" ></td>
+               <td colspan= "2">전자 계산서 합계</td>
+               <td name=elec_bill_sum></td>
+               <td></td>
+               <td></td>
+            </tr>
+         </tfoot>
+      </table>
+      <input type="hidden" id="operating_del_seq" name="operating_del_seq" value="">
+
+
+         </div>
+      </form>
+
+         <div class="item_div">
+
+         </div>
+    </div>
+  <!-- </div> -->
+  <!--하단-->
+  <?php include $this->input->server('DOCUMENT_ROOT')."/include/sales_bottom.php"; ?>
+  <!--하단-->
+  <script>
+   sum_calculation("maintain_purchase_sales");
+   sum_calculation("forcasting_purchase_sales");
+   sum_calculation("procurement_purchase_sales");
+   function sum_calculation(table_id){
+      var p_issuance_amount = 0;
+      var p_tax_amount = 0;
+      var p_total_amount = 0;
+      var s_issuance_amount = 0;
+      var s_tax_amount = 0;
+      var s_total_amount = 0;
+      $('#'+table_id+' .p_issuance_amount').each(function(index) {
+         p_issuance_amount += Number($(this).text().replace(/,/g, ""));
+      });
+      p_issuance_amount = String(p_issuance_amount).replace(/[^0-9-]/g, '').replace(/(\d)(?=(?:\d{3})+(?!\d))/g, '$1,');
+      $('#'+table_id+' .p_tax_amount').each(function(index) {
+         p_tax_amount += Number($(this).text().replace(/,/g, ""));
+      });
+      p_tax_amount = String(p_tax_amount).replace(/[^0-9-]/g, '').replace(/(\d)(?=(?:\d{3})+(?!\d))/g, '$1,');
+      $('#'+table_id+' .p_total_amount').each(function(index) {
+         p_total_amount += Number($(this).text().replace(/,/g, ""));
+      });
+      p_total_amount = String(p_total_amount).replace(/[^0-9-]/g, '').replace(/(\d)(?=(?:\d{3})+(?!\d))/g, '$1,');
+
+      $('#'+table_id+' .s_issuance_amount').each(function(index) {
+         s_issuance_amount += Number($(this).text().replace(/,/g, ""));
+      });
+      s_issuance_amount = String(s_issuance_amount).replace(/[^0-9-]/g, '').replace(/(\d)(?=(?:\d{3})+(?!\d))/g, '$1,');
+      $('#'+table_id+' .s_tax_amount').each(function(index) {
+         s_tax_amount += Number($(this).text().replace(/,/g, ""));
+      });
+      s_tax_amount = String(s_tax_amount).replace(/[^0-9-]/g, '').replace(/(\d)(?=(?:\d{3})+(?!\d))/g, '$1,');
+      $('#'+table_id+' .s_total_amount').each(function(index) {
+         s_total_amount += Number($(this).text().replace(/,/g, ""));
+      });
+      s_total_amount = String(s_total_amount).replace(/[^0-9-]/g, '').replace(/(\d)(?=(?:\d{3})+(?!\d))/g, '$1,');
+
+
+      $("#"+table_id+" .p_sum_issuance_amount").text(p_issuance_amount);
+      $("#"+table_id+" .p_sum_tax_amount").text(p_tax_amount);
+      $("#"+table_id+" .p_sum_total_amount").text(p_total_amount);
+
+      $("#"+table_id+" .s_sum_issuance_amount").text(s_issuance_amount);
+      $("#"+table_id+" .s_sum_tax_amount").text(s_tax_amount);
+      $("#"+table_id+" .s_sum_total_amount").text(s_total_amount);
+   }
+
+
+   function GoSearch() {
+     var year = document.month_form.year.value;
+     var month = document.month_form.month.value;
+
+     document.month_form.submit();
+   }
+
+   /* 합계 황현빈 추가 */
+   $(document).ready(function(){
+      $(".total_num, .total_sum").each(function(){
+         if($.trim($(this).text()) == '' || $.trim($(this).text()) == '0'){
+            $(this).text('-');
+         }
+      })
+   })
+
+// div별 접었다 펴기
+function div_toggle(div, name){
+   $('#'+div).slideToggle('slow');
+   var img_name = $(name).attr('name');
+   if(img_name == 'hide_img'){
+      $(name).attr('name','show_img');
+      $(name).attr("src", "<?php echo $misc;?>img/dashboard/btn/btn_bottom.png");
+   }else{
+      $(name).attr('name','hide_img');
+      $(name).attr("src", "<?php echo $misc;?>img/dashboard/btn/btn_top.png");
+   }
+}
+
+function lpad(str, padLen, padStr) {
+    if (padStr.length > padLen) {
+
+        return str;
+    }
+    str += ""; // 문자로
+    padStr += ""; // 문자로
+    while (str.length < padLen)
+        str = padStr + str;
+    str = str.length >= padLen ? str.substring(0, padLen) : str;
+    return str;
+}
+
+// 숫자와 '-' 입력 함수
+function onlyNumHipen(obj) {
+  var val = obj.value;
+  var re = /[^0-9-]/gi;
+  obj.value = val.replace(re, "");
+}
+
+// 금액 부분 콤마 추가
+function commaStr(n) {
+  var reg = /(^[+-]?\d+)(\d{3})/;
+  n += "";
+
+  while (reg.test(n))
+    n = n.replace(reg, "$1" + "," + "$2");
+  return n;
+}
+
+// 금액 부분 콤마 제거
+function deCommaStr(obj) {
+  num = obj.value + "";
+  if (obj.value != "") {
+    obj.value = obj.value.replace(/,/g, "");
+  }
+  if (typeof obj.selectionStart == "number") {
+    obj.selectionStart = obj.selectionEnd = obj.value.length;
+  } else if (typeof obj.createTextRange != "undefined") {
+    obj.focus();
+    var range = obj.createTextRange();
+    range.collapse(false);
+    range.select();
+  }
+}
+
+function calculator(table){
+   var issuance = 0;
+   var sum_tax = 0;
+   // $("."+table).find('.issuance').each(function(){
+      $("#"+table).find('.issuance').each(function(){
+      issuance += Number($(this).val().replace(/,/g, ""));
+      // var issuance += Number($(this).val().replace(",", ""));
+      $(this).closest('table').find('td[name=total_issuance]').html(commaStr(issuance));
+   });
+
+   $("#"+table).find('.tax').each(function(){
+      sum_tax += Number($(this).val().replace(/,/g, ""));
+      // var issuance += Number($(this).val().replace(",", ""));
+      $(this).closest('table').find('td[name=total_tax]').html(commaStr(sum_tax));
+   });
+   var total_sum = issuance + sum_tax;
+   $("#"+table).find('td[name=total_sum]').html(commaStr(total_sum));
+   // $('td[name=total_issuance]').html(commaStr(issuance));
+
+
+   var bill_tax = 0;
+   var elec_tax = 0;
+   $("#"+table).find('.tax_type').each(function(){
+      if($(this).val()=="계"){
+         bill_tax += Number($(this).closest('tr').find('.tr_sum').val().replace(/,/g, ""));
+      }else if($(this).val()=="전"){
+         elec_tax += Number($(this).closest('tr').find('.tr_sum').val().replace(/,/g, ""));
+      }
+   });
+   $("#"+table).find('td[name=bill_sum]').html(commaStr(bill_tax));
+   $("#"+table).find('td[name=elec_bill_sum]').html(commaStr(elec_tax));
+
+}
+
+$(document).ready(function(){
+
+      calculator('operating_s_tbl');
+      calculator('operating_p_tbl');
+      calculator('dbs_ma_tbl');
+});
+
+
+//돈계산
+function calc_money(ths){
+   var tr = $(ths).closest('tr');
+   var amount = tr.find('.issuance').val();
+   amount = amount.replace(/,/g, "");
+   var tax = tr.find('.tax').val();
+   tax = tax.replace(/,/g, "");
+   var sum = Number(amount) + Number(tax);
+   console.log(sum);
+   sum = commaStr(sum);
+   tr.find('.tr_sum').val(sum);
+
+   var table = $(ths).closest('table').attr('id');
+   calculator(table);
+
+}
+
+// 운영비 플라쓰
+function plus_content(td, position){
+   // var td=$(td).closest('tr');
+   var year = $('#select_year').val();
+   var month = $('#select_month').val();
+   var month = lpad(month, 2, 0);
+
+   var first_date = year + "-" + month + "-01";
+   var last_day = (new Date(year, month, 0)).getDate();
+   var last_date = year + "-" + month + "-" + last_day;
+
+   var table_id = $(td).closest('table').attr('id');
+   console.log(table_id);
+   if(table_id == 'operating_p_tbl'){
+      var type = '002';
+   }else{
+      var type = '001';
+   }
+
+   if(table_id == 'dbs_ma_tbl'){
+      var oper_yn = "N";
+   }else{
+      var oper_yn = "Y";
+   }
+
+   var contents = '';
+   contents += "<tr class='project_division new_tr'><td><input type='date' name = 'new_issuance_month[]' min='"+first_date+"' max='"+last_date+"'/></td>";
+   contents += "<td><input type='text' name='new_customer[]'/></td>";
+   contents += "<td><input type='text' name='new_enduser[]'/></td>";
+   contents += "<td><input type='text' name='new_project_name[]'/></td>";
+   contents += "<td><input type='text' class='issuance' name='new_issuance[]' onfocus='deCommaStr(this);' onBlur='this.value=commaStr(this.value)' onKeyup='onlyNumHipen(this);' onchange='calc_money(this);'/></td>";
+   contents += "<td><input type='text' class='tax' name='new_tax[]' onfocus='deCommaStr(this);' onBlur='this.value=commaStr(this.value)' onKeyup='onlyNumHipen(this);' onchange='calc_money(this);'/></td>";
+   contents += "<td><input type='text' class='tr_sum' name='new_sum[]' readonly/></td>";
+   contents += "<td><input type='text' class='tax_type' name='new_tax_type[]' onchange='calc_money(this);'/></td>";
+   contents += "<td><input type='hidden' name='new_type[]' value='"+type+"'>";
+   contents += "<input type='hidden' name='new_oper_yn[]' value='"+oper_yn+"'>"
+   contents += "<button type='button' name='button' onclick='del_content(this);'>-</button>";
+   contents += "<button type='button' name='button' onclick='plus_content(this,\"tbody\");'>+</button>";
+   contents += "</tr>";
+
+if(position == "head"){
+ var tr_len = $(td).closest('table').find('tbody tr').length;
+ if(tr_len == 0){
+    $(td).closest('table').find('tbody').append(contents);
+ }else{
+    $(td).closest('table').find('tbody tr:first').before(contents);
+ }
+   // $("#operating_p_tbl tbody tr:first").before(contents);
+   // var td = $(this).closest('tbody');
+   // td.find('tr:first').before(contents);
+
+}else{
+
+   var tr=$(td).closest('tr');
+   tr.after(contents);
+
+}
+$("#operating_div button").css("display","inline-block");
+$("#dbs_ma_div button").css("display","inline-block");
+
+$("#sidebar_left").height($("#main_contents").height());
+$(".sidebar_sub_on").height($("#main_contents").height());
+}
+
+// tr 삭제
+function del_content(td){
+   var seq = $(td).closest('tr').find('.operating_seq').val();
+   var del = $("#operating_del_seq").val();
+   seq = del + ","+ seq;
+   $("#operating_del_seq").val(seq);
+
+   $(td).closest('tr').find('input').each(function(){
+      $(this).val("");
+   });
+
+   calc_money(td);
+
+   $(td).closest('tr').remove();
+
+   $("#sidebar_left").height($("#main_contents").height());
+  $(".sidebar_sub_on").height($("#main_contents").height());
+}
+
+// 마이너스 계산서
+function minus_tax(td){
+   var tr = $(td).closest('tr');
+   var clone = tr.clone();
+   clone.addClass('minus_tr');
+   // clone.find('input').css({'color', 'red'});
+for (var i = 4; i < 7; i++) {
+   var money = clone.find('input:eq('+i+')').val().replace(/,/g, "");
+   money = commaStr(money *-1)
+   clone.find('input:eq('+i+')').val;
+}
+   // clone.find('button[name=minus_button]').css('display', 'none');
+   tr.after(clone);
+   calc_money(td);
+
+}
+
+
+function operating_edit(ths){
+
+   $(ths).css("display","none");
+   $("#save_btn").show();
+   $(".td_input").show();
+   $(".td_text").hide();
+   // $('#operating_p_tbl tbody input, #operating_s_tbl tbody input, #dbs_ma_tbl tbody input').each(function(){
+   //    $(this).removeAttr('disabled');
+   // })
+
+   $("#operating_div button, #dbs_ma_div button").css("display","inline-block");
+
+
+}
+
+
+$(".old_tr").find('input').change(function(){
+   $(this).closest('tr').find('input').each(function(){
+      var inputname = "modify_";
+      var org_name = $(this).attr("name");
+      if(org_name.indexOf(inputname)== -1){
+         var new_name = inputname + org_name;
+         $(this).attr("name", new_name);
+
+      }
+   })
+
+})
+
+
+function operating_save(){
+   // var newtr = $("#operating_div").find('.new_tr').length;
+   // if (newtr > 0) {
+      // $("#operating_sales_form").attr('action', act);
+      // $("#operating_sales_form").submit();
+   // }
+
+   var act = "<?php echo site_url();?>/sales/purchase_sales/operating_insert";
+   $("#operating_form").attr('action', act);
+   $("#operating_form").submit();
+
+
+}
+
+<?php if($get_company == 'DBS') { ?>
+function dbs_total_table(){
+
+var ma_issuance = $("#dbs_ma_tbl").find("td[name=total_issuance]").html().replace(/,/g, "");;
+var ma_tax = $("#dbs_ma_tbl").find("td[name=total_tax]").html().replace(/,/g, "");;
+var ma_sum = $("#dbs_ma_tbl").find("td[name=total_sum]").html().replace(/,/g, "");;
+// console.log(ma_issuance+"/"+ma_tax+"/"+ma_sum);
+var oper_issuance = $("#operating_s_tbl").find("td[name=total_issuance]").html().replace(/,/g, "");;
+var oper_tex = $("#operating_s_tbl").find("td[name=total_tax]").html().replace(/,/g, "");;
+var oper_sum = $("#operating_s_tbl").find("td[name=total_sum]").html().replace(/,/g, "");;
+// console.log(oper_issuance+"/"+oper_tex+"/"+oper_sum);
+
+var total_issuance = Number(ma_issuance) + Number(oper_issuance);
+var total_tax = Number(ma_tax) + Number(oper_tex);
+var total_sum = Number(ma_sum) + Number(oper_sum);
+// console.log(total_issuance+"/"+total_tax+"/"+total_sum);
+$(".iss_outcome").eq(1).html(commaStr(ma_issuance));
+$(".tax_outcome").eq(1).html(commaStr(ma_tax));
+$(".to_outcome").eq(1).html(commaStr(ma_sum));
+
+$(".iss_outcome").eq(3).html(commaStr(oper_issuance));
+$(".tax_outcome").eq(3).html(commaStr(oper_tex));
+$(".to_outcome").eq(3).html(commaStr(oper_sum));
+
+$("#total_sum_iss").val(commaStr(total_issuance));
+$("#total_sum_tax").val(commaStr(total_tax));
+$("#total_sum_sum").val(commaStr(total_sum));
+
+
+var ma_count = $("#dbs_ma_tbl").find(".old_tr").length;
+var oper_count = $("#operating_s_tbl").find(".old_tr").length;
+var total_count = Number(ma_count) + Number(oper_count);
+$(".cnt_outcome").eq(1).html(ma_count);
+$(".cnt_outcome").eq(3).html(ma_count);
+$("#total_sum_count").html(total_count);
+
+}
+
+
+
+$(document).ready(function(){
+	dbs_total_table();
+});
+<?php } ?>
+
+
+
+
+  </script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteBase /stc/
+RewriteCond $1 !^(index\.php|images|captcha|style|javascript|data|include|uploads|misc|design|robots\.txt)
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ /stc/index.php/$1 [L]
+</IfModule>

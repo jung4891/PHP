@@ -1,0 +1,213 @@
+<?php
+	include $this->input->server('DOCUMENT_ROOT')."/include/base.php";
+  include $this->input->server('DOCUMENT_ROOT')."/include/sales_top.php";
+?>
+<style>
+	p, div, span, a, a:hover, a:visited, a:active, label, input, h1,h2,h3,h4,h5,h6{font-family: "Noto Sans KR";}
+  .hide-day-calender .ui-datepicker-calendar{
+      display:none;
+  }
+	.border_l{
+		border-left:1.5px solid rgba(0, 0, 0, 0.19);
+	}
+	.border_r{
+		border-right:1.5px solid rgba(0, 0, 0, 0.19);
+	}
+</style>
+<link rel="stylesheet" href="/misc/css/dashboard.css">
+<link href="https://fonts.googleapis.com/css?family=Noto+Sans+KR" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.9.2/i18n/jquery.ui.datepicker-ko.min.js"></script>
+<script type="text/javascript" src="/misc/js/jquery.bpopup-0.1.1.min.js"></script>
+<body>
+<?php
+  include $this->input->server('DOCUMENT_ROOT')."/include/sales_header.php";
+?>
+
+<div align="center">
+	<div class="dash1-1">
+		<form name="mform" action="" method="get" onkeydown="if(event.keyCode==13) return GoSearch();">
+		<table width="100%" height="100%" border="0" cellspacing="0" cellpadding="0" class="dash_tbl1-1">
+			<tbody>
+				<tr height="5%">
+          <td class="dash_title">
+            <img src="<?php echo $misc; ?>img/dashboard/title_attendance_statistics.png"/>
+          </td>
+        </tr>
+				<tr>
+					<td height="20"></td>
+				</tr>
+        <tr height="10%">
+          <td align="left" valign="bottom">
+			    	<table width="100%" border="0" cellspacing="0" cellpadding="0">
+		        	<tr>
+								<td>
+                <span style="color:red;font-size:15px;margin-left:20px">*</span>검색일
+								<input type="text" class="input2" name="search_month" id="search_month" value="<?php
+								if (isset($_GET['search_month'])){
+									echo $_GET['search_month'];
+								} else {
+									echo date("Y-m");
+								}
+								?>" style="width:55px;" readonly>
+                <select class="select7" name="search_week" id="search_week" style="width:180px">
+                  <?php
+									if (isset($_GET['search_week'])){
+										$today = explode(' ~ ', $_GET['search_week']);
+							      $today = date($today[1]);
+									} else {
+										$today = date("Y-m-d");
+									}
+                  foreach($week_array as $wa){ ?>
+                    <option value="<?php echo $wa['start']." ~ ".$wa['end']; ?>" <?php if(($today>=$wa['start'])&&($today<=$wa['end'])){echo 'selected';} ?>><?php echo $wa['start']." ~ ".$wa['end']; ?></option>
+                  <?php } ?>
+                </select>
+									<span>
+										<input type="image" style='cursor:hand; margin-bottom:8px;' onclick="return GoSearch();" src="<?php echo $misc;?>img/dashboard/btn/btn_search.png" width="20px" height="20px" align="middle" border="0"/>
+									</span>
+								</td>
+							</tr>
+						</table>
+					</td>
+				</tr>
+				<tr style="max-height:45%">
+					<td colspan="2" valign="top" style="padding:10px 0px;">
+						<table class="content_dash_tbl" align="center" width="100%" border="0" cellspacing="0" cellpadding="0">
+							<tr>
+								<td align="center" valign="top">
+									<table width="100%" height="100%" border="0" cellspacing="0" cellpadding="0">
+									        <tr>
+									            <!--내용-->
+									             <!--리스트-->
+									              <tr>
+									                <td><table width="100%" border="0" cellspacing="0" cellpadding="0">
+									                  <colgroup>
+																			<col width="10%" />
+													            <col width="8.75%" />
+									                    <col width="8.75%" />
+									                    <col width="8.75%" />
+									                    <col width="8.75%" />
+									                    <col width="8.75%" />
+													            <col width="8.75%" />
+									                    <col width="8.75%" />
+									                    <col width="8.75%" />
+									                    <!-- <col width="10%" /> -->
+									                    <col width="10%" />
+									                  </colgroup>
+                                    <tr>
+                                      <th rowspan="2"></th>
+                                      <th height="60" rowspan="2" class="border_l">성명</th>
+                                      <th rowspan="2" class="border_l">소속</th>
+                                      <th colspan="4" class="border_l">누적 근로시간</th>
+                                      <th colspan="2" class="border_l border_r">잔여 근로시간</th>
+                                      <!-- <th rowspan="2" style="border-left:1.5px solid rgba(0, 0, 0, 0.19);">근로시간통계</th> -->
+                                      <th rowspan="2"></th>
+                                    </tr>
+                                    <tr>
+                                      <th class="border_l">소정근로시간</th>
+                                      <th class="border_l">소정외근로시간</th>
+                                      <th class="border_l">차감근로시간</th>
+                                      <th class="border_l">총근로시간</th>
+                                      <th class="border_l">소정근로시간</th>
+                                      <th class="border_l border_r">소정외근로시간</th>
+                                    </tr>
+                                    <tr>
+                                      <td></td>
+                                      <td align="center"><?php echo $attendance_info['user_name']; ?></td>
+                                      <td align="center"><?php echo $user_group; ?></td>
+                                      <td align="center"><?php echo $work_on_time; ?></td>
+                                      <td align="center"><?php // echo $overtime; ?></td>
+                                      <td align="center"><?php echo $deducted; ?></td>
+                                      <td align="center"><?php echo $total_work_time; ?></td>
+                                      <td align="center"><?php echo $residue_work_on_time; ?></td>
+                                      <td align="center"><?php // echo $residue_overtime; ?></td>
+                                      <!-- <td align="center">chart</td> -->
+                                      <td></td>
+                                    </tr>
+									                </table></td>
+									              </tr>
+									              <!--//리스트-->
+
+									            <!--//내용-->
+
+
+									        </tr>
+
+									</form>
+									</table>
+								</td>
+							</tr>
+						</table>
+					</td>
+				</tr>
+        <tr>
+          <td align="center">
+            <table border="0" cellspacing="0" cellpadding="0" style="border:1px solid #8798a4">
+              <tr height="20" style="background:#607087;">
+                <td align="center" style="color:white">참조</td>
+              </tr>
+              <tr>
+                <td align="left">
+                  <dd>- 52시간(주당 최대 근로시간) 기준, 해당 주 월요일부터 일요일까지의 근로시간이 표시됩니다(검색일이 이번주일 경우 이번주 월요일부터 오늘까지의 근로시간이 표시됩니다.)</dd>
+                  <dd>- 소정근로시간: ‘(1일 출퇴근설정시간-휴게시간) x 출근일수’를 나타냅니다(1일 평균 8시간, 1주 기준 최대 40시간)</dd>
+                  <dd>- 소정외근로시간: ‘소정근로시간 외의 근로시간’을 나타냅니다(1주 기준 최대 12시간).</dd>
+                  <dd>- 차감근로시간: ‘소정근로시간 - 지각, 자리비움 등으로 인해 발생한 업무 공백 시간’을 나타냅니다.</dd>
+                  <dd>- 총근로시간: ‘소정근로시간 + 소정외근로시간 – 차감근로시간’을 나타냅니다.</dd>
+                  <dd>- 잔여근로시간: 근로기준법 기준 최대 소정근로시간(40시간)/소정외근로시간(12시간)에서 남은 근로시간이 표시됩니다.</dd>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+			</tbody>
+		</table>
+	</div>
+</div>
+
+<!--하단-->
+<?php include $this->input->server('DOCUMENT_ROOT')."/include/sales_bottom.php"; ?>
+<!--//하단-->
+</body>
+<script type="text/javascript">
+$("#search_month").datepicker({
+  dateFormat: 'yy-mm',
+  changeMonth: true,
+  changeYear: true,
+  showButtonPanel: true,
+  closeText:'선택',
+  onClose: function(dateText, inst) {
+    var month = $("#ui-datepicker-div .ui-datepicker-month :selected").val();
+    var year = $("#ui-datepicker-div .ui-datepicker-year :selected").val();
+    $(this).datepicker('setDate', new Date(year, month, 1));
+    $(".ui-datepicker-calendar").css("display","none");
+    $("#search_month").val(this.value);
+    var target_month = this.value;
+
+    $.ajax({
+      type: "POST",
+      async: false,
+      url: "/index.php/biz/attendance/get_week_array",
+      dataType: "json",
+      data: {
+        target_month : target_month
+      },
+      success: function(data){
+        var options = "";
+        for(var i=0;i<data.length;i++){
+          var value = data[i].start+" ~ "+data[i].end;
+          options += "<option value='"+value+"'>"+value+"</option>";
+        }
+        $("#search_week").html(options);
+      }
+    })
+  }
+});
+$("#search_month").focus(function () {
+  $(".ui-datepicker-calendar").css("display","none");
+  $("#ui-datepicker-div").position({
+    my: "center top",
+    at: "center bottom",
+    of: $(this)
+  });
+});
+</script>
+</html>

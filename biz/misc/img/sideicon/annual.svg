@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40">
+  <g id="그룹_441" data-name="그룹 441" transform="translate(0 -0.011)">
+    <g id="calendar4-week" transform="translate(4.001 4.001)">
+      <path id="패스_560" data-name="패스 560" d="M28.007,4.25H4a2,2,0,0,0-2,2v22a2,2,0,0,0,2,2H28.007a2,2,0,0,0,2-2v-22A2,2,0,0,0,28.007,4.25ZM4,2.25a4,4,0,0,0-4,4v22a4,4,0,0,0,4,4H28.007a4,4,0,0,0,4-4v-22a4,4,0,0,0-4-4Z" transform="translate(0 -0.242)" fill="#fff" fill-rule="evenodd"/>
+      <path id="패스_561" data-name="패스 561" d="M28.007,4.258H4A2,2,0,0,0,2,6.266V8.273H30.008V6.266A2,2,0,0,0,28.007,4.258ZM4,2.25A4.008,4.008,0,0,0,0,6.266v4.016H32.009V6.266a4.008,4.008,0,0,0-4-4.016Z" transform="translate(0 -0.242)" fill="#fff" fill-rule="evenodd"/>
+      <path id="패스_562" data-name="패스 562" d="M7.748,0a1,1,0,0,1,1,1v1a1,1,0,1,1-2,0V1A1,1,0,0,1,7.748,0ZM25.713,0a1,1,0,0,1,1,1v1a1,1,0,1,1-2,0V1A1,1,0,0,1,25.713,0Z" transform="translate(-0.727)" fill="#fff" fill-rule="evenodd"/>
+      <path id="패스_563" data-name="패스 563" d="M22.719,16.754a1,1,0,0,1,1-1h2a1,1,0,0,1,1,1v2.008a1,1,0,0,1-1,1h-2a1,1,0,0,1-1-1Zm-5.988,0a1,1,0,0,1,1-1h2a1,1,0,0,1,1,1v2.008a1,1,0,0,1-1,1h-2a1,1,0,0,1-1-1Zm-3.992,6.023a1,1,0,0,1,1-1h2a1,1,0,0,1,1,1v2.008a1,1,0,0,1-1,1h-2a1,1,0,0,1-1-1Zm-5.988,0a1,1,0,0,1,1-1h2a1,1,0,0,1,1,1v2.008a1,1,0,0,1-1,1h-2a1,1,0,0,1-1-1Z" transform="translate(-0.727 -1.769)" fill="#fff"/>
+    </g>
+    <rect id="사각형_1036" data-name="사각형 1036" width="40" height="40" transform="translate(0 0.011)" fill="none" opacity="0.5"/>
+  </g>
+</svg>

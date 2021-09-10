@@ -1,0 +1,136 @@
+<script>
+	window.addEventListener('DOMContentLoaded', function(){
+		$("#sidebar_left").height($("#main_contents").height());
+
+		var path = $(location).attr('pathname');
+		if(path=='/'){
+			location.href ='<?php echo site_url();?>/biz/';
+			}
+
+	  var path = path.split('/');
+	  var manu = path[2];
+	  switch (manu) {
+			case 'biz':
+				$("#biz_head").click();
+				break;
+
+			case 'sales':
+				$("#sales_head").click();
+				break;
+
+			case 'tech':
+				$("#tech_head").click();
+				break;
+
+	    case 'admin':
+				$("#admin_head").click();
+				break;
+
+		}
+
+		var side_onoff = sessionStorage.getItem('subside');
+		if(side_onoff == 'on'){
+			// console.log(side_onoff);
+<?php
+
+if(strpos($_SERVER['REQUEST_URI'],'biz/approval/') !== false){
+	echo "subside_open('approval')";
+}
+
+if(strpos($_SERVER['REQUEST_URI'],'sales/forcasting/order_completed') !== false || strpos($_SERVER['REQUEST_URI'],'/sales/forcasting/forcasting_list?mode=mistake') !== false){
+	echo "subside_open('order_completed')";
+}
+
+if(strpos($_SERVER['REQUEST_URI'],'sales/maintain/maintain_list') !== false) {
+	echo "subside_open('maintain')";
+}
+
+if(strpos($_SERVER['REQUEST_URI'],'sales/fundreporting/') !== false){
+	echo "subside_open('fund_reporting')";
+}
+
+if(strpos($_SERVER['REQUEST_URI'],'tech/board/manual_') !== false || strpos($_SERVER['REQUEST_URI'],'tech/board/faq_') !== false){
+	echo "subside_open('notice')";
+}
+
+if(strpos($_SERVER['REQUEST_URI'],'tech/maintain/') !== false || strpos($_SERVER['REQUEST_URI'],'tech/board/network_map_') !== false || strpos($_SERVER['REQUEST_URI'],'tech/tech_board/tech_doc_') !== false || strpos($_SERVER['REQUEST_URI'],'tech/tech_board/request_tech_support_') !== false ){
+	echo "subside_open('customer')";
+}
+
+if(strpos($_SERVER['REQUEST_URI'],'admin/equipment/') !== false){
+	echo "subside_open('equipment')";
+}
+
+if(strpos($_SERVER['REQUEST_URI'],'admin/account/') !== false){
+	echo "subside_open('user')";
+}
+
+if(strpos($_SERVER['REQUEST_URI'],'sales/funds/') !== false){
+	echo "subside_open('funds_list')";
+}
+
+?>
+			}
+	});
+
+
+var subside_open = function(menu){
+	$(".sidenav3").hide();
+	$("#sidebar_sub").removeClass("sidebar_sub_off");
+	$("#sidebar_sub").addClass("sidebar_sub_on");
+	$("#main_contents").removeClass("main_content_extend");
+	$("#main_contents").addClass("main_content_cut");
+	switch (menu) {
+		case 'approval':
+			$("#approval_sidenav").show();
+			break;
+
+		case 'order_completed':
+			$("#order_completed_sidenav").show();
+			break;
+
+		case 'maintain':
+		$("#maintain_sidenav").show();
+		break;
+
+		case 'fund_reporting':
+			$("#fundreporting_sidenav").show();
+			break;
+
+
+		case 'notice':
+			$("#manual_sidenav").show();
+			break;
+
+
+		case 'customer':
+			$("#customer_sidenav").show();
+			break;
+
+		case 'equipment':
+			$("#equipment_sidenav").show();
+			break;
+
+		case 'user':
+			$("#user_sidenav").show();
+			break;
+
+		case 'funds_list':
+			$("#funds_list_sidenav").show();
+			break;
+	}
+	$("#sidebar_left").height($("#main_contents").height());
+ $(".sidebar_sub_on").height($("#main_contents").height());
+}
+
+var subside_close = function(){
+	$("#sidebar_sub").removeClass("sidebar_sub_on");
+	$("#sidebar_sub").addClass("sidebar_sub_off");
+	$("#main_contents").removeClass("main_content_cut");
+	$("#main_contents").addClass("main_content_extend");
+	sessionStorage.setItem("subside", "off");
+}
+
+</script>
+</div>
+</div>

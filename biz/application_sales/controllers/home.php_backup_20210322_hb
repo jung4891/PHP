@@ -1,0 +1,129 @@
+<?php
+header("Content-type: text/html; charset=utf-8");
+
+class Home extends CI_Controller {
+
+	var $site_type = '';
+	var $id = '';
+
+	function __construct() {
+		parent::__construct();
+		$this->id = $this->phpsession->get( 'id', 'stc' );
+		$this->name = $this->phpsession->get( 'name', 'stc' );
+		$this->lv = $this->phpsession->get( 'lv', 'stc' );
+		$this->group = $this->phpsession->get( 'group', 'stc' );
+		$this->login_time = $this->phpsession->get( 'login_time', 'stc' );
+		$this->load->helper('alert');
+		$this->load->Model(array('STC_Common','biz/STC_Approval', 'biz/STC_Schedule', 'dashboard/STC_Dashboard'));
+	}
+
+	function index() {
+		if(strpos(site_url(),"biz.durianit.co.kr") === false){
+			header( 'Location: http://biz.durianit.co.kr' );
+		}else{
+			if( $this->id === null ) {
+				redirect( 'account' );
+			}
+			$data['category'] = $this->STC_Approval->select_format_category();
+			$data['standby_approval'] = $this->STC_Approval->approval_list("standby");
+			$data['delegation'] = $this->STC_Approval->delegation_list();
+			$data['periodic_inspection']=$this->STC_Common->periodic_inspection();
+			$data['work_color'] = $this->STC_Schedule->work_color_list();
+			$data['user_name'] = $this->name;
+			$data['user_group'] = $this->group;
+			$data['login_time'] = $this->login_time;
+			$data['approval_list'] = $this->STC_Approval->approval_list('standby');
+			if(!empty($data['approval_list'])){
+					$data['approval_count'] = count($data['approval_list']);
+			}else{
+					$data['approval_count'] = 0;
+			}
+			$data['schedule_count'] = $this->STC_Dashboard->my_schedule($this->name)->cnt;
+
+			$data['start_row'] = 0;
+			$data['end_row'] = 5;
+
+			// 결재대기함
+			$data['standby'] = $this->STC_Approval->approval_list('standby');
+			if(!empty($data['standby'])){
+					$data['standby_count'] = count($data['standby']);
+			}else{
+					$data['standby_count'] = 0;
+			}
+
+			// 결재진행함
+			$data['progress'] = $this->STC_Approval->approval_list('progress');
+			if(!empty($data['progress'])){
+					$data['progress_count'] = count($data['progress']);
+			}else{
+					$data['progress_count'] = 0;
+			}
+
+			// 완료문서함
+			$data['completion'] = $this->STC_Approval->approval_list('completion');
+			if(!empty($data['completion'])){
+					$data['completion_count'] = count($data['completion']);
+			}else{
+					$data['completion_count'] = 0;
+			}
+
+			// 반려문서함
+			$data['back'] = $this->STC_Approval->approval_list('back');
+			if(!empty($data['back'])){
+					$data['back_count'] = count($data['back']);
+			}else{
+					$data['back_count'] = 0;
+			}
+
+			// 공지사항
+			$data['notice_list'] = $this->STC_Dashboard->notice_list();
+			$data['notice_list_count'] = $this->STC_Dashboard->notice_list_count()->ucount;
+
+			// 주소록
+			$user_data = $this->STC_Dashboard->user_data();
+			$data['user_data_count'] = count($user_data);
+			$data['user_data'] = array_chunk($user_data,9);
+
+			// 일정
+			$data['schedule'] = $this->STC_Dashboard->schedule();
+
+			// 근태관리
+			$data['attendance_today'] = $this->STC_Dashboard->attendance_today();
+			$data['attendance_today_count'] = $this->STC_Dashboard->attendance_today_count()->cnt;
+			$target_date = date('Ym');
+			$data['holiday_list'] = $this->STC_Dashboard->holiday_list($target_date);
+			$data['holiday_count'] = $this->STC_Dashboard->holiday_count($target_date)->cnt;
+			// 메일 연동
+			// $connection = imap_open('{mail.durianit.co.kr:143/novalidate-cert}INBOX', 'hbhwang@durianit.co.kr', 'gusqls12');
+			// $connection = imap_open('192.168.0.100:110/pop3', 'hbhwang@durianit.co.kr', 'gusqls12');
+			// $mail_count = imap_num_msg($connection);
+			// $data['subject'] = imap_headerinfo($connection, $mail_count);
+			// for($i=1; $i<=$data['mail_count']; $i++){
+			// 	$data['subject'][$i] = imap_headerinfo($connection, $i)->subject;
+			// 	// $data['body'][$i] = imap_body($connection, $i);
+			// }
+			// $data['header'] = imap_headerinfo($connection);
+			// $data['body'] = imap_body($connection);
+
+			// 회의실, 차량 예약
+			$data['rez_room'] = $this->STC_Dashboard->reservartion_room();
+			$data['rez_car'] = $this->STC_Dashboard->reservartion_car();
+
+			$this->load->view('dashboard/home_view_main',$data);
+		}
+	}
+
+	function holiday_search() {
+		$target_date = $this->input->post('target_date');
+
+		$result = $this->STC_Dashboard->holiday_list($target_date);
+
+		echo json_encode($result);
+	}
+
+	function sessiton_destroy()
+	{
+		session_destroy();
+	}
+}
+?>

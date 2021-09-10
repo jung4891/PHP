@@ -1,0 +1,165 @@
+<?php
+include $this->input->server('DOCUMENT_ROOT')."/include/base.php";
+include $this->input->server('DOCUMENT_ROOT')."/include/sales_top.php";
+?>
+
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+  </head>
+  <link rel="stylesheet" href="/misc/css/dashboard.css">
+  <link href='/misc/css/tech_schedule/tech_schedule.css' rel='stylesheet' />
+  <link href='/misc/css/tech_schedule/main.css' rel='stylesheet' />
+  <link rel="stylesheet" href="/misc/css/bootstrap-datepicker.css">
+  <link rel="stylesheet" href="/misc/css/bootstrap-timepicker.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/themes/default/style.min.css" /> 
+  <!-- <link rel="stylesheet" href="/misc/css/tech_schedule/proton/style.min.css" />  -->
+  <link rel="stylesheet" href="/misc/css/tech_schedule/jquery.minicolors.css" />
+  <link rel="stylesheet" href="/misc/css/chosen.css">
+
+  <script src='/misc/js/tech_schedule/main.js'></script>
+  <script src='/misc/js/tech_schedule/ko.js'></script>
+  <script src='/misc/js/chosen.jquery.js'></script>
+
+  <!-- <script src='/misc/js/tech_schedule/tech_schedule.js'></script> -->
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/js/select2.min.js"></script>
+  <script type="text/javascript" src="/misc/js/bootstrap-datepicker.js"></script>
+  <script type="text/javascript" src="/misc/js/bootstrap-timepicker.js"></script>
+  <script type="text/javascript" src="/misc/js/jquery.bpopup-0.1.1.min.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.11.0/moment.min.js"></script>
+  <script src="https://unpkg.com/popper.js/dist/umd/popper.min.js"></script>
+  <script src="https://unpkg.com/tooltip.js/dist/umd/tooltip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/jstree.min.js"></script> <!-- 조직도 생성 -->
+  <script type="text/javascript" src="/misc/js/tech_schedule/jquery.minicolors.js"></script>
+  <style>
+    /* .fc-h-event{
+      font-family:"Noto Sans KR", sans-serif !important;
+      color: black !important;
+    } */
+    .fc-h-event {
+      display: block !important;
+      border: none !important;
+      /* border: 1px solid var(--fc-event-border-color, #3788d8); */
+      background-color: transparent !important;
+      /* background-color: var(--fc-event-bg-color, #3788d8); */
+    }
+    .fc-event-title{
+      font-family:"Noto Sans KR", sans-serif !important;
+      font-size: 14px !important;
+      width:100% !important;
+      text-align: center !important;
+      color : #3C3C3C !important;
+    }
+    .fc-event[href]{
+      cursor:initial;
+    }
+    .fc-col-header{
+      width:100% !important;
+    }
+    .fc-daygrid-body{
+      width:100% !important;
+    }
+    .fc-scrollgrid-sync-table {
+      width:100% !important;
+    }
+  </style>
+
+
+<body>
+<?php
+  include $this->input->server('DOCUMENT_ROOT')."/include/sales_header.php";
+?>
+<div align="center">
+	<div class="dash1-1">
+		<table width="100%" height="100%" border="0" cellspacing="0" cellpadding="0" class="dash_tbl1-1">
+			<tbody>
+				<tr height="5%">
+					<td class="dash_title">
+						<img src="<?php echo $misc; ?>img/dashboard/title_annual_usage_status.png"/>
+					</td>
+				</tr>
+				<tr height="13%">
+        </tr>
+        <tr style="max-height:45%">
+          <td colspan="2" valign="top" >
+            <!-- <div style="width:100%;text-align:right;margin-top:50px;">
+              <a href="<?php echo site_url();?>/admin/annual_admin/annual_usage_status_list">
+                <input type="button" class="basicBtn" value="휴가사용내역" style="width:fit-content;margin-right:10%;padding:0px 50px;" />
+              </a>
+            </div> -->
+            <div id='attendance_calendar' style="padding:2% 10%;">
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+<?php include $this->input->server('DOCUMENT_ROOT')."/include/sales_bottom.php"; ?>
+<script>
+  let today = new Date();
+  let year = today.getFullYear(); // 년도
+  let month = today.getMonth() + 1;  // 월
+  let date = today.getDate();  // 날짜
+  let day = today.getDay();  // 요일
+  let today_date= String(year)+String(month).padStart(2, '0')+String(date).padStart(2, '0');
+
+  var events =new Array();
+      <?php
+      if(!empty($view_val)){ 
+      foreach($view_val as $val){?>
+          var ev = new Object();//상태
+          ev.title = "<?php echo $val['user_name'];?>";
+          ev.start = "<?php echo $val['annual_start_date'];?>";
+          ev.end   = "<?php echo $val['annual_end_date'];?>";
+          events.push(ev);
+      <?php }} ?> 
+  document.addEventListener('DOMContentLoaded', function() {
+  var calendarEl = document.getElementById('attendance_calendar');
+
+  var calendar = new FullCalendar.Calendar(calendarEl, {
+    googleCalendarApiKey:'AIzaSyBLpSLtCDQOB3mG0eAK1YrAqDjzQIjfeI0',
+    locale: 'ko', //언어 설정
+    selectable: true,
+    // selectHelper: true,
+    // editable: true, // 일정 드래그 가능 여부
+    // aspectRatio: 1.8,
+    eventOverlap: true, //동일 날짜 시간 중복등록 가능
+    scrollTime: '08:00', // 포커스 되는 시간
+    // navLinks: true, //날짜 클릭시 그날 일정으로 가는 거
+    dayMaxEventRows: true,
+    displayEventTime: false,
+    events:events,
+    eventContent: function(arg) {
+      let arrayOfDomNodes = []
+      // title event
+      let titleEvent = document.createElement('div')
+      if(arg.event._def.title) {
+        titleEvent.innerHTML = arg.event._def.title
+        titleEvent.classList = "fc-event-title fc-sticky"
+      }
+
+      arrayOfDomNodes = [titleEvent]
+
+      return { domNodes: arrayOfDomNodes }
+    },
+  });
+  calendar.render();
+});
+
+
+
+// 외부영역 클릭 시 팝업 닫기
+$(document).mouseup(function (e){
+  var LayerPopup = $("#dropdown");
+  if(LayerPopup.has(e.target).length === 0){
+    $("#myDropdown").hide();
+  }
+});
+
+
+</script>
+</body>
+</html>

@@ -1,0 +1,363 @@
+<?php
+  include $this->input->server('DOCUMENT_ROOT')."/include/base.php";
+?>
+<style>
+   /* 모달 css */
+   .searchModal {
+     display: none;
+     position: fixed;
+     /* z-index: 10; */
+     left: 0;
+     top: 0;
+     width: 100%;
+     height: 100%;
+     overflow: auto;
+     background-color: rgb(0, 0, 0);
+     background-color: rgba(0, 0, 0, 0.4);
+     z-index: 1004;
+   }
+
+   .search-modal-content {
+     background-color: #fefefe;
+     margin: 15% auto;
+     padding: 20px;
+     border: 1px solid #888;
+     width: 70%;
+     z-index: 1004;
+   }
+
+   ul {
+     list-style: none;
+     padding-left: 0px;
+     margin-bottom: 0px;
+   }
+
+   li {
+     margin-top: 0px;
+     list-style: none;
+     padding-left: 0px;
+   }
+
+   #header {
+     font-family: "Noto Sans KR";
+     color: #666;
+   }
+
+   .sub_li {
+     padding-top: 20px;
+     width: 200px;
+     float: left;
+     min-height: 300px;
+     border-right: 1px solid;
+     /* border-left:1px solid; */
+     border-color: #d7d7d7;
+     text-align: center;
+     font-size: 14px;
+   }
+
+   .sub_li div {
+     color: #666;
+     margin: 20px 0px 20px 0px;
+   }
+
+   .sub_li_first {
+     min-height: 300px;
+     border-left: 1px solid;
+     border-color: #d7d7d7;
+   }
+
+
+   .sub_div {
+     background-color: #fff;
+     position: absolute;
+     top: 61px;
+     left: 0;
+     width: 100%;
+     z-index: 5;
+     display: block;
+     /* border-top: 1px solid; */
+     border-bottom: 1px solid;
+     border-color: #d7d7d7;
+     text-align: center;
+   }
+
+   nav:not(:hover) .sub_div {
+     visibility: hidden;
+   }
+
+   .sub_div:hover {
+     visibility: visible;
+   }
+
+   .sub_ul {
+     margin-top: 0px;
+     display: inline-block;
+     width: fit-content;
+   }
+</style>
+<link href="https://fonts.googleapis.com/css?family=Noto+Sans+KR" rel="stylesheet">
+<div id="header" style="font-size:15px;margin-top:10px;position:relative;z-index:1003;">
+    <header>
+      <div style="padding: 0 80px;display:block;border-bottom: 1px solid;border-color: #d7d7d7;">
+        <span style="float:left;width:60px;margin-right:100px;">
+            <a href="<?php echo site_url();?>" >
+                <img src="<?php echo $misc;?>img/durian_main.png" width="50px;" />
+            </a>
+        </span>
+        <nav style="display:inline-block;height:60px;vertical-align:top;margin:auto;width:fit-content;text-align:center;padding:0 30px 0 30px">
+          <ul style="height:60px;width:fit-content;float:left;">
+            <?php if($biz_lv > 0){ ?>
+            <li style="float:left;width:200px;" onmouseover="menuDisplay('biz');">
+                <span id="biz_main_menu" name="main_menu" <?php if(strpos($_SERVER['REQUEST_URI'],'biz/') !== false){echo "class='point'";} ?>>BIZ</span>
+                <!-- 서브 -->
+                <div class="sub_div">
+                  <ul id="biz_menu" class="sub_ul" style="display:none;" >
+                    <li class="sub_li_first sub_li">
+                      <a href="<?php echo site_url()?>/biz/schedule/tech_schedule"><div style="font-weight:bold">일정관리</div></a>
+                    </li>
+                    <li class="sub_li">
+                      <a href="<?php echo site_url()?>/biz/approval/electronic_approval_list?type=standby"><div style="font-weight:bold">전자결재</div></a>
+                      <a href="<?php echo site_url()?>/biz/approval/electronic_approval_form_list?mode=user">
+                        <div onmouseover="$('.approval').show();" onmouseout="$('.approval').hide();">
+                        기안
+                          <div class="approval" style="display:none;font-size:13px;">
+                            <a href="<?php echo site_url()?>/biz/approval/electronic_approval_form_list?mode=user"><div> - 기안문작성</div></a>
+                            <a href="<?php echo site_url()?>/biz/approval/electronic_approval_doc_list?type=request"><div> - 결재요청함</div></a>
+                            <a href="<?php echo site_url()?>/biz/approval/electronic_approval_doc_list?type=temporary"><div> - 임시저장함</div></a>
+                          </div>
+                        </div>
+                      </a>
+                      <a href="<?php echo site_url()?>/biz/approval/electronic_approval_list?type=standby"><div>결재</div></a>
+                      <a href="<?php echo site_url()?>/biz/approval/electronic_approval_delegation_management">
+                        <div onmouseover="$('.setting').show();" onmouseout="$('.setting').hide();">
+                        환경설정
+                          <div class="setting" style="display:none;font-size:13px;">
+                            <a href="<?php echo site_url()?>/biz/approval/electronic_approval_delegation_management"><div> - 위임관리</div></a>
+                            <a href="<?php echo site_url()?>/biz/approval/electronic_approval_personal_storage"><div> - 개인보관함관리</div></a>
+                          </div>
+                        </div>
+                      </a>
+                      <a href="<?php echo site_url()?>/biz/approval/electronic_approval_personal_storage_list?seq=all"><div>개인보관함</div></a>
+                      <?php if ($biz_lv == 3){ ?>
+                      <a href="<?php echo site_url()?>/biz/approval/electronic_approval_list?type=admin">
+                        <div onmouseover="$('.approval_admin').show();" onmouseout="$('.approval_admin').hide();">
+                        관리자
+                          <div class="approval_admin" style="display:none;font-size:13px;">
+                            <a href="<?php echo site_url()?>/biz/approval/electronic_approval_list?type=admin"><div> - 결재문서관리</div></a>
+                            <a href="<?php echo site_url()?>/biz/approval/electronic_approval_form_list?mode=admin"><div> - 양식관리</div></a>
+                            <a href="<?php echo site_url()?>/biz/approval/electronic_approval_format_category"><div> - 서식함관리</div></a>
+                            <a href="<?php echo site_url()?>/biz/approval/electronic_approver_line_list"><div> - 결재선관리</div></a>
+                          </div>
+                        </div>
+                      </a>
+                      <?php } ?>
+                    </li>
+                    <li class="sub_li">
+                      <a href="<?php echo site_url()?>/biz/weekly_report/weekly_report_list"><div style="font-weight:bold">주간업무보고</div></a>
+                    </li>
+                    <li class="sub_li">
+                      <a href="<?php echo site_url()?>/biz/durian_car/car_drive_list"><div style="font-weight:bold">차량운행일지</div></a>
+                    </li>
+                    <li class="sub_li">
+                      <a href="<?php echo site_url()?>/biz/board/notice_list"><div style="font-weight:bold">전체 공지사항</div></a>
+                    </li>
+                  </ul>
+                </div>
+                <!-- 서브끝 -->
+            </li>
+            <?php } ?>
+            <?php if($sales_lv > 0){ ?>
+            <li style="float:left;width:200px;" onmouseover="menuDisplay('sales');">
+                <span id="sales_main_menu" name="main_menu" <?php if(strpos($_SERVER['REQUEST_URI'],'sales/') !== false){echo "class='point'";} ?>>SALES</span>
+                <!-- 서브 -->
+                <div class="sub_div">
+                  <ul id="sales_menu" class="sub_ul" style="display:none;">
+                    <li class="sub_li_first sub_li">
+                      <a href="<?php echo site_url()?>/sales/funds/funds_list"><div style="font-weight:bold">매출현황</div></a>
+                    </li>
+                    <li class="sub_li">
+                      <a href="<?php echo site_url()?>/sales/board/notice_list"><div style="font-weight:bold">공지사항</div></a>
+                      <a href="<?php echo site_url()?>/sales/board/notice_list"><div>공지사항</div></a>
+                      <a href="<?php echo site_url()?>/sales/board/manual_list"><div>영업자료</div></a>
+                      <a href="<?php echo site_url()?>/sales/board/edudata_list"><div>교육자료</div></a>
+                      <a href="<?php echo site_url()?>/sales/board/faq_list"><div>FAQ</div></a>
+                    </li>
+                    <li class="sub_li">
+                      <a href="<?php echo site_url()?>/sales/forcasting/forcasting_list?mode=forcasting"><div style="font-weight:bold">포캐스팅</div></a>
+                    </li>
+                    <li class="sub_li">
+                      <a href="<?php echo site_url()?>/sales/forcasting/order_completed_list"><div style="font-weight:bold">수주완료</div></a>
+                      <a href="<?php echo site_url()?>/sales/forcasting/forcasting_list?mode=mistake"><div style="font-weight:bold">실주</div></a>
+                    </li>
+                    <li class="sub_li">
+                      <a href="<?php echo site_url()?>/sales/maintain/maintain_list"><div style="font-weight:bold">유지보수</div></a>
+                    </li>
+                    <?php if($group == "CEO" || $group=="경영지원실" || $group == "기술연구소" || $parent_group == "영업본부" ){?>
+                    <li class="sub_li">
+                      <a href="<?php echo site_url()?>/sales/fundreporting/fundreporting_list?company=DUIT"><div style="font-weight:bold">자금보고관리</div></a>
+                      <a href="<?php echo site_url()?>/sales/fundreporting/fundreporting_list?company=DUIT"><div>두리안정보기술</div></a>
+                      <a href="<?php echo site_url()?>/sales/fundreporting/fundreporting_list?company=DUICT"><div>두리안정보통신기술</div></a>
+                      <a href="<?php echo site_url()?>/sales/fundreporting/fundreporting_list?company=MG"><div>더망고</div></a>
+                      <a href="<?php echo site_url()?>/sales/fundreporting/fundreporting_list?company=DBS"><div>두리안정보기술부산지점</div></a>
+                      <?php if($parent_group != "영업본부"){?>
+                      <a href="<?php echo site_url()?>/sales/fundreporting/fundreporting_history_list?company=HIS_LIST">
+                      <div onmouseover="$('.history').show();" onmouseout="$('.history').hide();">
+                      히스토리
+                        <div class="history" style="display:none;font-size:13px;">
+                          <a href="<?php echo site_url()?>/sales/fundreporting/fundreporting_history_list?company=HIS_LIST"><div> - 거래리스트로그</div></a>
+                          <a href="<?php echo site_url()?>/sales/fundreporting/fundreporting_history_bank?company=HIS_BANK"><div> - 은행관리로그</div></a>
+                          <a href="<?php echo site_url()?>/sales/fundreporting/fundreporting_page_log?company=HIS_USER"><div> - 접속로그</div></a>
+                        </div>
+                      </div>
+                      </a>
+                      <?php } ?>
+                    </li>
+                    <?php } ?>
+                  </ul>
+                </div>
+                <!-- 서브끝 -->
+            </li>
+            <?php } ?>
+            <?php if($tech_lv > 0){ ?>
+            <li style="float:left;width:200px;" onmouseover="menuDisplay('tech');">
+            <span id="tech_main_menu" name="main_menu" <?php if(strpos($_SERVER['REQUEST_URI'],'tech/') !== false){echo "class='point'";} ?>>TECH</span>
+                <!-- 서브 -->
+                <div class="sub_div">
+                  <ul id="tech_menu" class="sub_ul" style="display:none">
+                    <li class="sub_li_first sub_li">
+                      <a href="<?php echo site_url()?>/tech/board/notice_list"><div style="font-weight:bold">공지사항</div></a>
+                    </li>
+                    <li class="sub_li">
+                      <a href="<?php echo site_url()?>/tech/board/eduevent_list"><div style="font-weight:bold">교육&행사</div></a>
+                    </li>
+                    <li class="sub_li">
+                      <a href="<?php echo site_url()?>/tech/board/manual_list"><div style="font-weight:bold">제조사</div></a>
+                      <a href="<?php echo site_url()?>/tech/board/manual_list"><div>자료실</div></a>
+                      <a href="<?php echo site_url()?>/tech/board/faq_list"><div>FAQ</div></a>
+                      <a href="<?php echo site_url()?>/tech/board/edudata_list"><div>교육자료</div></a>
+                      <a href="<?php echo site_url()?>/tech/board/release_note_list"><div>릴리즈노트</div></a>
+                      <a href="<?php echo site_url()?>/tech/tech_board/tech_device_list"><div>장비/시스템 등록</div></a>
+                    </li>
+                    <li class="sub_li">
+                      <a href="<?php echo site_url()?>/tech/maintain/maintain_list"><div style="font-weight:bold">고객사</div></a>
+                      <a href="<?php echo site_url()?>/tech/maintain/maintain_list"><div>유지보수</div></a>
+                      <a href="<?php echo site_url()?>/tech/board/network_map_list"><div>구성도</div></a>
+                      <a href="<?php echo site_url()?>/tech/tech_board/tech_doc_list"><div>기술지원보고서</div></a>
+                      <a href="<?php echo site_url()?>/tech/tech_board/request_tech_support_list"><div>기술지원요청</div></a>
+                    </li>
+                    <!-- <li class="sub_li">
+                      <div style="font-weight:bold">관리</div>
+                      <a href="<?php echo site_url()?>/tech/durian_car/car_drive_list"><div>차량운행일지</div></a>
+                      <a href="<?php echo site_url()?>/tech/weekly_report/weekly_report_list"><div>주간업무보고</div></a>
+                    </li> -->
+                    <li class="sub_li">
+                      <a href="<?php echo site_url()?>/tech/board/suggest_list"><div style="font-weight:bold">건의사항</div></a>
+                    </li>
+                  </ul>
+                </div>
+                <!-- 서브끝 -->
+            </li>
+            <?php } ?>
+            <?php if($admin_lv > 0){ ?>
+            <li style="float:left;width:200px;" onmouseover="menuDisplay('admin');">
+                <span id="admin_main_menu" name="main_menu" <?php if(strpos($_SERVER['REQUEST_URI'],'admin/') !== false){echo "class='point'";} ?>>ADMIN</span>
+                <!-- 서브 -->
+                <div class="sub_div">
+                  <ul id="admin_menu" class="sub_ul" style="display:none;">
+                    <li class="sub_li_first sub_li">
+                      <a href="<?php echo site_url()?>/admin/company/companynum_list"><div style="font-weight:bold">사업자등록번호</div></a>
+                    </li>
+                    <li class="sub_li">
+                      <a href="<?php echo site_url()?>/admin/company/product_list"><div style="font-weight:bold">제품명</div></a>
+                    </li>
+                    <li class="sub_li">
+                      <a href="<?php echo site_url()?>/admin/customer/customer_list"><div style="font-weight:bold">거래처</div></a>
+                    </li>
+                    <!-- <li class="sub_li">
+                      <a href="<?php echo site_url()?>/admin/customer/sourcing_list"><div style="font-weight:bold">Sourcing Group</div></a>
+                    </li> -->
+                    <?php if($admin_lv == 3){?>
+                      <li class="sub_li">
+                        <a href="<?php echo site_url()?>/admin/equipment/car_list"><div style="font-weight:bold;">설비 관리</div></a>
+                        <a href="<?php echo site_url()?>/admin/equipment/car_list"><div>차량 관리</div></a>
+                        <a href="<?php echo site_url()?>/admin/equipment/meeting_room_list"><div>회의실 관리</div></a>
+                      </li>
+                    <?php } ?>
+                    <li class="sub_li">
+                      <a href="<?php echo site_url()?>/admin/account/user"><div style="font-weight:bold;">회원관리</div></a>
+                      <a href="<?php echo site_url()?>/admin/account/user"><div>회원정보</div></a>
+                      <a href="<?php echo site_url()?>/admin/account/group_tree_management"><div>조직도관리</div></a>
+                    </li>
+                  </ul>
+                </div>
+                <!-- 서브끝 -->
+            </li>
+            <?php } ?>
+          </ul>
+        </nav>
+        <span style="font-size:12px;float:right;">
+        <?php if( $id != null ) {?>
+            <a href="<?php echo site_url();?>/account/modify_view"><?php echo $name;?></a> 님 | <a href="<?php echo site_url();?>/account/logout"><img src="<?php echo $misc;?>img/btn_logout.jpg" align="absmiddle" /></a>
+        <?php }else if( $this->cooperative_id != null ) {?>
+            <?php echo  $this->cooperative_id; ?>님 <a href="<?php echo site_url();?>/account/logout"><img src="<?php echo $misc;?>img/btn_logout.jpg" align="absmiddle" /></a>
+        <?php } else {?>
+            <a href="<?php echo site_url();?>/account"><img src="<?php echo $misc;?>img/btn_login.jpg" align="absmiddle" /></a>
+        <?php }?>
+      </span>
+      </div>
+    </header>
+</div>
+<!-- 점검모달 -->
+<div id="notice_modal" class="searchModal">
+    <div class="search-modal-content">
+        <!-- <img src="<?php echo $misc;?>img/btn_del2.jpg" style="cursor:pointer;float:right;" border="0" onClick="preview_close();"/> -->
+        <h2>* 점검공지 *</h2>
+        <div style="margin:30px 0px 30px 0px;font-size:14px;">
+        점검내용 : 아래와 같이 점검을 진행할 예정이오니 이용에 참고해주세요.<br><br>
+        점검 일시 : <?php echo date("Y-m-d");?> 13:30 ~ <?php echo date("Y-m-d");?> 15:00
+        </div>
+    </div>
+</div>
+<!-- 점검모달 끝 -->
+<div id="main_contents" style="width:100%;min-height:100%;padding-bottom:100px;position:relative;">
+<script type="text/javascript">
+//점검 공지 띄울때 주석 제거
+// <?php if($group != "기술연구소"){ ?>
+// $("#notice_modal").show();
+// <?php } ?>
+
+var url_path = location.pathname.split('/')[3];
+
+if (url_path != 'fundreporting') {
+  var con = '정상 로그아웃';
+  var login_time = sessionStorage.getItem('login_time');
+
+    $.ajax({
+      type: 'POST',
+      url: '<?php echo site_url();?>/sales/fundreporting/logout',
+      datatype: 'json',
+      data: {
+        con:con,
+        login_time:login_time
+      },
+      success: function(data) {
+        //console.log(data);
+      }
+    });
+    sessionStorage.clear();
+}
+
+function menuDisplay(menu){
+    $(".sub_div").hide();
+    $("#"+menu+"_menu").parent().show(); //해당 suv_div만 보여줘
+    $("span[name=main_menu]").attr('class','');
+    $("#"+menu+"_main_menu").attr('class','point');
+    $(".sub_ul").hide();
+    $("#"+menu+"_menu").show()
+}
+
+// function menuOut(){
+//     $(".sub_ul").hide();
+//     // $("span[name=main_menu]").attr('class','');
+// }
+</script>

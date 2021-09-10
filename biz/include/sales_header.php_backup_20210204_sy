@@ -1,0 +1,303 @@
+<?php
+    $parent_group = $this->phpsession->get( 'pGroupName', 'stc' );
+    $group = $this->phpsession->get( 'group', 'stc' );
+    if(strpos($_SERVER['REQUEST_URI'],'/customer/customer') !== false){
+        $headImg = 'customer08_bg';
+    }else if(strpos($_SERVER['REQUEST_URI'],'/forcasting') !== false){
+        $headImg = 'customer07_bg';
+    }else if(strpos($_SERVER['REQUEST_URI'],'/board/manual') !== false){
+        $headImg = 'customer02_bg';
+    }else if(strpos($_SERVER['REQUEST_URI'],'/board/notice') !== false){
+        $headImg = 'customer01_bg';
+    }else if(strpos($_SERVER['REQUEST_URI'],'/board/edudata') !== false){
+        $headImg = 'customer02_bg';
+    }else if(strpos($_SERVER['REQUEST_URI'],'/board/faq') !== false){
+        $headImg = 'customer05_bg';
+    }else if(strpos($_SERVER['REQUEST_URI'],'/board/qna') !== false){
+        $headImg = 'customer04_bg';
+    }else if(strpos($_SERVER['REQUEST_URI'],'/maintain/maintain') !== false){
+        $headImg = 'customer07_bg';
+    }else if(strpos($_SERVER['REQUEST_URI'],'/funds/funds') !== false){
+        $headImg = 'customer07_bg';
+    }else if(strpos($_SERVER['REQUEST_URI'],'/fundreporting') !== false){
+        $headImg = 'customer07_bg';
+    }else if(strpos($_SERVER['REQUEST_URI'],'/schedule') !== false){
+        $headImg = 'customer02_bg';
+    }else if(strpos($_SERVER['REQUEST_URI'],'/approval') !== false){
+        $headImg = 'customer07_bg';
+    }
+?>
+<style>
+   /* 모달 css */
+   .searchModal {
+      display: none; /* Hidden by default */
+      position: fixed; /* Stay in place */
+      z-index: 10; /* Sit on top */
+      left: 0;
+      top: 0;
+      width: 100%; /* Full width */
+      height: 100%; /* Full height */
+      overflow: auto; /* Enable scroll if needed */
+      background-color: rgb(0,0,0); /* Fallback color */
+      background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+      z-index: 1002;
+   }
+      /* Modal Content/Box */
+   .search-modal-content {
+      background-color: #fefefe;
+      margin: 15% auto; /* 15% from the top and centered */
+      padding: 20px;
+      border: 1px solid #888;
+      width: 70%; /* Could be more or less, depending on screen size */
+      z-index: 1002;
+   }
+</style>
+<tr>
+    <td height="203" align="center" background="<?php echo $misc;?>img/<?php echo $headImg;?>.jpg">
+        <table width="1130" cellspacing="0" cellpadding="0">
+            <tr>
+                <td width="197" height="30" background="<?php echo $misc;?>img/customer_t.png"></td>
+                <td align="right">
+                    <table width="15%" border="0" cellspacing="0" cellpadding="0">
+                        <tr>
+                            <td align="right">
+                                <?php if( $id != null ) {?>
+                                    <a href="<?php echo site_url();?>/account/modify_view"><?php echo $name;?></a> 님 | <a href="<?php echo site_url();?>/account/logout"><img src="<?php echo $misc;?>img/btn_logout.jpg" align="absmiddle" /></a>
+                                <?php }else if( $this->cooperative_id != null ) {?>
+                                    <?php echo  $this->cooperative_id; ?>님 <a href="<?php echo site_url();?>/account/logout"><img src="<?php echo $misc;?>img/btn_logout.jpg" align="absmiddle" /></a>
+                                <?php } else {?>
+                                    <a href="<?php echo site_url();?>/account"><img src="<?php echo $misc;?>img/btn_login.jpg" align="absmiddle" /></a>
+                                <?php }?>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+            <tr>
+                <td height="173"><a href="<?php echo site_url();?>"><img src="<?php echo $misc;?>img/sales_title.png" width="197" height="173" /></a></td>
+                <td align="center" class="title1">고객의 미래를 생각하는 기업
+                    <p class="title2">두리안정보기술센터에 오신것을 환영합니다.</p>
+                </td>
+            </tr>
+        </table>
+    </td>
+</tr>
+<tr style="height:0px;">
+    <td width="100%" valign="top" align="center" style="background-color: #666666">
+        <table width="100%" cellspacing="0" cellpadding="0">
+            <div id='cssmenu' style="width:100%;">
+                <ul style="width:fit-content">
+                    <li style="float: left;"><a href='<?php echo site_url();?>/funds/funds_list'><span <?php if(strpos($_SERVER['REQUEST_URI'],'/funds/funds') !== false){echo "class='point'";} ?>>매출현황</span></a></li>
+                    <li class='has-sub' style="float: left;"><a href='<?php echo site_url();?>/board/notice_list'><span <?php if(strpos($_SERVER['REQUEST_URI'],'/board/notice') !== false){echo "class='point'";} ?>>공지사항</span></a>
+                        <ul>
+                            <li style="float: left;"><a href='<?php echo site_url();?>/board/notice_list'><span <?php if(strpos($_SERVER['REQUEST_URI'],'/board/notice') !== false){echo "class='point'";} ?>>공지사항</span></a></li>
+                            <li style="float: left; width: 120px;"><a href='<?php echo site_url();?>/board/manual_list'><span <?php if(strpos($_SERVER['REQUEST_URI'],'/board/manual') !== false){echo "class='point'";} ?>>영업자료</span></a></li>
+                            <li style="float: left; width: 120px;"><a href='<?php echo site_url();?>/board/edudata_list'><span <?php if(strpos($_SERVER['REQUEST_URI'],'/board/edudata') !== false){echo "class='point'";} ?>>교육자료</span></a></li>
+                            <li style="float: left;"><a href='<?php echo site_url();?>/board/faq_list'><span <?php if(strpos($_SERVER['REQUEST_URI'],'/board/faq') !== false){echo "class='point'";} ?>>FAQ</span></a></li>
+                        </ul>
+                    </li>
+                    <!-- <li class='has-sub' style="float: left;"><a href='<?php echo site_url();?>/board/manual_list'><span <?php if(strpos($_SERVER['REQUEST_URI'],'/board/manual') !== false){echo "class='point'";} ?>>자료실</span></a>
+                        <ul>
+                            <li style="float: left; width: 120px;"><a href='<?php echo site_url();?>/board/manual_list'><span <?php if(strpos($_SERVER['REQUEST_URI'],'/board/manual') !== false){echo "class='point'";} ?>>영업자료</span></a></li>
+                            <li style="float: left; width: 120px;"><a href='<?php echo site_url();?>/board/edudata_list'><span <?php if(strpos($_SERVER['REQUEST_URI'],'/board/edudata') !== false){echo "class='point'";} ?>>교육자료</span></a></li>
+                        </ul>
+                    </li> -->
+                    <!-- <li style="float: left;"><a href='<?php echo site_url();?>/board/faq_list'><span <?php if(strpos($_SERVER['REQUEST_URI'],'/board/faq') !== false){echo "class='point'";} ?>>FAQ</span></a></li> -->
+                    <li style="float: left;"><a href='<?php echo site_url();?>/forcasting/forcasting_list'><span <?php if(strpos($_SERVER['REQUEST_URI'],'/forcasting/forcasting') !== false){echo "class='point'";} ?>>포캐스팅</span></a>
+                    <li style="float: left;"><a href='<?php echo site_url();?>/forcasting/order_completed_list'><span <?php if(strpos($_SERVER['REQUEST_URI'],'/forcasting/order_completed_list') !== false){echo "class='point'";} ?>>수주완료</span></a></li>
+                    </li>
+                    <li style="float: left;"><a href='<?php echo site_url();?>/maintain/maintain_list'><span <?php if(strpos($_SERVER['REQUEST_URI'],'/maintain') !== false){echo "class='point'";} ?>>유지보수</span></a></li>
+                    <!-- <li style="float: left;"><a href='<?php echo site_url();?>/board/qna_list'><span>QnA</span></a></li> -->
+                    <li style="float: left;"><a href='<?php echo site_url();?>/customer/customer_view'><span <?php if(strpos($_SERVER['REQUEST_URI'],'/customer') !== false){echo "class='point'";} ?>>거래처</span></a></li>
+                    <li class='has-sub' style="float: left;"><a href='<?php echo site_url();?>/approval/electronic_approval_list?type=standby'><span <?php if(strpos($_SERVER['REQUEST_URI'],'/approval') !== false){echo "class='point'";} ?>>전자결재</span></a>
+                        <ul>
+                            <li id="draft" style="float:left;width: 120px;"><a href='<?php echo site_url();?>/approval/electronic_approval_form_list?mode=user'><span <?php if(strpos($_SERVER['REQUEST_URI'],'/approval/electronic_approval_form_list?mode=user') !== false){echo "class='point'";} ?>>기안</span></a></li>
+                            <li class="draft" style="float: left; width: 120px;display:none;"><a href='<?php echo site_url();?>/approval/electronic_approval_form_list?mode=user' style='background-color:#e1e1e1;border:none;'><span style="color:#333333" <?php if(strpos($_SERVER['REQUEST_URI'],'/approval/electronic_approval_form_list?mode=user') !== false){echo "class='point'";} ?>>기안문작성</span></a></li>
+                            <li class="draft" style="float: left; width: 120px;display:none;"><a href='<?php echo site_url();?>/approval/electronic_approval_doc_list?type=request'  style='background-color:#e1e1e1;border:none;'><span style="color:#333333" <?php if(strpos($_SERVER['REQUEST_URI'],'/approval/electronic_approval_doc_list?type=request') !== false){echo "class='point'";} ?>>결재요청함</span></a></li>
+                            <li class="draft" style="float: left; width: 120px;display:none;"><a href='<?php echo site_url();?>/approval/electronic_approval_doc_list?type=temporary'  style='background-color:#e1e1e1;border:none;'><span style="color:#333333" <?php if(strpos($_SERVER['REQUEST_URI'],'/approval/electronic_approval_doc_list?type=temporary') !== false){echo "class='point'";} ?>>임시저장함</span></a></li>
+                            <li id="approval" style="float: left; width: 120px;"><a href='<?php echo site_url();?>/approval/electronic_approval_list?type=standby'><span <?php if(strpos($_SERVER['REQUEST_URI'],'/approval/electronic_approval_list?type=standby') !== false){echo "class='point'";} ?>>결재</span></a></li>
+                            <!-- <li style="float: left; width: 120px;"><a href='<?php echo site_url();?>/approval/electronic_approval_doc_input?seq=annual'><span <?php if(strpos($_SERVER['REQUEST_URI'],'/approval/electronic_approval_doc_input?seq=annual') !== false){echo "class='point'";} ?>>휴가신청</span></a></li> -->
+                            <li id="manager" style="float: left; width: 120px;"><a href='<?php echo site_url();?>/approval/electronic_approval_delegation_management'><span <?php if(strpos($_SERVER['REQUEST_URI'],'/approval/electronic_approval_delegation_management') !== false){echo "class='point'";} ?>>환경설정</span></a></li>
+                            <li class="manager" style="float: left; width: 120px;display:none;"><a href='<?php echo site_url();?>/approval/electronic_approval_delegation_management' style='background-color:#e1e1e1;border:none;'><span style="color:#333333" <?php if(strpos($_SERVER['REQUEST_URI'],'/approval/electronic_approval_delegation_management') !== false){echo "class='point'";} ?>>위임관리</span></a></li>
+                            <li class="manager" style="float: left; width: 120px;display:none;"><a href='<?php echo site_url();?>/approval/electronic_approval_personal_storage' style='background-color:#e1e1e1;border:none;'><span style="color:#333333" <?php if(strpos($_SERVER['REQUEST_URI'],'/approval/electronic_approval_personal_storage') !== false){echo "class='point'";} ?>>개인보관함관리</span></a></li>
+                            <li id="storage" style="float: left; width: 120px;"><a href='<?php echo site_url();?>/approval/electronic_approval_personal_storage_list?seq=all'><span <?php if(strpos($_SERVER['REQUEST_URI'],'/approval/electronic_approval_personal_storage_list') !== false){echo "class='point'";} ?>>개인보관함</span></a></li>
+                            <li id="admin" style="float: left; width: 120px;"><a href='<?php echo site_url();?>/approval/electronic_approval_list?type=admin'><span <?php if(strpos($_SERVER['REQUEST_URI'],'/approval/electronic_approval_list?type=admin') !== false){echo "class='point'";} ?>>관리자</span></a></li>
+                            <li class="admin" style="float: left; width: 120px;display:none;"><a href='<?php echo site_url();?>/approval/electronic_approval_list?type=admin' style='background-color:#e1e1e1;border:none;'><span style="color:#333333" <?php if(strpos($_SERVER['REQUEST_URI'],'/approval/electronic_approval_list?type=admin') !== false){echo "class='point'";} ?>>결재문서관리</span></a></li>
+                            <li class="admin" style="float: left; width: 120px;display:none;"><a href='<?php echo site_url();?>/approval/electronic_approval_form_list?mode=admin' style='background-color:#e1e1e1;border:none;'><span style="color:#333333" <?php if(strpos($_SERVER['REQUEST_URI'],'/approval/electronic_approval_form_list?mode=admin') !== false){echo "class='point'";} ?>>양식관리</span></a></li>
+                            <li class="admin" style="float: left; width: 120px;display:none;"><a href='<?php echo site_url();?>/approval/electronic_approval_format_category' style='background-color:#e1e1e1;border:none;'><span style="color:#333333" <?php if(strpos($_SERVER['REQUEST_URI'],'/approval/electronic_approval_format_category') !== false){echo "class='point'";} ?>>서식함관리</span></a></li>
+                            <li class="admin" style="float: left; width: 120px;display:none;"><a href='<?php echo site_url();?>/approval/electronic_approver_line_list' style='background-color:#e1e1e1;border:none;'><span style="color:#333333" <?php if(strpos($_SERVER['REQUEST_URI'],'/approval/electronic_approver_line') !== false){echo "class='point'";} ?>>결재선관리</span></a></li>
+                        </ul>
+                    </li>
+                    <li style="float: left;"><a href='<?php echo site_url();?>/schedule/sales_schedule'><span>일정관리</span></a></li>
+                    <?php if($parent_group == "경영지원실" || $parent_group == "CEO" || $parent_group == "영업본부" || $group == "기술연구소" || $group == "기술2팀"){ ?>
+                    <!-- 패치전 확인 -->
+                    <li class='has-sub last' style="float: left;"><a href='<?php echo site_url();?>/fundreporting/fundreporting_list?company=DUIT'><span <?php if(strpos($_SERVER['REQUEST_URI'],'/fundreporting') !== false){echo "class='point'";} ?>>자금보고관리</span></a>
+                      <ul>
+                        <li style="float: left; width: 120px;"><a href='<?php echo site_url();?>/fundreporting/fundreporting_list?company=DUIT'><span <?php if(strpos($_SERVER['REQUEST_URI'],'/fundreporting/fundreporting_list?company=DUIT') !== false){echo "class='point'";} ?>>두리안정보기술</span></a></li>
+                        <li style="float: left; width: 120px;"><a href='<?php echo site_url();?>/fundreporting/fundreporting_list?company=DUICT'><span <?php if(strpos($_SERVER['REQUEST_URI'],'/fundreporting/fundreporting_list?company=DUICT') !== false){echo "class='point'";} ?>>두리안정보통신기술</span></a></li>
+                        <li style="float: left; width: 120px;"><a href='<?php echo site_url();?>/fundreporting/fundreporting_list?company=MG'><span <?php if(strpos($_SERVER['REQUEST_URI'],'/fundreporting/fundreporting_list?company=MG') !== false){echo "class='point'";} ?>>더망고</span></a></li>
+                        <li style="float: left; width: 120px;"><a href='<?php echo site_url();?>/fundreporting/fundreporting_list?company=DBS'><span <?php if(strpos($_SERVER['REQUEST_URI'],'/fundreporting/fundreporting_list?company=DBS') !== false){echo "class='point'";} ?>>두리안정보기술<br>부산지점</span></a></li>
+                        <li id='history' style="float: left; width: 240px;">
+                            <a href='<?php echo site_url();?>/fundreporting/fundreporting_history_list?company=HIS_LIST'>
+                                <span
+                                    <?php if(strpos($_SERVER['REQUEST_URI'],'/fundreporting/fundreporting_history_list') !== false){echo "class='point'";} ?>>히스토리
+                                </span>
+                            </a>
+                        </li>
+                        <li class="history" style="float:left;width:240px;display:none;border-top:2px solid #797c88">
+                            <a href='<?php echo site_url();?>/fundreporting/fundreporting_history_list?company=HIS_LIST'>
+                                <span
+                                    <?php if(strpos($_SERVER['REQUEST_URI'],'/fundreporting/fundreporting_history_list') !== false){echo "class='point'";} ?>>거래리스트로그
+                                </span>
+                            </a>
+                        </li>
+                        <li class="history" style="float: left; width: 240px;display:none;">
+                            <a href='<?php echo site_url();?>/fundreporting/fundreporting_history_bank?company=HIS_BANK'>
+                                <span
+                                    <?php if(strpos($_SERVER['REQUEST_URI'],'/fundreporting/fundreporting_history_bank') !== false){echo "class='point'";} ?>>은행관리로그
+                                </span>
+                            </a>
+                        </li>
+                        <li class="history" style="float: left; width: 240px;display:none;border-bottom:2px solid #797c88">
+                            <a href='<?php echo site_url();?>/fundreporting/fundreporting_page_log?company=HIS_USER'>
+                                <span
+                                    <?php if(strpos($_SERVER['REQUEST_URI'],'/fundreporting/fundreporting_page_log') !== false){echo "class='point'";} ?>>접속로그
+                                </span>
+                            </a>
+                        </li>
+                      </ul>
+                    </li>
+                    <?php } ?>
+                </ul>
+            </div>
+        </table>
+        <!-- 점검모달 -->
+        <div id="notice_modal" class="searchModal">
+            <div class="search-modal-content">
+                <!-- <img src="<?php echo $misc;?>img/btn_del2.jpg" style="cursor:pointer;float:right;" border="0" onClick="preview_close();"/> -->
+                <h2>* 점검공지 *</h2>
+                <div style="margin:30px 0px 30px 0px;font-size:14px;">
+                점검내용 : 아래와 같이 점검을 진행할 예정이오니 이용에 참고해주세요.<br><br>
+                점검 일시 : <?php echo date("Y-m-d");?> 17:00 ~ <?php echo date("Y-m-d");?> 19:00
+                </div>
+            </div>
+        </div>
+        <!-- 점검모달 끝 -->
+    </td>
+</tr>
+<script type="text/javascript">
+//점검 공지 띄울때 주석 제거
+// <?php if($group != "기술연구소"){ ?>
+// $("#notice_modal").show();
+// <?php } ?>
+
+jQuery(function ($) {
+        $('#history').hover(
+            function () { // 마우스 오버일 경우에 실행
+                $(".history").toggle();
+            },
+            function () {// 마우스 아웃될 경우에 실행
+                $(".history").toggle();
+            }
+        );
+    });
+
+jQuery(function ($) {
+    $('.history').hover(
+        function () { // 마우스 오버일 경우에 실행
+            $(".history").show();
+        },
+        function () {// 마우스 아웃될 경우에 실행
+            $(".history").toggle();
+        }
+    );
+});
+jQuery(function ($) {
+    $('#draft').hover(
+        function () { // 마우스 오버일 경우에 실행
+            $(".draft").toggle();
+        },
+        function () {// 마우스 아웃될 경우에 실행
+            $(".draft").toggle();
+        }
+    );
+});
+
+jQuery(function ($) {
+    $('.draft').hover(
+        function () { // 마우스 오버일 경우에 실행
+            $(".draft").show();
+        },
+        function () {// 마우스 아웃될 경우에 실행
+            $(".draft").toggle();
+        }
+    );
+});
+
+jQuery(function ($) {
+        $('#admin').hover(
+            function () { // 마우스 오버일 경우에 실행
+                $(".admin").toggle();
+            },
+            function () {// 마우스 아웃될 경우에 실행
+                $(".admin").toggle();
+            }
+        );
+    });
+
+jQuery(function ($) {
+    $('.admin').hover(
+        function () { // 마우스 오버일 경우에 실행
+            $(".admin").show();
+        },
+        function () {// 마우스 아웃될 경우에 실행
+            $(".admin").toggle();
+        }
+    );
+});
+
+
+jQuery(function ($) {
+        $('#manager').hover(
+            function () { // 마우스 오버일 경우에 실행
+                $(".manager").toggle();
+            },
+            function () {// 마우스 아웃될 경우에 실행
+                $(".manager").toggle();
+            }
+        );
+    });
+
+jQuery(function ($) {
+    $('.manager').hover(
+        function () { // 마우스 오버일 경우에 실행
+            $(".manager").show();
+        },
+        function () {// 마우스 아웃될 경우에 실행
+            $(".manager").toggle();
+        }
+    );
+});
+
+var url_path = location.pathname.split('/')[2];
+
+if (url_path != 'fundreporting') {
+  var con = '정상 로그아웃';
+  var login_time = sessionStorage.getItem('login_time');
+
+    $.ajax({
+      type: 'POST',
+      url: '/index.php/fundreporting/logout',
+      datatype: 'json',
+      data: {
+        con:con,
+        login_time:login_time
+      },
+      success: function(data) {
+        //console.log(data);
+      }
+    });
+    sessionStorage.clear();
+}
+
+</script>

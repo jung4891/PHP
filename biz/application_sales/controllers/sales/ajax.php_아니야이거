@@ -1,0 +1,110 @@
+<?php
+header("Content-type: text/html; charset=utf-8");
+
+class Ajax extends CI_Controller
+{
+	var $id = '';
+
+	function __construct()
+	{
+		parent::__construct();
+		$this->id = $this->phpsession->get('id', 'stc');
+		$this->name = $this->phpsession->get( 'name', 'stc' );
+
+		$this->load->Model(array('sales/STC_Customer', 'sales/STC_Common', 'sales/STC_User', 'sales/STC_Maintain', 'sales/STC_Forcasting', 'sales/STC_Approval'));
+	}
+
+	function index()
+	{
+		redirect('');
+	}
+
+	// 아이디체크
+	function idcheck()
+	{
+		$uid = $this->input->post('id');
+
+		if ($uid == null) {
+			redirect('');
+		} else {
+			// $this->load->Model(array('STC_User', 'STC_Common'));
+			$result = $this->STC_User->idcheck($uid);
+
+			if ($result == false) {
+				$arr = array('result' => 'false');
+				echo json_encode($arr);
+			} else {
+				$arr = array('result' => 'true');
+				echo json_encode($arr);
+			}
+		}
+	}
+
+	// wakeup
+	function wakeup()
+	{
+		// $this->load->Model('WF_Command');
+		$hp_ip = $this->input->post('hp_ip');
+		$hp_no = $this->input->post('hp_no');
+		$mc_ip = $this->input->post('mip');
+
+		$return_flag = $this->WF_Command->csocket(8, $hp_ip, $hp_no, $mc_ip);
+		$arr = array('socket_result' => $return_flag);
+		echo json_encode($arr);
+	}
+
+	//거래처 사람들 데려오기
+	function sales_customer_staff(){
+		$seq = $this->input->post('seq');
+
+		if ($seq == null) {
+			redirect('');
+		} else {
+			// $this->load->Model(array('STC_User'));
+			$result = $this->STC_User->sales_customer_staff($seq);
+			echo json_encode($result);
+		}
+	}
+
+	//제품 검색
+	function product_search(){
+		$product_company = $this->input->post('productCompany');
+		$product_type = $this->input->post('productType');
+
+		// $this->load->Model(array('STC_Common'));
+		$result = $this->STC_Common->get_product($product_company,$product_type);
+		echo json_encode($result);
+	}
+
+	//조직도 그룹 별로 보기
+	function groupView(){
+		$group = $this->input->post('group');
+		if( $group == null ) {
+			redirect('');
+		} else {
+			// $this->load->Model(array('STC_Approval'));
+			$result = $this->STC_Approval->groupView($group);
+			echo json_encode($result);
+		}
+	}
+
+	//상위그룹에 맞는 하위 그룹 보기
+	function childGroup(){
+		$parentGroup = $this->input->post('parentGroup');
+		if( $parentGroup == null ) {
+			redirect('');
+		} else {
+			// $this->load->Model(array('STC_Approval'));
+			$result = $this->STC_Approval->childGroup($parentGroup);
+			echo json_encode($result);
+		}
+	}
+
+	//부서 그룹 전체 가져오기
+	function group(){
+		// $this->load->Model(array('STC_Approval'));
+		$result = $this->STC_Approval->group();
+		echo json_encode($result);
+	}
+
+}
