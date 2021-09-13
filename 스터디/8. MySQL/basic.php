@@ -6,14 +6,14 @@
   </head>
   <body>
     <?php
-      // connect_mysql();
+       connect_mysql();
       // create_db('php200');
       // connect_db('php200');
 
 
       // 고객테이블 생성
       // txt파일에 ""있으면 오류남. 쿼테이션 빼야함.
-      $sql_createCustomerTBL = get_file('createCustomerTBL.txt');
+      // $sql_createCustomerTBL = get_file('createCustomerTBL.txt');
       execute_query('php200', $sql_createCustomerTBL);
 
       function get_file($fileName) {
