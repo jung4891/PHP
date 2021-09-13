@@ -6,9 +6,10 @@
   </head>
   <body>
     <?php
-      connect_mysql();
-      create_db('php200');
-      connect_db('php200');
+      // connect_mysql();
+      // create_db('php200');
+      // connect_db('php200');
+
 
       // 고객테이블 생성
       // txt파일에 ""있으면 오류남. 쿼테이션 빼야함.
@@ -64,8 +65,6 @@
           echo "db 생성실패 <br>";
         }
       }
-
-      connect_db('php200');
 
       // 데이터베이스 접속
       function connect_db($dbName) {

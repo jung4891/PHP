@@ -69,7 +69,7 @@
 
 
       echo '<br><br>';
-      // include "파일경로 및 파일명" : 공통의 기능을 하는 파일을 다른 곳에서 불러올때.
+      // include "파일경로 및 파일명" : 공통의 기능을 하는 파일을 다른 곳에서 불러올때. (★변수도 가져다 쓸수 있다.)
       // include_once : 이전에 불러온적이 없으면 불러오고 한번이라도 있으면 실행안됨.
       // include "./hello.php";
       // include_once "./hello.php";
