@@ -1,1 +1,0 @@
-create table test6(no char(8) not null)

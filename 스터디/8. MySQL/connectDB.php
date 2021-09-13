@@ -1,4 +1,4 @@
-<?php 
+<?php
   $host = 'localhost';
   $user = 'root';
   $pw = 'root';
@@ -6,10 +6,11 @@
   $mysqli = new mysqli($host, $user, $pw, $dbName);
   $mysqli->set_charset('utf8');
 
+  /* check connection */
   if (mysqli_connect_errno()) {
-    echo "db_$dbName 접속 실패 <br>";
-    echo mysqli_connect_error();
+    printf("Connect failed: %s\n", mysqli_connect_error());
+    exit();
   } else {
-    echo "db 접속성공 <br>";
+    echo "db 접속성공 <br><br>";
   }
  ?>
