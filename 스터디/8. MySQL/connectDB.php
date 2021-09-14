@@ -11,6 +11,6 @@
     printf("Connect failed: %s\n", mysqli_connect_error());
     exit();
   } else {
-    echo "db 접속성공 <br><br>";
+    echo "[db 접속성공] <br><br>";
   }
  ?>
