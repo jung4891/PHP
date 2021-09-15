@@ -58,7 +58,6 @@
 
   // 테이블 목록 보기
   // fetch_array() : 실행결과를 배열에 담아 $row에 들어가게 됨.
-  //                 각 배열인 $row가 $rows배열에 들어가게 되는 구조
   // MYSQLI_NUM(ASSOC/BOTH) -> 인덱스를 숫자(문자/둘다)로 사용
   function show_tables() {
     include 'connectDB.php';
