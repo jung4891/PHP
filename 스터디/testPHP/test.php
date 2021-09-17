@@ -5,6 +5,21 @@
     <title></title>
   </head>
   <body>
+    <?php
+    $phone = '0107124891';
+    $phone_length = strlen($phone);
+    if ( $phone_length == 10 OR $phone_length  == 11) {
+      $head = substr($phone, 0, 3);       // 010
+      $mid = substr($phone, 3, -4);       // 7124 or 712(3자)
+      $tail = substr($phone, -4);         // 4891
+      $phone = $head.'-'.$mid.'-'.$tail;
+      echo $phone.'<br>';
 
+          $str = "abcde";
+          $cutStr = substr($str, 1, -1);    // 제일 뒤가 -1
+          echo $cutStr.'<br><br>';
+    }
+
+     ?>
   </body>
 </html>

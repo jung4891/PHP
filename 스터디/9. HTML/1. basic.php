@@ -11,8 +11,9 @@
       <input type="password" name="pw" maxlength="12" placeholder="비밀번호" required> <br><br>
       <input type="text" name="name" placeholder="이름" required>
       <input type="email" name="email" placeholder="이메일" required>
-      <input type="text" name="phone" placeholder="휴대폰번호" required> <br><br>
-      생일 : 
+      <input type="text" name="phone" maxlength="13" placeholder="휴대폰번호" required> <br><br>
+      생일 :
+      <input type="date" name="date1" value="">
       <select name="birth_year" required>
         <?php
           $this_year = date('Y', time());
