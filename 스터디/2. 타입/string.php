@@ -34,8 +34,8 @@
     echo $cutStr.'<br>';      // de (인덱스-2부터 쫙 출력)
     $cutStr = substr($str, -3, 2);    // 제일 뒤가 -1
     echo $cutStr.'<br><br>';  // cd
-    $cutStr = substr($str, -4, -1);    // 제일 뒤가 -1
-    echo $cutStr.'<br><br>';  // bcd (인덱스-4부터 인덱스-1 앞까지. 중간부분 출력시)
+    $cutStr = substr($str, 1, -1);    // 제일 뒤가 -1
+    echo $cutStr.'<br><br>';  // bcd (인덱스2부터 인덱스-1 앞까지. 중간부분 출력시)
 
     // str_replace('치환할 문자열', '대체할 문자열', 대상 문자열변수)
     $str = "welcome to korea!";

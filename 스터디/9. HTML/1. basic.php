@@ -13,29 +13,15 @@
       <input type="email" name="email" placeholder="이메일" required>
       <input type="text" name="phone" maxlength="13" placeholder="휴대폰번호" required> <br><br>
       생일 :
-      <input type="date" name="date1" value="">
-      <select name="birth_year" required>
+      <input type="date" name="date"> <br><br>
+      <!-- <select name="birth_year" required>
         <?php
-          $this_year = date('Y', time());
-          for ($i=1960; $i <= $this_year; $i++) {
-            echo "<option value='{$i}''>{$i}</option>";
-          }
+          // $this_year = date('Y', time());
+          // for ($i=1960; $i <= $this_year; $i++) {
+          //   echo "<option value='{$i}''>{$i}</option>";
+          // }
          ?>
-      </select>년 &nbsp
-      <select name="birth_month" required>
-        <?php
-          for ($i=1; $i <= 12; $i++) {
-            echo "<option value='{$i}''>{$i}</option>";
-          }
-         ?>
-      </select>월 &nbsp
-      <select name="birth_day" required>
-        <?php
-          for ($i=1; $i <= 31; $i++) {
-            echo "<option value='{$i}''>{$i}</option>";
-          }
-         ?>
-      </select>일 <br><br>
+      </select>년 <br><br> -->
       성별 :
       남<input type="radio" name="gender" value="m" required>
       여<input type="radio" name="gender" value="w" required> <br><br>

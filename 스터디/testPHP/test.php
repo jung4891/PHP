@@ -14,10 +14,6 @@
       $tail = substr($phone, -4);         // 4891
       $phone = $head.'-'.$mid.'-'.$tail;
       echo $phone.'<br>';
-
-          $str = "abcde";
-          $cutStr = substr($str, 1, -1);    // 제일 뒤가 -1
-          echo $cutStr.'<br><br>';
     }
 
      ?>
