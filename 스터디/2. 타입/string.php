@@ -18,7 +18,7 @@
     <!-- 함수 -->
     <?php
 
-    // strpos(전체 문자열, 찾을 문자) : 특정 문자의 인덱스 반환 
+    // strpos(전체 문자열, 찾을 문자) : 특정 문자의 인덱스 반환
     $str = "web developer";
     $findStr = 'e';         // 'develop'은 'd'랑 결과가 같다.
     $pos = strpos($str, $findStr);
@@ -35,7 +35,7 @@
     $cutStr = substr($str, -3, 2);    // 제일 뒤가 -1
     echo $cutStr.'<br><br>';  // cd
     $cutStr = substr($str, 1, -1);    // 제일 뒤가 -1
-    echo $cutStr.'<br><br>';  // bcd (인덱스2부터 인덱스-1 앞까지. 중간부분 출력시)
+    echo $cutStr.'<br><br>';  // bcd (인덱스1부터 인덱스-1 앞까지. 중간부분 출력시)
 
     // str_replace('치환할 문자열', '대체할 문자열', 대상 문자열변수)
     $str = "welcome to korea!";

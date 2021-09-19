@@ -23,7 +23,7 @@
 
       // mktime(시, 분, 초, 월, 일, 년) : 특정시간 -> 타임스탬프
       $timeStamp = mktime(15, 20, 12, 9, 7, 2021);
-      echo $timeStamp.'<br>';
+      echo $timeStamp.'<br>';   // 1631020812
 
 
       // 타임스탬프를 활용한 특정시간 이벤트
@@ -91,7 +91,7 @@
       } else {
         echo "내부오류";
       }
-      echo '<br><br>'; 
+      echo '<br><br>';
 
 
       // getdate() : 현재 시간정보를 배열로 보내줌
@@ -122,9 +122,15 @@
       echo time().'<br>';           // 1631019732
       echo microtime().'<br>';      // 0.74864900 1631019732 (소수 정수)
       echo microtime(true).'<br>';  // 1631019732.7487
+      echo '<br>';
 
-
-
+      // new DateTime() : 2021-09-19 -> 2021년 9월 19일 or 요일int
+      $testDate = '2021-09-19';
+      $dateTime = new DateTime($testDate);
+      echo $dateTime -> format("Y년 m월 d일").'<br>';  // 2021년 09월 19일
+      $dayInt = $dateTime ->format( "w" );            // 0
+      $day = [ "일" , "월" , "화" , "수" , "목" , "금" , "토" ];
+      echo $day[$dayInt].'요일 <br>'                  // 일요일
 
      ?>
 
