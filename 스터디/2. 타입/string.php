@@ -18,7 +18,7 @@
     <!-- 함수 -->
     <?php
 
-    // strpos(전체 문자열, 찾을 문자) : 특정 문자의 인덱스 반환
+    // strpos(전체 문자열, 찾을 문자) : 특정 문자의 인덱스 반환 
     $str = "web developer";
     $findStr = 'e';         // 'develop'은 'd'랑 결과가 같다.
     $pos = strpos($str, $findStr);
