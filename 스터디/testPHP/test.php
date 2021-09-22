@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang = "kr" >
 <head>
-<meta charset = "utf-8" >  
+<meta charset = "utf-8" >
 <title> 테스트페이지 </title>
 </head>
 <body>
@@ -13,6 +13,6 @@
   <form method = "POST" action = "<?php echo $_SERVER [ 'PHP_SELF' ];?>" >
     <input type = "date" name = "testDate" value =<?php echo $testDate ?> >
     <input type = "submit" value = "전송" />
-  </form>
+  </form> 
 </body>
 </html>
