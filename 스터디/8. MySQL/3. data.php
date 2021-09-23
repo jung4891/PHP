@@ -6,7 +6,7 @@
   $select = "SELECT name, id FROM customer WHERE name LIKE '송_'";
   $res = $mysqli->query($select);
   $dataCount = $res->num_rows;    // 불러온 레코드의 수를 반환함
-
+ 
   for ($i=0; $i < $dataCount; $i++) {
     $member_info = $res->fetch_array(MYSQLI_ASSOC);
     echo "이름: ".$member_info['name']."<br>";
@@ -16,7 +16,7 @@
   // 데이터 입력
   $insert = "insert into customer ";
   $insert .= "(id, name, password, phone, email, birthday, gender, regtime) values ";
-  
+
   $member = array();
   $member[0] = "('id_1', '송1', '1234', '010-1111-2222', ";
   $member[0] .= "'go_go_ssing@naver.com', '1990-02-18', 'm', now())";
