@@ -9,4 +9,4 @@ create table customer(
   gender enum('m','w','x') default 'x' comment '고객 성별',
   regtime datetime not null comment '회원가입 시간',
   primary key(no))
-charset=utf8 comment='고객 정보 테이블'
+charset=utf8 comment='고객 정보 테이블' 
