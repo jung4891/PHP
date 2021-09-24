@@ -6,12 +6,12 @@
   $select = "SELECT name, id FROM customer WHERE name LIKE '송_'";
   $res = $mysqli->query($select);
   $dataCount = $res->num_rows;    // 불러온 레코드의 수를 반환함
- 
+
   for ($i=0; $i < $dataCount; $i++) {
     $member_info = $res->fetch_array(MYSQLI_ASSOC);
     echo "이름: ".$member_info['name']."<br>";
     echo "아이디: ".$member_info['id']."<hr>";
-  }
+  } 
 
   // 데이터 입력
   $insert = "insert into customer ";
