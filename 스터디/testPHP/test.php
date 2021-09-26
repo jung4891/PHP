@@ -13,6 +13,6 @@
   <form method = "POST" action = "<?php echo $_SERVER [ 'PHP_SELF' ];?>" >
     <input type = "date" name = "testDate" value =<?php echo $testDate ?> >
     <input type = "submit" value = "전송" />
-  </form>   
+  </form>    
 </body>
 </html>
