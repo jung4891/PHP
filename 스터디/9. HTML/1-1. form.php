@@ -14,7 +14,7 @@
       <input type="email" name="email" placeholder="이메일" required>
       <input type="text" name="phone" maxlength="13" placeholder="휴대폰번호" required> <br><br>
       생일 :
-      <input type="date" name="date">  &nbsp
+      <input type="date" name="date">  &nbsp    <!-- 익스플로러는 date 안됨 -->
       <!-- <select name="birth_year" required>
         <?php
           // $this_year = date('Y', time());
