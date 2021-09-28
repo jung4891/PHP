@@ -49,6 +49,17 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 | Examples:	my-controller/index	-> my_controller/index
 |		my-controller/my-method	-> my_controller/my_method
 */
-$route['default_controller'] = 'welcome';
-$route['404_override'] = '';
-$route['translate_uri_dashes'] = FALSE;
+
+// $route['default_controller'] = 'pages';
+// // $route['default_controller'] = 'welcome';
+// $route['404_override'] = '';
+// $route['translate_uri_dashes'] = FALSE;
+
+// pages 컨트롤러에 index()가 없는경우
+// $route['default_controller'] = 'pages/view';
+// $route['(:any)'] = 'pages/view';  // (:any) :  wildcard string
+// http://example.com/index.php/a or about or 뭐든 다 넣으면 view 메소드 실행됨 (디폴트 argument home으로)
+// $route['(:any)'] = 'pages/view/$1';
+// http://example.com/index.php/about or home 으로 넣으면 넣은 argument가 작동함!! $1이 아규먼트 개수인듯
+
+$route['default_controller'] = 'news';
