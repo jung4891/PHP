@@ -9,6 +9,7 @@ class Mail extends CI_Controller {
 			// $this->load->helper('form');
 			// $this->load->helper('url');
 			// $this->load->Model('m_login');
+			$this->load->Model('m_test');
 			//
 			// $this->load->library('email');
 			// $config['protocol'] = 'smtp';
@@ -83,7 +84,20 @@ class Mail extends CI_Controller {
 			// echo mb_convert_encoding(".&ycDGtA- &07jJwNVo-", "UTF-8", "EUC-KR");
       // $this->load->view('read');
 			// echo mb_convert_encoding(".&ycDGtA- &07jJwNVo-", 'EUC-KR', 'UTF7-IMAP');
+		}
 
+		public function mail_test2(){
+
+			// $user = $this->m_test->test();
+			// echo '<pre>';
+			// var_dump($user);
+			// echo '</pre>';
+
+			$data['user'] =  $this->m_test->test();
+			$data['group'] = $this->m_test->test2();
+
+			// $this->load->view('aaaa');
+			$this->load->view('aaaa', $data);
 		}
 
 }
