@@ -11,9 +11,12 @@ class Topic_model extends CI_Model {
 
   public function gets(){
     // $this->db->     // 현재 설정한 데이터베이스에 접속해서 쿼리실행
+
     // result()        // 질의를 통해 가져온 결과값을 result()방식(객체형태)으로 가져온다
+    return $this->db->query("SELECT * FROM topic")->result();
+
     // result_array()  // array형태로 가져옴
-    // return $this->db->query("SELECT * FROM topic")->result();
-    return $this->db->query("SELECT * FROM topic")->result_array();
+    // return $this->db->query("SELECT * FROM topic")->result_array();
+
   }
 }
