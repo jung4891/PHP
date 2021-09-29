@@ -32,6 +32,7 @@
       $c = new c();
       $c->nihao();
 
+
       session_start();  // session_start()함수는 무조건 최상단. 이 위에 어떤 코드도 x
       if (isset($_SESSION['id'])) {
         echo "세션 생성완료. id : {$_SESSION['id']}";

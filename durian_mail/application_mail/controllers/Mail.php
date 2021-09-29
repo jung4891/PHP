@@ -50,7 +50,7 @@ class Mail extends CI_Controller {
 
 
 		public function index(){
-			$this->load->view('read');
+			// $this->load->view('read');
 		}
 
 
@@ -58,9 +58,11 @@ class Mail extends CI_Controller {
 			// $user_id = $this->input->post('inputId');
 			// $user_pass = $this->input->post('inputPass');
 			// $mailserver = "192.168.0.100";
-      $mailserver = "192.168.0.50";
-      // $user_id = "bhkim@durianit.co.kr";
-      $user_id = "test1@durianict.co.kr";
+			// $user_id = $this->input->post('inputId');
+			// $user_pass = $this->input->post('inputPass');
+			// $user_id = "bhkim@durianit.co.kr";
+			$mailserver = "192.168.0.50";
+      $user_id = "test2@durianict.co.kr";
 			$user_pass = "durian12#";
 			$mailbox = @imap_open("{" . $mailserver . ":143/imap/novalidate-cert}INBOX", $user_id, $user_pass);
 			// $folders = imap_listmailbox($mailbox, "{". $mailserver .":143}", "*");
@@ -84,20 +86,31 @@ class Mail extends CI_Controller {
 			// echo mb_convert_encoding(".&ycDGtA- &07jJwNVo-", "UTF-8", "EUC-KR");
       // $this->load->view('read');
 			// echo mb_convert_encoding(".&ycDGtA- &07jJwNVo-", 'EUC-KR', 'UTF7-IMAP');
+
 		}
 
 		public function mail_test2(){
 
 			// $user = $this->m_test->test();
-			// echo '<pre>';
-			// var_dump($user);
-			// echo '</pre>';
-
 			$data['user'] =  $this->m_test->test();
 			$data['group'] = $this->m_test->test2();
 
-			// $this->load->view('aaaa');
-			$this->load->view('aaaa', $data);
+			// var_dump($user);
+			$this->load->view('read', $data);
 		}
+
+	// function insert_car(){
+	// 	$carName = $this->input->post('car');
+	// 	$carNum = $this->input->post('num');
+	//
+	// 	$data = array(
+	// 	        'type' => $carName,
+	// 	        'number' => $carNum
+	// 	);
+	//
+	// 	$result['result'] = $this->m_test->insert_car($data);
+	//
+	// 	$this->load->view('write', $result);
+	// }
 
 }

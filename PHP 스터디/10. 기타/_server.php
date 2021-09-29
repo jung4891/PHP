@@ -11,7 +11,7 @@
       // 슈퍼 글로벌 변수는 PHP 자체적으로 내장된 변수이며 데이터형은 배열이다.
       // 인덱스 값에 따라 여러 정보를 획득할 수 있다.
 
-      echo 'DOCUMENT_ROOT -> '.$_SERVER['DOCUMENT_ROOT'].'<br>';  // 현재 실행파일의 경로
+      echo 'DOCUMENT_ROOT -> '.$_SERVER['DOCUMENT_ROOT'].'<br>';  // 현재 실행파일의 경로 C:/xampp/htdocs
       echo 'HTTP_ACCEPT_LANGUAGE -> '.$_SERVER['HTTP_ACCEPT_LANGUAGE'].'<br>';
       echo 'HTTP_HOST -> '.$_SERVER['HTTP_HOST'].'<br>';
       echo 'HTTP_USER_AGENT -> '.$_SERVER['HTTP_USER_AGENT'].'<br>';

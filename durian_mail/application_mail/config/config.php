@@ -24,7 +24,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 |
 */
 $config['base_url'] = 'http://dev.mail.durianit.co.kr';
-$config['site_title'] = "-Durian Mail";
+$config['site_title'] = "Durian Mail";
 /*
 |--------------------------------------------------------------------------
 | Index File

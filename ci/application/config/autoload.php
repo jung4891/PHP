@@ -59,7 +59,7 @@ $autoload['packages'] = array();
 |	$autoload['libraries'] = array('user_agent' => 'ua');
 */
 $autoload['libraries'] = array();
-// $autoload['libraries'] = array('database');  -> CI 구동시 자동으로 데이터베이스 가져오게됨.
+// $autoload['libraries'] = array('database');  // -> CI 구동시 자동으로 데이터베이스 가져오게됨.
 
 /*
 | -------------------------------------------------------------------

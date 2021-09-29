@@ -4,8 +4,12 @@ header("Content-type: text/html; charset=utf-8");
 class M_test extends CI_Model {
 
 	function __construct() {
+
 		parent::__construct();
+
 	}
+
+
 
   function test(){
     $sql = "select * from user";
@@ -22,6 +26,11 @@ class M_test extends CI_Model {
 		return $result;
 	}
 
+	function insert_car($car){
+
+		return $this->db->insert('admin_car', $car);
+
+	}
 
 }
 ?>
