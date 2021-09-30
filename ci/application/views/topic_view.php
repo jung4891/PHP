@@ -18,7 +18,7 @@
   <?php
   // 전체 title들 출력
   foreach($topics as $row) {
-    echo "<li><a href=\"/ci/index.php/topic/get/{$row->id}\">".$row->title.'</a></li>';
+    echo "<li><a href=\"/index.php/topic/get/{$row->id}\">".$row->title.'</a></li>';
     // echo $row['title'];
   }
   ?>

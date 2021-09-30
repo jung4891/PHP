@@ -68,6 +68,16 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 <body>
 
 <div id="container">
+	<h1>Hi CodeIgniter</h1>
+	<div id="body">
+		<p>코드이그나이터 설치후 보이는 화면입니다~!</p>
+		<p class="footer">
+			페이지 실행시간 : {elapsed_time}초 <br>
+			페이지 메모리 사용량 : {memory_usage}
+		</p>
+	</div>
+	<hr>
+
 	<h1>Welcome to CodeIgniter!</h1>
 
 	<div id="body">
@@ -84,6 +94,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 	</div>
 
 	<p class="footer">Page rendered in <strong>{elapsed_time}</strong> seconds. <?php echo  (ENVIRONMENT === 'development') ?  'CodeIgniter Version <strong>' . CI_VERSION . '</strong>' : '' ?></p>
+
 </div>
 
 </body>
