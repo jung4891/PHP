@@ -12,6 +12,7 @@
       비번<input type="password" name="inputPass" id="inputPass" value="">
       <button type="button" name="button" id="loginBtn">로긴</button>
     </form>
+    <?php echo 'DOCUMENT_ROOT -> '.$_SERVER['DOCUMENT_ROOT'].'<br>'; ?>
   </body>
   <script type="text/javascript">
 
