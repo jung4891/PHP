@@ -94,3 +94,20 @@ $db['default'] = array(
 	'failover' => array(),
 	'save_queries' => TRUE
 );
+
+/*
+create table items (
+	id int(10) not null auto_increment,
+	content varchar(200) null,
+	created_on date null,
+	due_date date null,
+	`use` int(1) not null default 1,
+	primary key(id)
+	)
+	collate='utf8_general_ci'
+	engine=MyISAM;
+
+INSERT INTO items (content, created_on, due_date)
+VALUES ('두리안미팅', '2021-10-04', '2021-10-05'),
+	   ('두리안미팅2', '2021-10-06', '2021-10-07'); 
+*/

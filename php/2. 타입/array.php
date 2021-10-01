@@ -82,6 +82,21 @@
     echo max($arr).'<br>';    // 55
     $arr = [3, 11, 22];
     echo min($arr).'<br>';    // 3
+
+    // explode() : 문자열을 구분자를 기준으로 나눈 값들을 배열로 생성
+    $str = 'jwjung,sylim,hbhwang,kipark,bhkim';
+    $tmpArr = explode(',', $str);
+
+    foreach($tmpArr as $id) {
+      echo $id.' ';
+    }
+
+    // implode() : 반대로 배열에 구분자를 넣어 문자열 생성
+    $jbary = array( 'one', 'two', 'three' );
+    $jbstr = implode( '/', $jbary );
+
+
+
      ?>
   </body>
 </html>

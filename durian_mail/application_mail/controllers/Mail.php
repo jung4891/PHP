@@ -113,4 +113,29 @@ class Mail extends CI_Controller {
 	// 	$this->load->view('write', $result);
 	// }
 
+	public function mom_list(){
+
+		// 참석자들 id를 이름으로 변환
+		$rows =  $this->m_test->get_biz_mom_participant();
+		$name_arr = array();
+		foreach($rows as $row) {
+			$person_ids = $row->participant;
+			$person_id_arr = explode(',', $person_ids);
+			$tmpArr = array();
+			foreach($person_id_arr as $person_id) {
+				$dataName = $this->m_test->get_biz_mom_participant_name($person_id);
+				array_push($tmpArr, $dataName->user_name);
+			}
+			$res = implode(",", $tmpArr);
+			array_push($name_arr, $res);
+		}
+
+		$data['biz_mom'] =  $this->m_test->get_biz_mom();
+		$data['name_arr'] = $name_arr;
+		$this->load->view('mom_list', $data);
+
+		// $data['group'] = $this->m_test->test2();
+		// $this->load->view('read', $data);
+	}
+
 }

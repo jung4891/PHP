@@ -22,13 +22,15 @@ class Main extends CI_Controller {
     $this->load->view('templates/footer');
   }
 
-  // todo 항목 조회
+  // todo 항목 조회 (view_row($id)로도 된다. 전달할때 view_row(안에 argument넣으면 된다))
   // uri라이브러리는 주소 처리에 관련된 라이브러리로 코드이그나이터 시작시 자동으로 로딩됨
   // segment(0)은 index.pop부분을 가리킨다. segment는 주소에서 /로 구분된 내용을 일컬음
   function view_row() {
     $id = $this->uri->segment(3);
     $data['row'] = $this->todo_m->get_row($id);
+    $this->load->view('templates/header');
     $this->load->view('todo/row_v', $data);
+    $this->load->view('templates/footer');
+
   }
-// view_row($id)로 해보기
 }

@@ -1,8 +1,4 @@
-<nav>  <!-- 다른페이지의 링크에 사용. 메뉴, 목차 등등 -->
-  <ul>
-    <li><a rel="help" href="/todo/index.php/main/lists">todo 애플리케이션 프로그램</a> </li>
-  </ul>
-</nav>
+
 <article>
   <header>
     <h1>Todo 목록</h1>
