@@ -99,15 +99,15 @@ $db['default'] = array(
 /*
 
 <생활코딩 실습위한 생성쿼리>
-CREATE DATABASE opentutorials CHARACTER SET utf8 COLLATE utf8_general_ci;
-use opentutorials;
+CREATE DATABASE test CHARACTER SET utf8 COLLATE utf8_general_ci;
+use test;
 CREATE TABLE topic (
     id  int(11) NOT NULL AUTO_INCREMENT,
     title  varchar(255) NOT NULL ,
     description  text NULL ,
     created  datetime NOT NULL ,
     PRIMARY KEY (id)
-);
+)ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 INSERT INTO `topic` (title,description,created) VALUES ('JavaScript란', '<h2>\r\n    자바스크립트는</h2>\r\n<ul>\r\n  <li>\r\n      브라우저에서 실행되는 언어</li>\r\n   <li>\r\n      가장 많이 사용되는 언어</li>\r\n    <li>\r\n      주로 html을 프로그래밍적으로 조작하기 위해서 사용됨</li>\r\n</ul>\r\n<h2>\r\n  예제</h2>\r\n<ul>\r\n <li>\r\n      자바스크립트는 3가지 방식으로 사용됨</li>\r\n <li>\r\n      외부의 파일을 로드</li>\r\n   <li>\r\n      &lt;script&gt;태그 사이에 기술</li>\r\n  <li>\r\n      태그에 직접 기술</li>\r\n</ul>\r\n<h2>\r\n   참고링크</h2>\r\n<ul>\r\n   <li>\r\n      <a href=\"http://www.maroon.pe.kr/webmaster/java/java_study.html\" target=\"_blank\">스크립트 세상</a></li>\r\n <li>  \r\n</ul>\r\n', now());
 INSERT INTO `topic` (title,description,created) VALUES ('변수와 상수', '<p>\r\n    변수란</p>\r\n<ul>\r\n <li>\r\n      변하는 값</li>\r\n    <li>\r\n      x = 10 일 때 왼쪽항인 x는 오른쪽 항인 10에 따라 다른 값이 지정된다.</li>\r\n</ul>\r\n<p>\r\n 상수란</p>\r\n<ul>\r\n <li>\r\n      변하지 않는 값</li>\r\n <li>\r\n      x = 10 일 때 오른쪽항인 10이 상수가 된다.</li>\r\n</ul>\r\n<pre class=\"brush: xml\">\r\n&lt;script type=&quot;text/javascript&quot;&gt;\r\n&nbsp;&nbsp;&nbsp; // x의 값이 오른쪽 항에 따라서 변한다.\r\n&nbsp;&nbsp;&nbsp; // x가 변수라는 명시적인 의미\r\n&nbsp;&nbsp;&nbsp; var x = 10;\r\n&nbsp;&nbsp;&nbsp; alert(x);\r\n&nbsp;&nbsp;&nbsp; var x = 20;\r\n&nbsp;&nbsp;&nbsp; alert(x);\r\n&lt;/script&gt;</pre>\r\n<p>\r\n   &nbsp;</p>\r\n', now());
