@@ -20,7 +20,7 @@
       var mform = document.loginForm;
       mform.inputId.value = mform.inputId.value.trim();
       mform.inputPass.value = mform.inputPass.value.trim();
-      mform.action = "<?php echo site_url();?>/mail/mail_test2";
+      mform.action = "<?php echo site_url();?>/mail/mail_test";
       mform.submit();
     })
 

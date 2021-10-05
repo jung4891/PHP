@@ -66,7 +66,9 @@ class Mail extends CI_Controller {
 			$user_pass = "durian12#";
 			$mailbox = @imap_open("{" . $mailserver . ":143/imap/novalidate-cert}INBOX", $user_id, $user_pass);
 			// $folders = imap_listmailbox($mailbox, "{". $mailserver .":143}", "*");
-      $folders = imap_getmailboxes($mailbox, "{". $mailserver .":143}", "*");
+			// var_dump($mailbox);
+			echo '<br>';
+			$folders = imap_getmailboxes($mailbox, "{". $mailserver .":143}", "*");
       // var_dump($folders);
 			if ($folders == false) {
     		echo "no";
@@ -78,7 +80,7 @@ class Mail extends CI_Controller {
 			// // 		// $a = utf8_encode($a);
 			// 		echo $a;
 			// // 		echo mb_convert_encoding(imap_utf7_decode($fd), "ISO-8859-1", "UTF-8");
-      echo mb_convert_encoding($fd->name, 'UTF-8', 'UTF7-IMAP');
+      		echo mb_convert_encoding($fd->name, 'UTF-8', 'UTF7-IMAP');
     		}
 			}
 			// echo ".&ycDGtA- &07jJwNVo-";
@@ -86,6 +88,59 @@ class Mail extends CI_Controller {
 			// echo mb_convert_encoding(".&ycDGtA- &07jJwNVo-", "UTF-8", "EUC-KR");
       // $this->load->view('read');
 			// echo mb_convert_encoding(".&ycDGtA- &07jJwNVo-", 'EUC-KR', 'UTF7-IMAP');
+
+			if($mailbox){
+	        $mails = imap_check($mailbox);
+	        $count = $mails->Nmsgs;
+	        if($count >= 1){
+	            ?>
+							<br><br>
+	            메일이 <?=$count?>건 있습니다.<br>
+	            <table border=1>
+	                <tr>
+	                    <td>No</td>
+	                    <td>제목</td>
+	                    <td>내용</td>
+	                    <td>날짜</td>
+	                    <td>발신자</td>
+	                    <td>크기</td>
+	                </tr>
+	                <?php
+	                    for($num = 1; $num <= $count; $num ++){
+	                        $head = imap_header($mailbox, $num);
+	                        $body = imap_body($mailbox, $num, FT_INTERNAL);
+	                        ?>
+	                        <tr>
+	                            <td><?=$num?></td>
+	                            <td nowrap><?=htmlspecialchars(mb_decode_mimeheader($head->subject))?></td>
+															<td nowrap><?=mb_decode_mimeheader($body)?></td>
+															<?php 	// Outlook 테스트 메시지에서 date 오류나서 애러처리함
+																if (isset($head->date)) {
+																	$date = $head->date;
+																} else {
+																	$date = '';
+																}
+															 ?>
+															<td nowrap><?=$date?></td>
+	                            <td nowrap><?=htmlspecialchars(mb_decode_mimeheader($head->fromaddress))?></td>
+	                            <td nowrap><?=$head->Size?></td>
+	                        </tr>
+	                        <?php
+	                    }
+	                ?>
+	            </table>
+	            <?php
+	        }else{
+	            ?>
+	            새로운 메일이 없습니다.<br>
+	            <?php
+	        }
+	        imap_close($mailbox);
+	    }else{
+	        ?>
+	        사용자명 또는 패스워드가 틀립니다.
+	        <?php
+	    }
 
 		}
 
@@ -98,6 +153,7 @@ class Mail extends CI_Controller {
 			// var_dump($user);
 			$this->load->view('read', $data);
 		}
+
 
 	// function insert_car(){
 	// 	$carName = $this->input->post('car');
