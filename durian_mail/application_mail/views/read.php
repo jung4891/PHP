@@ -5,7 +5,7 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
  ?>
 <div id="main_contents">
 
-
+test
 </div>
 
 
