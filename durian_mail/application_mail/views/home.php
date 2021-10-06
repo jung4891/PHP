@@ -6,14 +6,14 @@
   </head>
   <body>
         <?php
-        $username = "bhkim@durianit.co.kr";
-        $password = "durian12#";
-        // $password = "$1$B877FIPR$jqqd0ABXb8p/UfREQlCpl.";
-        $mailserver = "192.168.0.100";
-
-        // $username = "test1@durianict.co.kr";
+        // $username = "bhkim@durianit.co.kr";
         // $password = "durian12#";
-        // $mailserver = "192.168.0.50";
+        // $password = "$1$B877FIPR$jqqd0ABXb8p/UfREQlCpl.";
+        // $mailserver = "192.168.0.100";
+
+        $username = "test2@durianict.co.kr";
+        $password = "durian12#";
+        $mailserver = "192.168.0.50";
 
 
             // POP3 서버
@@ -30,8 +30,8 @@
                 $count = $mails->Nmsgs;
                 if($count >= 1){
                     ?>
-                   <?php $count ?>건 <br>
-                    <!-- <table border=1 style="margin-top:20px;margin-bottom:50px;">
+                   <?= $count ?>건~ <br>
+                    <table border=1 style="margin-top:20px;margin-bottom:50px;">
                         <tr>
                             <td>No</td>
                             <td>제목</td>
@@ -42,19 +42,19 @@
                         <?php
                             for($num = 1; $num <= $count; $num ++){
                                 $head = imap_header($mailbox, $num);
-                                $body = trim(substr(imap_body($mailbox, $num), 0, 100));
+                                $body = trim(substr(imap_body($mailbox, $num), 0, 300));
                                 ?>
                                 <tr>
-                                    <td><?php $num ?></td>
-                                    <td nowrap><?php imap_utf8($head->subject)?></td>
-                                    <td nowrap><?php $head->date?></td>
-                                    <td nowrap><?php htmlspecialchars(mb_decode_mimeheader($head->fromaddress))?></td>
-                                    <td nowrap><?php $head->Size ?></td>
+                                    <td><?= $num ?></td>
+                                    <td nowrap><?= imap_utf8($head->subject)?></td>
+                                    <td><?= $body?></td>
+                                    <td nowrap><?= htmlspecialchars(mb_decode_mimeheader($head->fromaddress))?></td>
+                                    <td nowrap><?= $head->Size ?></td>
                                 </tr>
                                 <?php
                             }
                         ?>
-                    </table> -->
+                    </table>
                     <?php
                 }else{
                     ?>
