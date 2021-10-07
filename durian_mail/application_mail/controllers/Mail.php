@@ -30,6 +30,11 @@ class Mail extends CI_Controller {
 			//
 			// $this->email->initialize($config);
 
+
+
+			// IMAP(Internet Message Access Protocol) : 메일서버에 접속하여 메일을 가져오기 위한 프로토콜
+			// PHP에서 imap 기능을 사용하려면 php.ini의 extension=imap 부분 주석 해제해야함 (디폴드가 해제상태)
+
 			// $username = "bhkim@durianit.co.kr";
 			// $password = "durian12#";
 			// $mailserver = "192.168.0.100";
@@ -38,13 +43,19 @@ class Mail extends CI_Controller {
 			// $password = "durian12#";
 			// $mailserver = "192.168.0.50";
 
+			// $username = "go_go_ssing";
+			// $password = "gurwndA!23";
+			// $mailserver = "imap.naver.com";
+
+
 			// POP3 서버
 			//$mailbox = @imap_open("{" . $mailserver . ":110/pop3}INBOX", $username, $password);
 
 			// IMAP 서버
 			// $mailbox = @imap_open("{" . $mailserver . ":143/imap/novalidate-cert}INBOX", $username, $password);
 
-
+			// Gmail/NaverMail 서버
+			// $mailbox = imap_open("{" . $mailserver . ":993/imap/novalidate-cert/ssl}INBOX", $username, $password);
 
 	}
 
@@ -66,24 +77,34 @@ class Mail extends CI_Controller {
 			$mailserver = "192.168.0.50";
       $user_id = "test2@durianict.co.kr";
 			$user_pass = "durian12#";
-			$mailbox = @imap_open("{" . $mailserver . ":143/imap/novalidate-cert}INBOX", $user_id, $user_pass);
+
+			$mails= @imap_open("{" . $mailserver . ":143/imap/novalidate-cert}INBOX", $user_id, $user_pass);
+			// imap_open() : 메일서버에 접속하기 위한 함수
+			//							 (접속에 성공하면 $mailbox에 IMAP 스트림(mailstream)이 할당됨)
+			// @ : 오류메시지를 무효로 처리하여 경고 문구가 표시되지 않게함
+			// INBOX는 사용자 개인의 메일박스를 의미함
 
 			$data = array();
-			if($mailbox) {
-				$mails = imap_check($mailbox);
-				$count_mails = $mails->Nmsgs;
-				$data['count_mails'] = $count_mails;
-				if($count_mails >= 1) {
-					$data['test_msg'] = "메일이 {$count_mails}건 있습니다.";
-					for($num=1; $num<=$count_mails; $num++) {
-						$data['head'][$num] = imap_header($mailbox, $num);
+			if($mails) {
+				$mails_info = imap_check($mails);		// imap_check() : 메일박스의 정보를 객체(object)로 돌려줌
+				$mails_cnt = $mails_info->Nmsgs;			// 메일박스의 메일 개수를 가져옴
+				$data['mails_cnt'] = $mails_cnt;
+				if($mails_cnt >= 1) {
+					$data['test_msg'] = "메일이 {$mails_cnt}건 있습니다.";
+					// var_dump($mails_info->Mailbox) 	// string(77) "{192.168.0.50:143/imap/tls/novalidate-cert/user="test2@durianict.co.kr"}INBOX"
+					for($num=1; $num<=$mails_cnt; $num++) {
+						$data['head'][$num] = imap_header($mails, $num);
+						// imap_header : $num번째 메일의 제목이나 날짜같은 메일정보를 넣어둔 객체를 돌려줌
 					}
 				} else {
 					$data['test_msg'] = "메일이 없습니다.";
 				}
+				imap_close($mails);		// IMAP 스트림을 닫음
 			} else {
 				$data['test_msg'] = '사용자명 또는 패스워드가 틀립니다.';
 			}
+
+			$this->load->view('mail_list', $data);
 
 			// $folders = imap_listmailbox($mailbox, "{". $mailserver .":143}", "*");
 			// var_dump($mailbox);
@@ -108,9 +129,6 @@ class Mail extends CI_Controller {
 			// echo mb_convert_encoding(".&ycDGtA- &07jJwNVo-", "UTF-8", "EUC-KR");
       // $this->load->view('read');
 			// echo mb_convert_encoding(".&ycDGtA- &07jJwNVo-", 'EUC-KR', 'UTF7-IMAP');
-
-			$this->load->view('mail_list', $data);
-
 
 		}
 

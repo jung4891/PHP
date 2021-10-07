@@ -17,11 +17,13 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
     </thead>
     <tbody>
       <?php
-        for($num=1; $num<=$count_mails; $num++) {
+        for($num=1; $num<=$mails_cnt; $num++) {
       ?>
       <tr>
         <td><?=$num?></td>
         <td nowrap><?=htmlspecialchars(mb_decode_mimeheader($head[$num]->fromaddress))?></td>
+        <!-- mb_decode_mimeheader() : MIME 인코드(암호화)되어 메일의 제목을 디코드(복호화)해야함 -->
+        <!-- htmlspecialchars() : 제목에 포함된 HTML태그를 무효로 처리함 -->
         <td nowrap><?=htmlspecialchars(mb_decode_mimeheader($head[$num]->subject))?></td>
         <?php 	// Outlook 테스트 메시지에서 date 오류나서 애러처리함
           if (isset($head[$num]->date)) {

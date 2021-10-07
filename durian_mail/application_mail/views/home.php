@@ -5,22 +5,24 @@
     <title>메일</title>
   </head>
   <body>
-        <?php
-        // PHP에서 imap 기능을 사용하려면 php.ini의 extension=imap 부분 주석 해제해야함 (디폴드가 해제상태)
 
+        <?php
         // $username = "bhkim@durianit.co.kr";
         // $password = "durian12#";
         // $password = "$1$B877FIPR$jqqd0ABXb8p/UfREQlCpl.";
         // $mailserver = "192.168.0.100";
 
-        $username = "test2@durianict.co.kr";
+        // $username = "test2@durianict.co.kr";
+        // $password = "durian12#";
+        // $mailserver = "192.168.0.50";
+
+        $username = "hjsong@durianit.co.kr";
         $password = "durian12#";
-        $mailserver = "192.168.0.50";
+        $mailserver = "192.168.0.100";
 
         // $username = "go_go_ssing";
         // $password = "gurwndA!23";
         // $mailserver = "imap.naver.com";
-
 
             // POP3 서버
             //$mailbox = @imap_open("{" . $mailserver . ":110/pop3}INBOX", $username, $password);
@@ -35,34 +37,48 @@
                 $mails = imap_check($mailbox);
                 $count = $mails->Nmsgs;
                 if($count >= 1){
-                    ?>
-                   <?= $count ?>건~ <br>
+                   echo "{$count} 건~<br>";
+                   // print_r($mailbox)
+                   // var_dump($mails)
+                   // var_dump($mails->Mailbox)
+                   // string(77) "{192.168.0.50:143/imap/tls/novalidate-cert/user="test2@durianict.co.kr"}INBOX"
+                   ?>
+                   <pre>
+                     <?php
+                      $head = imap_header($mailbox, 1);   // 1번 메일의 head정보 알기위한 테스트
+                      $body = imap_body($mailbox, 1);    // 1번 메일의 body정보 알기위한 테스트
+                      var_dump($head);
+                      echo '<hr>';
+                      var_dump($body);
+                      echo '<hr>';
+                      ?>
+                   </pre>
                     <table border=1 style="margin-top:20px;margin-bottom:50px;">
-                        <tr>
-                            <td>No</td>
-                            <td>제목</td>
-                            <td>날짜</td>
-                            <td>발신자</td>
-                            <td>크기</td>
-                        </tr>
-                        <?php
-                            for($num = 1; $num <= $count; $num ++){
-                                $head = imap_header($mailbox, $num);
-                                $body = trim(substr(imap_body($mailbox, $num), 0, 300));
-                                $content = imap_fetchbody($mailbox, $num, 1);     // text/plain
-                                $content2 = imap_fetchbody($mailbox, $num, 1.1);  // multipart/alternative
-                                ?>
-                                <tr>
-                                    <td><?= $num ?></td>
-                                    <td nowrap><?= imap_utf8($head->subject)?></td>
-                                    <td><?= base64_decode($content2)?></td>
-                                    <td><?= $body ?></td>
-                                    <!-- <td nowrap><?= htmlspecialchars(mb_decode_mimeheader($head->fromaddress))?></td> -->
-                                    <td nowrap><?= $head->Size ?></td>
-                                </tr>
-                                <?php
-                            }
-                        ?>
+                      <tr>
+                          <td>No</td>
+                          <td>제목</td>
+                          <td>날짜</td>
+                          <td>발신자</td>
+                          <td>크기</td>
+                      </tr>
+                      <?php
+                        for($num = 1; $num <= $count; $num ++){
+                          $head = imap_header($mailbox, $num);
+                          $body = trim(substr(imap_body($mailbox, $num), 0, 300));
+                          $content = imap_fetchbody($mailbox, $num, 1);     // text/plain
+                          $content2 = imap_fetchbody($mailbox, $num, 1.1);  // multipart/alternative
+                          ?>
+                          <tr>
+                              <td><?= $num ?></td>
+                              <td nowrap><?= imap_utf8($head->subject)?></td>
+                              <td><?= base64_decode($content2)?></td>
+                              <td><?= $body ?></td>
+                              <!-- <td nowrap><?= htmlspecialchars(mb_decode_mimeheader($head->fromaddress))?></td> -->
+                              <td nowrap><?= $head->Size ?></td>
+                          </tr>
+                          <?php
+                        }
+                      ?>
                     </table>
                     <?php
                 }else{
