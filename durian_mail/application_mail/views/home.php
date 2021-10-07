@@ -6,6 +6,8 @@
   </head>
   <body>
         <?php
+        // PHP에서 imap 기능을 사용하려면 php.ini의 extension=imap 부분 주석 해제해야함 (디폴드가 해제상태)
+
         // $username = "bhkim@durianit.co.kr";
         // $password = "durian12#";
         // $password = "$1$B877FIPR$jqqd0ABXb8p/UfREQlCpl.";
@@ -15,14 +17,18 @@
         $password = "durian12#";
         $mailserver = "192.168.0.50";
 
+        // $username = "go_go_ssing";
+        // $password = "gurwndA!23";
+        // $mailserver = "imap.naver.com";
+
 
             // POP3 서버
             //$mailbox = @imap_open("{" . $mailserver . ":110/pop3}INBOX", $username, $password);
 
             // IMAP 서버
-            $mailbox = @imap_open("{" . $mailserver . ":143/imap/novalidate-cert}INBOX", $username, $password);
+             $mailbox = @imap_open("{" . $mailserver . ":143/imap/novalidate-cert}INBOX", $username, $password);
 
-            // Gmail 서버
+            // Gmail/Naver 서버
             // $mailbox = imap_open("{" . $mailserver . ":993/imap/novalidate-cert/ssl}INBOX", $username, $password);
 
             if($mailbox){
@@ -43,12 +49,15 @@
                             for($num = 1; $num <= $count; $num ++){
                                 $head = imap_header($mailbox, $num);
                                 $body = trim(substr(imap_body($mailbox, $num), 0, 300));
+                                $content = imap_fetchbody($mailbox, $num, 1);     // text/plain
+                                $content2 = imap_fetchbody($mailbox, $num, 1.1);  // multipart/alternative
                                 ?>
                                 <tr>
                                     <td><?= $num ?></td>
                                     <td nowrap><?= imap_utf8($head->subject)?></td>
-                                    <td><?= $body?></td>
-                                    <td nowrap><?= htmlspecialchars(mb_decode_mimeheader($head->fromaddress))?></td>
+                                    <td><?= base64_decode($content2)?></td>
+                                    <td><?= $body ?></td>
+                                    <!-- <td nowrap><?= htmlspecialchars(mb_decode_mimeheader($head->fromaddress))?></td> -->
                                     <td nowrap><?= $head->Size ?></td>
                                 </tr>
                                 <?php

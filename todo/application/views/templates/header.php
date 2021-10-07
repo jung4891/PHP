@@ -3,22 +3,20 @@
   <head>
     <meta charset="utf-8">
     <title>Todo List</title>
-    <link href="https://fonts.googleapis.com/css?family=Lobster" rel="stylesheet"> <!-- google font -->
     <style media="screen">
       .btn {
+        height: 18px;
         text-decoration: none;
-        font-size:2rem;
         color:white;
-        padding:10px 20px 10px 20px;
+        padding:3px 20px 3px 20px;
         margin:20px;
         display:inline-block;
         border-radius: 10px;
-        transition:all 0.1s;
+        transition:all 0.1s;          /* 변형되는데 걸리는 시간 */
         text-shadow: 0px -2px rgba(0, 0, 0, 0.44);
-        font-family: 'Lobster', cursive; <!-- google font -->
       }
       .btn:active{
-        transform: translateY(3px);
+        transform: translateY(10px);  /* Y축 아래로 이동 */
       }
       .btn.blue{
         background-color: #1f75d9;
