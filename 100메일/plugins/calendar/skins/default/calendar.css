@@ -1,0 +1,25 @@
+/**
+ * RoundCube Calendar
+ *
+ * Plugin to add a calendar to RoundCube.
+ *
+ * @version 0.2 BETA 2
+ * @author Lazlo Westerhof
+ * @url http://rc-calendar.lazlo.me
+ * @licence GNU GPL
+ * @copyright (c) 2010 Lazlo Westerhof - Netherlands
+ *
+ **/
+body {
+overflow:auto;
+}
+ 
+#calendar {
+  margin: 0 auto;
+  margin-top: 0px;
+  overflow: hidden;
+}
+
+#event, #description {
+  display: none;
+}

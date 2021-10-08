@@ -132,6 +132,33 @@ class Mail extends CI_Controller {
 
 		}
 
+		// 메일 조회
+		public function get_mail($num){
+
+			$username = "test2@durianict.co.kr";
+			$password = "durian12#";
+			$mailserver = "192.168.0.50";
+
+			$mailbox = @imap_open("{" . $mailserver . ":143/imap/novalidate-cert}INBOX", $username, $password);
+
+			$head = imap_header($mailbox, $num);
+			$struct = imap_fetchstructure($mailbox, $num);
+			$subtype = $struct->subtype;
+			switch($subtype) {
+				case "ALTERNATIVE":
+				$content = imap_fetchbody($mailbox, $num, 1);
+				break;
+				case "MIXED":
+				$content = imap_fetchbody($mailbox, $num, '1.1');
+				break;
+			}
+
+			echo "제목 : ".imap_utf8($head->subject)."<br>";
+			echo "보낸사람 : ".htmlspecialchars(mb_decode_mimeheader($head->fromaddress))."<br>";
+			echo "받는사람 : ".htmlspecialchars(mb_decode_mimeheader($head->toaddress))."<br>";
+			echo "내용 : ".imap_base64($content)."<br>";
+		}
+
 		public function mail_test2(){
 
 			// $user = $this->m_test->test();

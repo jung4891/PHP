@@ -1,0 +1,1 @@
+var rcmail_editor_settings={skin:"o2k7",skin_variant:""};var xs=new function(){this.init=function(){if($("#message").length){$("#topline .topleft").appendTo("#message")}};this.showLoginLogo=function(){$("#cornerLogoSmall").fadeOut();$("#cornerLogoFull").fadeIn()};this.hideLoginLogo=function(){$("#cornerLogoSmall").fadeIn();$("#cornerLogoFull").fadeOut()}};
