@@ -63,7 +63,6 @@ class Main extends CI_Controller {
       if ($_POST) {
         $id = $this->input->post('id', TRUE);
         $content = $this->input->post('content', TRUE);
-        $content = $this->input->post('content', TRUE);
         $created_on = $this->input->post('created_on', TRUE);
         $due_date = $this->input->post('due_date', TRUE);
 

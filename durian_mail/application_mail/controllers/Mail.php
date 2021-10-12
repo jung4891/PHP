@@ -74,9 +74,13 @@ class Mail extends CI_Controller {
 			// $user_pass = $this->input->post('inputPass');
 			// $user_id = "bhkim@durianit.co.kr";
 
-			$mailserver = "192.168.0.50";
-      $user_id = "test2@durianict.co.kr";
+			// $mailserver = "192.168.0.50";
+      // $user_id = "test2@durianict.co.kr";
+			// $user_pass = "durian12#";
+
+			$user_id = "hjsong@durianit.co.kr";
 			$user_pass = "durian12#";
+			$mailserver = "192.168.0.100";
 
 			$mails= @imap_open("{" . $mailserver . ":143/imap/novalidate-cert}INBOX", $user_id, $user_pass);
 			// imap_open() : 메일서버에 접속하기 위한 함수

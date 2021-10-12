@@ -12,13 +12,13 @@
         // $password = "$1$B877FIPR$jqqd0ABXb8p/UfREQlCpl.";
         // $mailserver = "192.168.0.100";
 
-        $username = "test2@durianict.co.kr";
-        $password = "durian12#";
-        $mailserver = "192.168.0.50";
-
-        // $username = "hjsong@durianit.co.kr";
+        // $username = "test2@durianict.co.kr";
         // $password = "durian12#";
-        // $mailserver = "192.168.0.100";
+        // $mailserver = "192.168.0.50";
+
+        $username = "hjsong@durianit.co.kr";
+        $password = "durian12#";
+        $mailserver = "192.168.0.100";
 
         // $username = "go_go_ssing";
         // $password = "gurwnd12#";
@@ -37,38 +37,45 @@
                 $mails = imap_check($mailbox);
                 $count = $mails->Nmsgs;
                 if($count >= 1){
+                   // print_r('$mailbox : '.$mailbox.'<br>');
+                   // echo '$mails: <br>';
+                   // var_dump($mails);
+                   // echo ('<br><br>');
                    echo "{$count} 건~<br><br>";
-                   // print_r($mailbox)
-                   // var_dump($mails)
-                   // var_dump($mails->Mailbox)
-                   // string(77) "{192.168.0.50:143/imap/tls/novalidate-cert/user="test2@durianict.co.kr"}INBOX"
                    ?>
-
                      <?php
                       // 테스트용
                       $head = imap_header($mailbox, 1);             // 1번 메일의 head정보 알기위한 테스트
-                      $body = imap_body($mailbox, 4);               // 1번 메일의 body정보 알기위한 테스트
-                      $struct = imap_fetchstructure($mailbox, 4);   // 1번 메일의 구조를 알기위한 테스트
+                      // $body = imap_body($mailbox, 4);               // 1번 메일의 body정보 알기위한 테스트
+                      // $struct = imap_fetchstructure($mailbox, 4);   // 1번 메일의 구조를 알기위한 테스트
+
+                      echo 'num: 1'.'<br>';
+                      echo '제목: '.imap_utf8($head->subject).'<br>';
+                      echo '받는사람: '.imap_utf8($head->toaddress).'<br>';
+                      echo '크기: '.$head->Size.'Bytes. <br>';
+
+                      echo '<br>';
+                      echo '$head ->';
                       echo '<pre>';
-                      // var_dump($head);
-                       // var_dump($body);
-                       // echo '<hr>';
-                       // var_dump($struct);
-                       // echo '<hr>';
-                       $subtype_1 = $struct->subtype;               // 일반메일은 ALTERNATIVE / 첨부는 MIXED
-                       switch($subtype_1) {
-                         case "ALTERNATIVE":                                  // MIXED
-                         $subtype_2 = $struct->parts[1]->subtype;             // parts(2)
-                         break;                                               //  - parts(2)
-                                                                              //     - 제목
-                                                                              //     - 내용
-                         case "MIXED":                                        //  - file
-                         $subtype_2 = $struct->parts[0]->parts[1]->subtype;
-                         break;
-                       }
-                      echo $subtype_2;
+                      var_dump($head);
                       echo '</pre>';
-                      echo '<hr>';
+                      //  // var_dump($body);
+                      //  // echo '<hr>';
+                      //  // var_dump($struct);
+                      //  // echo '<hr>';
+                      //  $subtype_1 = $struct->subtype;               // 일반메일은 ALTERNATIVE / 첨부는 MIXED
+                      //  switch($subtype_1) {
+                      //    case "ALTERNATIVE":                                  // MIXED
+                      //    $subtype_2 = $struct->parts[1]->subtype;             // parts(2)
+                      //    break;                                               //  - parts(2)
+                      //                                                         //     - 제목
+                      //                                                         //     - 내용
+                      //    case "MIXED":                                        //  - file
+                      //    $subtype_2 = $struct->parts[0]->parts[1]->subtype;
+                      //    break;
+                      //  }
+                      // echo $subtype_2;
+                      // echo '<hr>';
                       // echo imap_utf8($head->from[0]->personal);   // 발신자 이름
                       // echo htmlspecialchars(mb_decode_mimeheader($head->fromaddress));   발신자이름 <발신자 주소>
                       ?>
@@ -81,28 +88,28 @@
                           <td>크기</td>
                       </tr>
                       <?php
-                        for($num = 1; $num <= $count; $num ++){
-                          $head = imap_header($mailbox, $num);
-                          $struct = imap_fetchstructure($mailbox, $num);
-                          $subtype = $struct->subtype;
-                          switch($subtype) {
-                            case "ALTERNATIVE":
-                            $content = imap_fetchbody($mailbox, $num, 1);
-                            break;
-                            case "MIXED":
-                            $content = imap_fetchbody($mailbox, $num, '1.1');
-                            break;
-                          }
+                        // for($num = 1; $num <= $count; $num ++){
+                        //   $head = imap_header($mailbox, $num);
+                        //   $struct = imap_fetchstructure($mailbox, $num);
+                        //   $subtype = $struct->subtype;
+                        //   switch($subtype) {
+                        //     case "ALTERNATIVE":
+                        //     $content = imap_fetchbody($mailbox, $num, 1);
+                        //     break;
+                        //     case "MIXED":
+                        //     $content = imap_fetchbody($mailbox, $num, '1.1');
+                        //     break;
+                        //   }
                           ?>
-                          <tr>
+                          <!-- <tr>
                               <td><?= $num ?></td>
                               <td nowrap><?= imap_utf8($head->subject)?></td>
                               <td><?= imap_base64($content)?></td>
                               <td nowrap><?= imap_utf8($head->from[0]->personal)?></td>
                               <td nowrap><?= $head->Size ?></td>
-                          </tr>
+                          </tr> -->
                           <?php
-                        }
+                        // }
                       ?>
                     </table>
                     <?php
