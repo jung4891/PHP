@@ -51,8 +51,12 @@
 
                       echo 'num: 1'.'<br>';
                       echo '제목: '.imap_utf8($head->subject).'<br>';
-                      echo '받는사람: '.imap_utf8($head->toaddress).'<br>';
-                      echo '크기: '.$head->Size.'Bytes. <br>';
+                      echo '받는 사람: '.imap_utf8($head->toaddress).'<br>';
+                      echo '보낸 사람: '.imap_utf8($head->fromaddress).'<br>';
+                      echo '날짜: '.date("Y/m/d H:i", $head->udate).'<br>';
+                      echo '크기: '.$head->Size.'Bytes <br>';
+                      echo imap_num_recent($mailbox).'<br>';
+                      echo imap_num_msg($mailbox).'<br>';
 
                       echo '<br>';
                       echo '$head ->';

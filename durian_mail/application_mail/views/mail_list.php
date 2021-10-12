@@ -23,7 +23,7 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
         <td><?=$num?></td>
         <td nowrap><?=imap_utf8($head[$num]->from[0]->personal)?></td>
         <!-- <td nowrap><?=htmlspecialchars(mb_decode_mimeheader($head[$num]->fromaddress))?></td> -->
-        <!-- mb_decode_mimeheader() : MIME 인코드(암호화)되어 메일의 제목을 디코드(복호화)해야함 -->
+        <!-- mb_decode_mimeheader() : MIME 인코드(암호화)되어있는 메일의 제목을 디코드(복호화)해야함 -->
         <!-- htmlspecialchars() : 제목에 포함된 HTML태그를 무효로 처리함 -->
         <td nowrap><a href="/index.php/mail/get_mail/<?=$num?>"><?=htmlspecialchars(mb_decode_mimeheader($head[$num]->subject))?></a></td>
         <?php 	// Outlook 테스트 메시지에서 date 오류나서 애러처리함
