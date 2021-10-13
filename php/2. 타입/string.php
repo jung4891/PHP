@@ -20,10 +20,19 @@
 
     // strpos(전체 문자열, 찾을 문자) : 특정 문자의 인덱스 반환
     $str = "web developer";
-    $findStr = 'e';         // 'develop'은 'd'랑 결과가 같다.
+    $findStr = 'e';              // 'develop'은 'd'랑 결과가 같다.
     $pos = strpos($str, $findStr);
-    echo $pos.'<br><br>';   // 1  (뒤에 있어도 앞 인덱스 반환)
+    echo '$pos: '.$pos.'<br>';   // 1  (뒤에 있어도 앞 인덱스 반환)
+    $pos = strpos($str, $findStr, 2);   // 2는 2번째 e를 찾음
+    echo '$pos: '.$pos.'<br>';   // 5
+    if ($pos == null) {          // 찾는 문자가 없으면 null임
+      echo '111 <br>';           // ★ isset($pos)는 근데 참임.
+    } else {
+      echo '222';
+    }
 
+
+    echo '<br>';
     // substr(대상 문자열, 자르기 시작위치, 자를 문자열 수)
     $str = "abcde";
     $cutStr = substr($str, 2);
@@ -78,7 +87,7 @@
     <!-- 기타 -->
     <br>
     <?php
-    echo "aaa<br>bbb"    // 브라우저는 개행되고 소스코드보기에선 <br>로 보임
+    echo "aaa<br>bbb";    // 브라우저는 개행되고 소스코드보기에선 <br>로 보임
     echo '5'+'5';         // 10임
      ?>
 

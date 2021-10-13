@@ -10,11 +10,11 @@
 // 메일의 구조를 분석하는 함수
 function checkstruct($mailstream, $MSG_NO) {
   $struct = imap_fetchstructure($mailstream, $MSG_NO);
-  // 메일의 구조를 객체로 리턴해 줍니다. 인자는 메일스트림과 해당 메일번호입니다.
+  // 메일의 구조를 객체로 리턴함. 인자는 메일스트림과 해당 메일번호임.
 
-  echo '<pre>';
-  echo var_dump($struct);
-  echo '</pre>';
+  // echo '<pre>';
+  // echo var_dump($struct);
+  // echo '</pre>';
 
   $type = $struct->subtype;
   /*
@@ -25,7 +25,7 @@ function checkstruct($mailstream, $MSG_NO) {
    - RELATED : HTML 형식으로 보낼때 보면 메일안에 이미지를 삽입해서 보낼 수 있습니다.
   */
 
-  // switch($type) {
+  switch($type) {
   //   case "PLAIN": // 일반텍스트 메일
   //     echo str_replace("\n", "<br>", imap_fetchbody($mailstream, $MSG_NO, "1"));
   //     // 그냥 본문을 얻어서 출력해 주면 됩니다.
@@ -75,19 +75,33 @@ function checkstruct($mailstream, $MSG_NO) {
   //       }
   //     }
   //     break;
-  //   case "ALTERNATIVE": // outlook html
-  //     for($i=0;$i<count($struct->parts);$i++) {
-  //       $part = $struct->parts[$i];
-  //       $param = $part->parameters[0];
-  //       $file_name = Decode($param->value); // 첨부파일일 경우 파일명
-  //       $mime = $part->subtype;
-  //       $encode = $part->encoding;
-  //
-  //       if($mime == "HTML") {
-  //         printbody($mailstream, $MSG_NO, $i, $encode, $mime, $file_name);
-  //       }
-  //     }
-  //     break;
+
+        if($mime == "HTML") {
+          $val = imap_fetchbody($mailstream, $MSG_NO, (string)(2));
+          echo decode($val).'<br>';
+          var_dump($val);
+          printbody($mailstream, $MSG_NO, $i, $encode, $mime, $file_name);
+
+        }
+      }
+    case "ALTERNATIVE":                     // outlook html
+      for($i=0; $i<count($struct->parts); $i++) {
+        $part = $struct->parts[$i];             // parts[0]은 제목부분, parts[1]은 내용부분
+        $param = $part->parameters[0];          // 위 부분이 $param->value에 담겨 있음
+        $file_name = decode($param->value);     // 첨부파일일 경우 파일명
+        $mime = $part->subtype;                 // 제목은 "PLAIN", 내용은 "HTML"
+        $encode = $part->encoding;              // 둘다 3
+
+        // echo '$file_name: '.$file_name.'<br>';  // utf-8 / utf-8
+        // echo '$mime: '.$mime.'<br>';            // PLAIN / HTML
+        // echo '$encode: '.$encode.'<br><br>';    // 3     /  3
+    
+        if($mime == "HTML") {
+          printbody($mailstream, $MSG_NO, $i, $encode, $mime, $file_name);
+        //             mailbox      80     1      3    "HTML"
+        }
+      }
+      break;
   //   case "RELATED": // outlook 본문에 이미지 삽입
   //     for($i=0;$i<count($struct->parts);$i++) {
   //       $part = $struct->parts[$i];
@@ -103,11 +117,11 @@ function checkstruct($mailstream, $MSG_NO) {
   //       }
   //     }
   //   break;
-  // }
+  } // switch($type)
 } // function checkstruct
 
 // 메일 내용을 출력하는 함수
-// function printbody($mailstream, $MSG_NO, $numpart, $encode, $mime, $file_name) {
+function printbody($mailstream, $MSG_NO, $numpart, $encode, $mime, $file_name) {
 //   $val = imap_fetchbody($mailstream, $MSG_NO, (string)($numpart+1));
 //   // 먼저 해당 part의 본문을 받아 옵니다.
 //   // 그리고 인자값으로 넘어온 $encode 에 의해 먼저 본문을 decoding 해줍니다.
@@ -142,7 +156,7 @@ function checkstruct($mailstream, $MSG_NO) {
 //       // 첨부파일인 경우이므로 다운로드 할 수 있게 링크를 걸어 줍니다.
 //       // echo "<br>첨부: <a href=".mail_down.php?MSG_NO=".$MSG_NO."&PART_NO=".$numpart."" >".$file_name."</a>";   주석풀면 php 안끝남.. ㅡㅡㅋ
 //   }
-// }
+}
 
 // ----------------------
 // 메인 시작
@@ -183,6 +197,9 @@ switch($box) {
     </table>
 
 <?php
+// $mailserver = "192.168.0.50";
+//  $user_id = "test2@durianict.co.kr";
+// $user_pass = "durian12#";
   $user_id = "hjsong@durianit.co.kr";
   $user_pass = "durian12#";
   $mailserver = "192.168.0.100";
@@ -199,16 +216,16 @@ switch($box) {
 
   $date = date("Y년 m월 d일 H시 i분", $head->udate);
   $subject = $head->Subject;
-  $subject = imap_utf8($subject);
+  $subject = decode($subject);
 
-  $from_obj = $head->from[0];              // 보낸 사람의 이름 또는 메일주소를 얻기위함
-  $from_addr = imap_utf8($from_obj->mailbox.'@'.$from_obj->host);
+  $from_obj = $head->from[0];                      // 보낸 사람의 이름 또는 메일주소를 얻기위함
+  $from_addr = decode($from_obj->mailbox.'@'.$from_obj->host);
   if (isset($from_obj->personal)) {
-    $from_name = imap_utf8($from_obj->personal);      // 송혁중 (이름이 명시되어 있는 메일)
+    $from_name = decode($from_obj->personal);      // 송혁중 (이름이 명시되어 있는 메일)
   } else {
-    $from_name = $from_addr;                          // 이름이 명시되어 있지 않은 메일은 메일주소 그대로 출력
+    $from_name = $from_addr;                       // 이름이 명시되어 있지 않은 메일은 메일주소 그대로 출력
   }
-  // 여기까지는 지난번 강좌에서 한 것과 동일
+  // 여기까지는 mail_list.php와 동일
   ?>
 
   <table width=610 border=0 cellpadding=2 cellspacing=0 bordercolor=#E8E8E8>
@@ -251,3 +268,17 @@ switch($box) {
 
   </body>
 </html>
+
+<?php
+  function decode($val) {
+    if(substr($val,0,2) == "=?") {   // 인코딩 되었는지 여부
+      $val_lower = strtolower($val);
+      if(strpos($val_lower, "utf-8") || strpos($val_lower, "ks_c_5601-1987")) {  // 제목은 이 두가지 형태로 출력됨
+        return imap_utf8($val);
+      }
+    }
+    else {
+      return imap_base64($val);
+    }
+  }
+?>

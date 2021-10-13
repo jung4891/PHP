@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
   <head>
@@ -24,6 +25,10 @@
      $user_id = "hjsong@durianit.co.kr";
      $user_pass = "durian12#";
      $mailserver = "192.168.0.100";
+
+     // $user_id = "test2@durianict.co.kr";
+     // $user_pass = "durian12#";
+     // $mailserver = "192.168.0.50";
      $box = "INBOX";
 
      $mailstream= @imap_open("{" . $mailserver . ":143/imap/novalidate-cert}INBOX", $user_id, $user_pass);
@@ -77,13 +82,14 @@
 
        $date = date("Y/m/d H:i", $head->udate); // 메일의 날짜를 얻고
        $subject = $head->Subject;               // 제목을 얻습니다.
-       // $subject = Decode($subject);
-       $subject = imap_utf8($subject);          // 제목의 경우 OUT LOOK에서 보내면 인코딩을 자동으로 하기에 이를 디코딩해야함.
+       // echo '$subject: '.$subject.'<br>';
+       $subject = decode($subject);
+       // $subject = imap_utf8($subject);          // 제목의 경우 OUT LOOK에서 보내면 인코딩을 자동으로 하기에 이를 디코딩해야함.
 
        $from_obj = $head->from[0];              // 보낸 사람의 이름 또는 메일주소를 얻기위함
-       $from_addr = imap_utf8($from_obj->mailbox.'@'.$from_obj->host);
+       $from_addr = decode($from_obj->mailbox.'@'.$from_obj->host);
        if (isset($from_obj->personal)) {
-         $from_name = imap_utf8($from_obj->personal);      // 송혁중 (이름이 명시되어 있는 메일)
+         $from_name = decode($from_obj->personal);      // 송혁중 (이름이 명시되어 있는 메일)
        } else {
          $from_name = $from_addr;                          // 이름이 명시되어 있지 않은 메일은 메일주소 그대로 출력
        }
@@ -105,7 +111,7 @@
 
        <tr>
          <td nowrap align=right ><?php echo $unseen;?> <input type=checkbox name=NO[] value=<?php echo $msgno;?>></td>
-         <td><?php echo "<a href=mailto:$from_addr>$from_name</a>";?></td>
+         <td nowrap><?php echo "<a href=mailto:$from_addr>$from_name</a>";?></td>
          <td nowrap><a href="/mail/index.php/mail/mail_detail/<?php echo $box;?>/<?php echo $no;?>"><?php echo $subject;?></a></td>
          <!-- <td nowrap><a href="/mail_detail.php?BOX=<?php echo $box;?>&MSG_NO=<?php echo $no;?>"><?php echo $subject;?></a></td> -->
          <td nowrap><?php echo $date;?></td>
@@ -133,7 +139,7 @@
    return false;    // 없어도 실행은 됨
  }
 
- function Delete(){
+ function delete(){
    var count = 0;
    for(var i=0;i<document.frm.length;i++){
      if(document.frm[i].name == "NO[]" && document.frm[i].checked == true){count++; }
@@ -151,7 +157,7 @@
      <tr>
        <td class="tk3"><input type="button" name="Sub2" value="전체선택" onClick="setSelected(this);"></td>
        <td align="right">
-         <input type=button name=HOWTO22 value="삭 제" class="tk1" onClick="Delete();"> </td>
+         <input type=button name=HOWTO22 value="삭 제" class="tk1" onClick="delete();"> </td>
      </tr>
    </table>
    <br>
@@ -160,17 +166,18 @@
  </body>
  </html>
 
- <?php
-   function Decode($val) {
-     if(substr($val,0,2) == "=?") {
-     //인코딩 여부 확인
-     $code = strpos($val, "?", 3);
-     $code = strpos($val, "?", $code+1);
-     $val = substr($val, $code+1, strlen($val)- $code-3);
-     return imap_base64($val);
-     }
-     else {
-       return $val;
-     }
-   }
- ?>
+
+  <?php
+    function decode($val) {
+      if(substr($val,0,2) == "=?") {   // 인코딩 되었는지 여부
+        $val_lower = strtolower($val);
+        if(strpos($val_lower, "utf-8") || strpos($val_lower, "ks_c_5601-1987")) {  // 제목은 이 두가지 형태로 출력됨
+          return imap_utf8($val);
+        }
+        return imap_base64($val);
+      }
+      else {
+        return $val;
+      }
+    }
+  ?>
