@@ -24,6 +24,9 @@
           <a href="<?php echo site_url(); ?>/mail/mom_list"><img src="<?php echo $misc;?>img/icon/schedule.svg" width="20"> biz_mom</a>
         </ul>
         <ul>
+          <a href="<?php echo site_url(); ?>/mail_test"><img src="<?php echo $misc;?>img/icon/schedule.svg" width="20">테스트</a>
+        </ul>
+        <ul>
           <a href="<?php echo site_url(); ?>/mail/get_all_mails"><img src="<?php echo $misc;?>img/icon/schedule.svg" width="20"> 전체메일</a>
         </ul>
         <ul>
