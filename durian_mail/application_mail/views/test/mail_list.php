@@ -22,6 +22,7 @@
      //    $box_name="보낸 편지함";
      //    break;
      // }
+
      $user_id = "hjsong@durianit.co.kr";
      $user_pass = "durian12#";
      $mailserver = "192.168.0.100";
