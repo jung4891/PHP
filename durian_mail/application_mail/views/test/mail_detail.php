@@ -10,13 +10,37 @@
 // 메일의 구조를 분석하는 함수
 function checkstruct($mailstream, $MSG_NO) {
   $struct = imap_fetchstructure($mailstream, $MSG_NO);
+  $body = imap_body($mailstream, $MSG_NO);
   // 메일의 구조를 객체로 리턴함. 인자는 메일스트림과 해당 메일번호임.
 
+  // echo '<pre>';
+  // echo var_dump($struct);
+  // echo '</pre>';
+  // echo '<hr>';
+  //
   echo '<pre>';
-  echo var_dump($struct);
+  echo var_dump($body);
   echo '</pre>';
 
   $type = $struct->subtype;
+
+  $val = imap_fetchbody($mailstream, $MSG_NO, (string)(2));
+  var_dump($val);
+  echo '<br>======= 11 ===========<br>';
+
+  $val = imap_qprint( $val);
+  // $val = imap_base64(imap_binary(imap_qprint($val)));
+  echo $val;
+
+  // test
+  $str = "Hello=0Aworld.<br>";
+  echo quoted_printable_decode($str); imap_
+  echo '<br> ======= 2 ===== <br>';
+  $str = "테스트";
+  echo quoted_printable_encode($str);
+  echo '<br> ====== 3 ====== <br>';
+  echo quoted_printable_decode($str);
+
   /*
   메일의 타입을 얻음. 크게 PLAIN, MIXED, ALTERNATIVE, RELATED 이렇게 있음
    - PLAIN : 그냥 텍스트 메일. 이건 그냥 출력만 해주면됨
@@ -25,7 +49,7 @@ function checkstruct($mailstream, $MSG_NO) {
    - RELATED : HTML 형식으로 보낼때 보면 메일안에 이미지를 삽입해서 보낼 수 있습니다. (outlook 본문에 이미지 삽입)
   */
 
-  switch($type) {
+  switch($struct) {
 
   //   case "PLAIN": // 일반텍스트 메일
   //     echo str_replace("\n", "<br>", imap_fetchbody($mailstream, $MSG_NO, "1"));
@@ -113,38 +137,28 @@ function checkstruct($mailstream, $MSG_NO) {
         }
       }
       break;
-    case "RELATED": // outlook 본문에 이미지 삽입 (여기부터 하면됨)
+    // case "RELATED":    // outlook 본문에 이미지 삽입
       for($i=0; $i<count($struct->parts); $i++) {
-        $part = $struct->parts[$i];             // parts[0]은 제목부분, parts[1]은 내용부분 (이미지 삽입x)
-        $param = $part->parameters[0];          //                     parts[1]->parts[0]은 HTML 내용부분(이미지 삽입)
-                                                //                     parts[1]->parts[1]은 PNG 사진부분(이미지 삽입)
-        $file_name = decode($param->value);     // 첨부파일일 경우 파일명(근데 아닌거 같음)
-        $mime = $part->subtype;                 // 제목은 "PLAIN", 내용은 "HTML"
-        $encode = $part->encoding;              // 둘다 3
+        $part = $struct->parts[$i];
+        $mime = $part->subtype;
+        $encode = $part->encoding;
 
-        // echo '$file_name: '.$file_name.'<br>';  // utf-8 / utf-8
-        // echo '$mime: '.$mime.'<br>';            // PLAIN / HTML
-        // echo '$encode: '.$encode.'<br><br>';    // 3     /  3
-
-        if($mime == "HTML") {             // outlook html(이미지 삽입x)         // ALTERNATIVE
-          printbody($mailstream, $MSG_NO, $i, $encode, $mime, $file_name);      //  - parts[1]_HTML : 내용
-        //             mailbox      80     1      3    "HTML"
-        } else if ($mime == "RELATED"){     // 네이버(이미지삽입)->아웃룩        // ALTERNATIVE
-          for($j=0; $j<count($part->parts); $j++) {                             //  - parts[1]_RELATED
-            $part_inner = $part->parts[$j];                                     //  - parts[1]_PNG : 사진
+        if ($mime == "ALTERNATIVE"){
+          for($j=0; $j<count($part->parts); $j++) {
+            echo '$i: '.$i.', $j: '.$j.'<br>';
+            $part_inner = $part->parts[$j];
             $mime = $part_inner->subtype;
             $encode = $part_inner->encoding;
-            printbody($mailstream, $MSG_NO, $i+(0.1*($j+1)), $encode, $mime);
+            printbody($mailstream, $MSG_NO, $i+(0.1*($j+1)), $encode, $mime);   // HTML(내용) 출력
           }
-          // $val = imap_fetchbody($mailstream, $MSG_NO, (string)(2.1));
-
-          // $val2 = imap_fetchbody($mailstream, $MSG_NO, (string)(2.2));
-          // echo '<img src="data:image/png;base64,' . $val2 . '" />';   // base64 png를 디코드해서 출력(오리지날 확장자 상관 없는듯)
+        } else {
+          echo '$i: '.$i.'<br>';
+          printbody($mailstream, $MSG_NO, $i+1, $encode, $mime);   // PNG(사진) 출력
         }
       }
 
 
-
+  // RELATED 원래 있던것
   //     for($i=0;$i<count($struct->parts);$i++) {
   //       $part = $struct->parts[$i];
   //       $param = $part->parameters[0];
@@ -170,6 +184,8 @@ function printbody($mailstream, $MSG_NO, $numpart, $encode, $mime, $file_name=''
   // 해당 part의 본문을 받아옴
   $val = imap_fetchbody($mailstream, $MSG_NO, (string)($numpart+1));      // 세번째 인자값이 "1"이면 parts[0], 즉 제목이 리턴됨
                                                                           //                "2"이면 parts[1], 즉 내용이 리턴됨
+  var_dump($val);
+  echo '<hr>';
   // 인자값으로 넘어온 $encode에 의해 먼저 본문을 decoding 해줍니다.(일단 거의 imap_base64를 쓰기에 주석설정함)
   // switch($encode) {
   //   case 0: // 7bit
@@ -196,12 +212,12 @@ function printbody($mailstream, $MSG_NO, $numpart, $encode, $mime, $file_name=''
 //       echo str_replace("\n", "<br>", $val);
 //       break;
     case "HTML":
-      $val = decode($val, 2);     // body는 두번째 인자로 2. head는 1로 디폴트 설정되어있음
-      echo $val;
+      // $val = decode($val, 2);     // body는 두번째 인자로 2. head는 1로 디폴트 설정되어있음
+      // echo $val;
       break;
 
     default:
-      echo '<img src="data:image/png;base64,' . $val . '" />';   // 메일에 삽입된 이미지 출력(디코딩 안하고 바로 출력해야함)
+      // echo '<img src="data:image/png;base64,' . $val . '" />';   // 메일에 삽입된 이미지 출력(디코딩 안하고 바로 출력해야함)
 //     default:
 //       // 첨부파일인 경우이므로 다운로드 할 수 있게 링크를 걸어 줍니다.
 //       // echo "<br>첨부: <a href=".mail_down.php?MSG_NO=".$MSG_NO."&PART_NO=".$numpart."" >".$file_name."</a>";   주석풀면 php 안끝남.. ㅡㅡㅋ
