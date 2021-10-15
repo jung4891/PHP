@@ -264,13 +264,13 @@ switch($box) {
 
 <?php
 
-  // $user_id = "test2@durianict.co.kr";
-  // $user_pass = "durian12#";
-  // $mailserver = "192.168.0.50";
-
-  $user_id = "hjsong@durianit.co.kr";
+  $user_id = "test2@durianict.co.kr";
   $user_pass = "durian12#";
-  $mailserver = "192.168.0.100";
+  $mailserver = "192.168.0.50";
+
+  // $user_id = "hjsong@durianit.co.kr";
+  // $user_pass = "durian12#";
+  // $mailserver = "192.168.0.100";
 
   $mailstream= @imap_open("{" . $mailserver . ":143/imap/novalidate-cert}INBOX", $user_id, $user_pass);
 

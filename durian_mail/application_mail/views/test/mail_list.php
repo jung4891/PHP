@@ -23,13 +23,14 @@
      //    break;
      // }
 
-     $user_id = "hjsong@durianit.co.kr";
-     $user_pass = "durian12#";
-     $mailserver = "192.168.0.100";
-
-     // $user_id = "test2@durianict.co.kr";
+     // $user_id = "hjsong@durianit.co.kr";
      // $user_pass = "durian12#";
-     // $mailserver = "192.168.0.50";
+     // $mailserver = "192.168.0.100";
+
+     $user_id = "test2@durianict.co.kr";
+     $user_pass = "durian12#";
+     $mailserver = "192.168.0.50";
+
      $box = "INBOX";
 
      $mailstream= @imap_open("{" . $mailserver . ":143/imap/novalidate-cert}INBOX", $user_id, $user_pass);
