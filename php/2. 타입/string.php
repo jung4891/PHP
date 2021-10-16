@@ -36,6 +36,8 @@
     // ord(문자열) -> 아스키코드
     echo ord('a').'<br>';   // 97
 
+    echo utf8_encode('\xE0').'<br>';
+
 
     echo '<br>';
      ?>
