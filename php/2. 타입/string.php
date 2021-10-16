@@ -1,7 +1,15 @@
 <!doctype html>
 <html>
+<head>
+  <style media="screen">
+    body{
+      background-color: black;
+      color: white;
+    }
+  </style>
+</head>
 <body>
-   <!-- <h4>String & String Operator</h4>
+
    <?php
     // echo 'Hello World';
     // echo "Hello World'2'";
@@ -10,10 +18,27 @@
     // echo "Hello World\"2\"";
     ?>
 
-    <h5>결합연산자(concatenation operator)</h5>
     <?php
     // echo "Hello"." World <br>";    // +는 안된다.
-     ?> -->
+     ?>
+
+    <!-- charset, encoding -->
+    <?php
+    // decbin(10진수) -> 2진수
+    echo decbin(4).'<br>';      // 100
+
+    // bindec(2진수) -> 10진수
+    echo bindec(100).'<br>';    // 4
+
+    // chr(아스키코드) -> 문자열
+    echo chr(97).'<br>';   // a  ('97'도 결과 같음)
+
+    // ord(문자열) -> 아스키코드
+    echo ord('a').'<br>';   // 97
+
+
+    echo '<br>';
+     ?>
 
     <!-- 함수 -->
     <?php
