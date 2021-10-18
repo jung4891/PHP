@@ -13,32 +13,41 @@ function checkstruct($mailstream, $MSG_NO) {
   $body = imap_body($mailstream, $MSG_NO);
   // 메일의 구조를 객체로 리턴함. 인자는 메일스트림과 해당 메일번호임.
 
-  // echo '<pre>';
-  // echo var_dump($struct);
-  // echo '</pre>';
-  // echo '<hr>';
-  //
+  echo '<h3>struct</h3>';
+  echo '<pre>';
+  echo var_dump($struct);
+  echo '</pre>';
+  echo '<hr>';
+
+  echo '<h3>body</h3>';
   echo '<pre>';
   echo var_dump($body);
   echo '</pre>';
+  echo '<hr>';
 
   $type = $struct->subtype;
 
-  $val = imap_fetchbody($mailstream, $MSG_NO, (string)(2));
+  $val = imap_fetchbody($mailstream, $MSG_NO, (string)(2.2));
+  $val = imap_base64($val);                    // imap_base64 — Decode BASE64 encoded text
+  // $val = quoted_printable_decode($val);     // quoted_pr~  — Convert a quoted-printable string to an 8 bit string
+                                               // quoted_printable로 인코딩 된걸 디코드함
+  // $val = iconv('euc-kr', 'utf-8', $val);    // 디코드된 $val의 charset을 euc-kr에서 utf-8로 변경
+                                               // iconv — Convert string to requested character encoding
   var_dump($val);
-  echo '<br>======= 11 ===========<br>';
+  echo '<br><br>=========== 1 ===========<br>';
 
-  $val = imap_qprint( $val);
+  // $val = imap_qprint( $val);
+  // $val = imap_base64(quoted_printable_decode($val));
   // $val = imap_base64(imap_binary(imap_qprint($val)));
-  echo $val;
+  // echo $val;
 
   // test
   $str = "Hello=0Aworld.<br>";
-  echo quoted_printable_decode($str); imap_
-  echo '<br> ======= 2 ===== <br>';
+  echo quoted_printable_decode($str);
+  echo '<br>=========== 2 ===========<br>';
   $str = "테스트";
   echo quoted_printable_encode($str);
-  echo '<br> ====== 3 ====== <br>';
+  echo '<br>=========== 3 ===========<br><br>';
   echo quoted_printable_decode($str);
 
   /*
@@ -49,7 +58,7 @@ function checkstruct($mailstream, $MSG_NO) {
    - RELATED : HTML 형식으로 보낼때 보면 메일안에 이미지를 삽입해서 보낼 수 있습니다. (outlook 본문에 이미지 삽입)
   */
 
-  switch($struct) {
+  switch($str) {
 
   //   case "PLAIN": // 일반텍스트 메일
   //     echo str_replace("\n", "<br>", imap_fetchbody($mailstream, $MSG_NO, "1"));
@@ -264,13 +273,13 @@ switch($box) {
 
 <?php
 
-  $user_id = "test2@durianict.co.kr";
-  $user_pass = "durian12#";
-  $mailserver = "192.168.0.50";
-
-  // $user_id = "hjsong@durianit.co.kr";
+  // $user_id = "test2@durianict.co.kr";
   // $user_pass = "durian12#";
-  // $mailserver = "192.168.0.100";
+  // $mailserver = "192.168.0.50";
+
+  $user_id = "hjsong@durianit.co.kr";
+  $user_pass = "durian12#";
+  $mailserver = "192.168.0.100";
 
   $mailstream= @imap_open("{" . $mailserver . ":143/imap/novalidate-cert}INBOX", $user_id, $user_pass);
 
@@ -320,6 +329,11 @@ switch($box) {
     <tr>
       <td class="tk1">
         <?php
+        // echo '<h3>head</h3>';
+        // echo '<pre>';
+        // var_dump($head);
+        // echo '</pre>';
+        // echo '<hr>';
         checkstruct($mailstream, $MSG_NO);
         imap_close($mailstream);
         ?>

@@ -23,13 +23,13 @@
      //    break;
      // }
 
-     // $user_id = "hjsong@durianit.co.kr";
-     // $user_pass = "durian12#";
-     // $mailserver = "192.168.0.100";
-
-     $user_id = "test2@durianict.co.kr";
+     $user_id = "hjsong@durianit.co.kr";
      $user_pass = "durian12#";
-     $mailserver = "192.168.0.50";
+     $mailserver = "192.168.0.100";
+
+     // $user_id = "test2@durianict.co.kr";
+     // $user_pass = "durian12#";
+     // $mailserver = "192.168.0.50";
 
      $box = "INBOX";
 
@@ -84,10 +84,8 @@
 
        $date = date("Y/m/d H:i", $head->udate); // 메일의 날짜를 얻고
        $subject = $head->Subject;               // 제목을 얻습니다.
-       // echo '$subject: '.$subject.'<br>';
-       $subject = decode($subject);
-       // $subject = imap_utf8($subject);          // 제목의 경우 OUT LOOK에서 보내면 인코딩을 자동으로 하기에 이를 디코딩해야함.
-
+       $subject = imap_utf8($subject);          // 제목의 경우 Outlook에서 보내면 인코딩을 자동으로 하기에 이를 디코딩해야함.
+                                                // imap_utf8 — Converts MIME-encoded text to UTF-8
        $from_obj = $head->from[0];              // 보낸 사람의 이름 또는 메일주소를 얻기위함
        $from_addr = decode($from_obj->mailbox.'@'.$from_obj->host);
        if (isset($from_obj->personal)) {

@@ -22,26 +22,6 @@
     // echo "Hello"." World <br>";    // +는 안된다.
      ?>
 
-    <!-- charset, encoding -->
-    <?php
-    // decbin(10진수) -> 2진수
-    echo decbin(4).'<br>';      // 100
-
-    // bindec(2진수) -> 10진수
-    echo bindec(100).'<br>';    // 4
-
-    // chr(아스키코드) -> 문자열
-    echo chr(97).'<br>';   // a  ('97'도 결과 같음)
-
-    // ord(문자열) -> 아스키코드
-    echo ord('a').'<br>';   // 97
-
-    echo utf8_encode('\xE0').'<br>';
-
-
-    echo '<br>';
-     ?>
-
     <!-- 함수 -->
     <?php
 
