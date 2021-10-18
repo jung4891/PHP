@@ -9,10 +9,10 @@
 
 // 메일의 구조를 분석하는 함수
 function checkstruct($mailstream, $MSG_NO) {
-  $struct = imap_fetchstructure($mailstream, $MSG_NO);
+  $struct = imap_fetchstructure($mailstream, $MSG_NO);  // 메일구조를 객체로 리턴. 인자는 메일스트림과 해당 메일번호.
   $body = imap_body($mailstream, $MSG_NO);
-  // 메일의 구조를 객체로 리턴함. 인자는 메일스트림과 해당 메일번호임.
 
+  // test용
   echo '<h3>struct</h3>';
   echo '<pre>';
   echo var_dump($struct);
@@ -25,30 +25,10 @@ function checkstruct($mailstream, $MSG_NO) {
   echo '</pre>';
   echo '<hr>';
 
+  // $val = imap_fetchbody($mailstream, $MSG_NO, (string)(2));
+  // var_dump($val);
+
   $type = $struct->subtype;
-
-  $val = imap_fetchbody($mailstream, $MSG_NO, (string)(2.2));
-  $val = imap_base64($val);                    // imap_base64 — Decode BASE64 encoded text
-  // $val = quoted_printable_decode($val);     // quoted_pr~  — Convert a quoted-printable string to an 8 bit string
-                                               // quoted_printable로 인코딩 된걸 디코드함
-  // $val = iconv('euc-kr', 'utf-8', $val);    // 디코드된 $val의 charset을 euc-kr에서 utf-8로 변경
-                                               // iconv — Convert string to requested character encoding
-  var_dump($val);
-  echo '<br><br>=========== 1 ===========<br>';
-
-  // $val = imap_qprint( $val);
-  // $val = imap_base64(quoted_printable_decode($val));
-  // $val = imap_base64(imap_binary(imap_qprint($val)));
-  // echo $val;
-
-  // test
-  $str = "Hello=0Aworld.<br>";
-  echo quoted_printable_decode($str);
-  echo '<br>=========== 2 ===========<br>';
-  $str = "테스트";
-  echo quoted_printable_encode($str);
-  echo '<br>=========== 3 ===========<br><br>';
-  echo quoted_printable_decode($str);
 
   /*
   메일의 타입을 얻음. 크게 PLAIN, MIXED, ALTERNATIVE, RELATED 이렇게 있음
@@ -58,7 +38,7 @@ function checkstruct($mailstream, $MSG_NO) {
    - RELATED : HTML 형식으로 보낼때 보면 메일안에 이미지를 삽입해서 보낼 수 있습니다. (outlook 본문에 이미지 삽입)
   */
 
-  switch($str) {
+  switch($type) {
 
   //   case "PLAIN": // 일반텍스트 메일
   //     echo str_replace("\n", "<br>", imap_fetchbody($mailstream, $MSG_NO, "1"));
@@ -111,42 +91,66 @@ function checkstruct($mailstream, $MSG_NO) {
   //     }
   //     break;
 
-    case "HTML":    // Microsoft Office Outlook 테스트 메시지(9/2 10시 38분) ALTERNATIVE로도 보내지기도함
-        $val = imap_fetchbody($mailstream, $MSG_NO, (string)(1));
-        echo $val;
+    case "HTML":
+/*
+      9/3 Microsoft Office Outlook 테스트 메시지 (텍스트)
+      HTML (utf-8/x) -> body엔 string만 들어있다. -> fetchbody("1") -> echo
+*/
+      $val = imap_fetchbody($mailstream, $MSG_NO, (string)(1));   // 인코딩이 안되어 있으므로 바로 출력하면 됨.
+      echo $val;
       break;
 
-    case "ALTERNATIVE":                         // outlook html(이미지 삽입x) or 네이버(이미지삽입)->아웃룩
+    case "ALTERNATIVE":
       for($i=0; $i<count($struct->parts); $i++) {
-        $part = $struct->parts[$i];             // parts[0]은 제목부분, parts[1]은 내용부분 (이미지 삽입x)
-        $param = $part->parameters[0];          //                     parts[1]->parts[0]은 HTML 내용부분(이미지 삽입)
-                                                //                     parts[1]->parts[1]은 PNG 사진부분(이미지 삽입)
-        $file_name = decode($param->value);     // 첨부파일일 경우 파일명(근데 아닌거 같음)
-        $mime = $part->subtype;                 // 제목은 "PLAIN", 내용은 "HTML"
-        $encode = $part->encoding;              // 둘다 3
+        $part = $struct->parts[$i];
+        $mime = $part->subtype;
+        $encode = $part->encoding;
 
-        // echo '$file_name: '.$file_name.'<br>';  // utf-8 / utf-8
-        // echo '$mime: '.$mime.'<br>';            // PLAIN / HTML
-        // echo '$encode: '.$encode.'<br><br>';    // 3     /  3
+        if($mime == "HTML") {
+/*
+        9/3 test (텍스트)
+        ALTERNATIVE
+        - parts[0]_PLAIN (제목)
+        - parts[1]_HTML (내용, utf-8 / base64) -> fetchbody("2") -> imap_base64
 
-        if($mime == "HTML") {             // outlook html(이미지 삽입x)         // ALTERNATIVE
-          printbody($mailstream, $MSG_NO, $i, $encode, $mime, $file_name);      //  - parts[1]_HTML : 내용
-        //             mailbox      80     1      3    "HTML"
-        } else if ($mime == "RELATED"){     // 네이버(이미지삽입)->아웃룩        // ALTERNATIVE
-          for($j=0; $j<count($part->parts); $j++) {                             //  - parts[1]_RELATED
-            $part_inner = $part->parts[$j];                                     //  - parts[1]_PNG : 사진
+        10/15 메일 테스트 (서명)
+        ALTERNATIVE
+        - parts[0]_PLAIN (ks_c_5601-1987 / base64)
+        - parts[1]_HTML (ks_c_5601-1987 / quoted-printable) -> fetchbody("2")
+
+*/
+          printbody($mailstream, $MSG_NO, $i, $encode, $mime);
+        //             mailbox      80     1      3    "HTML"   (9/3 테스트)
+        //             mailbox      93     1      4    "HTML"   (10/15 서명)
+
+        } else if ($mime == "RELATED"){
+/*
+          10/13 10월 13일 test (텍스트, 사진)
+          ALTERNATIVE
+          - parts[0]_PLAIN
+          - parts[1]_RELATED
+            - parts[0]_HTML (utf-8 / base64) -> fetchbody("2.1") -> imap_base64
+            - parts[1]_PNG	( / base64) -> fetchbody("2.2") -> imap_base64 -> <img>
+*/
+          for($j=0; $j<count($part->parts); $j++) {
+            $part_inner = $part->parts[$j];
             $mime = $part_inner->subtype;
             $encode = $part_inner->encoding;
             printbody($mailstream, $MSG_NO, $i+(0.1*($j+1)), $encode, $mime);
           }
-          // $val = imap_fetchbody($mailstream, $MSG_NO, (string)(2.1));
-
-          // $val2 = imap_fetchbody($mailstream, $MSG_NO, (string)(2.2));
-          // echo '<img src="data:image/png;base64,' . $val2 . '" />';   // base64 png를 디코드해서 출력(오리지날 확장자 상관 없는듯)
         }
       }
       break;
-    // case "RELATED":    // outlook 본문에 이미지 삽입
+
+    case "RELATED":    // outlook 본문에 이미지 삽입
+/*
+    10/18 테스트(서명 + 이미지)
+    RELATED
+    - parts[0]_ALTERNATIVE
+      - parts[0]_PLAIN
+      - parts[1]_HTML (charset: ks_c_5601-1987) (encoding: quoted-printable)
+    - parts[1]_PNG	(사진)
+*/
       for($i=0; $i<count($struct->parts); $i++) {
         $part = $struct->parts[$i];
         $mime = $part->subtype;
@@ -154,15 +158,15 @@ function checkstruct($mailstream, $MSG_NO) {
 
         if ($mime == "ALTERNATIVE"){
           for($j=0; $j<count($part->parts); $j++) {
-            echo '$i: '.$i.', $j: '.$j.'<br>';
             $part_inner = $part->parts[$j];
             $mime = $part_inner->subtype;
             $encode = $part_inner->encoding;
+            // echo '$i: '.$i.', $j: '.$j.' / $mime: '.$mime.' / $encode: '.$encode.'<br>';
             printbody($mailstream, $MSG_NO, $i+(0.1*($j+1)), $encode, $mime);   // HTML(내용) 출력
           }
         } else {
-          echo '$i: '.$i.'<br>';
-          printbody($mailstream, $MSG_NO, $i+1, $encode, $mime);   // PNG(사진) 출력
+          // echo '22';
+          printbody($mailstream, $MSG_NO, $i, $encode, $mime);   // PNG(사진) 출력
         }
       }
 
@@ -188,48 +192,54 @@ function checkstruct($mailstream, $MSG_NO) {
 
 // 메일 내용을 출력하는 함수
 function printbody($mailstream, $MSG_NO, $numpart, $encode, $mime, $file_name='') {
-      //             mailbox      80         1        3     "HTML"
 
   // 해당 part의 본문을 받아옴
-  $val = imap_fetchbody($mailstream, $MSG_NO, (string)($numpart+1));      // 세번째 인자값이 "1"이면 parts[0], 즉 제목이 리턴됨
-                                                                          //                "2"이면 parts[1], 즉 내용이 리턴됨
-  var_dump($val);
-  echo '<hr>';
-  // 인자값으로 넘어온 $encode에 의해 먼저 본문을 decoding 해줍니다.(일단 거의 imap_base64를 쓰기에 주석설정함)
-  // switch($encode) {
-  //   case 0: // 7bit
-  //   case 1: // 8bit
-  //     $val = imap_base64(imap_binary(imap_qprint(imap_8bit($val))));
-  //     break;
-  //   case 2: // binary
-  //     $val = imap_base64(imap_binary($val));
-  //     break;
-  //   case 3: // base64
-  //     $val = imap_base64($val);
-  //     break;
-  //   case 4: // quoted-print
-  //     $val = imap_base64(imap_binary(imap_qprint($val)));
-  //     break;
-  //   case 5: // other
-  //     echo "알수없는 Encoding 방식.";
-  //     exit;
-  // }
+  $val = imap_fetchbody($mailstream, $MSG_NO, (string)($numpart+1));      // 세번째 인자값이 "1"이면 parts[0]
+
+  // 인자값으로 넘어온 $encode에 의해 먼저 본문을 decoding 해줌
+  switch($encode) {
+    case 0: // 7bit
+    case 1: // 8bit
+      $val = imap_base64(imap_binary(imap_qprint(imap_8bit($val))));
+      break;
+    case 2: // binary
+      $val = imap_base64(imap_binary($val));
+      break;
+    case 3: // base64
+      if ($mime == 'HTML') {       // 이미지파일($encode가 3암)은 디코딩하면 안됨.
+        $val = imap_base64($val);  // Decode BASE64 encoded text
+      }
+      break;
+    case 4: // quoted-print
+      var_dump($val);
+      $val = quoted_printable_decode($val);     // Convert a quoted-printable string to an 8 bit string
+      var_dump($val);
+      $val = iconv('euc-kr', 'utf-8', $val);    // Convert string to requested character encoding
+      // $val = imap_base64(imap_binary(imap_qprint($val)));   -> 원래 있던건데 출력안됨.
+      break;
+    case 5: // other
+      echo "알수없는 Encoding 방식.";
+      exit;
+  }
 
   // mime type 에 따라 출력합니다.
   switch($mime) {
-//     case "PLAIN":
-//       echo str_replace("\n", "<br>", $val);
-//       break;
-    case "HTML":
-      // $val = decode($val, 2);     // body는 두번째 인자로 2. head는 1로 디폴트 설정되어있음
-      // echo $val;
+
+    case "PLAIN":   // plain 부분은 제목이므로 그냥 제낌
+      // echo str_replace("\n", "<br>", $val);
       break;
 
-    default:
-      // echo '<img src="data:image/png;base64,' . $val . '" />';   // 메일에 삽입된 이미지 출력(디코딩 안하고 바로 출력해야함)
+    case "HTML":
+      echo $val;
+      break;
+
+    default:    // PNG, JPEG등 메일에 삽입된 이미지 출력(디코딩 안하고 바로 출력해야함)
+      echo '<img src="data:image/png;base64,' . $val . '" />';   // base64 png를 디코드해서 출력(오리지날 확장자 상관 없는듯)
 //     default:
 //       // 첨부파일인 경우이므로 다운로드 할 수 있게 링크를 걸어 줍니다.
 //       // echo "<br>첨부: <a href=".mail_down.php?MSG_NO=".$MSG_NO."&PART_NO=".$numpart."" >".$file_name."</a>";   주석풀면 php 안끝남.. ㅡㅡㅋ
+
+
   }
 }
 

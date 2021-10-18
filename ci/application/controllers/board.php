@@ -24,8 +24,12 @@ class Board extends CI_Controller {
   }
 
   public function lists() {
-    $data['list'] = $this->board_m->get_list();
-    // $data['list'] = $this->board_m->get_list($this->uri->segment(3));
+    echo 'test<br>';
+
+    // $data['list'] = $this->board_m->get_list();
+    $data['list'] = $this->board_m->get_list($this->uri->segment(3));
+    // http://ci/board/lists/ci_board
+    // segment    1      2      3     (0은 index.php인데 현재 virtualhost에 의해 생략되어 null임)
     $this->load->view('board/list_v', $data);
   }
 }

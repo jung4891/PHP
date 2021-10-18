@@ -16,10 +16,23 @@
     // echo 'Hello World"3"';
     // echo 'Hello World\'3\'';
     // echo "Hello World\"2\"";
-    ?>
-
-    <?php
     // echo "Hello"." World <br>";    // +는 안된다.
+     ?>
+
+    <!-- Null과 '' -->
+    <?php
+    $s = '';
+    $n = null;
+    var_dump($s);   // string(0) ""
+    echo '<br>';
+    var_dump($n);   // NULL
+    echo '<br>';
+
+    echo var_dump(isset($s)).'<br>';  // true
+    echo var_dump(isset($n)).'<br>';  // false
+    echo '<br>';
+
+
      ?>
 
     <!-- 함수 -->
