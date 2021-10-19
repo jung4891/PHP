@@ -3,7 +3,7 @@
 
     <?php
     // id에 해당하는 description 출력
-    //v ar_dump($topics[0]->description);    // result()로 받은경우
+    // var_dump($topics[0]->description);    // result()로 받은경우
     // echo $topics->description;            // row()로 받은경우
     ?>
 

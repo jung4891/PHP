@@ -1,7 +1,7 @@
 <?php
 include $this->input->server('DOCUMENT_ROOT')."/include/base.php";
-include $this->input->server('DOCUMENT_ROOT')."/include/mail_header.php";
-include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
+// include $this->input->server('DOCUMENT_ROOT')."/include/mail_header.php";
+// include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
  ?>
   <div id="main_contents"  style="overflow:auto;">
    <form name=frm method=post>
@@ -30,9 +30,10 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
 
      $mailstream= @imap_open("{" . $mailserver . ":143/imap/novalidate-cert}INBOX", $user_id, $user_pass);
 
-     // 메일함 구성 (뒷부분은 UTF16 문자셋에 base64로 인코딩 되어있음.)
-     $host = "{" . $mailserver . ":143/imap/novalidate-cert}";
-     $mailboxes = imap_list($mailstream, $host, '*');
+     // 메일함 구성 (뒷부분은 UTF16 문자셋에 base64로 인코딩 되어있음. 디코딩을 못하겟슴...)
+     // 참고 : https://stackoverflow.com/questions/20500077/imap-php-fetching-all-emails-from-sent-and-inbox-folders
+     // $host = "{" . $mailserver . ":143/imap/novalidate-cert}";
+     // $mailboxes = imap_list($mailstream, $host, '*');
      // echo '<pre>';
      // var_dump($mailboxes);
      // echo '</pre>';
@@ -41,8 +42,10 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
      // echo $mailbox.'<br>';
      // $pos = strpos($mailbox, '&');
      // $mailbox_name = substr($mailbox, $pos);
-     // echo gettype($mailbox_name).'<br>';
-     // echo iconv('utf-16', 'utf-8', imap_base64($mailbox_name));
+
+     // echo 'test';
+     echo mb_convert_encoding('&vPSwuA- &07jJwNVo-', 'UTF-8', 'UTF7-IMAP');
+
      /*
      array(5) {
       [0]=>
@@ -68,7 +71,8 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
      <tr>
        <td align=center width="25" bgcolor="#334600">
          <font face="Wingdings" size="4" color="#FFCC33">.</font></td>
-       <td width="95%"><font size="3" color="#FFFFFF"><b>편지읽기</b></font></td>
+       <td width="95%"><font size="3" color="#FFFFFF"><b>편지읽기</b></font>
+       &nbsp&nbsp&nbsp[<a href="/index.php/mail_test">목록</a>]</td>
      </tr>
    </table>
    <table width="875" border="0" cellpadding="4" cellspacing="0">

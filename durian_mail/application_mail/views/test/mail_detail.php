@@ -1,7 +1,7 @@
 <?php
 include $this->input->server('DOCUMENT_ROOT')."/include/base.php";
-include $this->input->server('DOCUMENT_ROOT')."/include/mail_header.php";
-include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
+// include $this->input->server('DOCUMENT_ROOT')."/include/mail_header.php";
+// include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
  ?>
 
 <?php
@@ -12,17 +12,17 @@ function checkstruct($mailstream, $MSG_NO) {
   $body = imap_body($mailstream, $MSG_NO);
 
   // test용
-  echo '<h3>struct</h3>';
-  echo '<pre>';
-  echo var_dump($struct);
-  echo '</pre>';
-  echo '<hr>';
-
-  echo '<h3>body</h3>';
-  echo '<pre>';
-  echo var_dump($body);
-  echo '</pre>';
-  echo '<hr>';
+  // echo '<h3>struct</h3>';
+  // echo '<pre>';
+  // echo var_dump($struct);
+  // echo '</pre>';
+  // echo '<hr>';
+  //
+  // echo '<h3>body</h3>';
+  // echo '<pre>';
+  // echo var_dump($body);
+  // echo '</pre>';
+  // echo '<hr>';
 
   // $val = imap_fetchbody($mailstream, $MSG_NO, (string)(2));
   // var_dump($val);
@@ -267,7 +267,8 @@ switch($box) {
     <table width="875" border=0 bgcolor=#527900 cellpadding=4 cellspacing=0>
       <tr>
         <td align=center width="25" bgcolor="#334600"><font face="Wingdings" size="4" color="#FFCC33">.</font></td>
-        <td width=95%><font size="3" color="#FFFFFF"><b>편지읽기</b></font></td>
+        <td width=95%><font size="3" color="#FFFFFF"><b>편지읽기</b></font>
+            &nbsp&nbsp&nbsp[<a href="/index.php/mail_test">목록</a>]</td>
       </tr>
     </table>
 

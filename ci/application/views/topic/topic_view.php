@@ -1,7 +1,4 @@
 
-  <!-- &lt;views&gt; <br>
-  컨트롤러의 topic클래스의 index()메소드 -->
-
   <?php
   echo '<pre>';
   // var_dump($topics);     // 전체데이터 출력
@@ -18,13 +15,13 @@
   <?php
   // 전체 title들 출력
   foreach($topics as $row) {
-    echo "<li><a href=\"/index.php/topic/get/{$row->id}\">".$row->title.'</a></li>';
+    echo "<li><a href=\"/topic/get/{$row->id}\">".$row->title.'</a></li>';
     // echo $row['title'];
   }
   ?>
 </ul>
 
-<div id="bpopup">
+<!-- <div id="bpopup">
   bpopup 테스트
 </div>
 
@@ -45,7 +42,7 @@ $(function(){
 </div>
 
 <!--팝업 영역 시작 -->
-<div id="popup" class="Pstyle">
+<!-- <div id="popup" class="Pstyle">
 
   <table>
     <tr>
@@ -58,10 +55,10 @@ $(function(){
   <br>
   <input type="button" id="btn_close" value="닫 기">
 
-</div>
+</div> -->
 <!--팝업 영역 끝 -->
 
-<br><br>
+<!-- <br><br>
 <button>모달창</button>
 <div class="modal">
   <div class="modal_content" title="클릭하면 창이 닫힙니다.">
@@ -92,4 +89,4 @@ $(function(){
     $(".modal").fadeOut();
   });
 });
-</script>
+</script> -->

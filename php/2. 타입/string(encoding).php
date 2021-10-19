@@ -16,11 +16,16 @@
 
 
      // $str = "Ludwigstra\u00c3\u009fe 51";
+     $str = "=ED=95=9C";
+     $dect_str = mb_detect_encoding($str, 'auto');
+     echo $str.'<br>';
+     echo $dect_str.'<br>';
+
      // echo utf8_decode(implode(json_decode('["' . $str . '"]')));
      //
      //  $test = 'C0 A7';
      //  echo iconv('euc-kr', 'utf-8', $test).'<br>';   // C0 A7  왜???
-     //  echo '<br>';
+      echo '<br>';
       ?>
 
 
