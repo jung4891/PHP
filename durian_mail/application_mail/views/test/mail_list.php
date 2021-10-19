@@ -1,14 +1,9 @@
-
-<!DOCTYPE html>
-<html lang="en" dir="ltr">
-  <head>
-    <meta charset="utf-8">
-    <title>메일 리스트</title>
-  </head>
-  <body>
-
- <html>
- <body bgcolor="#FFFFFF" leftmargin=5 topmargin=20 marginwidth=5 marginheight=20>
+<?php
+include $this->input->server('DOCUMENT_ROOT')."/include/base.php";
+include $this->input->server('DOCUMENT_ROOT')."/include/mail_header.php";
+include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
+ ?>
+  <div id="main_contents"  style="overflow:auto;">
    <form name=frm method=post>
    <?php
      // $box = $BOX;
@@ -35,20 +30,48 @@
 
      $mailstream= @imap_open("{" . $mailserver . ":143/imap/novalidate-cert}INBOX", $user_id, $user_pass);
 
+     // 메일함 구성 (뒷부분은 UTF16 문자셋에 base64로 인코딩 되어있음.)
+     $host = "{" . $mailserver . ":143/imap/novalidate-cert}";
+     $mailboxes = imap_list($mailstream, $host, '*');
+     // echo '<pre>';
+     // var_dump($mailboxes);
+     // echo '</pre>';
+     //
+     // $mailbox = $mailboxes[0];
+     // echo $mailbox.'<br>';
+     // $pos = strpos($mailbox, '&');
+     // $mailbox_name = substr($mailbox, $pos);
+     // echo gettype($mailbox_name).'<br>';
+     // echo iconv('utf-16', 'utf-8', imap_base64($mailbox_name));
+     /*
+     array(5) {
+      [0]=>
+      string(59) "{192.168.0.100:143/imap/novalidate-cert}&vPSwuA- &07jJwNVo-"  -> 보낸편지함
+      [1]=>
+      string(59) "{192.168.0.100:143/imap/novalidate-cert}&ycDGtA- &07jJwNVo-"  -> 지운편지함
+      [2]=>
+      string(59) "{192.168.0.100:143/imap/novalidate-cert}&x4TC3A- &vPStANVo-"  -> 임시보관함
+      [3]=>
+      string(57) "{192.168.0.100:143/imap/novalidate-cert}&yBXQbA- &ulTHfA-"    -> 정크메일
+      [4]=>
+      string(45) "{192.168.0.100:143/imap/novalidate-cert}INBOX"  -> 전체 메일함
+     }
+     */
+
      if ($mailstream == 0) {
      echo "Error!";
      exit;
      }
    ?>
    <input type=hidden name=BOX value ="<?echo $box;?>">
-   <table width="610" border=0 bgcolor=#527900 cellpadding=4 cellspacing=0>
+   <table width="875" border=0 bgcolor=#527900 cellpadding=4 cellspacing=0>
      <tr>
        <td align=center width="25" bgcolor="#334600">
          <font face="Wingdings" size="4" color="#FFCC33">.</font></td>
        <td width="95%"><font size="3" color="#FFFFFF"><b>편지읽기</b></font></td>
      </tr>
    </table>
-   <table width="610" border="0" cellpadding="4" cellspacing="0">
+   <table width="875" border="0" cellpadding="4" cellspacing="0">
      <tr>
        <td class="tk3">새편지 <?php echo imap_num_recent($mailstream);?>개    <!-- 새로온 메일 수 -->
           총 <?php echo imap_num_msg($mailstream);?>개 </td>                  <!-- 총 메일 수 -->
@@ -56,7 +79,7 @@
      </tr>
    </table>
 
-   <table width="610" border="0" cellpadding="2" cellspacing="1">
+   <table width="875" border="0" cellpadding="2" cellspacing="1">
      <tr bgcolor="#E8E8E8">
        <td class="tk1" align="right" width="8%">선택</td>
        <td class="tk4" align="center" width=20%>받는이</td>
@@ -124,36 +147,7 @@
        ?>
    </table>
 
- <SCRIPT LANGUAGE="JavaScript">
- var selectVal = true;
-
- function setSelected(button) {
-   for(var i=0; i<document.frm.length; i++)
-    if(document.frm[i].name == 'NO[]') document.frm[i].checked = selectVal;
-   selectVal = selectVal ? false: true;
-   if (selectVal) {
-     button.value = '전체선택';
-   } else {
-     button.value = '전체해제';
-   }
-   return false;    // 없어도 실행은 됨
- }
-
- function delete(){
-   var count = 0;
-   for(var i=0;i<document.frm.length;i++){
-     if(document.frm[i].name == "NO[]" && document.frm[i].checked == true){count++; }
-   }
-   if ( count != 0 ){
-   document.frm.action = "mail_cmd.php?CMD=del";
-   document.frm.submit();
-   } else {
-     alert('삭제할 항목을 선택하세요!');
-   }
- }
- </SCRIPT>
-
-   <table width=900 border="0" bgcolor="#E8E8E8" cellspacing=0 cellpadding=3>
+   <table width=875 border="0" bgcolor="#E8E8E8" cellspacing=0 cellpadding=3>
      <tr>
        <td class="tk3"><input type="button" name="Sub2" value="전체선택" onClick="setSelected(this);"></td>
        <td align="right">
@@ -163,9 +157,7 @@
    <br>
 
   </form>
- </body>
- </html>
-
+</div>
 
   <?php
     function decode($val) {
@@ -181,3 +173,36 @@
       }
     }
   ?>
+
+  <?php
+  include $this->input->server('DOCUMENT_ROOT')."/include/mail_footer.php";
+   ?>
+
+   <SCRIPT LANGUAGE="JavaScript">
+   var selectVal = true;
+
+   function setSelected(button) {
+     for(var i=0; i<document.frm.length; i++)
+      if(document.frm[i].name == 'NO[]') document.frm[i].checked = selectVal;
+     selectVal = selectVal ? false: true;
+     if (selectVal) {
+       button.value = '전체선택';
+     } else {
+       button.value = '전체해제';
+     }
+     return false;    // 없어도 실행은 됨
+   }
+
+   function delete(){
+     var count = 0;
+     for(var i=0;i<document.frm.length;i++){
+       if(document.frm[i].name == "NO[]" && document.frm[i].checked == true){count++; }
+     }
+     if ( count != 0 ){
+     document.frm.action = "mail_cmd.php?CMD=del";
+     document.frm.submit();
+     } else {
+       alert('삭제할 항목을 선택하세요!');
+     }
+   }
+   </SCRIPT>

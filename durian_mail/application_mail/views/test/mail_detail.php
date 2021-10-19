@@ -1,9 +1,8 @@
-<!DOCTYPE html>
-<html lang="en" dir="ltr">
-  <head>
-    <meta charset="utf-8">
-    <title>메일 상세화면</title>
-  </head>
+<?php
+include $this->input->server('DOCUMENT_ROOT')."/include/base.php";
+include $this->input->server('DOCUMENT_ROOT')."/include/mail_header.php";
+include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
+ ?>
 
 <?php
 
@@ -264,16 +263,15 @@ switch($box) {
     break;
 }
 ?>
-
-  <body bgcolor="#FFFFFF" leftmargin=5 topmargin=20 marginwidth=5 marginheight=20>
-    <table width="610" border=0 bgcolor=#527900 cellpadding=4 cellspacing=0>
+  <div id="main_contents"  style="overflow:scroll;">
+    <table width="875" border=0 bgcolor=#527900 cellpadding=4 cellspacing=0>
       <tr>
         <td align=center width="25" bgcolor="#334600"><font face="Wingdings" size="4" color="#FFCC33">.</font></td>
         <td width=95%><font size="3" color="#FFFFFF"><b>편지읽기</b></font></td>
       </tr>
     </table>
 
-    <table width=610 border=0 cellpadding=4 cellspacing=0 bgcolor=#D8D8D8>
+    <table width=875 border=0 cellpadding=4 cellspacing=0 bgcolor=#D8D8D8>
       <tr>
         <td class="tk1" width=40%>  </td>
         <td align="right" class="tk1" width=60% height=20%>
@@ -320,7 +318,7 @@ switch($box) {
   // 여기까지는 mail_list.php와 동일
   ?>
 
-  <table width=610 border=0 cellpadding=2 cellspacing=0 bordercolor=#E8E8E8>
+  <table width=875 border=0 cellpadding=2 cellspacing=0 bordercolor=#E8E8E8>
     <tr>
       <td class="tk1" align="center" bgcolor="#EEEEEE" width="100">보낸날짜</td>
       <td class="tk1" bgcolor="#F7F7F7"><?php echo $date;?></td>
@@ -335,7 +333,7 @@ switch($box) {
     </tr>
   </table>
 
-  <table width="610" border="0" cellpadding="4">
+  <table width="875" border="0" cellpadding="4">
     <tr>
       <td class="tk1">
         <?php
@@ -351,7 +349,7 @@ switch($box) {
     </tr>
   </table>
 
-  <table width=610 border=0 cellpadding=4 cellspacing=0 bgcolor=#D8D8D8>
+  <table width=875 border=0 cellpadding=4 cellspacing=0 bgcolor=#D8D8D8>
     <tr>
       <td class="tk1" width=40%></td>
       <td align="right" class="tk1" width=60%>
@@ -364,8 +362,7 @@ switch($box) {
 
   <br>
 
-  </body>
-</html>
+</div>
 
 <?php
   function decode($val, $boundary=1) {  // boundary가 1은 메일의 head, 2는 메일의 body부분

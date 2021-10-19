@@ -64,7 +64,8 @@
       </div>
     </div>
     <div id="sideMini">
-aa
+aaaaaa <br>
+aaaaa
     </div>
 
 

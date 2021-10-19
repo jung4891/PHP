@@ -22,17 +22,22 @@
     <!-- Null과 '' -->
     <?php
     $s = '';
+    var_dump($s);          // string(0) ""
+    var_dump(isset($s));   // true
+    var_dump($s == '');    // true
+    var_dump($s === '');   // true
+    var_dump($s == null);  // true
+    var_dump($s === null); // false
+    echo '<br>';
+
     $n = null;
-    var_dump($s);   // string(0) ""
+    var_dump($n);           // NULL
+    var_dump(isset($n));    // false
+    var_dump($n == '');     // true
+    var_dump($n === '');    // true
+    var_dump($n == null);   // true
+    var_dump($n === null);  // true
     echo '<br>';
-    var_dump($n);   // NULL
-    echo '<br>';
-
-    echo var_dump(isset($s)).'<br>';  // true
-    echo var_dump(isset($n)).'<br>';  // false
-    echo '<br>';
-
-
      ?>
 
     <!-- 함수 -->

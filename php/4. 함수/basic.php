@@ -31,28 +31,26 @@
      <?php
      function strTest($str='test1') {
        if ($str == '') {
-         return '""';
+         return 'zz';
        }
          return $str;
      }
      echo 'strTest(): '.strTest().'<br>';   // argument가 아얘 없어야 디폴드 들어감
 
      $s = "";
-     $n = null;
-     echo 'strTest($s): '.strTest($s).'<br>';
-     echo 'strTest($n): '.strTest($n).'<br>';
+     $n = null;                               // ==   ===
+     echo 'strTest($s): '.strTest($s).'<br>'; // zz    zz
+     echo 'strTest($n): '.strTest($n).'<br>'; // zz   null
 
      echo '<br>';
       ?>
 
-
-
      <?php
-     // function sum2($left, $right) {
-     //   return $left + $right;
-     // }
-     // print(sum2(2,8));
-     // file_put_contents('res2.txt', sum2(3,4));
+     function sum2($left, $right) {
+       return $left + $right;
+     }
+     print(sum2(2,8));
+     file_put_contents('res2.txt', sum2(3,4));
       // 결과값을 이 파일의 디렉토리에 res.txt에 담아 저장
       // 함수는 이처럼 하나의 기능만 담당하는게 좋다. 다양하게 쓰일수 있기 때문.
       // sum()은 합, 출력을 모두 담당하는데 그러면 쓰임이 제한적이다.
