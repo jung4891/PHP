@@ -2,12 +2,12 @@
 
 <div id="main">
     <div id="sideBar">
-      <div class="">
+      <div class=""> <br>
         <button type="button" name="button">메일쓰기</button>
         <button type="button" name="button">내게쓰기</button>
-      </div>
+      </div> <br>
       <div class="">
-          <a href="#">
+          <!-- <a href="#">
 
           <span style="align:center;">
             <img src="<?php echo $misc;?>img/icon/schedule.svg" width="20">
@@ -15,19 +15,19 @@
           <span>
             안읽음
           </span>
-          </a>
-          <a href="#"><img src="<?php echo $misc;?>img/icon/schedule.svg" width="20"> 중요</a>
-          <a href="#"><img src="<?php echo $misc;?>img/icon/schedule.svg" width="20"> 첨부</a>
+          </a> -->
+          <!-- <a href="#"><img src="<?php echo $misc;?>img/icon/schedule.svg" width="20"> 중요</a>
+          <a href="#"><img src="<?php echo $misc;?>img/icon/schedule.svg" width="20"> 첨부</a> -->
       </div>
       <div class="">
-        <ul>
+        <!-- <ul>
           <a href="<?php echo site_url(); ?>/mail/mom_list"><img src="<?php echo $misc;?>img/icon/schedule.svg" width="20"> biz_mom</a>
+        </ul> -->
+        <ul>
+          <a href="<?php echo site_url(); ?>/mail_test"><img src="<?php echo $misc;?>img/icon/schedule.svg" width="20"> 테스트</a>
         </ul>
         <ul>
-          <a href="<?php echo site_url(); ?>/mail_test"><img src="<?php echo $misc;?>img/icon/schedule.svg" width="20">테스트</a>
-        </ul>
-        <ul>
-          <a href="<?php echo site_url(); ?>/mail/get_all_mails"><img src="<?php echo $misc;?>img/icon/schedule.svg" width="20"> 전체메일</a>
+          <a href="<?php echo site_url(); ?>/mail/mail_list"><img src="<?php echo $misc;?>img/icon/schedule.svg" width="20"> 전체메일</a>
         </ul>
         <ul>
           <a href="#"><img src="<?php echo $misc;?>img/icon/schedule.svg" width="20"> 받은메일함</a>
