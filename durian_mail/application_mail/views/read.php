@@ -12,4 +12,3 @@ test
 <?php
 include $this->input->server('DOCUMENT_ROOT')."/include/mail_footer.php";
  ?>
- 
