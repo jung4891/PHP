@@ -50,13 +50,17 @@
  	}
 
   public function get($id){
-    $this->index();
+    // $this->index();
+    $data = $this->m->gets();
     $topic = $this->m->get($id);
     // $data = array('topic'=>$topic, 'id'=>$id);
     // var_dump($data);
+
     $this->load->view('templates/header');
+    $this->load->view('topic/topic_view', array('topics'=>$data));
     $this->load->view('topic/get_view', array('topic'=>$topic, 'id'=>$id));   // 아래 주석부분 참고
     $this->load->view('templates/footer');
+
   }
   /*
     내부구조(ㅈㄴ 헷갈리네..)

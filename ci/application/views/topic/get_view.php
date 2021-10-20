@@ -1,4 +1,5 @@
 
+  <div class="span10">
     id:<?=$id?><br>
 
     <?php
@@ -7,9 +8,10 @@
     // echo $topics->description;            // row()로 받은경우
     ?>
 
-  <article> <!-- HTML5부터 추가된, 본문을 의미하는 태그 -->
-    <h1><?=$topic->title?></h1>
-    <div>
-      <?=$topic->description?>
-    </div>
-  </article>
+    <article> <!-- HTML5부터 추가된, 본문을 의미하는 태그 -->
+      <h1><?=$topic->title?></h1>
+      <div>
+        <?=$topic->description?>
+      </div>
+    </article>
+  </div>

@@ -9,18 +9,19 @@
 
   echo '</pre>';
   ?>
-
-
-<ul>
-  <?php
-  // 전체 title들 출력
-  foreach($topics as $row) {
-    echo "<li><a href=\"/index.php/topic/get/{$row->id}\">".$row->title.'</a></li>';
-    // href="topic~ " 이렇게 하면 처음 접속은 되는데 다음부터는 주소 뒤에 덧붙이기됨.
-    // echo $row['title'];
-  }
-  ?>
-</ul>
+<!--Sidebar content-->
+<div class="span2">
+  <ul>
+    <?php
+    // 전체 title들 출력
+    foreach($topics as $row) {
+      echo "<li><a href=\"/index.php/topic/get/{$row->id}\">".$row->title.'</a></li>';
+      // href="topic~ " 이렇게 하면 처음 접속은 되는데 다음부터는 주소 뒤에 덧붙이기됨.
+      // echo $row['title'];
+    }
+    ?>
+  </ul>
+</div>
 
 <!-- <div id="bpopup">
   bpopup 테스트
