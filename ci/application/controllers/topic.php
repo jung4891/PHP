@@ -90,7 +90,7 @@
   // 애러페이지 출력
   public function error() {
     $this->load->view('templates/header');
-    $msg = '페이지가 없습니다~';
+    $msg = '페이지가 없습니다~!';
     $this->load->view('topic/main', array('msg'=>$msg));
     $this->load->view('templates/footer');
   }

@@ -8,12 +8,28 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
 
   }
 </style>
- <div id="main_contents" style="padding-left: 20px;">
-   <p>제목: <?php echo $title;?></p>
-   <p>발신자: <?php echo $from_addr;?></p>
-   <p>수신자: <?php echo $to_addr;?></p>
-   <hr>
-   <p>내용: <br><br> <?php echo $contents;?></p>
+ <div id="main_contents" style="padding-left: 20px; padding-top: 20px;">
+   <table width="90%" border="0" cellpadding="4" cellspacing="0">
+     <tr>
+       <td align="center" bgcolor="#E7E7E7" width="100">보낸날짜</td>
+       <td bgcolor="#F7F7F7">&nbsp;<?php echo $date;?></td>
+     </tr>
+     <tr>
+       <td align="center" bgcolor="#E7E7E7">보낸이</td>
+       <td bgcolor="#F7F7F7">&nbsp;<?php echo $from_addr;?></td>
+     </tr>
+     <tr>
+       <td align="center" bgcolor="#E7E7E7">받는이</td>
+       <td bgcolor="#F7F7F7">&nbsp;<?php echo $to_addr;?></td>
+     </tr>
+     <tr>
+       <td align="center" bgcolor="#E7E7E7">제 &nbsp; 목</td>
+       <td bgcolor="#F7F7F7">&nbsp;<?php echo $title;?></td>
+     </tr>
+     <tr>
+      <td colspan="2"><br><?php echo $contents;?></td>
+     </tr>
+   </table>
  </div>
 
 <?php

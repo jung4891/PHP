@@ -12,11 +12,13 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
   // echo '</pre>'
   ?>
 
-  <?php echo $test_msg; ?>
+  <?php echo $test_msg; ?> <br><br>
   <table border="1" width="1000">
     <thead>
       <tr>
+        <th>U</th>
         <th>No</th>
+        <th><input type="checkbox" onClick="check_all(this);"> </th>
         <th>발신자</th>
         <th>제목</th>
         <th>날짜</th>
@@ -24,41 +26,47 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
       </tr>
     </thead>
     <tbody>
+      <form name="frm" method="post">
       <?php
-        for($num=1; $num<=$mails_cnt; $num++) {
+      for($num=$mails_cnt; $num>0; $num--) {
       ?>
       <tr>
         <?php
-        // 발신자 이름이 따로 명시된 경우 (personal이란 속성이 있다. 객체 요소갯수를 빼내오질 못해 보류..)
-        // echo count($head[$num]->from, COUNT_RECURSIVE);
-        // $personal = imap_utf8($head[$num]->from[0]->personal);
-        // if (empty($personal)) {
-        //   $personal = imap_utf8($head[$num]->fromaddress);
-        // }
-        // echo $personal;
-        ?>
-        <!-- 발신자 메일주소만 or 발신자 이름(있는경우만) <메일주소> -->
-        <!-- mb_decode_mimeheader() : MIME 인코드(암호화)되어있는 메일의 제목을 디코드(복호화)해야함 -->
-        <!-- htmlspecialchars() : 제목에 포함된 HTML태그를 무효로 처리함 -->
-        <!-- <td><?=imap_utf8($head[$num]->fromaddress)?></td>  ->  hjsong@durianit.co.kr -->
-        <!-- <td><?=htmlspecialchars(mb_decode_mimeheader($head[$num]->fromaddress))?></td> -> 송혁중 <go_go_ssing@naver.com>  -->
+        /*
+         참고
+         - 이름+메일주소(송혁중 <go_go_ssing@naver.com>) 으로 출력하려면
+           htmlspecialchars(mb_decode_mimeheader($head[$num]->fromaddress))
+           - mb_decode_mimeheader() : MIME 인코드(암호화)되어있는 메일의 제목을 디코드(복호화)함
+           - htmlspecialchars() : 제목에 포함된 HTML태그를 무효로 처리함
+         - $recent = $head->Recent;                 // 새메일 여부를 리턴
+         -
+        */
 
-        <?php 	// Outlook 테스트 메시지에서 date 오류나서 애러처리함
-        if (isset($head[$num]->date)) {
-          $date = $head[$num]->date;
+        // 발신자 이름 or 메일주소 표시
+        $from_obj = $head[$num]->from[0];                 // 보낸 사람의 이름 또는 메일주소를 얻기위함
+        $from_addr = imap_utf8($head[$num]->fromaddress); // hjsong@durianit.co.kr
+        if (isset($from_obj->personal)) {
+          $from_name = imap_utf8($from_obj->personal);    // 송혁중 (이름이 명시되어 있는 메일)
         } else {
-          $date = '';
+          $from_name = $from_addr;                        // 이름이 명시되어 있지 않은 메일은 메일주소 그대로 출력
         }
+
+        $msg_no = trim($head[$num]->Msgno);                // 메일번호
         ?>
-        <td><?=$num?></td>
-        <td><?=htmlspecialchars(mb_decode_mimeheader($head[$num]->fromaddress))?></td>
+        <!-- 메일목록 출력 -->
+        <!-- $head[$num]->Unseen : 메일을 읽었는지 여부를 리턴("U" or "") -->
+        <td><?=$head[$num]->Unseen?></td>
+        <td><?=$msg_no?></td>
+        <td><input type="checkbox" name="chk" value=<?php echo $msg_no;?>></td>
+        <td><?php echo "<a href=mailto:$from_addr>$from_name</a>";?></td>
         <td><a href="/index.php/mailbox/mail_detail/<?=$num?>"><?=imap_utf8($head[$num]->subject)?></a></td>
-        <td nowrap><?=$date?></td>
+        <td nowrap><?=date("Y/m/d H:i", $head[$num]->udate)?></td>
         <td nowrap><?=$head[$num]->Size?> bytes</td>
       </tr>
       <?php
         }
        ?>
+       </form>
     </tbody>
   </table>
 </div>
@@ -66,3 +74,31 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
 <?php
 include $this->input->server('DOCUMENT_ROOT')."/include/mail_footer.php";
  ?>
+
+ <script type="text/javascript">
+
+ // 상단 체크박스 클릭시 전체선택/해제 설정
+ var checked = true;
+ function check_all(button) {
+   // console.log('aa');
+   for(var i=0; i<document.frm.length; i++)
+    if(document.frm[i].name == 'chk') document.frm[i].checked = checked;
+   checked = checked?  false : true;
+ }
+
+ // 나중에 삭제
+ // <input type=button name=HOWTO22 value="삭 제" class="tk1" onClick="delete();">
+ // function delete(){
+ //   var count = 0;
+ //   for(var i=0;i<document.frm.length;i++){
+ //     if(document.frm[i].name == "NO[]" && document.frm[i].checked == true){count++; }
+ //   }
+ //   if ( count != 0 ){
+ //   document.frm.action = "mail_cmd.php?CMD=del";
+ //   document.frm.submit();
+ //   } else {
+ //     alert('삭제할 항목을 선택하세요!');
+ //   }
+ // }
+
+ </script>

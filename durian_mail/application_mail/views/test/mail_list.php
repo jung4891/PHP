@@ -39,7 +39,6 @@ include $this->input->server('DOCUMENT_ROOT')."/include/base.php";
      // echo '</pre>';
      //
      // $mailbox = $mailboxes[0];
-     // echo $mailbox.'<br>';
      // $pos = strpos($mailbox, '&');
      // $mailbox_name = substr($mailbox, $pos);
 
@@ -112,13 +111,14 @@ include $this->input->server('DOCUMENT_ROOT')."/include/base.php";
        $date = date("Y/m/d H:i", $head->udate); // 메일의 날짜를 얻고
        $subject = $head->Subject;               // 제목을 얻습니다.
        $subject = imap_utf8($subject);          // 제목의 경우 Outlook에서 보내면 인코딩을 자동으로 하기에 이를 디코딩해야함.
-                                                // imap_utf8 — Converts MIME-encoded text to UTF-8
-       $from_obj = $head->from[0];              // 보낸 사람의 이름 또는 메일주소를 얻기위함
-       $from_addr = decode($from_obj->mailbox.'@'.$from_obj->host);
+
+       // 발신자 이름 or 메일주소 표시
+       $from_obj = $head->from[0];                 // 보낸 사람의 이름 또는 메일주소를 얻기위함
+       $from_addr = imap_utf8($head->fromaddress); // hjsong@durianit.co.kr
        if (isset($from_obj->personal)) {
-         $from_name = decode($from_obj->personal);      // 송혁중 (이름이 명시되어 있는 메일)
+         $from_name = imap_utf8($from_obj->personal);    // 송혁중 (이름이 명시되어 있는 메일)
        } else {
-         $from_name = $from_addr;                          // 이름이 명시되어 있지 않은 메일은 메일주소 그대로 출력
+         $from_name = $from_addr;                        // 이름이 명시되어 있지 않은 메일은 메일주소 그대로 출력
        }
        // if(strlen($from_name) > 13) $from_name = substr($from_name, 0, 10) . "...";   // 메일주소가 길 경우 뒷부분 ...으로 생락하는 부분
 

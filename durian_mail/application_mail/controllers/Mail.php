@@ -31,15 +31,10 @@ class Mail extends CI_Controller {
 	}
 
 	public function index(){
+		// $data['user'] =  $this->m_test->test();
+		// $data['group'] = $this->m_test->test2();
 		$this->load->view('mail_test');
 	}
-
-	public function mail_test2(){
-		$data['user'] =  $this->m_test->test();
-		$data['group'] = $this->m_test->test2();
-		$this->load->view('read', $data);
-	}
-
 
 
 	// 임시 테스트
