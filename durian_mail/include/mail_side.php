@@ -2,10 +2,10 @@
 
 <div id="main">
     <div id="sideBar">
-      <div class=""> <br>
+      <!-- <div class=""> <br>
         <button type="button" name="button">메일쓰기</button>
         <button type="button" name="button">내게쓰기</button>
-      </div> <br>
+      </div> <br> -->
       <div class="">
           <!-- <a href="#">
 
@@ -27,7 +27,7 @@
           <a href="<?php echo site_url(); ?>/mail_test"><img src="<?php echo $misc;?>img/icon/schedule.svg" width="20"> 테스트</a>
         </ul>
         <ul>
-          <a href="<?php echo site_url(); ?>/mail/mail_list"><img src="<?php echo $misc;?>img/icon/schedule.svg" width="20"> 전체메일</a>
+          <a href="<?php echo site_url(); ?>/Mailbox"><img src="<?php echo $misc;?>img/icon/schedule.svg" width="20"> 전체메일</a>
         </ul>
         <ul>
           <a href="#"><img src="<?php echo $misc;?>img/icon/schedule.svg" width="20"> 받은메일함</a>

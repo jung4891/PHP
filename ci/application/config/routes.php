@@ -49,6 +49,23 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 | Examples:	my-controller/index	-> my_controller/index
 |		my-controller/my-method	-> my_controller/my_method
 */
-$route['default_controller'] = 'welcome';
-$route['404_override'] = '';
+
+/*
+  @ URI Routing : 사용자가 접근한 URI에 따라서 Controller의 메소드를 호출해주는 기능
+                 host/class/method/param
+  http://ci/index.php/topic/get/2  -> application/controllers/topic.php의 get메소드 호출(인자 2 전달)
+
+  @ URI 매핑 변경하기 : URI에 따른 Controller의 호출 규칙을 변경하고자 할때
+   1) http://ci/index.php/topic/get/2 -> http://ci/index.php/topic/2
+      $route['topic/(:num)'] = 'topic/get/$1';
+        - $1은 첫번째 괄호의 값으로 치환됨
+        - :num은 들어가는 값이 숫자임을 의미
+   2) http://ci/index.php/topic/get/2 -> http://ci/index.php/post/2  (주로 post로 들어오니까)
+      $route['post/(:num)'] = 'topic/get/$1';
+
+*/
+$route['topic/(:num)'] = 'topic/get/$1';
+$route['post/(:num)'] = 'topic/get/$1';
+$route['default_controller'] = 'topic';
+$route['404_override'] = 'topic/error';
 $route['translate_uri_dashes'] = FALSE;

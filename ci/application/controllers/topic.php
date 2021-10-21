@@ -14,13 +14,19 @@
      $this->load->model('topic_model', 'm');    //   모델인 topic_model 클래스를 가져옴 (가져온 모델 객체를 m이란 별칭으로 받음)
    }
 
-  // http://localhost/ci/index.php/topic (클래스명만 있으면 index() 반드시 구현)
+  // http://localhost/ci/index.php/topic (URL에 클래스명만 있으면 index() 반드시 구현)
  	public function index() {
-    $data = $this->m->gets();   // 가져온 topic_model 클래스(object/인스턴스)의 gets()메서드 실행
+
     $this->load->view('templates/header');
+
+    $data = $this->m->gets();   // 가져온 topic_model 클래스(object/인스턴스)의 gets()메서드 실행
     $this->load->view('topic/topic_view', array('topics'=>$data));  // $data객체나 배열을 새로운 배열의 topics키에 넣는다.
+
+    $msg = '메인페이지~';
+    $this->load->view('topic/main', array('msg'=>$msg));
+
     $this->load->view('templates/footer');
-    // 이건 결국 $data라는 객체/베열을 새로운 배열에 담아 그 인덱스가 view에선 $인덱스(topics)가 되고 그 안에 $data가 있다.
+    // 이건 결국 $data라는 객체배열을 새로운 배열에 담아 그 인덱스가 view에선 $인덱스(topics)가 되고 그 안에 $data가 있다.
     // 결국 배열을 사용해 인덱스명('topics')으로 컨트롤러가 데이터를 전달하면 뷰는 $topics로 데이터를 받게 된다.
     // echo $this->uri->segment(1);      // topic (http://ci/topic)
 
@@ -79,6 +85,14 @@
     $this->load->view('topic/get_test_view', array('n1'=>$num, 'n2'=>$num2));   // 전달할 때 배열로 만듬
     $this->load->view('templates/footer');                                      // (하나만 전달해도 됨)
     // echo 'get_test '.$num.$num2;    // get_test 1122
+  }
+
+  // 애러페이지 출력
+  public function error() {
+    $this->load->view('templates/header');
+    $msg = '페이지가 없습니다~';
+    $this->load->view('topic/main', array('msg'=>$msg));
+    $this->load->view('templates/footer');
   }
 
  }

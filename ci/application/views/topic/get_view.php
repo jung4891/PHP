@@ -1,6 +1,6 @@
 
   <div class="span10">
-    id:<?=$id?><br>
+    <!-- id:<?=$id?><br> -->
 
     <?php
     // id에 해당하는 description 출력
