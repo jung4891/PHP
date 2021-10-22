@@ -27,8 +27,26 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
        <td bgcolor="#F7F7F7">&nbsp;<?php echo $title;?></td>
      </tr>
      <tr>
-      <td colspan="2"><br><?php echo $contents;?></td>
+      <td colspan="2"><br><?php var_dump($contents);?> </td>
      </tr>
+     <!-- struct 테스트용 -->
+     <!-- <tr>
+      <td colspan="2">
+        <h3>$struct</h3>
+        <pre>
+          <?php // var_dump($struct);?>
+        </pre>
+      </td>
+     </tr> -->
+     <!-- body 테스트용 -->
+     <!-- <tr>
+       <td colspan="2">
+         <h3>$body</h3>
+         <pre>
+           <?php // var_dump($body); ?>
+         </pre>
+       </td>
+     </tr> -->
    </table>
  </div>
 

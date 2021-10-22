@@ -8,7 +8,7 @@ include $this->input->server('DOCUMENT_ROOT')."/include/base.php";
 
 // 메일의 구조를 분석하는 함수
 function checkstruct($mailstream, $MSG_NO) {
-  $struct = imap_fetchstructure($mailstream, $MSG_NO);  // 메일구조를 객체로 리턴. 인자는 메일스트림과 해당 메일번호.
+  $struct = imap_fetchstructure($mailstream, $MSG_NO);  // 메일구조를 객체로 리턴. .
   $body = imap_body($mailstream, $MSG_NO);
 
   // test용
@@ -30,7 +30,7 @@ function checkstruct($mailstream, $MSG_NO) {
   $type = $struct->subtype;
 
   /*
-  메일의 타입을 얻음. 크게 PLAIN, MIXED, ALTERNATIVE, RELATED 이렇게 있음
+  $type
    - PLAIN : 그냥 텍스트 메일. 이건 그냥 출력만 해주면됨
    - MIXED : 첨부파일이 있는 메일. 이게 가장 복잡. 아래 switch문 참고
    - ALTERNATIVE : HTML 형식으로 메일을 보내면 이게 됩니다. (Outlook)

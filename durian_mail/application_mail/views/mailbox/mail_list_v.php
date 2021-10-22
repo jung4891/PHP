@@ -38,20 +38,20 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
            htmlspecialchars(mb_decode_mimeheader($head[$num]->fromaddress))
            - mb_decode_mimeheader() : MIME 인코드(암호화)되어있는 메일의 제목을 디코드(복호화)함
            - htmlspecialchars() : 제목에 포함된 HTML태그를 무효로 처리함
-         - $recent = $head->Recent;                 // 새메일 여부를 리턴
+         - $recent = $head->Recent; -> 새메일 여부를 리턴
          -
         */
 
         // 발신자 이름 or 메일주소 표시
-        $from_obj = $head[$num]->from[0];                 // 보낸 사람의 이름 또는 메일주소를 얻기위함
-        $from_addr = imap_utf8($head[$num]->fromaddress); // hjsong@durianit.co.kr
+        $from_obj = $head[$num]->from[0];                     // 보낸 사람의 이름 또는 메일주소를 얻기위함
+        $from_addr = $from_obj->mailbox.'@'.$from_obj->host;  // hjsong@durianit.co.kr
         if (isset($from_obj->personal)) {
-          $from_name = imap_utf8($from_obj->personal);    // 송혁중 (이름이 명시되어 있는 메일)
+          $from_name = imap_utf8($from_obj->personal);        // 송혁중 (이름이 명시되어 있는 메일)
         } else {
-          $from_name = $from_addr;                        // 이름이 명시되어 있지 않은 메일은 메일주소 그대로 출력
+          $from_name = $from_addr;          // 이름이 명시되어 있지 않은 메일은 메일주소 그대로 출력
         }
 
-        $msg_no = trim($head[$num]->Msgno);                // 메일번호
+        $msg_no = trim($head[$num]->Msgno);               // 메일번호
         ?>
         <!-- 메일목록 출력 -->
         <!-- $head[$num]->Unseen : 메일을 읽었는지 여부를 리턴("U" or "") -->
