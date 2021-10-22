@@ -37,13 +37,13 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
   array(5) {
    [0]=>
-   string(59) "{192.168.0.100:143/imap/novalidate-cert}&vPSwuA- &07jJwNVo-"  -> 보낸편지함
+   string(59) "{192.168.0.100:143/imap/novalidate-cert}&vPSwuA- &07jJwNVo-"  -> 보낸 편지함
    [1]=>
-   string(59) "{192.168.0.100:143/imap/novalidate-cert}&ycDGtA- &07jJwNVo-"  -> 지운편지함
+   string(59) "{192.168.0.100:143/imap/novalidate-cert}&ycDGtA- &07jJwNVo-"  -> 지운 편지함
    [2]=>
-   string(59) "{192.168.0.100:143/imap/novalidate-cert}&x4TC3A- &vPStANVo-"  -> 임시보관함
+   string(59) "{192.168.0.100:143/imap/novalidate-cert}&x4TC3A- &vPStANVo-"  -> 임시 보관함
    [3]=>
-   string(57) "{192.168.0.100:143/imap/novalidate-cert}&yBXQbA- &ulTHfA-"    -> 정크메일
+   string(57) "{192.168.0.100:143/imap/novalidate-cert}&yBXQbA- &ulTHfA-"    -> 정크 메일
    [4]=>
    string(45) "{192.168.0.100:143/imap/novalidate-cert}INBOX"  -> 전체 메일함
   }
@@ -62,19 +62,19 @@ class Mailbox extends CI_Controller {
       // $user_pwd = $this->input->post('inputPass');
 
       // 100서버
+      // $mailserver = "192.168.0.100";
       // $user_id = "hjsong@durianit.co.kr";
       // $user_pwd = "durian12#";
-      // $mailserver = "192.168.0.100";
 
       // 50서버
+      // $mailserver = "192.168.0.50";
       // $user_id = "test2@durianict.co.kr";
       // $user_pwd = "durian12#";
-      // $mailserver = "192.168.0.50";
 
       // 네이버(테스트용)
+      // $mailserver = "imap.naver.com";
       // $user_id = "go_go_ssing";
       // $user_pwd = "gurwndA!23";
-      // $mailserver = "imap.naver.com";
 
       // POP3 서버
       //$mailbox = @imap_open("{" . $mailserver . ":110/pop3}INBOX", $user_id, $user_pwd);
@@ -93,7 +93,7 @@ class Mailbox extends CI_Controller {
   }
 
   // 전체메일 출력: 메일함에 있는 메일들의 헤더정보(제목, 날짜, 보낸이 등등)를 뷰로 넘김
-  public function mail_list(){
+  public function mail_list($box='INBOX'){
 
     /*
     - imap_open() : 메일서버에 접속하기 위한 함수
@@ -108,15 +108,18 @@ class Mailbox extends CI_Controller {
     */
 
     // 메일서버 접속정보 설정
+    $mailserver = "192.168.0.100";
+    $mbox = urldecode($box);
+    $host = "{" . $mailserver . ":143/imap/novalidate-cert}$mbox";
     $user_id = "hjsong@durianit.co.kr";
     $user_pwd = "durian12#";
-    $mailserver = "192.168.0.100";
 
     // 메일함 접속
-    $mails= @imap_open("{" . $mailserver . ":143/imap/novalidate-cert}INBOX", $user_id, $user_pwd);
+    $mails= @imap_open($host, $user_id, $user_pwd);
 
     // 뷰로 보낼 정보들 가져옴
     $data = array();
+    $data['mbox'] = $mbox;
     if($mails) {
       $mails_info = imap_check($mails);
       $recent = imap_num_recent($mails);
@@ -139,13 +142,16 @@ class Mailbox extends CI_Controller {
 
 
   // 메일 조회 : body부분의 내용을 구조를 분석해 내용(string)을 뷰로 보냄
-  public function mail_detail($num){
+  public function mail_detail($mbox, $num){
 
-    // 접속정보
+    // 메일서버 접속정보 설정
+    $mailserver = "192.168.0.100";
+    $host = "{" . $mailserver . ":143/imap/novalidate-cert}$mbox";
     $user_id = "hjsong@durianit.co.kr";
     $user_pwd = "durian12#";
-    $mailserver = "192.168.0.100";
-    $mails = @imap_open("{" . $mailserver . ":143/imap/novalidate-cert}INBOX", $user_id, $user_pwd);
+
+    // 메일함 접속
+    $mails= @imap_open($host, $user_id, $user_pwd);
 
     // 내용을 제외한 부분 헤더에서 가져옴
     $data = array();
@@ -256,13 +262,12 @@ class Mailbox extends CI_Controller {
           - parts[1]_HTML (charset: ks_c_5601-1987) (encoding(4): quoted-printable)
         - parts[1]_PNG	(사진)
       */
-        for($i=1; $i<count($struct->parts); $i++) {
+        for($i=1; $i<=count($struct->parts); $i++) {
           $part = $struct->parts[$i-1];
           $mime = $part->subtype;
           $encode = $part->encoding;
-
           if ($mime == "ALTERNATIVE"){
-            for($j=1; $j<count($part->parts); $j++) {
+            for($j=1; $j<=count($part->parts); $j++) {
               $part_inner = $part->parts[$j-1];
               $mime = $part_inner->subtype;
               $encode = $part_inner->encoding;

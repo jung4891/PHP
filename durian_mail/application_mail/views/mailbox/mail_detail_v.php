@@ -27,7 +27,7 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
        <td bgcolor="#F7F7F7">&nbsp;<?php echo $title;?></td>
      </tr>
      <tr>
-      <td colspan="2"><br><?php var_dump($contents);?> </td>
+      <td colspan="2"><br><?php echo $contents ?> </td>
      </tr>
      <!-- struct 테스트용 -->
      <!-- <tr>
@@ -47,6 +47,19 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
          </pre>
        </td>
      </tr> -->
+     <?php
+
+     // 메일함 목록 테스트
+     // $user_id = "hjsong@durianit.co.kr";
+     // $user_pwd = "durian12#";
+     // $mailserver = "192.168.0.100";
+     // $mails= @imap_open("{" . $mailserver . ":143/imap/novalidate-cert}{$mbox}", $user_id, $user_pwd);
+     //
+     // $mailboxes = imap_list($mails, "{" . $mailserver . ":143}", '*');
+     // echo '<pre>';
+     // var_dump($mailboxes);
+     // echo '</pre>';
+      ?>
    </table>
  </div>
 

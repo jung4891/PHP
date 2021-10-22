@@ -33,7 +33,7 @@ class Mail extends CI_Controller {
 	public function index(){
 		// $data['user'] =  $this->m_test->test();
 		// $data['group'] = $this->m_test->test2();
-		$this->load->view('mail_test');
+		$this->load->view('test/mail_test');
 	}
 
 

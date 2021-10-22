@@ -5,13 +5,6 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
  ?>
 <div id="main_contents">
 
-  <?php
-  // 테스트용
-  // echo '<pre>';
-  // var_dump($mails_info);
-  // echo '</pre>'
-  ?>
-
   <?php echo $test_msg; ?> <br><br>
   <table border="1" width="1000">
     <thead>
@@ -55,13 +48,13 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
         ?>
         <!-- 메일목록 출력 -->
         <!-- $head[$num]->Unseen : 메일을 읽었는지 여부를 리턴("U" or "") -->
-        <td><?=$head[$num]->Unseen?></td>
-        <td><?=$msg_no?></td>
+        <td><?php echo $head[$num]->Unseen?></td>
+        <td><?php echo $msg_no?></td>
         <td><input type="checkbox" name="chk" value=<?php echo $msg_no;?>></td>
         <td><?php echo "<a href=mailto:$from_addr>$from_name</a>";?></td>
-        <td><a href="/index.php/mailbox/mail_detail/<?=$num?>"><?=imap_utf8($head[$num]->subject)?></a></td>
-        <td nowrap><?=date("Y/m/d H:i", $head[$num]->udate)?></td>
-        <td nowrap><?=$head[$num]->Size?> bytes</td>
+        <td><a href="/index.php/mailbox/mail_detail/<?php echo $mbox ?>/<?php echo $num ?>"><?php echo imap_utf8($head[$num]->subject)?></a></td>
+        <td nowrap><?php echo date("Y/m/d H:i", $head[$num]->udate)?></td>
+        <td nowrap><?php echo $head[$num]->Size?> bytes</td>
       </tr>
       <?php
         }
@@ -75,6 +68,7 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
 include $this->input->server('DOCUMENT_ROOT')."/include/mail_footer.php";
  ?>
 
+
  <script type="text/javascript">
 
  // 상단 체크박스 클릭시 전체선택/해제 설정
@@ -86,7 +80,7 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_footer.php";
    checked = checked?  false : true;
  }
 
- // 나중에 삭제
+ // 나중에 삭제부분
  // <input type=button name=HOWTO22 value="삭 제" class="tk1" onClick="delete();">
  // function delete(){
  //   var count = 0;
