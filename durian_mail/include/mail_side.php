@@ -79,11 +79,10 @@
       </div>
     </div>
     <div id="sideMini">
-aaaaaa <br>
-aaaaa
+
     </div>
 
-
+<!-- 동적 form -->
 <script type="text/javascript">
 function dynamic_form() {
   var newForm = $('<form></form>');

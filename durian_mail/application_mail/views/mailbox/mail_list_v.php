@@ -3,12 +3,12 @@ include $this->input->server('DOCUMENT_ROOT')."/include/base.php";
 include $this->input->server('DOCUMENT_ROOT')."/include/mail_header.php";
 include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
  ?>
-<div id="main_contents">
+<div id="main_contents" style="margin:unset;">
+  <div class="main_div" >
+  <?php echo $test_msg; ?> <br><br>
+  <?php echo'<pre>'; var_dump($test); echo '</pre>' ?> <br>
 
-  <?php echo $test_msg; ?> <br>
-  <br><br>
-
-  <table border="1" width="1000">
+  <table border="1" width="1000" >
     <thead>
       <tr>
         <th>U</th>
@@ -23,7 +23,7 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
     <tbody>
       <form name="frm" method="post">
       <?php
-      for($num=$mails_cnt; $num>0; $num--) {
+      foreach($mailno as $num) {
       ?>
       <tr>
         <?php
@@ -45,12 +45,15 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
         } else {
           $from_name = $from_addr;          // 이름이 명시되어 있지 않은 메일은 메일주소 그대로 출력
         }
-
         $msg_no = trim($head[$num]->Msgno);               // 메일번호
+
+        // echo '<pre>';
+        // var_dump($head[$num]);
+        // echo '</pre>';
+
         ?>
         <!-- 메일목록 출력 -->
-        <!-- $head[$num]->Unseen : 메일을 읽었는지 여부를 리턴("U" or "") -->
-        <td><?php echo $head[$num]->Unseen?></td>
+        <td><?php echo $head[$num]->Unseen?></td>   <!-- 메일 클릭해서 읽으면 "U" -> ""로 바뀜 -->
         <td><?php echo $msg_no?></td>
         <td><input type="checkbox" name="chk" value=<?php echo $msg_no;?>></td>
         <td><?php echo "<a href=mailto:$from_addr>$from_name</a>";?></td>
@@ -64,6 +67,7 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
        </form>
     </tbody>
   </table>
+</div>
 </div>
 
 <?php

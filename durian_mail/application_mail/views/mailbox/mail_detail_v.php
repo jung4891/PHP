@@ -8,7 +8,7 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
 
   }
 </style>
- <div id="main_contents" style="padding-left: 20px; padding-top: 20px;">
+ <div id="main_contents" style="padding-left: 40px; padding-top: 20px;">
    <table width="90%" border="0" cellpadding="4" cellspacing="0">
      <tr>
        <td align="center" bgcolor="#E7E7E7" width="100">보낸날짜</td>

@@ -98,15 +98,20 @@ class Mailbox extends CI_Controller {
     - imap_open() : 메일서버에 접속하기 위한 함수
                    (접속에 성공하면 $mailbox에 IMAP 스트림(mailstream)이 할당됨)
       - @ : 오류메시지를 무효로 처리하여 경고 문구가 표시되지 않게함
-    - imap_check() : 메일박스의 정보를 객체(object)로 돌려줌
-    - imap_header() : num번째 메일의 제목이나 날짜같은 메일정보를 넣어둔 객체를 돌려줌
-    - imap_num_recent($mailbox) : 새로운 메일의 개수를 리턴
+    - imap_check() : 메일박스의 정보(driver(imap), Mailbox(~~INBOX), Nmsgs)를 객체(object)로 돌려줌
+      - -> Nmsgs;	: 메일함의 전체메일 개수
+    - imap_headerinfo($mailstream, $MSG_NO) : num번째 메일의 제목이나 날짜같은 메일정보를 넣어둔 객체를 돌려줌
+    - imap_num_recent($mailbox) : 새로운 메일의 개수를 리턴(메일리스트만 봐도 개수 적용 제외됨)
     - imap_num_msg($mailbox) : 메일의 총 개수를 리턴
-    - $mailno = imap_sort($mailstream, SORTDATE, 1);
-      메일을 날짜순으로 내림차순(1)/오름차순(0)하여 정렬된 메일번호가 배열에 담겨 변수에 들어감
+    - imap_sort($mailstream, SORTDATE, 1); 메일을 날짜순으로 내림차순(1)/오름차순(0)하여 정렬된 메일번호가 배열에 담겨 변수에 들어감
+                                           메일번호가 날짜순으로 되어있지 않기에 설정해줘야함.
     */
 
     // 메일서버 접속정보 설정
+    // $mailserver = "192.168.0.50";
+    // $user_id = "test2@durianict.co.kr";
+    // $user_pwd = "durian12#";
+
     $mailserver = "192.168.0.100";
     $mbox = urldecode($box);
     $host = "{" . $mailserver . ":143/imap/novalidate-cert}$mbox";
@@ -116,18 +121,22 @@ class Mailbox extends CI_Controller {
     // 메일함 접속
     $mails= @imap_open($host, $user_id, $user_pwd);
 
+    // 메일박스 리스트 (테스트용)
+    $mailboxes = imap_list($mails, "{" . $mailserver . ":143}", '*');
+
     // 뷰로 보낼 정보들 가져옴
     $data = array();
     $data['mbox'] = $mbox;
+    $data['test'] = $mailboxes;
     if($mails) {
-      $mails_info = imap_check($mails);
+      $mailno = imap_sort($mails, SORTDATE, 1);
+      $data['mailno'] = $mailno;
       $recent = imap_num_recent($mails);
-      $mails_cnt = $mails_info->Nmsgs;			// 메일함의 전체메일 개수를 가져옴
-      $data['mails_cnt'] = $mails_cnt;
+      $mails_cnt = imap_num_msg($mails);
       if($mails_cnt >= 1) {
         $data['test_msg'] = "총 메일수: {$mails_cnt}건<br> 새편지: {$recent}건";
         for($num=1; $num<=$mails_cnt; $num++) {
-          $data['head'][$num] = imap_header($mails, $num);
+          $data['head'][$num] = imap_headerinfo($mails, $num);
         }
       } else {
         $data['test_msg'] = "메일이 없습니다.";
@@ -141,20 +150,26 @@ class Mailbox extends CI_Controller {
 
 
   // 메일 조회 : body부분의 내용을 구조를 분석해 내용(string)을 뷰로 보냄
-  public function mail_detail($mbox, $num){
+  public function mail_detail($box, $num){
 
     // 메일서버 접속정보 설정
     $mailserver = "192.168.0.100";
+    $mbox = urldecode($box);
     $host = "{" . $mailserver . ":143/imap/novalidate-cert}$mbox";
     $user_id = "hjsong@durianit.co.kr";
     $user_pwd = "durian12#";
 
+    echo $host;
+
     // 메일함 접속
     $mails= @imap_open($host, $user_id, $user_pwd);
 
+    $mails_cnt = imap_num_msg($mails);
+    echo $mails_cnt;
+
     // 내용을 제외한 부분 헤더에서 가져옴
     $data = array();
-    $head = imap_header($mails, $num);
+    $head = imap_headerinfo($mails, $num);
     $data['date'] = date("Y/m/d H:i", $head->udate);
     $data['from_addr'] = htmlspecialchars(mb_decode_mimeheader($head->fromaddress));
     $data['to_addr'] = htmlspecialchars(mb_decode_mimeheader($head->toaddress));
