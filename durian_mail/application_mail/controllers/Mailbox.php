@@ -94,7 +94,6 @@ class Mailbox extends CI_Controller {
 
   // 전체메일 출력: 메일함에 있는 메일들의 헤더정보(제목, 날짜, 보낸이 등등)를 뷰로 넘김
   public function mail_list($box='INBOX'){
-
     /*
     - imap_open() : 메일서버에 접속하기 위한 함수
                    (접속에 성공하면 $mailbox에 IMAP 스트림(mailstream)이 할당됨)
@@ -305,6 +304,8 @@ class Mailbox extends CI_Controller {
         break;
       case 4:   // quoted-print
         $val = quoted_printable_decode($val);
+        echo $charset;
+
         if ($charset == 'ks_c_5601-1987') {     // else는 charset이 utf-8로 iconv 불필요
           $val = iconv('euc-kr', 'utf-8', $val);
         }

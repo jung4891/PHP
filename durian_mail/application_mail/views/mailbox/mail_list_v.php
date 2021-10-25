@@ -5,7 +5,9 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
  ?>
 <div id="main_contents">
 
-  <?php echo $test_msg; ?> <br><br>
+  <?php echo $test_msg; ?> <br>
+  <br><br>
+
   <table border="1" width="1000">
     <thead>
       <tr>

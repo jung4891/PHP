@@ -3,6 +3,7 @@
 <head>
 <meta charset = "utf-8" >
 <title> 테스트페이지 </title>
+<script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
 </head>
 <body>
   <?php
@@ -15,14 +16,34 @@
     if ($_POST) {
       $testDate = $_POST [ "testDate" ];
       echo $testDate ;
-      print_r( "<br><br>" );
     }
   ?>
 
-  <form method = "POST" action = "<?php echo $_SERVER [ 'PHP_SELF' ];?>" >
+  <!-- <form method = "POST" action = "<?php echo $_SERVER [ 'PHP_SELF' ]; // action=""과 동일?>" >    -->
+  <form method = "POST" action = "test.php" >
     <input type = "date" name = "testDate">
     <!-- <input type = "date" name = "testDate" value =<?php echo $testDate ?> > -->
     <input type = "submit" value = "전송" />
-  </form>
+  </form> <br><br>
+
+  <button type="button" onclick="dynamic_form()">동적 form</button>
+  <script type="text/javascript">
+
+  // 동적 form
+  // 문서 내에 form태그 없이 동적으로 생성하여 submit이 가능함
+  function dynamic_form() {
+      var newForm = $('<form></form>');
+      newForm.attr("name","newForm");
+      newForm.attr("method","post");
+      newForm.attr("action", "test.php");
+      newForm.attr("target","_blank");
+
+      newForm.append($('<input/>', {type: 'hidden', name: 'data1', value:'value1' }));
+      newForm.append($('<input/>', {type: 'hidden', name: 'data2', value:'value2' }));
+
+      newForm.appendTo('body');
+      newForm.submit();
+  }
+  </script>
 </body>
 </html>

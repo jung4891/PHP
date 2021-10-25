@@ -41,9 +41,9 @@
         </ul>
         <ul>
           <?php
-            $box = mb_convert_encoding('보낸 편지함', 'UTF7-IMAP', 'UTF-8');    // UTF-8 -> UTF7-IMAP 인코딩
+            // $box = mb_convert_encoding('보낸 편지함', 'UTF7-IMAP', 'UTF-8');    // UTF-8 -> UTF7-IMAP 인코딩
            ?>
-          <a href="<?php echo site_url(); ?>/Mailbox/mail_list/<?php echo $box ?>"><img src="<?php echo $misc;?>img/icon/schedule.svg" width="20"> 보낸메일함</a>
+          <a onclick="get_mail_list();"><img src="<?php echo $misc;?>img/icon/schedule.svg" width="20"> 보낸메일함</a>
         </ul>
         <ul>
           <?php
@@ -85,9 +85,20 @@ aaaaa
 
 
 <script type="text/javascript">
+function dynamic_form() {
+  var newForm = $('<form></form>');
+  newForm.attr("name","newForm");
+  newForm.attr("method","post");
+  newForm.attr("action", "test.php");
+  newForm.attr("target","_blank");
+
+  newForm.append($('<input/>', {type: 'hidden', name: 'data1', value:'value1' }));
+  newForm.append($('<input/>', {type: 'hidden', name: 'data2', value:'value2' }));
+
+  newForm.appendTo('body');
+  newForm.submit();
+}
   $("#headMenu").on("click", function(){
-
       $("#sideBar, #sideMini").toggle();
-
   })
 </script>
