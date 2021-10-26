@@ -12,6 +12,9 @@
      parent::__construct();                     // 원래 아래 메소드마다 db 라이브러리 블러오고 모델 로드했는데 이렇게 하면 클래스 호출되면 바로 자동 로드됨
      $this->load->database();                   //   데이터베이스 라이브러리(데이터베이스를 다루기 위한 도구) 로드
      $this->load->model('topic_model', 'm');    //   모델인 topic_model 클래스를 가져옴 (가져온 모델 객체를 m이란 별칭으로 받음)
+
+     $this->load->helper('url');
+     $this->load->library('pagination');   // 페이지네이션 라이브러리 로딩
    }
 
   // http://localhost/ci/index.php/topic (URL에 클래스명만 있으면 index() 반드시 구현)
@@ -20,13 +23,10 @@
     $this->load->view('templates/header');
 
     $data = $this->m->gets();   // 가져온 topic_model 클래스(object/인스턴스)의 gets()메서드 실행
-    $this->load->view('topic/topic_view', array('topics'=>$data));  // $data객체나 배열을 새로운 배열의 topics키에 넣는다.
-
-    $data2['res'] = $this->m->fetch_users(10, 1);
-    $test = $this->m->count_users();
+    $this->load->view('topic/topic_view', array('topics'=>$data));  // $data객체나 배열을 새로운 배열의 topics키에 넣는다
     $data2['msg'] = '메인페이지~';
-    $this->load->view('topic/main', $data2);
 
+    $this->load->view('topic/main', $data2);
     $this->load->view('templates/footer');
     // 이건 결국 $data라는 객체배열을 새로운 배열에 담아 그 인덱스가 view에선 $인덱스(topics)가 되고 그 안에 $data가 있다.
     // 결국 배열을 사용해 인덱스명('topics')으로 컨트롤러가 데이터를 전달하면 뷰는 $topics로 데이터를 받게 된다.
@@ -76,6 +76,33 @@
       ["topic"]=> object(stdClass)#23 (4) { ["id"]=> "1" ["title"]=> "JavaScript란" ["description"]=> "~~" ["created"]=> "2021-09-29 09:27:30" }
       ["id"]=> string(1) "1" }
   */
+
+
+  public function pagination() {
+    $this->load->view('templates/header');
+
+    $data = $this->m->gets();
+    $this->load->view('topic/topic_view', array('topics'=>$data));
+
+    // Pagiantion : 페이지 이동을 위한 링크를 뜻함
+    $data2['msg'] = 'Pagination 연습';
+    $config = array();
+    $config['base_url'] = "/index.php/topic/pagination";   // base_url() : ci/index.php
+    // 이부분 역시 "index.php/~~" or "/topic~~" 이렇게 하면 계속 주소가 덧붙여지게됨
+    $config['total_rows'] = $this->m->count_users();  // 페이징할 전체 레코드 수
+    $config['per_page'] = 5;         // 한 페이지에 보여지는 데이터의 개수
+    // $config['uri_segment'] = 3;   // 페이지번호는 Pagination함수가 자동으로 결정함. 직접 지정시 사용
+    $this->pagination->initialize($config);
+    // 위에서 배열로 설정한 설정을 Pagination 라이브러리의 설정으로 초기화하여 아래에서 링크들을 만들어냄
+    $data2['links'] = $this->pagination->create_links();
+    // ex) http://ci/index.php/topic/pagination/5
+
+    $page = ($this->uri->segment(3))? $this->uri->segment(3):0;
+    $data2['res'] = $this->m->fetch_users($config['per_page'], $page);  // ($limit, $start)
+
+    $this->load->view('topic/main', $data2);
+    $this->load->view('templates/footer');
+  }
 
   // http://localhost/ci/index.php/topic/get_test/11/22 (클래스명/메소드/아규먼트)
   public function get_test($num, $num2)

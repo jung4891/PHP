@@ -6,7 +6,7 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
 <div id="main_contents" style="margin:unset;">
   <div class="main_div" >
   <?php echo $test_msg; ?> <br><br>
-  <?php echo'<pre>'; var_dump($test); echo '</pre>' ?> <br>
+  <!-- <?php echo'<pre>'; var_dump($test); echo '</pre>' ?> <br> -->
 
   <table border="1" width="1000" >
     <thead>

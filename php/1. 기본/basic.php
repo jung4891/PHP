@@ -1,4 +1,12 @@
 
+<!-- phpinfo();  PHP 설정 정보들 출력됨 -->
+
+
+<!--  HTML주석와 PHP 주석  -->
+<!--  웹브라우저의 코드보기(f12 > Elements)에서 HTML의 주석은
+      사용자가 볼 수 있지만 PHP 주석은 표시되지 않는다. -->
+
+
 <!-- 문자열 출력하기 -->
 <?php
   // echo
@@ -16,20 +24,6 @@
   print '<br><br>';
  ?>
 
-<!--  HTML주석와 PHP 주석  -->
-<!--  웹브라우저의 코드보기(f12 > Elements)에서 HTML의 주석은
-      사용자가 볼 수 있지만 PHP 주석은 표시되지 않는다. -->
-
-<!-- 상수 -->
-<?php
-  // 상수 선언
-  //  - 상수는 한번 선언되면 절대 변하지 않는다.
-  //  - 관례적으로 상수는 대문자를 사용하고 두단어 이상은 _를 사용한다.
-
-  define("MY_HOME", "제천");
-  define("MY_HOME", "서울");
-  echo "내 고향은 ".MY_HOME."입니다.<br><br>";   // 출력값 : 내 고향은 제천입니다.
- ?>
 
 <!-- 기본연산자와 대입연산자 -->
 <?php
@@ -76,5 +70,54 @@
  ?>
 
 
-<!-- phpinfo(); -->
-<!-- http://localhost/basic/basic.php 접속하면 설치된 PHP관련 내용이 뜸 -->
+<!-- 상수(constant)-->
+<?php
+
+  // @ 상수
+  //  - 선언: define(상수이름, 상숫값, 대소문자구분여부(기본값 false는 대소문자 구분함))
+  //  - 상수는 변수와 마찬가지로 데이터를 저장할 수 있는 메모리 공간으로
+  //    한번 선언되면 스크립트가 실행되는 동안 데이터를 변경하거나 해제(undefined)할 수 없다.
+  //  - 관례적으로 상수는 대문자를 사용하고 두단어 이상은 _를 사용한다.
+
+  // 변하지 않는 상수
+  define("MY_HOME", "제천");
+  define("MY_HOME", "서울");
+  echo "내 고향은 ".MY_HOME."입니다.<br><br>";   // 출력값 : 내 고향은 제천입니다.
+
+  // 대소문자를 구분할 수도 있고
+  define("MY_HOME2", "구암동");
+  echo MY_HOME2.'<br>';   // 구암동
+  echo my_HOME2.'<br>';   // my_HOME2
+  define("MY_HOME3", "월계동", true);    // 대소문자 구분하지 않음
+  echo my_HOME3.'<br>';   // 월계동
+
+  // 함수내부에서 선언되어도 바깥에서 사용할 수 있다.
+  function const_func() {
+    define("AA", "AA테스트");
+  }
+  const_func();
+  echo AA.'<br><br>';   // AA테스트
+
+
+  // @ 마법 상수 (magic constants)
+  // 어떤 스크립트에서도 사용할 수 있는 미리 정의된 상수로 대소문자 구분을 하지 않음
+
+  // 미리 정의된 모든 상수 출력
+  // echo '<pre>';
+  // print_r(get_defined_constants(true));
+  // echo '</pre>';
+
+  // 미리 정의된 상수 이외에 어디에 사용하느냐에 따라 용도가 변경되는 마법상
+  echo __LINE__.'<br>';  // 111, 현재 줄변호 반환
+  echo __FILE__.'<br>';  // C:\xampp\htdocs\php\1. 기본\basic.php, 파일의 전체 경로와 이름을 반환
+  echo __DIR__.'<br>';   // C:\xampp\htdocs\php\1. 기본, 파일의 디렉터리 반환(= dirname(__FILE__))
+  function test(){
+    echo __FUNCTION__.'<br>';   // test, 함수의 이름을 반환함.
+    echo __METHOD__.'<br>';   // 클래스의 메소드 이름을 반환함.
+  } test();
+  echo __CLASS__.'<br>';   // 클래스의 이름을 반환함. 클래스 이름은 대소문자를 구분함.
+  echo __TRAIT__.'<br>';   // 트레이트?(trait)의 이름을 반환함.(트레이트를 선언한 네임스페이스를 포함)
+  echo __NAMESPACE__.'<br>';   // 현재 네임스페이스의 이름을 반환함.
+
+
+ ?>

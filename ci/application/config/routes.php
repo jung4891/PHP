@@ -70,9 +70,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         - [a-z]+ : 소문자만 하나 이상 있으면 됨
         - \d+ : 숫자 하나 이상.
 */
-$route['topic/(:num)'] = 'topic/get/$1';
-$route['post/(:num)'] = 'topic/get/$1';
-$route['([a-z]\d+)/([a-z]+)/(\d+)'] = "topic/get/$3";
+// $route['topic/(:num)'] = 'topic/get/$1';    // 1)
+// $route['post/(:num)'] = 'topic/get/$1';     // 2)
+// $route['([a-z]\d+)/([a-z]+)/(\d+)'] = "topic/get/$3";   // 3)
 
 $route['default_controller'] = 'topic/index'; // class/method
 $route['404_override'] = 'topic/error';  // http://ci/index.php/abcd (존재하지 않는 페이지 접근시)
