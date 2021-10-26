@@ -14,7 +14,7 @@ class Topic_model extends CI_Model {
     // result()        // 질의를 통해 가져온 결과값을 result()방식(객체형태)으로 가져온다
     return $this->db->query("SELECT * FROM topic")->result();
     // result_array()  // array형태로 가져옴
-    // return $this->db->query("SELECT * FROM topic")->result_array();
+    // $this->db->get('topic')->result();
   }
 
   public function get($topic_id){
@@ -23,6 +23,19 @@ class Topic_model extends CI_Model {
     return $this->db->get_where('topic', array('id'=>$topic_id))->row();  // 객체로 받게된다
     // =
     // return $this->db->query("SELECT * FROM topic WHERE id =".$topic_id)->row();
-
   }
+
+  // Pagination
+  public function count_users() {
+    return $this->db->count_all("user");    // 특정테이블의 레코드 수를 리턴
+  }
+  public function fetch_users($limit, $start) {
+    $this->db->limit($limit, $start);
+    // 아래에서 db->query(~~) 이런식으로 하면 작동안함. (이럴땐 쿼리문에 변수에 넣어야함)
+    // limit(int) -> SELECT * FROM table LIMIT int;
+    // limit(5, 2) ->  SELECT * FROM table LIMIT 5 OFFSET 2 (3번째부터(인덱스(2)) 5개)
+    return $this->db->get('user')->result();
+  }
+
+
 }

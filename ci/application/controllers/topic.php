@@ -22,8 +22,10 @@
     $data = $this->m->gets();   // 가져온 topic_model 클래스(object/인스턴스)의 gets()메서드 실행
     $this->load->view('topic/topic_view', array('topics'=>$data));  // $data객체나 배열을 새로운 배열의 topics키에 넣는다.
 
-    $msg = '메인페이지~';
-    $this->load->view('topic/main', array('msg'=>$msg));
+    $data2['res'] = $this->m->fetch_users(10, 1);
+    $test = $this->m->count_users();
+    $data2['msg'] = '메인페이지~';
+    $this->load->view('topic/main', $data2);
 
     $this->load->view('templates/footer');
     // 이건 결국 $data라는 객체배열을 새로운 배열에 담아 그 인덱스가 view에선 $인덱스(topics)가 되고 그 안에 $data가 있다.
