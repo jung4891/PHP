@@ -54,6 +54,7 @@ class Mailbox extends CI_Controller {
   function __construct() {
       parent::__construct();
       $this->load->helper('url');
+      $this->load->library('pagination');
 
       // IMAP(Internet Message Access Protocol) : 메일서버에 접속하여 메일을 가져오기 위한 프로토콜
       // PHP에서 imap 기능을 사용하려면 php.ini의 extension=imap 부분 주석 해제해야함 (디폴드가 해제상태)
@@ -124,19 +125,44 @@ class Mailbox extends CI_Controller {
     // 메일박스 리스트 (테스트용)
     $mailboxes = imap_list($mails, "{" . $mailserver . ":143}", '*');
 
-    // 뷰로 보낼 정보들 가져옴
+    // 뷰로 보낼 내용들 세팅
     $data = array();
     $data['mbox'] = $mbox;
     $data['test'] = $mailboxes;
+
     if($mails) {
       $mailno = imap_sort($mails, SORTDATE, 1);
       $data['mailno'] = $mailno;
-      $recent = imap_num_recent($mails);
       $mails_cnt = imap_num_msg($mails);
+      $recent = imap_num_recent($mails);
+
+      // 페이징 처리
+      $page = ($this->uri->segment(4))? $this->uri->segment(4)+1:1;
+      $data['page'] = $page;
+      $config = array();
+      $config['base_url'] = "/index.php/Mailbox/mail_list/{$mbox}";
+      $config['total_rows'] = $mails_cnt;
+      $config['per_page'] = 14;
+      $data['per_page'] = 14;
+      $config['num_links'] = 1;
+      $config['first_link'] = '<< &nbsp&nbsp';
+      $config['first_tag_open'] = '<span style="letter-spacing:0px;">';
+      $config['first_tag_close'] = '</span>';
+      $config['last_link'] = ' >>';
+      $config['last_tag_open'] = '<span style="letter-spacing:0px;">';
+      $config['last_tag_close'] = '</span>';
+      $config['next_link'] = '';
+      $config['prev_link'] = '';
+      $config['cur_tag_open'] = '<span style="color:red;">';
+      $config['cur_tag_close'] = '</span>';
+      $this->pagination->initialize($config);
+      $data['links'] = $this->pagination->create_links();
+
       if($mails_cnt >= 1) {
         $data['test_msg'] = "총 메일수: {$mails_cnt}건<br> 새편지: {$recent}건";
-        for($num=1; $num<=$mails_cnt; $num++) {
-          $data['head'][$num] = imap_headerinfo($mails, $num);
+        for($i=$page-1; $i<$page+($config['per_page']-1); $i++) {
+          if (isset($mailno[$i]))   // 마지막 페이지에서 15개가 안될경우 오류처리
+          $data['head'][$mailno[$i]] = imap_headerinfo($mails, $mailno[$i]);
         }
       } else {
         $data['test_msg'] = "메일이 없습니다.";

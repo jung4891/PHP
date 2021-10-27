@@ -7,9 +7,11 @@
   <body>
 <?php
   if ($_POST) {
-    // $testDate = $_POST [ "testDate" ];
-    $testDate = $_POST [ "data1" ];
-    echo $testDate ;
+    $testDate = $_POST [ "testDate" ];
+    echo $testDate;
+
+    $testDate2 = $_POST [ "data1" ];
+    echo $testDate2;
   }
  ?>
   </body>

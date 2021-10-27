@@ -13,6 +13,7 @@
     echo '$_SERVER[ "PHP_SELF" ] -> '.$_SERVER['PHP_SELF'];   // /5. CRUD/$_POST.php
     echo '<br><br>';
 
+    // action 경로가 이 페이지일 경우
     if ($_POST) {
       $testDate = $_POST [ "testDate" ];
       echo $testDate ;
@@ -27,19 +28,21 @@
   </form> <br><br>
 
   <button type="button" onclick="dynamic_form()">동적 form</button>
+
+
   <script type="text/javascript">
 
   // 동적 form
   // 문서 내에 form태그 없이 동적으로 생성하여 submit이 가능함
   function dynamic_form() {
       var newForm = $('<form></form>');
-      newForm.attr("name","newForm");
+      // newForm.attr("name","newForm");
       newForm.attr("method","post");
       newForm.attr("action", "test.php");
-      newForm.attr("target","_blank");
+      // newForm.attr("target","_blank");   // 새창으로 열림
 
-      newForm.append($('<input/>', {type: 'hidden', name: 'data1', value:'value1' }));
-      newForm.append($('<input/>', {type: 'hidden', name: 'data2', value:'value2' }));
+      newForm.append($('<input>', {type: 'hidden', name: 'data1', value:'히히' }));
+      newForm.append($('<input>', {type: 'hidden', name: 'data2', value:'value2' }));
 
       newForm.appendTo('body');
       newForm.submit();

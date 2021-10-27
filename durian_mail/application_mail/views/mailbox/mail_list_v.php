@@ -23,7 +23,8 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
     <tbody>
       <form name="frm" method="post">
       <?php
-      foreach($mailno as $num) {
+      for($i=$page-1; $i<$page+($per_page-1); $i++) {
+        if (isset($mailno[$i])) {
       ?>
       <tr>
         <?php
@@ -38,35 +39,37 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
         */
 
         // 발신자 이름 or 메일주소 표시
-        $from_obj = $head[$num]->from[0];                     // 보낸 사람의 이름 또는 메일주소를 얻기위함
+        $from_obj = $head[$mailno[$i]]->from[0];              // 보낸 사람의 이름 또는 메일주소를 얻기위함
         $from_addr = $from_obj->mailbox.'@'.$from_obj->host;  // hjsong@durianit.co.kr
         if (isset($from_obj->personal)) {
           $from_name = imap_utf8($from_obj->personal);        // 송혁중 (이름이 명시되어 있는 메일)
         } else {
           $from_name = $from_addr;          // 이름이 명시되어 있지 않은 메일은 메일주소 그대로 출력
         }
-        $msg_no = trim($head[$num]->Msgno);               // 메일번호
+        $msg_no = trim($head[$mailno[$i]]->Msgno);               // 메일번호
 
         // echo '<pre>';
-        // var_dump($head[$num]);
+        // var_dump($head[$mailno[$i]]);
         // echo '</pre>';
 
         ?>
         <!-- 메일목록 출력 -->
-        <td><?php echo $head[$num]->Unseen?></td>   <!-- 메일 클릭해서 읽으면 "U" -> ""로 바뀜 -->
+        <td><?php echo $head[$mailno[$i]]->Unseen?></td>   <!-- 메일 클릭해서 읽으면 "U" -> ""로 바뀜 -->
         <td><?php echo $msg_no?></td>
         <td><input type="checkbox" name="chk" value=<?php echo $msg_no;?>></td>
         <td><?php echo "<a href=mailto:$from_addr>$from_name</a>";?></td>
-        <td><a href="/index.php/mailbox/mail_detail/<?php echo $mbox ?>/<?php echo $num ?>"><?php echo imap_utf8($head[$num]->subject)?></a></td>
-        <td nowrap><?php echo date("Y/m/d H:i", $head[$num]->udate)?></td>
-        <td nowrap><?php echo $head[$num]->Size?> bytes</td>
+        <td><a href="/index.php/mailbox/mail_detail/<?php echo $mbox ?>/<?php echo $mailno[$i] ?>"><?php echo imap_utf8($head[$mailno[$i]]->subject)?></a></td>
+        <td nowrap><?php echo date("Y/m/d H:i", $head[$mailno[$i]]->udate)?></td>
+        <td nowrap><?php echo $head[$mailno[$i]]->Size?> bytes</td>
       </tr>
       <?php
-        }
+        } // if
+      } // for
        ?>
        </form>
     </tbody>
   </table>
+  <p style="text-align: center; letter-spacing: 7px"><?php echo $links.'<br>' ?></p>
 </div>
 </div>
 

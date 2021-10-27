@@ -83,15 +83,11 @@
 
     $data = $this->m->gets();
     $this->load->view('topic/topic_view', array('topics'=>$data));
-
-    // Pagiantion : 페이지 이동을 위한 링크를 뜻함
     $data2['msg'] = 'Pagination 연습';
-    $config = array();
-    $config['base_url'] = "/index.php/topic/pagination";   // base_url() : ci/index.php
-    // 이부분 역시 "index.php/~~" or "/topic~~" 이렇게 하면 계속 주소가 덧붙여지게됨
-    $config['total_rows'] = $this->m->count_users();  // 페이징할 전체 레코드 수
-    $config['per_page'] = 5;         // 한 페이지에 보여지는 데이터의 개수
-    // $config['uri_segment'] = 3;   // 페이지번호는 Pagination함수가 자동으로 결정함. 직접 지정시 사용
+
+    // 동적으로 설정할 부분들만 설정함. 정적인 부분은 config>pagination에 넣음
+    $config['total_rows'] = 20;
+    $config['per_page'] = 5;
     $this->pagination->initialize($config);
     // 위에서 배열로 설정한 설정을 Pagination 라이브러리의 설정으로 초기화하여 아래에서 링크들을 만들어냄
     $data2['links'] = $this->pagination->create_links();

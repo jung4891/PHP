@@ -7,7 +7,7 @@
       foreach ($res as $row) {
         echo $row->name.' / '.$row->email.'<br>';
       }
-      echo "</p><p>{$links}</p>";
+      echo "</p><p style=\"letter-spacing:7px;\">{$links}</p>";
     }
   ?>
   <p>Page rendered in <strong>{elapsed_time}</strong> seconds</p>
