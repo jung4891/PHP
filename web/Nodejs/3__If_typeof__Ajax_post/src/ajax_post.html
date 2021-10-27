@@ -1,0 +1,56 @@
+<!DOCTYPE html>               <!-- 2 -->
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+  </head>
+  <script src="http://code.jquery.com/jquery-latest.min.js"></script>
+  <body>
+    학생정보 입력 <br>
+    학번: <input type="text" id="stdNo"><br>
+    이름: <input type="text" id="stdName"><br>
+    나이: <input type="text" id="stdAge"><br><br>
+    <input type="button" id="postStdInfoBtn" value="입력"> <br><br>  <!-- 3 -->
+    <input type="button" id="modStdInfoBtn" value="수정"> <br>
+
+    <script>
+
+    $("#postStdInfoBtn").click(function() {
+      // console.log($("#stdNo").val(), $("#stdName").val(), $("#stdAge").val());
+      $.ajax({                          // 4
+        type: "POST",
+        url: "/student",
+        data: {
+          studentNo: $('#stdNo').val(),
+          NAME: $('#stdName').val(),
+          age: $('#stdAge').val()
+        },
+        success: function(res) {  // 7. (res가 "ok" or "not ok"로 옴)
+          // console.log(res);
+          if (res=='not ok') {
+            alert("입력 실패")
+          } else if (res=='ok') {
+            alert("입력 성공!")
+          }
+        }
+      });
+    });
+
+    $("#modStdInfoBtn").click(function() {
+      console.log($("#stdNo").val(), $("#stdName").val(), $("#stdAge").val());
+      $.ajax({
+        type: "POST",
+        url: "/studentMod",
+        data: {
+          NAME: $('#stdName').val(),
+          age: $('#stdAge').val()
+        },
+        success: function(res) {
+          console.log(res);
+        }
+      });
+    });
+
+    </script>
+  </body>
+</html>

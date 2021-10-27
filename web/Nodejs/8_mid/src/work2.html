@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+  </head>
+  <script src="http://code.jquery.com/jquery-latest.min.js"></script>
+  <body>
+
+    1: <input type="radio" name="radio1" value="">
+    2: <input type="radio" name="radio1" value="">
+    3: <input type="radio" name="radio1" value="">
+    4: <input type="radio" name="radio1" value="">
+    5: <input type="radio" name="radio1" value="">
+    6: <input type="radio" name="radio1" value="">
+    7: <input type="radio" name="radio1" value="">
+    8: <input type="radio" name="radio1" value="">
+    9: <input type="radio" name="radio1" value="">
+    10: <input type="radio" name="radio1" value=""> <br>
+
+    1: <input type="radio" name="radio2" value="">
+    2: <input type="radio" name="radio2" value="">
+    3: <input type="radio" name="radio2" value="">
+    4: <input type="radio" name="radio2" value="">
+    5: <input type="radio" name="radio2" value="">
+    6: <input type="radio" name="radio2" value="">
+    7: <input type="radio" name="radio2" value="">
+    8: <input type="radio" name="radio2" value="">
+    9: <input type="radio" name="radio2" value="">
+    10: <input type="radio" name="radio2" value=""> <br>
+
+    1: <input type="radio" name="radio3" value="">
+    2: <input type="radio" name="radio3" value="">
+    3: <input type="radio" name="radio3" value="">
+    4: <input type="radio" name="radio3" value="">
+    5: <input type="radio" name="radio3" value="">
+    6: <input type="radio" name="radio3" value="">
+    7: <input type="radio" name="radio3" value="">
+    8: <input type="radio" name="radio3" value="">
+    9: <input type="radio" name="radio3" value="">
+    10: <input type="radio" name="radio3" value=""> <br>
+
+    <input type="button" name="" value="출력" id="work2">
+
+  </body>
+  <script type="text/javascript">
+
+    $('#work2').click(function() {
+      let num1;
+      let radio1 = $('input[name="radio1"]');
+      for(let i=0;i<radio1.length;i++) {
+        if(radio1[i].checked) {
+          num1 = i+1;
+          break;
+        }
+      }
+
+      let num2;
+      let radio2 = $('input[name="radio2"]');
+      for(let i=0;i<radio2.length;i++) {
+        if(radio2[i].checked) {
+          num2 = i+1;
+          break;
+        }
+      }
+
+      let num3;
+      let radio3 = $('input[name="radio3"]');
+      for(let i=0;i<radio3.length;i++) {
+        if(radio3[i].checked) {
+          num3 = i+1;
+          break;
+        }
+      }
+
+      let maxNum = Math.max(num1, num2, num3);
+      let minNum = Math.min(num1, num2, num3);
+      console.log(Math.pow(maxNum, minNum));
+    });
+
+  </script>
+</html>

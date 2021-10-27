@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+  </head>
+  <body>
+
+    <!-- 줄바꿈 -->
+    <p>p태그</p>123
+    <div>div태그</div>123
+    <span>span태그</span>123
+    <br>
+    <!-- p태그와 div태그는 줄바꿈 되고 p와 다르게 div는 상하여백 없다 -->
+    <!-- span태그는 줄바꿈이 되지 않는다!  -->
+
+    <!-- img태그의 alt속성 : 이미지 불러올 수 없을때 대신 보이는 문자열 -->
+    <img src="quotes.jpg" alt="이미지가 없음!">
+    <br><br>
+
+    <!-- 링크걸기 -->
+    <button onclick="location.href='test.html'">test.html 열기(현재창)</button> <br><br>
+    <button onclick="window.open('test.html')">test.html 열기(새창)</button> <br><br>
+
+    <button onclick="location.href='http://www.google.com'">현재창에서 구글열기</button> <br><br>
+    <button onclick="window.open('http://www.google.com')">새창으로 구글열기(button)</button> <br><br>
+    <input type="button" onclick="window.open('http://www.google.com')" value="새창으로 구글열기(input)"> <br><br>
+    <a href="http://www.google.com">현재창</a> <br>
+    <a href="http://www.google.com" target="_blank">새창</a>
+
+  </body>
+</html>

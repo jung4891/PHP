@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>JQeury</title>
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+
+    <!-- 1 -->
+    <script src="1.js"></script>
+    <!-- <script type="text/javascript" src="/js/1.js"></script>   요렇게도 됨
+    <script type="text/javascript" src="/JS/1.js"></script>        요것도 됨 -->
+
+    <script type="text/javascript">
+
+    // 2. 다양한 선택자 사용 및 문서와 창이 로드되는 시점
+    // = $(document).ready(function() {});
+    $(function() {
+      $('p').on('click', function() {             // 모든 <p>태그에 클릭시 동작을 설정함
+        $("p").css('color', 'red');
+        $("p").css( "fontSize", "1.2em");               // 기본태그 선택자
+        $("#doc").css( "border", "2px solid blue");     // id 선택자
+        $(".doc").css( "backgroundColor", "lightgray"); // class 선택자
+      });
+    });
+    // 자바스크립트 코드는 웹 브라우저가 문서의 모든 요소를 로드한 뒤에 실행되어야 함
+    // (아직 로드되지 HTML요소에 속성을 추가하려 할때 애러남)
+    $(document).ready(function() {
+      $('#doc').text('문서 로드완료!!')
+    });
+    $(window).load(function() {
+      $('#win').text('창 로드완료!!')
+    });
+
+    // 3. 속성 선택자의 사용
+    // 속성(attribute)을 사용하여 속성값에 맞는 특정 HTML 요소를 선택할 수 있다.
+    // <img>요소 중에서 alt속성값이 coffee인 태그를 선택해서 src 속성값을 변경함
+    $(function() {
+      $('#attr').on("click", function() {
+        $('img[alt="coffee"]').attr("src", "/img/mylove.png");
+      })
+    })
+
+    </script>
+  </head>
+  <body>
+
+    <!-- 1. 외부 js파일 연동 -->
+    <p>제이쿼리 시작!</p> <br>
+    <pre id="external">외부 js파일 적용</pre>
+    <hr>
+
+    <!-- 2. 다양한 선택자 사용 및 문서와 창이 로드되는 시점 -->
+    <h3>문서와 창이 로드되는 시점</h3>
+    <iframe src="http://tcpschool.com/jquery/jq_basic_syntax" width="50%" height="180px"></iframe>
+    <p id="doc" >잠시만 기다려 주세요!(문서 로드중..)</p>
+    <p id="win" class="doc" >잠시만 기다려 주세요!(창 로드중..)</p>
+    <hr><br>
+
+    <!-- 3. 속성 선택자의 사용 -->
+    <span>속성 선택자</span>
+    <button id="attr">사진 변경!</button> <br>
+    <img src="/img/coffee.jpg" alt="coffee" width="20%" height="200px">
+    <img src="https://ifh.cc/g/pqO4Ec.jpg" alt="" width="20%" height="200px" border='10'>
+    <hr>
+
+  </body>
+</html>

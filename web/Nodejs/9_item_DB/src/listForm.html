@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+  </head>
+    <script src="http://code.jquery.com/jquery-latest.min.js"></script>
+  <body>
+    <span id="resultArea"></span> <br>
+    <input type="button" name="" value="돌아가기" id="goToMain">
+    <input type="button" value="버튼1" id="btn1" onclick="btnClickConsole1()">
+    <input type="button" value="버튼2" id="btn2" onclick="btnClickConsole2(2)">
+    <input type="button" value="버튼3" id="btn3" onclick="btnClickConsole3(3, 'abc')">
+    <input type="button" value="버튼4" id="btn4" onclick="btnClickConsole4(this)"> <br>
+    a: <input type="text" name="" value="" id="a"> <br>
+    b: <input type="text" name="" value="" id="b"> <br>
+    <input type="button" value="더하기" id="btnPlus">
+    <span id="res"></span>
+
+
+  </body>
+  <script type="text/javascript">
+
+    $.ajax({
+      type: "GET",
+      url: "/showList",
+      data: {
+      },
+      success: function(res) {
+        console.log(res[0])
+        // $("#resultArea").append(res[0]);  객체라 이거는 콘솔창에서만 확인이 된다
+        for (i in res) {
+          let item = res[i];
+          $("#resultArea").append(`<span id="item${item.no}">${item.no} / ${item.itemName} / ${item.itemPrice}
+            <input type="button" value="수정" id="update" onclick="goToUpdateForm(${item.no})">
+            <input type="button" value="삭제" id="delete" onclick="deletefunc(${item.no})"> <span><br>`);
+        }
+      }
+    });
+
+    function goToUpdateForm(no) {
+      location.href = `/updateForm?${no}`
+    }
+
+    function deletefunc(p) {
+      if (confirm("정말 삭제하시겠습니까??") == true){    //확인
+        // document.form.submit();
+        $.ajax({
+          type: "delete",
+          url: "/deleteItem",
+          data: {
+            no : p
+          },
+          success: function(res) {
+            if (res=='o') {
+              alert("삭제되었습니다.")
+              $(`#item${p}`).remove();
+              // location.href = "/listForm"
+            } else if (res=='x') {
+              alert(`삭제 실패`)
+            }
+          }
+        });
+      } else{   //취소
+        return;
+      }
+    }
+
+    function button_event(){
+      if (confirm("정말 삭제하시겠습니까??") == true){    //확인
+        document.form.submit();
+      }else{   //취소
+        return;
+      }
+    }
+
+    $("#goToMain").click(function() {
+      location.href = "/item"
+    });
+
+    function btnClickConsole1() {
+      console.log('파라미터 없는 일반 버튼!', '??');
+    }
+
+    function btnClickConsole2(p) {
+      console.log(`${p} 버튼클릭!!`);
+    }
+
+    function btnClickConsole3(p1, p2) {
+      console.log(`${p1}버튼과 ${p2}`);
+    }
+
+    function btnClickConsole4(p) {
+      console.log(p)
+      console.log(p.value)
+      console.log(p.value.split("튼")[1]);
+    }
+
+    $("#btnPlus").click(function() {
+      a = Number($("#a").val());
+      b = Number($("#b").val());
+      // console.log($("#a").val());
+      $("#res").html("");
+      $("#res").append(plusfunc1(a, b))
+    });
+
+    function plusfunc1(p1, p2) {
+      // console.log(p1+p2);
+      return p1+p2;
+    }
+
+  </script>
+
+</html>

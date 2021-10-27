@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <script src="http://code.jquery.com/jquery-latest.min.js"></script>
+  </head>
+
+  <body>
+    <input type="text" id="dan"> <br>
+    <input type="text" id="num"> <br>
+    짝: <input type="radio" name="choice" value="" checked> <!-- 미리 선택 -->
+    홀: <input type="radio" name="choice" value="odd"> <br>
+    <input type="button" name="" value="단 계산" id="guguCalc"><br><br>
+
+    <span id="resultArea"></span>
+  </body>
+  <script>
+
+  $("#guguCalc").click(function() {
+
+      let dan = parseInt($("#dan").val());
+      let num = Number($("#num").val());  // 이걸로 쓰셈
+
+      let even = document.getElementsByName("choice")[0].checked;
+      let test = document.querySelector('input[name="choice"]:checked').value;
+      let checkedRadioValue = $("input[name='choice']:checked").val();  // 이제 이렇게!
+      $("#resultArea").html("");
+
+      if ($('input[name="choice"]')[0].checked) {  // 이렇게도 굿
+        for (let i=0; i<=num; i++) {
+          if(i%2==1) {
+            let multipleNumber = i+1;
+            $("#resultArea").append(`${dan} * ${multipleNumber} = ${dan*multipleNumber}<br>`);
+          }
+        }
+      }
+      if (checkedRadioValue == 'odd') {   // 일찍이 내가 먼저 했던방식.
+        for (let i=1; i<=num; i=i+2) {
+          $("#resultArea").append(dan+' x '+i+' = '+ dan*i + '<br>');
+        }
+      }
+
+  });
+
+
+  </script>
+</html>

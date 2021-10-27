@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+  </head>
+  <script src="http://code.jquery.com/jquery-latest.min.js"></script>
+  <body>
+
+    <span id="textarea"></span> <br>
+    <input type="button" name="" value="추가" id="add">
+    <input type="button" name="" value="출력" id="print"> <br>
+    <span id="resultarea"></span> <br>
+
+  </body>
+  <script type="text/javascript">
+
+    let cntAdd = 0;
+    $('#add').click(function() {
+      cntAdd++;
+      $('#textarea').append(`<input type="text" id=${cntAdd}> <br>`)
+    });
+
+    let sum = 0;
+    $('#print').click(function() {
+      for (let i=1; i<=cntAdd; i++) {
+        sum += Number($(`#${i}`).val());
+      }
+      $('#resultarea').html(`${sum}`);
+      sum = 0;
+    });
+
+  </script>
+</html>

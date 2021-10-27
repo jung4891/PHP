@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+  </head>
+  <script src="http://code.jquery.com/jquery-latest.min.js"></script>
+  <body>
+    학생관리 프로그램 <br>
+    <select id="selectBox">
+      <option value="total_score">전체수석</option>
+      <option value="javascript_score">javascript최고득점</option>
+      <option value="python_score">python최고득점</option>
+      <option value="java_score">java최고득점</option>
+    </select>
+    <input type="button" id="print_select" value="확인"> <br>
+    <span id="resultArea"></span>
+     <br>
+    <input type="button" id="goToInsertPage" value="입력페이지">
+    <input type="button" id="goToListPage" value="목록페이지">
+
+
+    <span id="res"></span>
+  </body>
+
+  <script type="text/javascript">
+
+
+  $('#print_select').click(function() {
+    $("#resultArea").html("");
+    if ($('#selectBox option:selected').val() == "javascript_score") {
+      $.ajax({
+        type: "GET",
+        url: "/showJsAce",
+        data: {
+        },
+        success: function(res) {
+          $("#resultArea").append(`${res[0].no} / 학번 : ${res[0].studentNo} / 이름 : ${res[0].studentName} / javascript : ${res[0].javascript} / python : ${res[0].python} / java : ${res[0].java}<br>`);
+          for (let i=1; i<res.length; i++) {
+            if (res[0].javascript == res[i].javascript) {
+              $("#resultArea").append(`${res[i].no} / 학번 : ${res[i].studentNo} / 이름 : ${res[i].studentName} / javascript : ${res[i].javascript} / python : ${res[i].python} / java : ${res[i].java}<br>`);
+            } else {
+              break;
+            }
+          }
+        }
+      });
+    } else if ($('#selectBox option:selected').val() == "python_score") {
+      $.ajax({
+        type: "GET",
+        url: "/showPythonAce",
+        data: {
+        },
+        success: function(res) {
+          $("#resultArea").append(`${res[0].no} / 학번 : ${res[0].studentNo} / 이름 : ${res[0].studentName} / javascript : ${res[0].javascript} / python : ${res[0].python} / java : ${res[0].java}<br>`);
+          for (let i=1; i<res.length; i++) {
+            if (res[0].python == res[i].python) {
+              $("#resultArea").append(`${res[i].no} / 학번 : ${res[i].studentNo} / 이름 : ${res[i].studentName} / javascript : ${res[i].javascript} / python : ${res[i].python} / java : ${res[i].java}<br>`);
+            } else {
+              break;
+            }
+          }
+        }
+      });
+    } else if ($('#selectBox option:selected').val() == "java_score") {
+      $.ajax({
+        type: "GET",
+        url: "/showJavaAce",
+        data: {
+        },
+        success: function(res) {
+          $("#resultArea").append(`${res[0].no} / 학번 : ${res[0].studentNo} / 이름 : ${res[0].studentName} / javascript : ${res[0].javascript} / python : ${res[0].python} / java : ${res[0].java}<br>`);
+          for (let i=1; i<res.length; i++) {
+            if (res[0].java == res[i].java) {
+              $("#resultArea").append(`${res[i].no} / 학번 : ${res[i].studentNo} / 이름 : ${res[i].studentName} / javascript : ${res[i].javascript} / python : ${res[i].python} / java : ${res[i].java}<br>`);
+            } else {
+              break;
+            }
+          }
+        }
+      });
+    } else {
+      $.ajax({
+        type: "GET",
+        url: "/showAce",
+        data: {
+        },
+        success: function(res) {
+          $("#resultArea").append(`${res[0].no} / 학번 : ${res[0].studentNo} / 이름 : ${res[0].studentName} / javascript : ${res[0].javascript} / python : ${res[0].python} / java : ${res[0].java}<br>`);
+          let ace_score = res[0].javascript + res[0].python + res[0].java;
+          for (let i=1; i<res.length; i++) {
+            let next_score = res[i].javascript + res[i].python + res[i].java;
+            if (ace_score == next_score) {
+              $("#resultArea").append(`${res[i].no} / 학번 : ${res[i].studentNo} / 이름 : ${res[i].studentName} / javascript : ${res[i].javascript} / python : ${res[i].python} / java : ${res[i].java}<br>`);
+            } else {
+              break;
+            }
+          }
+        }
+      });
+    }
+
+  })
+
+  $('#goToInsertPage').click(function() {
+    location.href = "/insertPage"
+  })
+
+  $('#goToListPage').click(function() {
+    location.href = "/ListPage"
+  })
+
+
+
+
+  </script>
+</html>

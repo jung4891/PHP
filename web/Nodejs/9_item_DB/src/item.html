@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+  </head>
+    <script src="http://code.jquery.com/jquery-latest.min.js"></script>
+  <body>
+    (서버에서 작동) <br>
+    가격:  <input type="text" name="" value="" id="price">
+    <input type="button" name="" value="확인" id="check"> <br><br>
+    ======= <br><br>
+    (DB에서 가져옴) <br><br>
+    <input type="button" name="" value="목록 조회" id="goToListForm">
+    <input type="button" name="" value="상품 새로입력" id="goToInsertForm"> <br><br>
+
+    상품명:  <input type="text" name="" value="" id="name">
+    <input type="button" name="" value="가격조회" id="priceCheck"> <br><br>
+    가격:  <input type="text" name="" value="" id="price2">
+    <input type="button" name="" value="구매가능상품 조회" id="check2"> <br><br>
+  </body>
+  <script type="text/javascript">
+
+    $("#check").click(function() {
+      $.ajax({
+        type: "GET",
+        url: "/itemCheck",
+        data: {
+          price : $('#price').val()   // Number로 안바꿔도 된다.
+        },
+        success: function(res) {
+          // console.log(res)
+          alert(res)
+        }
+      });
+    });
+
+    $("#goToListForm").click(function() {
+      location.href = "/listForm"
+    });
+
+    $("#goToInsertForm").click(function() {
+      location.href = "/insertForm"
+    });
+
+    $("#priceCheck").click(function() {
+      $.ajax({
+        type: "GET",
+        url: "/priceCheck",
+        data: {
+          name : $('#name').val()
+        },
+        success: function(res) {
+          // console.log(res[0])
+          alert(res[0].itemPrice)
+        }
+      });
+    });
+
+    $("#check2").click(function() {
+      $.ajax({
+        type: "GET",
+        url: "/getItems",
+        data: {
+          price : $('#price2').val()
+        },
+        success: function(res) {
+          console.log(res)
+          alert(res)
+        }
+      });
+    });
+
+
+
+  </script>
+
+</html>

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+  </head>
+    <script src="http://code.jquery.com/jquery-latest.min.js"></script>
+  <body>
+    상품명:  <input type="text" name="" value="" id="name">
+    가격:  <input type="text" name="" value="" id="price">
+    <input type="button" name="" value="수정" id="update">
+    <input type="button" name="" value="돌아가기" id="goToMain"> <br><br>
+
+  </body>
+  <script type="text/javascript">
+
+  console.log(location.href.split("?")[1])
+  let no = location.href.split("?")[1];
+
+  $.ajax({
+    type: "GET",
+    url: "/getOneItem",
+    data: {
+      no: no
+    },
+    success: function(res) {
+      console.log(res);
+      console.log(res[0]);
+      $("#name").val(res[0].itemName);
+      $("#price").val(res[0].itemPrice);
+    }
+  });
+
+  $("#update").click(function() {
+      $.ajax({
+        type: "put",
+        url: "/update",
+        data: {
+          no : no,
+          name : $('#name').val(),
+          price : $('#price').val()
+        },
+        success: function(res) {
+          // console.log(res[0])
+          if (res=='x') {
+            alert("수정 실패")
+          } else if (res=='o') {
+            alert(`[${$('#name').val()} -> ${$('#price').val()}원] 수정완료!`)
+            location.href = "/listForm"
+          } else {
+            alert(res)
+          }
+        }
+      });
+    });
+
+    $("#goToMain").click(function() {
+      location.href = "/item"
+    });
+
+  </script>
+
+</html>

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+  </head>
+    <script src="http://code.jquery.com/jquery-latest.min.js"></script>
+  <body>
+    학생 입력 <br>
+    학번:  <input type="text" id="stuNum"> <br>
+    이름:  <input type="text" id="name"> <br>
+    javascript:  <input type="number" id="js"> <br>
+    python:  <input type="number" id="python"> <br>
+    java:  <input type="number" id="java"> <br>
+    <input type="button" value="입력" id="insert">
+    <input type="button" value="메인페이지" id="goToMain">
+    <input type="button" value="목록페이지" id="goToListPage">
+
+  </body>
+  <script type="text/javascript">
+
+    $("#insert").click(function() {
+      $.ajax({
+        type: "POST",
+        url: "/insert",
+        data: {
+          studentNo : $('#stuNum').val(),
+          studentName : $('#name').val(),
+          javascript : $('#js').val(),
+          python : $('#python').val(),
+          java : $('#java').val(),
+        },
+        success: function(res) {
+          if (res=='x') {
+            alert("입력 실패")
+          } else if (res=='o') {
+            alert(`입력되었습니다`)
+            location.href = "/listPage"
+          } else {
+            alert(res)
+          }
+        }
+      });
+    });
+
+    $("#goToMain").click(function() {
+      location.href = "/"
+    });
+
+    $("#goToListPage").click(function() {
+      location.href = "/listPage"
+    });
+
+  </script>
+
+</html>

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+  </head>
+  <script src="http://code.jquery.com/jquery-latest.min.js"></script>
+  <body>
+
+    기존 상품명: <input type="text" id="name" size="4"> &nbsp
+    기존 가격: <input type="text" id="price" size="4"> &nbsp
+    <input type="button" id="update" value="수정">
+    <input type="button" id="showList_DB" value="목록조회">
+    <input type="button" id="goToMain" value="이전화면">  <br><br><br>
+
+    <span id="res"></span>
+
+  </body>
+  <script type="text/javascript">
+
+  let no = location.href.split("?")[1];
+
+  $.ajax({
+    type: "GET",
+    url: "/getOneItem",
+    data: {
+      no: no
+    },
+    success: function(res) {
+      $('#name').val(res[0].itemName);
+      $('#price').val(res[0].itemPrice);
+    }
+  })
+
+  $('#update').click(function() {
+    $.ajax({
+      type: "POST",
+      url: "/update",
+      data: {
+          name : $('#name').val(),
+          price : $('#price').val()
+      },
+      success: function(res) {
+        if (res=='o') {
+          alert(`[${$('#name').val()} -> ${$('#price').val()}원] 입력완료!`)
+        } else {
+          alert("입력실패..")
+        }
+      }
+    })
+  })
+
+  $('#showList_DB').click(function() {
+    $.ajax({
+      type: "GET",
+      url: "/getList_DB",
+      success: function(res) {
+        $('#res').html("");
+        for (let i=0; i<res.length; i++) {
+          $('#res').append(`${res[i].no} / ${res[i].itemName} / ${res[i].itemPrice} &nbsp
+            <input type="button" value="삭제" onclick="deletefunc(${res[i].no})"><br>`)
+        }
+      }
+    })
+  })
+
+  function goToUpdateForm(no) {
+    location.href = `/updateForm?${no}`
+  }
+
+  $('#goToMain').click(function() {
+    location.href = "/insertForm"
+  })
+
+  </script>
+</html>

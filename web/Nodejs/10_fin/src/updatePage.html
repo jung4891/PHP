@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+  </head>
+    <script src="http://code.jquery.com/jquery-latest.min.js"></script>
+  <body>
+
+    학생 수정 <br>
+    학번: <span id="stuNum"></span> <br>
+    이름:  <input type="text" id="name"> <br>
+    javascript:  <input type="number" id="js"> <br>
+    python:  <input type="number" id="python"> <br>
+    java:  <input type="number" id="java"> <br>
+    <input type="button" value="수정" id="update">
+    <input type="button" value="메인페이지" id="goToMain">
+    <input type="button" value="목록페이지" id="goToListPage">
+
+  </body>
+  <script type="text/javascript">
+
+  let no = location.href.split("?")[1];
+
+  $.ajax({
+    type: "GET",
+    url: "/getOneStudent",
+    data: {
+      no: no
+    },
+    success: function(res) {
+      $("#stuNum").text(res[0].studentNo);
+      $("#name").val(res[0].studentName);
+      $("#js").val(res[0].javascript);
+      $("#python").val(res[0].python);
+      $("#java").val(res[0].java);
+    }
+  });
+
+  $("#update").click(function() {
+      $.ajax({
+        type: "put",
+        url: "/update",
+        data: {
+          no: no,                          // ,빼먹으면 아얘 db 값들이 input value에 안들어감
+          studentName : $('#name').val(),
+          javascript : $('#js').val(),
+          python : $('#python').val(),
+          java : $('#java').val(),
+        },
+        success: function(res) {
+          if (res=='x') {
+            alert("수정 실패")
+          } else if (res=='o') {
+            alert(`수정되었습니다`)
+            location.href = "/listPage"
+          } else {
+            alert(res)
+          }
+        }
+      });
+    });
+
+    $("#goToMain").click(function() {
+      location.href = "/"
+    });
+
+    $("#goToListPage").click(function() {
+      location.href = "/listPage"
+    });
+
+  </script>
+
+</html>

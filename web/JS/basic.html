@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="http://code.jquery.com/jquery-latest.min.js"></script>
+</head>
+<body>
+
+  <button type="button" onclick="location.href='1.html'">1번페이지로</button>
+
+
+  <hr>
+  로그인 <br>
+  아이디 : <input type="text" id="loginId"><br>
+  비밀번호 : <input type="text" id="loginPwd"><br>
+  <input type="button" value="로그인" id="loginBtn"><br>
+  <input type="button" value="회원가입"><br>
+  <input type="checkbox"><br>
+  <input type="date">
+</body>
+
+<script>
+    // alert('1');
+
+    // 요소 가져오기
+    //console.log(document);      // 이 문서 자체가 모두 출력됨
+    //console.log(document.getElementById('loginBtn'));       // <input type="button" value="로그인" id="loginBtn">
+    //console.log(document.getElementsByTagName('input'));    // HTMLCollection(6) [input, input, input#loginBtn, input, input, input, loginBtn: input#loginBtn]
+    //console.log(document.getElementsByTagName('input')[2]); // <input type="button" value="로그인" id="loginBtn">
+
+    // console.log($('#loginBtn'));    // m.fn.init [input#loginBtn, context: document, selector: "#loginBtn"]
+
+
+    // 이벤트 리스너
+    document.getElementById('loginBtn').addEventListener('click', function(){
+        // alert(1);
+        console.log(document.getElementById('loginId').value);
+    });
+    $('#loginBtn').on('click', function(){
+        // alert(2);
+        console.log($('#loginId').val());
+    })
+</script>
+</html>

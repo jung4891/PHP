@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+  </head>
+  <script src="http://code.jquery.com/jquery-latest.min.js"></script>
+  <body>
+    1번 &nbsp;0<input type="radio" name="1" value="">
+        &nbsp;1<input type="radio" name="1" value="">
+        &nbsp;2<input type="radio" name="1" value="">
+        &nbsp;3<input type="radio" name="1" value="">
+        &nbsp;4<input type="radio" name="1" value="">
+        &nbsp;&nbsp;가중치: &nbsp; <input type="text" size="1" id="1"><br>
+    2번 &nbsp;0<input type="radio" name="2" value="">
+        &nbsp;1<input type="radio" name="2" value="">
+        &nbsp;2<input type="radio" name="2" value="">
+        &nbsp;3<input type="radio" name="2" value="">
+        &nbsp;4<input type="radio" name="2" value="">
+        &nbsp;&nbsp;가중치: &nbsp; <input type="text" size="1" id="2"><br>
+    3번 &nbsp;0<input type="radio" name="3" value="">
+        &nbsp;1<input type="radio" name="3" value="">
+        &nbsp;2<input type="radio" name="3" value="">
+        &nbsp;3<input type="radio" name="3" value="">
+        &nbsp;4<input type="radio" name="3" value="">
+        &nbsp;&nbsp;가중치: &nbsp; <input type="text" size="1" id="3"><br><br>
+
+    <input type="button" name="" value="계산" id="calc">
+    &nbsp; <span id="resultArea"></span>
+
+  </body>
+  <script type="text/javascript">
+
+  $('#calc').click(function() {
+    let sum = 0;
+    for (let j=0; j<3; j++) {
+      let radioArr = [];
+      radioArr = $(`input[name="${j+1}"]`);
+      for (let i=0; i<radioArr.length; i++) {
+        if (radioArr[i].checked) {
+          $('#resultArea').append(`${i}x${$(`#${j+1}`).val()}`);
+          sum = sum + i*Number($(`#${j+1}`).val());
+          break;
+        }
+      }
+      if (j!=2) {
+        $('#resultArea').append(' + ');
+      } else {
+        $('#resultArea').append(' = ');
+      }
+    }
+    $('#resultArea').append(sum);
+
+    // console.log(radioArr);
+    // console.log($('input[name="radioName"]')[0].checked);
+  });
+
+
+  //
+    $('#gugu').click(function() {
+      alert(`${$('#dan').val()}`);   // = alert($('#dan').val());
+
+      $('#resultArea').html("clear~~~");
+      let dan = Number($('#dan').val());
+      let num = Number($('#num').val());
+    });
+
+  </script>
+</html>

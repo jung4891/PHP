@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <script src="http://code.jquery.com/jquery-latest.min.js"></script>
+  </head>
+  <body>
+    x : <input type="text" name="" value="" size="5" id="x" >
+    y : <input type="text" name="" value="" size="5" id="y">
+    <input type="button" name="" value="x * y 배열출력" id="arr"> <br><br>
+    <span id="resultArea"></span>
+  </body>
+  <script>
+
+  let arr = []; // [][]로 이중배열 선언은 안됨!!
+
+  $("#arr").click(function(){
+    $("#resultArea").html("");
+    for (let i=0; i<$("#x").val(); i++) {
+      arr[i] = [];
+      for (let j=0; j<$("#y").val(); j++) {
+        arr[i][j] = `(${i}, ${j})`;
+      }
+    }
+    console.log(arr);
+
+    for (let i=0; i<$("#x").val(); i++) {
+      for (let j=0; j<$("#y").val(); j++) {
+        $("#resultArea").append(arr[i][j] + ' ');
+        // $("#resultArea").append(`${arr[i][j]} `);
+      }
+      $("#resultArea").append('<br>')
+    }
+
+    // 실습1
+    let arr1 = [];
+    let cnt = 0;
+    for (let i=0; i<5; i++) {
+      arr1[i] = [];
+      for (let j=0; j<5; j++) {
+        cnt++;
+        arr1[i][j] = cnt;
+      }
+    }
+    console.log(arr1);
+
+    // 실습2
+    let arr2 = [];
+    let cnt2 = 0;
+    for (let i=0; i<5; i++) {
+      arr2[i] = [];
+      for (let j=0; j<5; j++) {
+        arr2[i][j] = (3*cnt2)+1;
+        cnt2++;
+      }
+    }
+    console.log(arr2);
+
+    // 실습3
+    let arr3 = [];
+    for (let i=0; i<5; i++) {
+      arr3[i] = [];
+      for (let j=0; j<5; j++) {
+        if (i==0 || j==0) {
+          arr3[i][j] = 0;   // 안적으면 empty임.
+        } else {
+          arr3[i][j] = i*j;
+        }
+      }
+    }
+    console.log(arr3);
+
+    // 실습4
+    let arr4 = [];
+    for (let i=0; i<5; i++) {
+      arr4[i] = [];
+      for (let j=0; j<5; j++) {
+        arr4[i][j] = "" + (i+1) + (j+1) ;
+      }
+    }
+    console.log(arr4);
+
+
+
+  })
+
+
+
+
+  </script>
+</html>

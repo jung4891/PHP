@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+  </head>
+  <script src="http://code.jquery.com/jquery-latest.min.js"></script>
+  <body>
+
+    <input type="text" name="" value="" id="num1">
+    <input type="text" name="" value="" id="num2">
+    <input type="button" name="" value="출력" id="work1">
+
+  </body>
+  <script type="text/javascript">
+
+    $('#work1').click(function() {
+      let num1 = Number($('#num1').val());
+      let num2 = Number($('#num2').val());
+      console.log(`더하기 : ${num1+num2}, 빼기 : ${Math.abs(num1-num2)}, 곱하기 : ${num1*num2}, 나누기 : ${Math.max(num1,num2)/Math.min(num1,num2)}`);
+    });
+
+  </script>
+</html>

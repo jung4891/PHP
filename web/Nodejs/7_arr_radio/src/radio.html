@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+  </head>
+  <script src="http://code.jquery.com/jquery-latest.min.js"></script>
+  <body>
+    1<input type="radio" name="radioName" value=""> <br>
+    2<input type="radio" name="radioName" value=""> <br>
+    3<input type="radio" name="radioName" value=""> <br>
+    4<input type="radio" name="radioName" value=""> <br>
+    5<input type="radio" name="radioName" value=""> <br>
+    6<input type="radio" name="radioName" value=""> <br><br>
+
+    <input type="button" name="" value="몇번째?" id="order">
+
+  </body>
+  <script type="text/javascript">
+
+  $('#order').click(function() {
+    let radioArr = $('input[name="radioName"]');
+    for (let i=0; i<radioArr.length; i++) {
+      if (radioArr[i].checked) {
+        alert(`${i+1}번째가 체크되었습니다.`);
+        console.log(`${i+1}번째가 체크되었습니다.`);
+      }
+    }
+    // console.log(radioArr);
+    // console.log($('input[name="radioName"]')[0].checked);
+  });
+
+
+  //
+    $('#gugu').click(function() {
+      alert(`${$('#dan').val()}`);   // = alert($('#dan').val());
+
+      $('#resultArea').html("clear~~~");
+      let dan = Number($('#dan').val());
+      let num = Number($('#num').val());
+    });
+
+  </script>
+</html>

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>CSS 기본 속성</title>
+    <style media="screen">
+
+      body {
+        background-color: silver;
+      }
+
+      /* CSS에서 색을 표현하는 방법 */
+
+      /* 1. 색상 이름으로 표현 (색상 이름은 대소문자 구분하지 않음) */
+        #blue {
+          color: blue;
+        }
+      /* 2. RGB 색상값으료 표현
+            RGB 색상의 기본색인 빨(R), 녹(G), 파(B)를 혼합하여 색을 표현. (0 ~ 255) */
+        .rgb {
+          color: RGB(0, 255, 0);
+        }
+      /*  3. 16진수 색상값으로 표현
+             RGB 색상값을 각각 16진수로 변환한 것. 빨, 녹, 파는 각각 00~FF까지의 범위를 가짐*/
+        p {
+          color: #00FF00;
+        }
+
+    </style>
+  </head>
+  <body>
+
+    <!-- 색 -->
+    <p id="blue">색상 이름으로 표현</p>
+    <p class="rgb">RGB 색상값으로 표현</p>
+    <p>16진수 색상값으로 표현</p>
+  </body>
+</html>

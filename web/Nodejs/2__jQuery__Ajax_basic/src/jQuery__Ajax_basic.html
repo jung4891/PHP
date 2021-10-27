@@ -1,0 +1,74 @@
+Q<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+  <meta charset="utf-8">
+  <title></title>
+</head>
+
+<script src="http://code.jquery.com/jquery-latest.min.js"></script>
+
+<body>
+  id: <input type="text" id="loginId" name="" value=""><br>
+  password: <input type="text" id="password" name="" value=""><br>
+  <input type="button" value="document" id="button1">
+  <input type="button" value="jQuery" id="button2"> <br><br>
+
+  no : <input type="text" name="" value="" id="no"> <br>
+  <input type="button" value="no1:9, no2:10" id="button3">
+  <input type="button" value="입력한 no" id="button4"> <br>
+
+  <span id="resultArea"> </span>
+
+  <script>
+    console.log("클릭")
+    document.getElementById('button1').addEventListener("click", function() {
+      // alert('버튼1');
+      console.log(document.getElementById('button1')); // document는 보고있는 문서 자체.
+      console.log(document.getElementById('loginId').value);
+      console.log(document.getElementById('password').value);
+    });
+
+    $("#button2").click(function() {
+      console.log($("#loginId").val(), $("#password").val());
+      $("#loginId").val(""); // 버튼 누르면 text란 다시 클리어됨
+      $("#password").val("");
+    });
+
+    // no1, no2를 sql로 안보내고 그냥 숫자만 콘솔에 찍을 방법은 ??
+    $("#button3").click(function() {
+      $.ajax({
+        type: "GET",
+        url: "/studentInfoPractice0",
+          // http://localhost/studentInfoPractice0?no1=9&no2=10
+        data: {
+          no1 : 9,  // 뒤에 ; 안붙임, | ,(comma) 꼭 써야됨!!!
+          no2 : 10  // =가 아니라 :임!!!!!!!!
+        },
+        success: function(res) {
+          console.log(res);
+          // res.send(res);   브라우저에서는 req가 없다. res만 있을
+        }
+      });
+    });
+
+    $("#button4").click(function() {
+      $.ajax({
+        type: "GET",
+        url: `/studentInfoPractice`,
+        // url: "/studentInfoPractice?no="+$("#no").val(),
+        data: {
+          no: $("#no").val()
+          // no2: $("#no").val()
+        },
+        success: function(res) {
+          $("#resultArea").append(`${res[0].NO} / ${res[0].studentNo} / ${res[0].NAME}<br>`);
+        }
+      });
+    });
+
+
+  </script>
+</body>
+
+</html>

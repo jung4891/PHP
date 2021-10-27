@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+  </head>
+  <script src="http://code.jquery.com/jquery-latest.min.js"></script>
+  <body>
+
+    학번: <input type="text" name="" value="" id="stuNum"> <br>
+    이름: <input type="text" name="" value="" id="name"> <br><br>
+    <input type="button" name="" value="DB입력" id="insert">
+
+  </body>
+  <script type="text/javascript">
+
+  $("#insert").click(function() {
+    $.ajax({
+      type: "POST",
+      url: "/insertStudent",
+      data: {
+        studentNo: $('#stuNum').val(),
+        studentName: $('#name').val()
+      },
+      success: function(res) {
+        // console.log(res);
+        if (res=='not ok') {
+          alert("입력 실패")
+        } else if (res=='ok') {
+          alert("입력 성공!")
+        }
+      }
+    });
+  });
+
+  </script>
+</html>

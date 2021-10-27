@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <script src="http://code.jquery.com/jquery-latest.min.js"></script>
+  </head>
+  <body>
+    hello world!<br>
+    <input type="button" name="" value="버튼1" id="button1"><br><br>
+  </body>
+  <script>
+
+$("#button1").click(function(){
+  alert("버튼1 클릭함! \n줄개행함")
+})
+
+// 1~100 숫자중 홀수만 출력 (%써서랑 안써서)
+// for(let i = 1; i<101; i++) {
+//   if(i % 2 == 0) continue;
+//   console.log(i);
+// }
+//
+// for(let i = 1; i<101; i=i+2) {
+//   console.log(i);
+// }
+//
+// let j = 1;
+// for (console.log(j); j<99; console.log(j)) {
+//   j = j + 2;
+// }
+
+// document.write는 텍스트가 아닌 실제 HTML문서로 출력되기에 br태그가 인식됨
+// HTML에서 \n은 공백 1칸으로 대체됨
+
+// 자바스크립트에서는 HTML문서로 보여지는 결과가 아닌이상 줄개행을 \n을 쓴다.
+// 대표적인 예로 alert, confirm, testarea의 내용 .value가 있다.
+
+document.write("1.<br>")
+for (let i=0; i<8; i++) {
+  let line = ""
+  for (let j=0; j<2*i + 1; j++) {
+    line = line + "*"
+  }
+  document.write(line + "<br>")
+}
+
+// 별찍기
+console.log("1.")
+for (let i=0; i<8; i++) {
+  let line = ""
+  for (let j=0; j<2*i + 1; j++) {
+    line = line + "*"
+  }
+  console.log(line)
+}
+console.log("1.")
+for (let i=1; i<14; i=i+2) {
+  let line = ""
+  for (let j=0; j<i; j++) {
+    line = line + "*"
+  }
+  console.log(line)
+}
+
+console.log("2.")
+for (let i=0; i<5; i++) {
+  let line = ""
+  for (let j=0; j<2*i + 1; j++) {
+    line = line + "*"
+  }
+  console.log(line)
+}
+for (let i=0; i<4; i++) {
+  let line = ""
+  for (let j=0; j<7-2*i; j++) {
+    line = line + "*"
+  }
+  console.log(line)
+}
+
+
+
+console.log("2+.")
+for (let i=0; i<9; i++) {
+  if(i < 5) {
+    let line = ""
+    for (let j=0; j<2*i+1; j++) {
+      line = line + "*"
+    } console.log(line)
+  } else {
+    let line = ""
+    for (let k=0; k<2*(8-i)+1; k++) {
+          line = line + "*"
+    }
+    console.log(line)
+  }
+
+
+
+}
+// for (let i=0; i<4; i++) {
+//   let line = ""
+//   for (let j=0; j<7-2*i; j++) {
+//     line = line + "*"
+//   }
+//   console.log(line)
+// }
+
+console.log("3.")
+for (let i=0; i<8; i++) {
+  let line = ""
+  for (let j=0; j<15-2*i; j++) {
+    line = line + "*"
+  }
+  console.log(line)
+}
+
+
+
+
+
+
+
+
+// 신경 안써도 됨
+// let i = 0;
+// for (console.log("1번"); !console.log("2번!!"); alert(i)) {
+//   console.log("3번!!")
+//   i = i + 1;
+//   if(i>5) break;
+// }
+
+// for문의 실체
+// for(1; 2; 4) {
+//  3
+// }
+
+// 1
+// 234
+// 234
+// 234...
+
+  </script>
+</html>

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+  </head>
+    <script src="http://code.jquery.com/jquery-latest.min.js"></script>
+  <body>
+    학생목록 <br>
+    <span id="resultArea"></span> <br>
+    <input type="button" value="메인페이지" id="goToMain">
+  </body>
+  <script type="text/javascript">
+
+    $.ajax({
+      type: "GET",
+      url: "/showList",
+      data: {
+      },
+      success: function(res) {
+        console.log(res[0])
+        for (i in res) {
+          let stu = res[i];
+          $("#resultArea").append(`<span id="stu${stu.no}">${stu.no} / 학번 : ${stu.studentNo} / 이름 : ${stu.studentName} / javascript : ${stu.javascript} / python : ${stu.python} / java : ${stu.java}
+            <input type="button" value="수정" id="update" onclick="goToUpdatePage(${stu.no})">
+            <input type="button" value="삭제" id="delete" onclick="deletefunc(${stu.no})"> <span><br>`);
+        }
+      }
+    });
+
+    function goToUpdatePage(no) {
+      location.href = `/updatePage?${no}`
+    }
+
+    function deletefunc(no) {
+      if (confirm("정말 삭제하시겠습니까??") == true){    //확인
+        $.ajax({
+          type: "delete",
+          url: "/deleteStudent",
+          data: {
+            no : no
+          },
+          success: function(res) {
+            if (res=='o') {
+              alert("삭제되었습니다")
+              $(`#stu${no}`).remove();
+            } else if (res=='x') {
+              alert(`삭제 실패`)
+            }
+          }
+        });
+      } else{
+        return;
+      }
+    }
+
+    function button_event(){
+      if (confirm("정말 삭제하시겠습니까??") == true){    //확인
+        document.form.submit();
+      }else{   //취소
+        return;
+      }
+    }
+
+    $("#goToMain").click(function() {
+      location.href = "/"
+    });
+
+  </script>
+
+</html>

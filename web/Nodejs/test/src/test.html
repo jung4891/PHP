@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+  </head>
+  <script src="http://code.jquery.com/jquery-latest.min.js"></script>
+  <body>
+    1) 구구단 출력 <br>
+    <input type="text" id="dan" size="3" placeholder="단?" onfocus="this.placeholder=''" onblur="this.placeholder='단!'"> x
+    <input type="search" id="hang" size="3" placeholder="행?" onfocus="this.placeholder=''" onblur="this.placeholder='단!'"> &nbsp
+    <input type="button" id="gugu" value="구구단출력"> <br><br><br>
+
+    2) item (from server) <br>
+    <input type="button" id="showList_Server" value="목록조회"> <br><br><br>
+
+    3) item (from DB) <br>
+    <input type="button" id="goToInsertForm" value="상품입력"> <br><br><br>
+
+    <span id="res"></span>
+  </body>
+
+  <script type="text/javascript">
+
+  // 3)
+  $('#goToInsertForm').click(function() {
+    location.href = "/insertForm"
+  })
+
+
+
+
+    // 1)
+    $('#gugu').click(function() {
+      let dan = $('#dan').val();
+      let hang = $('#hang').val();
+      alert(`${dan}단 ${hang}행을 출력합니다!`);
+
+      $('#res').html("");
+      for(let i=1; i<=hang; i++) {
+        $('#res').append(`${dan} x ${i} = ${dan*i}<br>`);
+      }
+    });
+
+    // 2)
+    $('#showList_Server').click(function() {
+      $.ajax({
+        type: "GET",
+        url: "/getList_Server",
+        success: function(res) {
+          $('#res').html("");
+          for (let i=0; i<res.length; i++) {
+            $('#res').append(`${res[i].idx} / ${res[i].name} / ${res[i].price}<br>`);
+          }
+        }
+      })
+    })
+
+
+  </script>
+</html>

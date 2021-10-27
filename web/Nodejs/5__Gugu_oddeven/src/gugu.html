@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <script src="http://code.jquery.com/jquery-latest.min.js"></script>
+  </head>
+  <body>
+    <input type="text" id="dan"> <br>
+    <input type="text" id="num"> <br>
+    <input type="button" name="" value="단 계산" id="guguCalc"><br><br>
+    <br><br>
+    <input type="button" name="" value="단 계산 버전2 이동" id="guguUp"><br><br>
+    <a href="/gugu_option" id = "guguLink">단 계산 버전2 이동</a>
+    <span id="resultArea"></span>
+  </body>
+  <script>
+
+  // 생각해보니까 굳이 ajax를 쓸 필요가 없음..
+  $("#guguCalc").click(function() {
+    // console.log($("#dan").val(), $("#num").val());
+    $.ajax({
+      type: "get",
+      url: "/gugu",
+      data: {
+      },
+      success: function(res) {
+        // console.log(res);
+
+        let dan = parseInt($("#dan").val());
+        let num = parseInt($("#num").val());
+        $("#resultArea").html("");
+        // $("#resultArea").append('a' + 'b' + '<br>' + 'c')   // "안  내용은 html.. 개행은 이렇게
+        // $("#resultArea").append(typeof($("#dan").val()));  // String
+
+        for (let i=1; i<=num; i++) {
+          $("#resultArea").append(dan+' x '+i+' = '+ dan*i + '<br>');
+
+        }
+      }
+    });
+  });
+
+  // 고민..
+  // $("#guguUp").click(function() {
+  //   $("#guguLink");
+  // });
+
+
+  </script>
+</html>

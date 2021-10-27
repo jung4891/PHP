@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+  </head>
+  <script src="http://code.jquery.com/jquery-latest.min.js"></script>
+  <body>
+
+    상품명: <input type="text" id="name" size="4"> &nbsp
+    가격: <input type="text" id="price" size="4"> &nbsp
+    <input type="button" id="insert" value="입력">
+    <input type="button" id="showList_DB" value="목록조회">
+    <input type="button" id="goToMain" value="홈으로">  <br><br><br>
+
+    <span id="res"></span>
+
+  </body>
+  <script type="text/javascript">
+
+    $('#insert').click(function() {
+      $.ajax({
+        type: "POST",
+        url: "/insert",
+        data: {
+            name : $('#name').val(),
+            price : $('#price').val()
+        },
+        success: function(res) {
+          if (res=='o') {
+            alert(`[${$('#name').val()} -> ${$('#price').val()}원] 입력완료!`)
+          } else {
+            alert("입력실패..")
+          }
+        }
+      })
+    })
+
+    $('#showList_DB').click(function() {
+      $.ajax({
+        type: "GET",
+        url: "/getList_DB",
+        success: function(res) {
+          $('#res').html("");
+          for (let i=0; i<res.length; i++) {
+            $('#res').append(`${res[i].no} / ${res[i].itemName} / ${res[i].itemPrice} &nbsp
+              <input type="button" value="수정" onclick="goToUpdateForm(${res[i].no})">
+              <input type="button" value="삭제" onclick="deletefunc(${res[i].no})"><br>`)
+          }
+        }
+      })
+    })
+
+    function goToUpdateForm(no) {
+      location.href = `/updateForm?${no}`
+    }
+
+    $('#goToMain').click(function() {
+      location.href = "/test"
+    })
+  </script>
+</html>
