@@ -93,6 +93,7 @@ return array(
 	'htm'	=>	array('text/html', 'text/plain'),
 	'shtml'	=>	array('text/html', 'text/plain'),
 	'txt'	=>	'text/plain',
+	// 'txt'	=>	array('text/plain', "application/x-empty"),
 	'text'	=>	'text/plain',
 	'log'	=>	array('text/plain', 'text/x-log'),
 	'rtx'	=>	'text/richtext',
