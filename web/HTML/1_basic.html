@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HTML</title>
+<style media="screen">
+  body {
+    background-color: gray;
+    color: white;
+  }
+  .para {
+    color: red;
+  }
+</style>
+</head>
+<body>
+
+  <!-- 제목태그 -->
+  <h3>제목 3</h3>
+  <!-- 자동완성으로 태그의 -->
+
+  <!-- 단락 -->
+  <!-- p태그는 여러번의 띄어쓰기와 줄바꿈이 오직 하나의 띄어쓰기로만 표현됨 br태그로 줄바꿈 -->
+  <!-- pre태그(preformatted text)는 작성한 텍스트의 띄어쓰기 줄나누기는 그대로 표현됨
+       다만 텍스트의 글꼴은 고정폭 글꼴(fixed-width font)로 자동변환된다. -->
+  <p>단락 1   2
+  3</p>
+  <hr>
+  <pre>단락 1  2
+  3</pre>
+
+  <!-- 속성과 속성값 -->
+  <p class="para">단락 2</p>
+  <!-- class가 속성명(attribute) "para"가 속성값(value)  -->
+  <!-- 속성값은 보통 큰따옴표를 사용한다. 작은따옴표도 가능은 하다.-->
+  <hr>
+
+  <!-- 서식 -->
+  <!-- 검색엔진은 <strong>태그나 <em>태그를 사용하여 강조된 텍스트를 더 중요하게 인식합니다. -->
+  <p><b>b태그는 텍스트를 굵게,</b> <strong>strong태그는 굵게+중요함</strong> </p>
+  <p><i>i태그는 단순 이탤릭체,</i> <em>em태그는 이탤릭+중요함</em> </p>
+  <p><mark>mark태그는 강조(highlighting)효과</mark> </p>
+  <p><del>del태그는 중앙에 가로줄을 만들어 텍스트를 지운 것 같은 효과!</del> </p>
+  <p><ins>ins태그는 밑에 가로줄을 만듬 이렇게</ins><ins>(&nbsp&nbsp&nbsp)</ins> </p>
+  <p>H<sub>2</sub>O = 물, 3<sup>2</sup> = 9 </p>
+  <hr>
+
+  <!-- 인용구 -->
+  <!-- q태그의 cite속성은 출처 사이트를 명시하는 것으로 따로 출력은 안됨 -->
+  <p>짧은 인용구는 <q cite="http:www.naver.com">q태그를 사용합니다.</q> </p>
+  <p>긴 인용구는
+    <blockquote cite="http://">
+    blockquote태그를 사용함. 이 태그는 별도의 단락으로 구분하여 나타난다.
+    </blockquote>
+  </p>
+  <p>용어의 축약형을 표현할때는 <abbr title="마우스를 위치시킴">abbr</abbr>태그를 사용함.
+     마우스 올리면 title 속성값(용어의 원형)이 나타남</p>
+  <p>주소를 표현할 때는 address태그를 사용함. (이탤릭체 + 위아래 약간의 공백)
+    <address>
+      서울시 월계동 <br>
+      삼호아파트
+    </address>
+  </p>
+  <hr>
+
+
+
+
+
+  <br><br><br><br><br><br><br><br><br>
+  로그인 <br>
+  아이디 : <input type="text" id="loginId"><br>
+  비밀번호 : <input type="text" id="loginPwd"><br>
+  <input type="button" value="로그인" id="loginBtn"><br>
+  <input type="button" value="회원가입"><br>
+  <input type="checkbox"><br>
+  <input type="date">
+</body>
+
+</html>

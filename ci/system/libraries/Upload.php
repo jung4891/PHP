@@ -373,6 +373,69 @@ class CI_Upload {
 	 */
 	public function do_upload($field = 'userfile')
 	{
+		// echo '<pre>';
+		// var_dump($_FILES);
+		// echo '</pre>';
+		/*
+		@ userfile (1개 파일)
+		array(1) {
+		  ["userfile"]=>
+		  array(5) {
+		    ["name"]=>
+		    string(7) "abc.png"
+		    ["type"]=>
+		    string(9) "image/png"
+		    ["tmp_name"]=>
+		    string(24) "C:\xampp\tmp\php2B15.tmp"
+		    ["error"]=>
+		    int(0)
+		    ["size"]=>
+		    int(189873)
+		  }
+		}
+
+		@ userfile[] (파일 여러개)
+		array(1) {
+		  ["userfile"]=>
+		  array(5) {
+		    ["name"]=>
+		    array(2) {
+		      [0]=>
+		      string(7) "111.png"
+		      [1]=>
+		      string(7) "abc.png"
+		    }
+		    ["type"]=>
+		    array(2) {
+		      [0]=>
+		      string(9) "image/png"
+		      [1]=>
+		      string(9) "image/png"
+		    }
+		    ["tmp_name"]=>
+		    array(2) {
+		      [0]=>
+		      string(24) "C:\xampp\tmp\php213F.tmp"
+		      [1]=>
+		      string(24) "C:\xampp\tmp\php2140.tmp"
+		    }
+		    ["error"]=>
+		    array(2) {
+		      [0]=>
+		      int(0)
+		      [1]=>
+		      int(0)
+		    }
+		    ["size"]=>
+		    array(2) {
+		      [0]=>
+		      int(189873)
+		      [1]=>
+		      int(189873)
+		    }
+		  }
+		}
+		*/
 		// Is $_FILES[$field] set? If not, no reason to continue.
 		if (isset($_FILES[$field]))
 		{
