@@ -84,9 +84,9 @@ class File extends CI_Controller {
 
         $("input.afile3").MultiFile({
           max: 3, //업로드 최대 파일 갯수 (지정하지 않으면 무한대)
-          accept: "jpg|png|gif", //허용할 확장자(지정하지 않으면 모든 확장자 허용)
-          maxfile: 1024, //각 파일 최대 업로드 크기
-          maxsize: 3024,  //전체 파일 최대 업로드 크기
+          // accept: "jpg|png|gif", //허용할 확장자(지정하지 않으면 모든 확장자 허용)
+          // maxfile: 1024, //각 파일 최대 업로드 크기
+          // maxsize: 3024,  //전체 파일 최대 업로드 크기
           STRING: { //Multi-lingual support : 메시지 수정 가능
             remove : "", //추가한 파일 제거 문구, 이미태그를 사용하면 이미지사용가능
             duplicate : "$file 은 이미 선택된 파일입니다.",
@@ -129,17 +129,30 @@ class File extends CI_Controller {
         $_FILES['userfile']['tmp_name']= $files['userfile']['tmp_name'][$i];
         $_FILES['userfile']['error']= $files['userfile']['error'][$i];
         $_FILES['userfile']['size']= $files['userfile']['size'][$i];
-
         $do_upload = $this->upload->do_upload();
         if($do_upload) $cnt++;
       }
 
       if ($f_cnt == $cnt)
-        echo '<h5>Your files was successfully uploaded!</h5>';
+        echo
+        '
+        <h5>Your files was successfully uploaded!</h5>
+        <script>
+          $(function() {
+            $("h5").css("color", "red");
+            $("h5").fadeOut(2000);
+            setTimeout(function(){
+              location.href="/index.php/file/do_upload";
+            }, 2000);
+          })
+        </script>
+        ';
+
       else
         echo '<h5>어딘가 문제가 생김</h5>';
     }
 
+      // 파일 한개만 할때 결과 출력화면
       if (false)
       if (! $do_upload) {
         // $error = array('error' => '애러~~!'.$this->upload->display_errors().'<br>');

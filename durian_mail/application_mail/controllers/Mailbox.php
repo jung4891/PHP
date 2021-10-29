@@ -209,9 +209,30 @@ class Mailbox extends CI_Controller {
 
     // 테스트용
     $struct = imap_fetchstructure($mails, $msg_no);
-    $body = imap_body($mails, $msg_no);
-    $data['struct'] = $struct;
+
+    $body = imap_body($mails, $msg_no);   // 본문 전체
+    // $body = imap_fetchbody($mails, $msg_no, (string)2);   // 본문에서 특정 부분(HTML or 첨부파일 등등)의 내용만(string)
     $data['body'] = $body;
+    // $body = imap_base64($body);
+
+    $file_name = imap_utf8($struct->parts[1]->parameters[0]->value);
+    // Header ( "Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+    // Header ( "Content-Disposition: attachment; filename=aa.xlsx");
+    // header("Cache-Control: no-cache");
+    // header("Pragma: no-cache");
+    // readfile($body);
+    // echo $body;
+    $msg_no = 128;
+    $numpart = 1;
+
+    /*
+    echo "<br>첨부: <a href="mail_down.php?
+    MSG_NO=" . $MSG_NO . "&PART_NO=
+    " . $numpart . "" >" . $file_name . "</a>";
+    */
+
+    $data['struct'] = $struct;
+
 
     imap_close($mails);
     $this->load->view('mailbox/mail_detail_v', $data);
