@@ -20,6 +20,8 @@ class Topic_model extends CI_Model {
   public function get($topic_id){
     // Active Record 방식으로 표준 SQL문을 사용하기때문에 타 db와의 이식성, 호환성이 좋다.
     // 단 한건의 row만 가져오기에 row()를 사용하면 된다.
+    $this->db->select(array('id', 'title', 'description'));   // 가져올 컬럼을 선택하고 싶은 경우
+    $this->db->select('UNIX_TIMESTAMP(created) AS created');  // 컬럼을 변형하여 조회할때
     return $this->db->get_where('topic', array('id'=>$topic_id))->row();  // 객체로 받게된다
     // =
     // return $this->db->query("SELECT * FROM topic WHERE id =".$topic_id)->row();

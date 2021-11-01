@@ -15,6 +15,12 @@
 
      $this->load->helper('url');
      $this->load->library('pagination');   // 페이지네이션 라이브러리 로딩
+
+     /*
+     helper : 자주 사용하는 로직을 재활용 할 수 있게 만든 일종의 라이브러리
+     헬퍼는 객체지향이 아닌 독립된 함수, 라이브러리는 객체지향인 클래스인점 다르다!
+     헬퍼를 로드한 뒤 Cntroller,View,Model에서 url 핼퍼와 관련된 함수를 호출하면 된다.
+     */
    }
 
   // http://localhost/ci/index.php/topic (URL에 클래스명만 있으면 index() 반드시 구현)
@@ -76,7 +82,6 @@
       ["topic"]=> object(stdClass)#23 (4) { ["id"]=> "1" ["title"]=> "JavaScript란" ["description"]=> "~~" ["created"]=> "2021-09-29 09:27:30" }
       ["id"]=> string(1) "1" }
   */
-
 
   public function pagination() {
     $this->load->view('templates/header');

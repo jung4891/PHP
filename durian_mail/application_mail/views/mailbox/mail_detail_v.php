@@ -31,20 +31,20 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
       <td colspan="2"><br><?php echo $contents ?> </td>
      </tr>
      <!-- struct 테스트용 -->
-     <tr>
+     <!-- <tr>
       <td colspan="2">
         <h3>$struct</h3>
         <pre>
-          <?php var_dump($struct);?>
+          <?php // var_dump($struct);?>
         </pre>
       </td>
-     </tr>
+     </tr> -->
      <!-- body 테스트용 -->
      <tr>
        <td colspan="2">
          <h3>$body</h3>
          <pre>
-           <?php  var_dump($body); ?>
+           <?php var_dump($body); ?>
          </pre>
        </td>
      </tr>

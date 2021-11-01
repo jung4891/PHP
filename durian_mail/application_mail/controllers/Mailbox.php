@@ -53,7 +53,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 class Mailbox extends CI_Controller {
   function __construct() {
       parent::__construct();
-      $this->load->helper('url');
+      $this->load->helper(array('url', 'download'));
       $this->load->library('pagination');
 
       // IMAP(Internet Message Access Protocol) : 메일서버에 접속하여 메일을 가져오기 위한 프로토콜
@@ -131,12 +131,8 @@ class Mailbox extends CI_Controller {
     $data['test'] = $mailboxes;
 
     if($mails) {
-      $mailno = imap_sort($mails, SORTDATE, 1);
-      $data['mailno'] = $mailno;
       $mails_cnt = imap_num_msg($mails);
-      $recent = imap_num_recent($mails);
-
-      // 페이징 처리
+      // 페이징 동적으로 설정할 부분들만 설정함. 정적인 부분은 config>pagination에 넣음
       $page = ($this->uri->segment(4))? $this->uri->segment(4)+1:1;
       $data['page'] = $page;
       $config = array();
@@ -144,19 +140,12 @@ class Mailbox extends CI_Controller {
       $config['total_rows'] = $mails_cnt;
       $config['per_page'] = 14;
       $data['per_page'] = 14;
-      $config['num_links'] = 1;
-      $config['first_link'] = '<< &nbsp&nbsp';
-      $config['first_tag_open'] = '<span style="letter-spacing:0px;">';
-      $config['first_tag_close'] = '</span>';
-      $config['last_link'] = ' >>';
-      $config['last_tag_open'] = '<span style="letter-spacing:0px;">';
-      $config['last_tag_close'] = '</span>';
-      $config['next_link'] = '';
-      $config['prev_link'] = '';
-      $config['cur_tag_open'] = '<span style="color:red;">';
-      $config['cur_tag_close'] = '</span>';
       $this->pagination->initialize($config);
       $data['links'] = $this->pagination->create_links();
+
+      $mailno = imap_sort($mails, SORTDATE, 1);
+      $data['mailno'] = $mailno;
+      $recent = imap_num_recent($mails);
 
       if($mails_cnt >= 1) {
         $data['test_msg'] = "총 메일수: {$mails_cnt}건<br> 새편지: {$recent}건";
@@ -174,7 +163,6 @@ class Mailbox extends CI_Controller {
     $this->load->view('mailbox/mail_list_v', $data);
   }
 
-
   // 메일 조회 : body부분의 내용을 구조를 분석해 내용(string)을 뷰로 보냄
   public function mail_detail($box, $num){
 
@@ -184,14 +172,11 @@ class Mailbox extends CI_Controller {
     $host = "{" . $mailserver . ":143/imap/novalidate-cert}$mbox";
     $user_id = "hjsong@durianit.co.kr";
     $user_pwd = "durian12#";
-
-    echo $host;
+    // echo $host;   {192.168.0.100:143/imap/novalidate-cert}INBOX
 
     // 메일함 접속
     $mails= @imap_open($host, $user_id, $user_pwd);
-
     $mails_cnt = imap_num_msg($mails);
-    echo $mails_cnt;
 
     // 내용을 제외한 부분 헤더에서 가져옴
     $data = array();
@@ -209,30 +194,36 @@ class Mailbox extends CI_Controller {
 
     // 테스트용
     $struct = imap_fetchstructure($mails, $msg_no);
-
+    $data['struct'] = $struct;
     $body = imap_body($mails, $msg_no);   // 본문 전체
-    // $body = imap_fetchbody($mails, $msg_no, (string)2);   // 본문에서 특정 부분(HTML or 첨부파일 등등)의 내용만(string)
     $data['body'] = $body;
-    // $body = imap_base64($body);
 
-    $file_name = imap_utf8($struct->parts[1]->parameters[0]->value);
-    // Header ( "Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-    // Header ( "Content-Disposition: attachment; filename=aa.xlsx");
-    // header("Cache-Control: no-cache");
-    // header("Pragma: no-cache");
-    // readfile($body);
-    // echo $body;
-    $msg_no = 128;
-    $numpart = 1;
+
+    // 첨부파일 다운로드 (아래 header사용으로 주로 하는거 같은데 잘 안되서 force_download 사용함)
+    // $fileSource = imap_fetchbody($mails, $msg_no, (string)3);   // 본문에서 특정 부분(HTML or 첨부파일 등등)의 내용만(string)
+    // $fileSource = imap_base64($fileSource);
+    // $file_name = imap_utf8($struct->parts[2]->parameters[0]->value);
+    // force_download($file_name, $fileSource);
+
+    // header('Content-Description: File Transfer');
+    // header("Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+    // header("Content-Type: image/png");
+    // header("Content-Disposition: attachment; filename=".$file_name);
+    // header('Content-Transfer-Encoding: binary');
+    // header('Expires: 0');
+    // header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+    // header('Pragma: public');
+    // header('Content-Length: ' . filesize($fileSource));
+    // readfile($fileSource);
+    // ob_clean();
+    // flush();
+    // echo $fileSource;
 
     /*
     echo "<br>첨부: <a href="mail_down.php?
     MSG_NO=" . $MSG_NO . "&PART_NO=
     " . $numpart . "" >" . $file_name . "</a>";
     */
-
-    $data['struct'] = $struct;
-
 
     imap_close($mails);
     $this->load->view('mailbox/mail_detail_v', $data);
@@ -316,6 +307,15 @@ class Mailbox extends CI_Controller {
 
       case "RELATED":
       /*
+
+      9/2 test (텍스트, 사진, 사진)  - 업무일지 첨부x
+      RELATED
+       - parts[0]_ALTERNATIVE
+         - parts[0]_PLAIN	(전체적인게 다 담김. 근데 디코딩 잘 안됨)
+         - parts[1]_HTML (charset: ks_c_5601-1987) (encoding: quoted-printable)
+       - parts[1]_PNG	(사진)
+       - parts[2]_PNG
+
         10/18 테스트(서명 + 이미지)
         RELATED
         - parts[0]_ALTERNATIVE
@@ -342,6 +342,38 @@ class Mailbox extends CI_Controller {
           }
         }
         break;
+
+        case "MIXED":
+        /*
+          10/29 첨부파일 테스트 (only 엑셀파일)
+          MIXED
+           - parts[0]_ALTERNATIVE
+             - parts[0]_PLAIN
+             - parts[1]_HTML (tyep(0), encoding(4), charset: ks_c_5601-1987)
+           - parts[1]_attachment
+               Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+               Content-Transfer-Encoding: base64
+               Content-Disposition: attachment;
+        */
+          for($i=1; $i<=count($struct->parts); $i++) {
+            $part = $struct->parts[$i-1];
+            $mime = $part->subtype;
+            $encode = $part->encoding;
+            if ($mime == "ALTERNATIVE"){
+              for($j=1; $j<=count($part->parts); $j++) {
+                $part_inner = $part->parts[$j-1];
+                $mime = $part_inner->subtype;
+                $encode = $part_inner->encoding;
+                $charset = $part_inner->parameters[0]->value;
+                $val = $this->printbody($mailstream, $MSG_NO, $i+(0.1*$j), $encode, $mime, $charset);
+              }
+              $tmp .= $val;
+            } else {    // 첨부파일 
+              $val = $this->printbody($mailstream, $MSG_NO, $i, $encode, $mime);
+              $tmp .= $val;
+            }
+          }
+          break;
     } // switch($type)
 
     return $tmp;

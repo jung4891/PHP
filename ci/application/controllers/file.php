@@ -31,6 +31,7 @@ class File extends CI_Controller {
     $contents = file_get_contents($_POST['f_path']);
     $name = $_POST['f_name'];
     force_download($name, $contents);
+    // var_dump($contents);
   }
 
   // 파일 업로드 (기존 view파일 연결)
