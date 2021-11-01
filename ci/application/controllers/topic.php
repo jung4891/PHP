@@ -17,9 +17,10 @@
      $this->load->library('pagination');   // 페이지네이션 라이브러리 로딩
 
      /*
-     helper : 자주 사용하는 로직을 재활용 할 수 있게 만든 일종의 라이브러리
-     헬퍼는 객체지향이 아닌 독립된 함수, 라이브러리는 객체지향인 클래스인점 다르다!
-     헬퍼를 로드한 뒤 Cntroller,View,Model에서 url 핼퍼와 관련된 함수를 호출하면 된다.
+       helper : 자주 사용하는 로직을 재활용 할 수 있게 만든 일종의 라이브러리
+       헬퍼는 객체지향이 아닌 독립된 함수, 라이브러리는 객체지향인 클래스인점 다르다!
+       헬퍼를 로드한 뒤 Cntroller,View,Model에서 url 핼퍼와 관련된 함수를 호출하면 된다.
+       즉, 전역으로 사용되는 전역함수 개념이다.
      */
    }
 
@@ -64,11 +65,12 @@
  	}
 
   public function get($id){
-    // $this->index();
     $data = $this->m->gets();
     $topic = $this->m->get($id);
     // $data = array('topic'=>$topic, 'id'=>$id);
-    // var_dump($data);
+
+    // 내가 만든 헬퍼 로드 ('my'로 쓰면 'my_helper.php'를 찾는다. _helper 꼭 써야함 )
+    $this->load->helper('my');
 
     $this->load->view('templates/header');
     $this->load->view('topic/topic_view', array('topics'=>$data));

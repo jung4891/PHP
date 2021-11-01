@@ -53,7 +53,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 class Mailbox extends CI_Controller {
   function __construct() {
       parent::__construct();
-      $this->load->helper(array('url', 'download'));
+      // mail helper는 따로 만든것임
+      $this->load->helper(array('url', 'download', 'mail'));
       $this->load->library('pagination');
 
       // IMAP(Internet Message Access Protocol) : 메일서버에 접속하여 메일을 가져오기 위한 프로토콜
@@ -189,6 +190,23 @@ class Mailbox extends CI_Controller {
     // 내용을 구조를 분석해서 가져옴 ( checkstruct() -> (디코딩 필요한경우) printbody() )
     $contents = '';
     $msg_no = trim($head->Msgno);
+
+    // 첨부파일이 있는 메일은 첨부파일만 따로 처리 (도무지 checkstruct내에서 처리할 방법을 모르겠음)
+    $struct = imap_fetchstructure($mails, $msg_no);
+    $type = $struct->subtype;
+    $f_arr = array();
+    if ($type == "MIXED") {
+      for($i=1; $i<=count($struct->parts); $i++) {
+        $part = $struct->parts[$i-1];
+        if ($part->ifdisposition == 1 && $part->disposition == 'attachment') {    // 첨부파일일 경우
+            $file_name = $part->dparameters[0]->value;
+            array_push($f_arr, array('msg_no'=>$msg_no, 'part_no'=>$i, 'file_name'=>imap_utf8($file_name)));
+          }
+      }
+    }
+    $data['f_arr'] = $f_arr;
+
+    // 그외 메일 및 첨부파일 메일 내용부분
     $contents .= $this->checkstruct($mails, $msg_no);
     $data['contents'] = $contents;
 
@@ -197,7 +215,6 @@ class Mailbox extends CI_Controller {
     $data['struct'] = $struct;
     $body = imap_body($mails, $msg_no);   // 본문 전체
     $data['body'] = $body;
-
 
     // 첨부파일 다운로드 (아래 header사용으로 주로 하는거 같은데 잘 안되서 force_download 사용함)
     // $fileSource = imap_fetchbody($mails, $msg_no, (string)3);   // 본문에서 특정 부분(HTML or 첨부파일 등등)의 내용만(string)
@@ -307,21 +324,20 @@ class Mailbox extends CI_Controller {
 
       case "RELATED":
       /*
-
-      9/2 test (텍스트, 사진, 사진)  - 업무일지 첨부x
-      RELATED
-       - parts[0]_ALTERNATIVE
-         - parts[0]_PLAIN	(전체적인게 다 담김. 근데 디코딩 잘 안됨)
-         - parts[1]_HTML (charset: ks_c_5601-1987) (encoding: quoted-printable)
-       - parts[1]_PNG	(사진)
-       - parts[2]_PNG
-
-        10/18 테스트(서명 + 이미지)
+        9/2 test (텍스트, 사진, 사진)  - 업무일지 첨부x
         RELATED
-        - parts[0]_ALTERNATIVE
-          - parts[0]_PLAIN
-          - parts[1]_HTML (charset: ks_c_5601-1987) (encoding(4): quoted-printable)
-        - parts[1]_PNG	(사진)
+         - parts[0]_ALTERNATIVE
+           - parts[0]_PLAIN	(전체적인게 다 담김. 근데 디코딩 잘 안됨)
+           - parts[1]_HTML (charset: ks_c_5601-1987) (encoding: quoted-printable)
+         - parts[1]_PNG	(사진)
+         - parts[2]_PNG
+
+          10/18 테스트(서명 + 이미지)
+          RELATED
+          - parts[0]_ALTERNATIVE
+            - parts[0]_PLAIN
+            - parts[1]_HTML (charset: ks_c_5601-1987) (encoding(4): quoted-printable)
+          - parts[1]_PNG	(사진)
       */
         for($i=1; $i<=count($struct->parts); $i++) {
           $part = $struct->parts[$i-1];
@@ -345,7 +361,7 @@ class Mailbox extends CI_Controller {
 
         case "MIXED":
         /*
-          10/29 첨부파일 테스트 (only 엑셀파일)
+          10/29 첨부파일 테스트 (only 엑셀파일)  -> 첨부파일은 위에서 처리함
           MIXED
            - parts[0]_ALTERNATIVE
              - parts[0]_PLAIN
@@ -365,16 +381,24 @@ class Mailbox extends CI_Controller {
                 $mime = $part_inner->subtype;
                 $encode = $part_inner->encoding;
                 $charset = $part_inner->parameters[0]->value;
-                $val = $this->printbody($mailstream, $MSG_NO, $i+(0.1*$j), $encode, $mime, $charset);
+                if ($mime == "RELATED") {
+                  for($k=1; $k<=count($part_inner->parts); $k++) {
+                    $part_inner2 = $part_inner->parts[$k-1];
+                    $mime = $part_inner2->subtype;
+                    $encode = $part_inner2->encoding;
+                    echo $encode;
+                    $charset = $part_inner2->parameters[0]->value;
+                    $val = $this->printbody($mailstream, $MSG_NO, $i+(0.1*$j)+(0.01*$k), $encode, $mime, $charset);
+                    echo $val;
+                    $tmp .= $val;
+                  }
+                }
               }
-              $tmp .= $val;
-            } else {    // 첨부파일 
-              $val = $this->printbody($mailstream, $MSG_NO, $i, $encode, $mime);
-              $tmp .= $val;
+              // $tmp .= $val;
             }
           }
           break;
-    } // switch($type)
+        } // switch($type)
 
     return $tmp;
   } // func checkstruct
@@ -398,7 +422,8 @@ class Mailbox extends CI_Controller {
         break;
       case 4:   // quoted-print
         $val = quoted_printable_decode($val);
-        echo $charset;
+        // echo $charset;
+        echo '123';
 
         if ($charset == 'ks_c_5601-1987') {     // else는 charset이 utf-8로 iconv 불필요
           $val = iconv('euc-kr', 'utf-8', $val);
@@ -418,8 +443,27 @@ class Mailbox extends CI_Controller {
       default:
         $tmp .='<img src="data:image/png;base64,' . $val . '" />';
     }
+
     return $tmp;
   } // func printbody
+
+  function download() {
+    // 메일서버 접속정보 설정
+    $mailserver = "192.168.0.100";
+    $mbox = urldecode($box);
+    $host = "{" . $mailserver . ":143/imap/novalidate-cert}$mbox";
+    $user_id = "hjsong@durianit.co.kr";
+    $user_pwd = "durian12#";
+
+    // 메일함 접속
+    $mails= @imap_open($host, $user_id, $user_pwd);
+    $fileSource = imap_fetchbody($mails, $_POST['msg_no'], (string)$_POST['part_no']);
+    $fileSource = imap_base64($fileSource);
+    force_download($_POST['f_name'], $fileSource);
+
+    imap_close($mails);
+  }
+
 
 }
 

@@ -13,7 +13,12 @@
       <div>
         <div>
           <?php
-            echo date('o년 n월 j일', $topic->created);   // 
+            // stamp값을 php date 함수로 해당 형식으로 출력 (근데 db랑 시간이 안맞음)
+            // echo date('o년 n월 j일, G시 i분 s초', $topic->created);
+
+            // 내가 만든 헬퍼의 함수
+            echo kdate($topic->created);
+
            ?>
         </div>
         <?php
