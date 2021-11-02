@@ -38,6 +38,11 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
          -
         */
 
+        // 테스트용
+        // echo '<pre>';
+        // var_dump($head);
+        // echo '</pre>';
+
         // 발신자 이름 or 메일주소 표시
         $from_obj = $head[$mailno[$i]]->from[0];              // 보낸 사람의 이름 또는 메일주소를 얻기위함
         $from_addr = $from_obj->mailbox.'@'.$from_obj->host;  // hjsong@durianit.co.kr

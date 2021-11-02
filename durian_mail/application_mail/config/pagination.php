@@ -1,6 +1,6 @@
 <?php
 // 페이징 정적인 부분 처리
-$config['num_links'] = 1;
+$config['num_links'] = 2;
 $config['first_link'] = '<< &nbsp&nbsp';
 $config['first_tag_open'] = '<span style="letter-spacing:0px;">';
 $config['first_tag_close'] = '</span>';

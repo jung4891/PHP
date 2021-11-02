@@ -3,12 +3,15 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 /*
   메일함      Mailbox
-  전체메일    mail_list
-  받은편지함  Inbox
+  전체메일    INBOX
+  보낸편지함  SENT
+  임시보관함  TMP
+  스팸메일함  SPAM
+  휴지통      TRASH
+
+  받은편지함
   별표편지함  Starred
   중요편지함  Important
-  보낸편지함  Sent Mail
-  임시보관함  Drafts
 */
 
 /*
@@ -95,7 +98,7 @@ class Mailbox extends CI_Controller {
   }
 
   // 전체메일 출력: 메일함에 있는 메일들의 헤더정보(제목, 날짜, 보낸이 등등)를 뷰로 넘김
-  public function mail_list($box='INBOX'){
+  public function mail_list($box){
     /*
     - imap_open() : 메일서버에 접속하기 위한 함수
                    (접속에 성공하면 $mailbox에 IMAP 스트림(mailstream)이 할당됨)
@@ -114,8 +117,27 @@ class Mailbox extends CI_Controller {
     // $user_id = "test2@durianict.co.kr";
     // $user_pwd = "durian12#";
 
+    // 메일박스명 디코딩
+    switch($box) {
+      case "INBOX":
+        $mbox = $box;
+        break;
+      case "SENT":
+        $mbox = mb_convert_encoding('보낸 편지함', 'UTF7-IMAP', 'UTF-8');
+        break;
+      case "TMP":
+        $mbox = mb_convert_encoding('임시 보관함', 'UTF7-IMAP', 'UTF-8');
+        break;
+      case "SPAM":
+        $mbox = mb_convert_encoding('정크 메일', 'UTF7-IMAP', 'UTF-8');
+        break;
+      case "TRASH":
+        $mbox = mb_convert_encoding('지운 편지함', 'UTF7-IMAP', 'UTF-8');
+        break;
+    }
+    // $mbox = $_POST['mailbox'];   -> post로 보낼시 페이징 처리시 애러남. 페이징 링크 생성시에는 post로 보내질 않으니 받질 못함.
+
     $mailserver = "192.168.0.100";
-    $mbox = urldecode($box);
     $host = "{" . $mailserver . ":143/imap/novalidate-cert}$mbox";
     $user_id = "hjsong@durianit.co.kr";
     $user_pwd = "durian12#";
@@ -137,7 +159,7 @@ class Mailbox extends CI_Controller {
       $page = ($this->uri->segment(4))? $this->uri->segment(4)+1:1;
       $data['page'] = $page;
       $config = array();
-      $config['base_url'] = "/index.php/Mailbox/mail_list/{$mbox}";
+      $config['base_url'] = "/index.php/Mailbox/mail_list/$box";
       $config['total_rows'] = $mails_cnt;
       $config['per_page'] = 14;
       $data['per_page'] = 14;
