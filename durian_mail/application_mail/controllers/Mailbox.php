@@ -57,7 +57,8 @@ class Mailbox extends CI_Controller {
   function __construct() {
       parent::__construct();
       // mail helper는 따로 만든것임
-      $this->load->helper(array('url', 'download', 'mail'));
+      // $this->load->helper(array('url', 'download', 'mail'));
+      $this->load->helper(array('url', 'download'));
       $this->load->library('pagination');
 
       // IMAP(Internet Message Access Protocol) : 메일서버에 접속하여 메일을 가져오기 위한 프로토콜
@@ -98,7 +99,7 @@ class Mailbox extends CI_Controller {
   }
 
   // 전체메일 출력: 메일함에 있는 메일들의 헤더정보(제목, 날짜, 보낸이 등등)를 뷰로 넘김
-  public function mail_list($box){
+  public function mail_list($box='INBOX'){
     /*
     - imap_open() : 메일서버에 접속하기 위한 함수
                    (접속에 성공하면 $mailbox에 IMAP 스트림(mailstream)이 할당됨)
@@ -138,7 +139,7 @@ class Mailbox extends CI_Controller {
     // $mbox = $_POST['mailbox'];   -> post로 보낼시 페이징 처리시 애러남. 페이징 링크 생성시에는 post로 보내질 않으니 받질 못함.
 
     $mailserver = "192.168.0.100";
-    $host = "{" . $mailserver . ":143/imap/novalidate-cert}$mbox";
+    $host = "{" . $mailserver . ":143/imap/novalidate-cert}".$mbox;
     $user_id = "hjsong@durianit.co.kr";
     $user_pwd = "durian12#";
 
@@ -150,12 +151,12 @@ class Mailbox extends CI_Controller {
 
     // 뷰로 보낼 내용들 세팅
     $data = array();
-    $data['mbox'] = $mbox;
+    $data['box'] = $box;
     $data['test'] = $mailboxes;
 
     if($mails) {
       $mails_cnt = imap_num_msg($mails);
-      // 페이징 동적으로 설정할 부분들만 설정함. 정적인 부분은 config>pagination에 넣음
+      // 페이징 동적으로 설정할 부분들만 설정함.
       $page = ($this->uri->segment(4))? $this->uri->segment(4)+1:1;
       $data['page'] = $page;
       $config = array();
@@ -163,6 +164,19 @@ class Mailbox extends CI_Controller {
       $config['total_rows'] = $mails_cnt;
       $config['per_page'] = 14;
       $data['per_page'] = 14;
+
+      // 정적인 부분은 config>pagination에 넣음 (일단 여기에 다 넣음)
+      $config['num_links'] = 2;
+      $config['first_link'] = '<< &nbsp&nbsp';
+      $config['first_tag_open'] = '<span style="letter-spacing:0px;">';
+      $config['first_tag_close'] = '</span>';
+      $config['last_link'] = ' >>';
+      $config['last_tag_open'] = '<span style="letter-spacing:0px;">';
+      $config['last_tag_close'] = '</span>';
+      $config['next_link'] = '';
+      $config['prev_link'] = '';
+      $config['cur_tag_open'] = '<span style="color:red;">';
+      $config['cur_tag_close'] = '</span>';
       $this->pagination->initialize($config);
       $data['links'] = $this->pagination->create_links();
 
@@ -186,12 +200,52 @@ class Mailbox extends CI_Controller {
     $this->load->view('mailbox/mail_list_v', $data);
   }
 
+  // 메일의 입체구조 -> 평면화
+  function flattenParts($messageParts, $flattenedParts = array(), $prefix = '', $index = 1, $fullPrefix = true) {
+    foreach($messageParts as $part) {
+      $flattenedParts[$prefix.$index] = $part;
+      if(isset($part->parts)) {
+        if($part->type == 2) {
+          $flattenedParts = $this->flattenParts($part->parts, $flattenedParts, $prefix.$index.'.', 0, false);
+        }
+        elseif($fullPrefix) {
+          $flattenedParts = $this->flattenParts($part->parts, $flattenedParts, $prefix.$index.'.');
+        }
+        else {
+          $flattenedParts = $this->flattenParts($part->parts, $flattenedParts, $prefix);
+        }
+        unset($flattenedParts[$prefix.$index]->parts);
+      }
+      $index++;
+    }
+    return $flattenedParts;
+  }
+
   // 메일 조회 : body부분의 내용을 구조를 분석해 내용(string)을 뷰로 보냄
   public function mail_detail($box, $num){
 
+    // 메일박스명 디코딩
+    switch($box) {
+      case "INBOX":
+        $mbox = $box;
+        break;
+      case "SENT":
+        $mbox = mb_convert_encoding('보낸 편지함', 'UTF7-IMAP', 'UTF-8');
+        break;
+      case "TMP":
+        $mbox = mb_convert_encoding('임시 보관함', 'UTF7-IMAP', 'UTF-8');
+        break;
+      case "SPAM":
+        $mbox = mb_convert_encoding('정크 메일', 'UTF7-IMAP', 'UTF-8');
+        break;
+      case "TRASH":
+        $mbox = mb_convert_encoding('지운 편지함', 'UTF7-IMAP', 'UTF-8');
+        break;
+    }
+    // echo $num;
+
     // 메일서버 접속정보 설정
     $mailserver = "192.168.0.100";
-    $mbox = urldecode($box);
     $host = "{" . $mailserver . ":143/imap/novalidate-cert}$mbox";
     $user_id = "hjsong@durianit.co.kr";
     $user_pwd = "durian12#";
@@ -204,6 +258,9 @@ class Mailbox extends CI_Controller {
     // 내용을 제외한 부분 헤더에서 가져옴
     $data = array();
     $head = imap_headerinfo($mails, $num);
+    // echo '<pre>';
+    // var_dump($head);
+    // echo '</pre>';
     $data['date'] = date("Y/m/d H:i", $head->udate);
     $data['from_addr'] = htmlspecialchars(mb_decode_mimeheader($head->fromaddress));
     $data['to_addr'] = htmlspecialchars(mb_decode_mimeheader($head->toaddress));
@@ -222,7 +279,7 @@ class Mailbox extends CI_Controller {
         $part = $struct->parts[$i-1];
         if ($part->ifdisposition == 1 && $part->disposition == 'attachment') {    // 첨부파일일 경우
             $file_name = $part->dparameters[0]->value;
-            array_push($f_arr, array('msg_no'=>$msg_no, 'part_no'=>$i, 'file_name'=>imap_utf8($file_name)));
+            array_push($f_arr, array('mbox'=>$mbox, 'msg_no'=>$msg_no, 'part_no'=>$i, 'file_name'=>imap_utf8($file_name)));
           }
       }
     }
@@ -235,6 +292,8 @@ class Mailbox extends CI_Controller {
     // 테스트용
     $struct = imap_fetchstructure($mails, $msg_no);
     $data['struct'] = $struct;
+    $flattenedParts = $this->flattenParts($struct->parts);
+    $data['flattenedParts'] = $flattenedParts;
     $body = imap_body($mails, $msg_no);   // 본문 전체
     $data['body'] = $body;
 
@@ -267,6 +326,8 @@ class Mailbox extends CI_Controller {
     imap_close($mails);
     $this->load->view('mailbox/mail_detail_v', $data);
   }
+
+
 
 
   // 메일의 구조를 분석
@@ -332,6 +393,13 @@ class Mailbox extends CI_Controller {
               - parts[1]_RELATED
                 - parts[0]_HTML (utf-8 / base64(encode:3) ) -> fetchbody("2.1") -> imap_base64
                 - parts[1]_PNG	( / base64(encode:3) ) -> fetchbody("2.2") -> <img>
+
+              flatten시키면
+              $flattenedParts = array()
+              $flattenedParts[1] = PLAIN
+              $flattenedParts[2.1] = HTML
+              $flattenedParts[2.2] = PNG
+
             */
             for($j=1; $j<=count($part->parts); $j++) {
               $part_inner = $part->parts[$j-1];
@@ -408,10 +476,10 @@ class Mailbox extends CI_Controller {
                     $part_inner2 = $part_inner->parts[$k-1];
                     $mime = $part_inner2->subtype;
                     $encode = $part_inner2->encoding;
-                    echo $encode;
+                    // echo $encode;
                     $charset = $part_inner2->parameters[0]->value;
                     $val = $this->printbody($mailstream, $MSG_NO, $i+(0.1*$j)+(0.01*$k), $encode, $mime, $charset);
-                    echo $val;
+                    // echo $val;
                     $tmp .= $val;
                   }
                 }
@@ -445,7 +513,7 @@ class Mailbox extends CI_Controller {
       case 4:   // quoted-print
         $val = quoted_printable_decode($val);
         // echo $charset;
-        echo '123';
+        // echo '123';
 
         if ($charset == 'ks_c_5601-1987') {     // else는 charset이 utf-8로 iconv 불필요
           $val = iconv('euc-kr', 'utf-8', $val);
@@ -472,8 +540,7 @@ class Mailbox extends CI_Controller {
   function download() {
     // 메일서버 접속정보 설정
     $mailserver = "192.168.0.100";
-    $mbox = urldecode($box);
-    $host = "{" . $mailserver . ":143/imap/novalidate-cert}$mbox";
+    $host = "{" . $mailserver . ":143/imap/novalidate-cert}" . $_POST['mbox'];
     $user_id = "hjsong@durianit.co.kr";
     $user_pwd = "durian12#";
 

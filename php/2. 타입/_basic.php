@@ -41,10 +41,24 @@
         echo '<br><br>';
 
         // isset(변수) : 변수의 선언여부
+        // unset : 변수내부 값 비워줌, 배열 역시 배워줌. 그냥 다 비워줌
         var_dump(isset($strr));         // bool(false)
         $strr = 'test';
         var_dump(isset($strr));         // bool(true)
-        echo isset($strr).'<br><br>';   // 1(true) / 없다면 null(false)
+        echo '<br>';
+        echo isset($strr).'<br>';   // 1(true) / 없다면 null(false)
+        unset($strr);
+        var_dump(isset($strr));     // bool(false)
+        echo '<br>';
+        $arr = array('1' => 'a', '2' => 'b');
+        var_dump($arr);
+        echo '<br>';
+        unset($arr);
+        var_dump($arr);     // undefined.
+
+
+
+        echo '<hr>';
 
 
       /*

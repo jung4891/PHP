@@ -3,11 +3,6 @@ include $this->input->server('DOCUMENT_ROOT')."/include/base.php";
 include $this->input->server('DOCUMENT_ROOT')."/include/mail_header.php";
 include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
  ?>
-<style media="screen">
-  body {
-
-  }
-</style>
  <div id="main_contents" style=" padding-left: 20px; ">
   <div class="main_div" >
    <table width="90%" border="0" cellpadding="4" cellspacing="0">
@@ -32,8 +27,8 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
        <td bgcolor="#F7F7F7">
          <?php
           foreach($f_arr AS $file_info) {
-            echo "&nbsp;<a href=\"javascript:download('{$file_info['msg_no']}', '{$file_info['part_no']}',
-                    '{$file_info['file_name']}');\">".$file_info['file_name'].'</a><br>';
+            echo "&nbsp;<a href=\"javascript:download('{$file_info['mbox']}', '{$file_info['msg_no']}',
+                    '{$file_info['part_no']}', '{$file_info['file_name']}');\">".$file_info['file_name'].'</a><br>';
           }
           ?>
        </td>
@@ -42,33 +37,41 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
       <td colspan="2"><?php echo $contents; ?> </td>
      </tr>
 
-     <?php
-      ?>
-
      <!-- 아래 pre태그를 이용해서 간편하게 조회하기 위해 만든 헬퍼 함수 -->
-     <?php var_pre($struct); ?>
+     <!-- ★ 헬퍼 로드 안하고 아래 실행하면 internal 서버오류나고 자바스크립트 실행 안되게됨~~~!!!  -->
+     <!-- <?php // var_pre($struct); ?> -->
 
      <!-- struct 테스트용 -->
-     <!-- <tr>
+     <tr>
       <td colspan="2">
         <h3>$struct</h3>
         <pre>
-          <?php // var_dump($struct);?>
+          <?php var_dump($struct);?>
         </pre>
       </td>
-     </tr> -->
+     </tr>
+
+     <!-- struct 테스트용 -->
+     <tr>
+      <td colspan="2">
+        <h3>$flattenedParts</h3>
+        <pre>
+          <?php var_dump($flattenedParts);?>
+        </pre>
+      </td>
+     </tr>
 
      <!-- body 테스트용 -->
-     <tr>
+     <!-- <tr>
        <td colspan="2">
          <h3>$body</h3>
          <pre>
-           <?php var_dump($body); ?>
+           <?php // var_dump($body); ?>
          </pre>
        </td>
-     </tr>
-     <?php
+     </tr> -->
 
+     <?php
      // 메일함 목록 테스트
      // $user_id = "hjsong@durianit.co.kr";
      // $user_pwd = "durian12#";
@@ -86,19 +89,19 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
 
 <script type="text/javascript">
 
-//
-function download(msg_no, part_no, f_name) {
-    var newForm = $('<form></form>');
-    newForm.attr("method","post");
-    newForm.attr("action", "/index.php/mailbox/download");
+  function download(mbox, msg_no, part_no, f_name) {
+      var newForm = $('<form></form>');
+      newForm.attr("method","post");
+      newForm.attr("action", "/index.php/mailbox/download");
 
-    newForm.append($('<input>', {type: 'hidden', name: 'msg_no', value: msg_no }));
-    newForm.append($('<input>', {type: 'hidden', name: 'part_no', value: part_no }));
-    newForm.append($('<input>', {type: 'hidden', name: 'f_name', value: f_name }));
+      newForm.append($('<input>', {type: 'hidden', name: 'mbox', value: mbox }));
+      newForm.append($('<input>', {type: 'hidden', name: 'msg_no', value: msg_no }));
+      newForm.append($('<input>', {type: 'hidden', name: 'part_no', value: part_no }));
+      newForm.append($('<input>', {type: 'hidden', name: 'f_name', value: f_name }));
 
-    newForm.appendTo('body');
-    newForm.submit();
-}
+      newForm.appendTo('body');
+      newForm.submit();
+  }
 </script>
 
 <?php

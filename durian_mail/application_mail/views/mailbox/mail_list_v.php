@@ -8,7 +8,7 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
   <?php echo $test_msg; ?> <br><br>
   <!-- <?php echo'<pre>'; var_dump($test); echo '</pre>' ?> <br> -->
 
-  <table border="1" width="1000" >
+  <table border="1" width="600" >
     <thead>
       <tr>
         <th>U</th>
@@ -17,7 +17,7 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
         <th>발신자</th>
         <th>제목</th>
         <th>날짜</th>
-        <th>크기</th>
+        <!-- <th>크기</th> -->
       </tr>
     </thead>
     <tbody>
@@ -63,9 +63,9 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
         <td><?php echo $msg_no?></td>
         <td><input type="checkbox" name="chk" value=<?php echo $msg_no;?>></td>
         <td><?php echo "<a href=mailto:$from_addr>$from_name</a>";?></td>
-        <td><a href="/index.php/mailbox/mail_detail/<?php echo $mbox ?>/<?php echo $mailno[$i] ?>"><?php echo imap_utf8($head[$mailno[$i]]->subject)?></a></td>
+        <td><a href="/index.php/mailbox/mail_detail/<?php echo $box ?>/<?php echo $mailno[$i] ?>"><?php echo imap_utf8($head[$mailno[$i]]->subject)?></a></td>
         <td nowrap><?php echo date("Y/m/d H:i", $head[$mailno[$i]]->udate)?></td>
-        <td nowrap><?php echo $head[$mailno[$i]]->Size?> bytes</td>
+        <!-- <td nowrap><?php echo $head[$mailno[$i]]->Size?></td> -->
       </tr>
       <?php
         } // if
