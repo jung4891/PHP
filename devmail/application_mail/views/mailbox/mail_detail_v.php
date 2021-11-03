@@ -39,7 +39,119 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
        </td>
      </tr>
      <tr>
-      <td colspan="2"><?php echo $contents; ?> </td>
+       <td colspan="2">
+       <?php
+
+       // 메일서버 접속정보 설정
+       $mailserver = "192.168.0.100";
+       $mbox = 'INBOX';
+
+       $host = "{" . $mailserver . ":143/imap/novalidate-cert}".$mbox;
+       $user_id = "hjsong@durianit.co.kr";
+       $user_pwd = "durian12#";
+       // echo $host;   {192.168.0.100:143/imap/novalidate-cert}INBOX
+
+       // 메일함 접속
+       $mails= @imap_open($host, $user_id, $user_pwd);
+
+        foreach($flattenedParts as $partNumber => $part) {
+
+        	switch($part->type) {
+        		case 0:
+        			// the HTML or plain text part of the email
+              if ($part->subtype == "PLAIN") break;
+
+              // charset이 parameters 배열에 [0] or [1]에 있음 그래서 반복문 돌려서 charset 구함.
+              if($part->ifparameters) {
+                foreach($part->parameters as $object) {
+                  if(strtolower($object->attribute) == 'charset') {
+                    $charset = $object->value;
+                  }
+                }
+              }
+
+        			$message = getPart($mails, $msg_no, $partNumber, $part->encoding, $charset);
+              echo $message;
+        			// now do something with the message, e.g. render it
+        		  break;
+
+        		case 1:
+        			// multi-part headers, can ignore  (MIXED, ALTERNATIVE, RELATED)
+        		break;
+        		case 2:
+        			// attached message headers, can ignore
+        		break;
+
+        		case 3: // application	(attachment)
+        		case 4: // audio
+        		case 5: // image		(PNG 인라인출력이든 첨부든)
+        		case 6: // video
+        		case 7: // other
+        			$filename = getFilenameFromPart($part);
+              if ($filename)      // 첨부파일
+              echo "&nbsp;<a href=\"javascript:download('{$mbox}', '{$msg_no}',
+                      '{$partNumber}', '{$filename}');\">".$filename.'</a><br>';
+        			if($filename) {
+        				// it's an attachment
+        				// $attachment = getPart($connection, $messageNumber, $partNumber, $part->encoding);
+        				// now do something with the attachment, e.g. save it somewhere
+        			}
+        			else {
+        				// don't know what it is
+        			}
+        		break;
+    	   }
+       }
+
+      function getPart($connection, $messageNumber, $partNumber, $encoding, $charset) {
+      	$data = imap_fetchbody($connection, $messageNumber, $partNumber);
+        $body = imap_body($connection, $messageNumber);
+        // echo '<pre>';
+        // var_dump($body);
+        // echo '<br>여기까지가 body<br>';
+        // echo '</pre>';
+      	switch($encoding) {
+      		case 0: return $data; // 7BIT
+      		case 1: return $data; // 8BIT
+      		case 2: return $data; // BINARY
+      		case 3: return base64_decode($data); // BASE64
+      		case 4:
+          echo $data;
+            $data = quoted_printable_decode($data);    // QUOTED_PRINTABLE
+
+            if ($charset == 'ks_c_5601-1987')          // else는 charset이 utf-8로 iconv 불필요
+              $data = iconv('euc-kr', 'utf-8', $data);
+
+            return $data;
+      		case 5: return $data; // OTHER
+      	}
+      }
+
+      function getFilenameFromPart($part) {
+      	$filename = '';
+        if ($part->ifdisposition)
+      	if($part->disposition == 'attachment') {
+      		foreach($part->dparameters as $object) {
+      			if(strtolower($object->attribute) == 'filename') {
+      				$filename = $object->value;
+      			}
+      		}
+      	}
+
+      	// if(!$filename && $part->ifparameters) {
+      	// 	foreach($part->parameters as $object) {
+      	// 		if(strtolower($object->attribute) == 'name') {
+      	// 			$filename = $object->value;
+      	// 		}
+      	// 	}
+      	// }
+      	return imap_utf8($filename);   // 한글일 경우 ?ks_c_5601-1987?여서 디코딩 해야함
+      }
+
+    ?>
+
+      <!-- <td colspan="2"><?php // echo $contents; ?> </td> -->
+      </td>
      </tr>
 
      <?php
@@ -60,14 +172,14 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
      </tr> -->
 
      <!-- flattenedParts 테스트용 -->
-    <!-- <tr>
+    <tr>
      <td colspan="2">
        <h3>$flattenedParts</h3>
        <pre>
-         <?php // var_dump($flattenedParts);?>
+         <?php var_dump($flattenedParts);?>
        </pre>
      </td>
-    </tr> -->
+    </tr>
 
      <!-- body 테스트용 -->
      <!-- <tr>

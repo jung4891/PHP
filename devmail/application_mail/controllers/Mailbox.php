@@ -247,6 +247,7 @@ class Mailbox extends CI_Controller {
     // 내용을 구조를 분석해서 가져옴 ( checkstruct() -> (디코딩 필요한경우) printbody() )
     $contents = '';
     $msg_no = trim($head->Msgno);
+    $data['msg_no'] = $msg_no;
 
     // 첨부파일이 있는 메일은 첨부파일만 따로 처리 (도무지 checkstruct내에서 처리할 방법을 모르겠음)
     $struct = imap_fetchstructure($mails, $msg_no);
@@ -264,8 +265,8 @@ class Mailbox extends CI_Controller {
     $data['f_arr'] = $f_arr;
 
     // 그외 메일 및 첨부파일 메일 내용부분
-    $contents .= $this->checkstruct($mails, $msg_no);
-    $data['contents'] = $contents;
+    // $contents .= $this->checkstruct($mails, $msg_no);
+    // $data['contents'] = $contents;
 
     // 테스트용
     $struct = imap_fetchstructure($mails, $msg_no);
@@ -274,6 +275,40 @@ class Mailbox extends CI_Controller {
     $data['flattenedParts'] = $flattenedParts;
     $body = imap_body($mails, $msg_no);   // 본문 전체
     $data['body'] = $body;
+
+   //  foreach($flattenedParts as $partNumber => $part) {
+   //
+   //  	switch($part->type) {
+   //  		case 0:
+   //  			// the HTML or plain text part of the email
+   //  			$message = getPart($connection, $messageNumber, $partNumber, $part->encoding);
+   //  			// now do something with the message, e.g. render it
+   //  		break;
+   //
+   //  		case 1:
+   //  			// multi-part headers, can ignore  (MIXED, ALTERNATIVE, RELATED)
+   //  		break;
+   //  		case 2:
+   //  			// attached message headers, can ignore
+   //  		break;
+   //
+   //  		case 3: // application	(attachment)
+   //  		case 4: // audio
+   //  		case 5: // image		(PNG 인라인출력이든 첨부든)
+   //  		case 6: // video
+   //  		case 7: // other
+   //  			$filename = getFilenameFromPart($part);
+   //  			if($filename) {
+   //  				// it's an attachment
+   //  				$attachment = getPart($connection, $messageNumber, $partNumber, $part->encoding);
+   //  				// now do something with the attachment, e.g. save it somewhere
+   //  			}
+   //  			else {
+   //  				// don't know what it is
+   //  			}
+   //  		break;
+	 //   }
+   // }
 
     // 첨부파일 다운로드 (아래 header사용으로 주로 하는거 같은데 잘 안되서 force_download 사용함)
     // $fileSource = imap_fetchbody($mails, $msg_no, (string)3);   // 본문에서 특정 부분(HTML or 첨부파일 등등)의 내용만(string)
