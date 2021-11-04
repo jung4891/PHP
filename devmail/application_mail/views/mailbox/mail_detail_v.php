@@ -77,7 +77,7 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
 
         		case 1:
         			// multi-part headers, can ignore  (MIXED, ALTERNATIVE, RELATED)
-        		break;
+        		break; 
         		case 2:
         			// attached message headers, can ignore
         		break;
@@ -85,6 +85,18 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
         		case 3: // application	(attachment)
         		case 4: // audio
         		case 5: // image		(PNG 인라인출력이든 첨부든)
+              if (! $part->ifdisposition) {   // 첨부가 아닌 삽입된 이미지
+                $data = imap_fetchbody($mails, $msg_no, $partNumber);
+                $data = str_replace("\r\n", " ", $data);
+                echo
+                "<script language='javascript'>
+                  $('img').eq(14).attr('src', 'data:image/png;base64,$data');
+                  // var imgArr = $('img').eq(14).attr('src');
+                  // console.log(imgArr);
+                </script>";
+                echo '<img src="data:image/png;base64,' . $data . '" />';
+                break;
+              }
         		case 6: // video
         		case 7: // other
         			$filename = getFilenameFromPart($part);
@@ -116,13 +128,13 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
       		case 2: return $data; // BINARY
       		case 3: return base64_decode($data); // BASE64
       		case 4:
-          echo $data;
+          // echo $data;
             $data = quoted_printable_decode($data);    // QUOTED_PRINTABLE
 
             if ($charset == 'ks_c_5601-1987')          // else는 charset이 utf-8로 iconv 불필요
               $data = iconv('euc-kr', 'utf-8', $data);
-
             return $data;
+
       		case 5: return $data; // OTHER
       	}
       }
@@ -209,6 +221,12 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
 </div>
 
 <script type="text/javascript">
+  function show_image() {
+    alert('aa');
+    // var imgArr = $('img').length;
+    // var imgArr = $("img").eq(14).attr("src");
+    // console.log(image);
+  }
 
   function download(mbox, msg_no, part_no, f_name) {
     var newForm = $('<form></form>');

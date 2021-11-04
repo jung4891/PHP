@@ -15,7 +15,7 @@
        - boolean : 논리값(값: true, false)
        - array : 배열
        - object : 객체
-       - resource : 리소스
+       - resource : 리소스 (PHP 외부에 존재하는 외부 자원을 의미)
        - NULL : 없는값(값: null)
     */
 
@@ -31,12 +31,10 @@
     var_dump((bool)'0');
     var_dump((bool)array());
     var_dump((bool)null);
-
     echo '<br>';
     var_dump((bool)-1);   // true
     var_dump((bool)'false');   // true
     echo "<br>------------------- 0 <br><br>";
-
 
     // @ int
     // PHP에서는 부호가 없는 정수(unsigned integer)는 지원하지 않습니다.
@@ -51,8 +49,83 @@
     echo "<br>------------------- 0.1 <br><br>";
 
     // @ float, double
+    // PHP에서 실수의 표현 범위는 운영체제에 따라 달라지지만 대략 ~1.8e307까지 표현할 수 있습니다.
+    // 하지만 컴퓨터에서 실수를 표현하는 방식은 반드시 오차가 존재하는 한계를 지니므로,
+    // 실수형끼리 직접 값을 비교하는 것은 피하는 것이 좋습니다.
+    $float_01 = 3.14;
+    var_dump($float_01);
+    echo "<br>";
+  	$float_03 = 1.8E307;	// float이 표현할 수 있는 범위를 넘지 않는 값을 대입함.
+  	var_dump($float_03);
+    echo "<br>";
+  	$float_04 = 1.8e308;	// float이 표현할 수 있는 범위를 넘는 값을 대입함.
+  	var_dump($float_04);  // float(INF)    미리 정의된 상수인 INF는 무한(infinite)이라는 값을 의미합니다.
+    echo "<br>------------------- 0.2 <br><br>";
 
+    // @ string
+    // PHP에서 문자열 리터럴은 큰따옴표("")나 작은따옴표('')로 감싸서 표현합니다.
+    // 오랫동안 사용되어 온 아스키(ASCII) 인코딩 환경에서 영문자는 한 글자당 1바이트, 한글은 2바이트로 표현됩니다.
+    // 하지만 UTF-8 인코딩 환경에서는 영문자는 한 글자당 1바이트, 한글은 한 문자당 3바이트로 표현됩니다.
+    $str_01 = "PHP";
+  	$str_02 = "호호호";
+  	echo strlen($str_01)."<br>";	// 3
+  	echo strlen($str_02);		     	// 9
+    echo "<br>------------------- 0.3 <br><br>";
 
+    // @ array
+    // PHP에서 배열(array)은 한 쌍의 키(key)와 값(value)으로 이루어진 맵(map)으로 구성되는 순서가 있는 집합을 의미
+    // 맵의 키로는 정수와 문자열만이 가능함
+    // 키가 1과 "1"은 같은 것으로 인식됨!
+    // 만약 정수와 문자열 이외에 다른 타입의 값을 키로 사용하면, 내부적으로 다음과 같이 타입 변환이 됨
+    /*
+      - 불리언은 true는 1로, false는 0으로 자동 타입 변환됩니다.
+      - 유효한 숫자로만 이루어진 문자열은 정수나 실수로 자동 타입 변환됩니다.
+      - 실수는 소수 부분이 제거되고, 정수로 자동 타입 변환됩니다.
+      - 배열과 객체는 배열의 키값으로 사용할 수 없습니다.
+    */
+    $arr = array(1 => "a", '1' => "b");
+    var_dump($arr);   // array(1) { [1]=> string(1) "b" }
+    echo "<br>";
+    $arr = array(2 => "2", 3 => 3);
+    var_dump($arr);   // array(2) { [2]=> string(1) "2" [3]=> int(3) }
+    echo "<br>";
+    $arr = array(true => 'a', 'a' => true);
+    var_dump($arr);   // array(2) { [1]=> string(1) "a" ["a"]=> bool(true) }
+    echo "<br>";
+    $arr = array(1.1 => 'a', 2.9 => 2.9);
+    var_dump($arr);   // array(2) { [1]=> string(1) "a" ["a"]=> bool(true) }
+    echo "<br>";
+    echo "<br>------------------- 0.4 <br><br>";
+
+    // @ 객체 (object)
+    // 객체는 클래스의 인스턴스를 저장하기 위한 타입
+    // 이러한 객체는 properties와 methods를 포함할 수 있다.
+    class Lecture
+    {
+      public $lec_02 = "MySQL";
+
+      function Lecture()
+      {
+          $this->lec_01 = "PHP";
+      }
+    }
+    $lec = new Lecture;   // 객체 생성
+    echo $lec->lec_01;    // PHP (객체의 속성 접근)
+    echo $lec->lec_02;    // MySQL (속성에 접근할 때는 $를 안붙이는군)
+    echo "<br>------------------- 0.5 <br><br>";
+
+    // @ NULL
+    // NULL 타입의 변수란 아직 어떠한 값도 대입되지 않은 변수를 의미
+    // NULL은 오직 한 가지 값(NULL 상수)만을 가질 수 있는 특별한 타입
+    $var_01;
+	  var_dump($var_01);	    // NULL (초기화되지 않은 변수를 참조)
+    echo "<br>";
+    $var_01 = 100;		      // int(100) ($var_01 변수를 초기화함)
+    var_dump($var_01);
+    echo "<br>";
+    unset($var_01);		      // $var_01 변수를 삭제함.
+    var_dump($var_01);	    // NULL (삭제된 변수를 참조)
+    echo "<br>------------------- 0.6 <br><br>";
 
 
     // gettype(변수) : 데이터형 확인
@@ -105,7 +178,7 @@
     var_dump(empty($var));    // bool(false)
     echo "<br>------------------- 3 <br><br>";
 
-    // unset : 변수내부 값 비워줌, 배열 역시 배워줌. 그냥 다 비워줌
+    // unset : 인수로 전달받은 변수를 메모리에서 삭제함.
     var_dump(isset($strr));       // bool(false)
     $strr = 'test';
     var_dump(isset($strr));       // bool(true)
@@ -118,8 +191,6 @@
     unset($arr);
     var_dump($arr);     // undefined.
     echo "------------------- 4 <br><br>";
-
-    // ~~>
 
 
     // 데이터형 변환
