@@ -27,31 +27,36 @@
 
     // 1. jQuery 기본
     $('#req_btn').on('click', function() {
-      // $('#test').load('a.txt');
-      // $('#test').text('<b>이렇게도 되겠지요~?</b>');
-      var a = 'aaa';
-      $('#test').html('<b>이렇게도 되겠지요~?</b>').append(a);  // 태그 적용되서 출력됨
+      // $('#test').load('a.txt');             // a.txt내용을 가져와서 #test인 태그내에 출력됨
+      // $('#test').text('<b>이렇게도 되겠지요~?</b>');   // 태그 그대로 출력됨
+      var a = '  aaa';
+      $('#test').html('<b>이렇게도 되겠지요~?</b>').append(a);  // 이렇게도 되겠지요~? aaa (태그 적용되서 출력됨)
     })
 
     // 2. $.post(URL, data, callback할 함수);
     $('#post_btn').click(function() {
       // POST 방식으로 서버에 HTTP Request를 보냄
-      $.post("test.php",
+      $.post("test_post.php",
       {
         "name":"Song",
-        city:"Seoul"
-      }, function(data, status){
+         city:"Seoul"
+      },
+      function(data, status){
         // data: test.php에 데이터를 보내고 반환된 결과(echo로 출력된것)임.
         alert(data + "\n" + status);
-        $('#test_post').text(data);
+        $('#test').html(data);
       });
     });
 
     // 2. $.post(URL, callback할 함수, "json");
+    // 데이터를 보내지 않고 json 문자열을 받아와 출력함.
     $('#post_btn2').click(function() {
-      $.post("test_post2.php", function(json){
-        alert(json.b);
-        console.log(json.b);
+      $.post("test_post2.php",
+      function(json){
+        alert(json);          // [object Object]
+        alert(json.b);        // 2
+        console.log(json);    // {a: '1', b: '2'}
+        console.log(json.b);  // 2
       }, "json");
     });
 

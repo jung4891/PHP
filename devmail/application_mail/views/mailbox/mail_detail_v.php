@@ -77,7 +77,7 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
 
         		case 1:
         			// multi-part headers, can ignore  (MIXED, ALTERNATIVE, RELATED)
-        		break; 
+        		break;
         		case 2:
         			// attached message headers, can ignore
         		break;
@@ -85,16 +85,31 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
         		case 3: // application	(attachment)
         		case 4: // audio
         		case 5: // image		(PNG 인라인출력이든 첨부든)
-              if (! $part->ifdisposition) {   // 첨부가 아닌 삽입된 이미지
+              if ($part->ifdisposition == 0 || $part->disposition == "inline") {   // 첨부가 아닌 삽입된 이미지
                 $data = imap_fetchbody($mails, $msg_no, $partNumber);
-                $data = str_replace("\r\n", " ", $data);
+                $data = str_replace("\r\n", " ", $data);    // 리턴, 줄개행코드 제거. $data에 이게 있으면 애러남
+                $filename = getFilenameFromPart($part);
+                var_dump($filename);
+                echo 'aa';
                 echo
                 "<script language='javascript'>
-                  $('img').eq(14).attr('src', 'data:image/png;base64,$data');
+                  var imgArr = $('img');
+                  var filename = '$filename';
+                  console.log(filename);
+                  for(var i=imgArr.length-1; i>0; i--) {
+                    var src = imgArr.eq(i).attr('src');
+                    var is_target = src.indexOf(filename);
+                        // 대상 문자열(src 값) 안에 특정한 부분 문자열(이미지 파일명)이 있는지 찾을땐
+                        // String 객체의 내장 indexOf를 사용하면 된다.
+                    if(is_target != -1)
+                      imgArr.eq(i).attr('src', 'data:image/png;base64,$data');
+                    // console.log(src);
+                  }
+                  // $('img').eq(15).attr('src', 'data:image/png;base64,$data');
                   // var imgArr = $('img').eq(14).attr('src');
                   // console.log(imgArr);
                 </script>";
-                echo '<img src="data:image/png;base64,' . $data . '" />';
+                // echo '<img src="data:image/png;base64,' . $data . '" />';
                 break;
               }
         		case 6: // video
@@ -141,14 +156,11 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
 
       function getFilenameFromPart($part) {
       	$filename = '';
-        if ($part->ifdisposition)
-      	if($part->disposition == 'attachment') {
-      		foreach($part->dparameters as $object) {
-      			if(strtolower($object->attribute) == 'filename') {
-      				$filename = $object->value;
-      			}
-      		}
-      	}
+    		foreach($part->parameters as $object) {
+    			if(strtolower($object->attribute) == 'name') {
+    				$filename = $object->value;
+    			}
+    		}
 
       	// if(!$filename && $part->ifparameters) {
       	// 	foreach($part->parameters as $object) {
