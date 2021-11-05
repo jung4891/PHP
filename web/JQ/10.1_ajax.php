@@ -12,6 +12,8 @@
         백그라운드 영역에서 서버와 데이터를 교환하여 웹 페이지에 표시해줌
       - jQuery는 가장 대표적인 Ajax 프레임워크로 여러 메소드를 제공하여
         ajax기능을 손쉽게 사용할 수 있다.
+      - ajax는 비동기식이라 기본 form태그의 action이 없는 것이다.
+        action은 동기식으로 페이지가 이동된다.
     -->
     <h5>jQuery & Ajax</h5>
     <p id="test">이 단락에 다른 텍스트가 불러와짐</p>
@@ -21,7 +23,15 @@
     <button type="button" id="ajax_btn">3. $.ajax</button>
     <h3 id="ajax1"></h3> <span class="ajax2">이곳에 가져온 json 출력됨</span> <br><br>
     <button type="button" id="load_btn">4. load()</button>
-    <span id="load"></span>
+    <span id="load"></span><br><br>
+
+    <form name="form1" id="form1">
+      이름: <input type="text" name="name" id="nameTest" value="nameTest"><br>
+      도시: <input type="text" name="city" value="cityTest"><br><br>
+      <button type="button" id="form_btn" name="button">폼테스트</button>
+    </form>
+    <input type="text" name="name" id="nameTest2" value="nameTest2"><br>
+    <span id="test2"></span>
 
     <script type="text/javascript">
 
@@ -68,7 +78,11 @@
         url: "test_ajax.php", // 클라이언트가 HTTP 요청을 보낼 서버의 URL 주소
         data: { name: "혁중" },     // HTTP 요청과 함께 서버로 보낼 데이터
         method: "POST",             // HTTP 요청 방식(GET, POST)
-        dataType: "json"            // 서버에서 보내줄 데이터의 타입
+        dataType: "json",            // 서버에서 보내줄 데이터의 타입
+
+        success : function(json) {
+          alert("이 방식이 .done으로 대체됨. name: " + json.name);
+        }
       })
       // HTTP 요청이 성공하면 요청한 데이터가 done() 메소드로 전달됨.
       .done(function(json) {
@@ -96,6 +110,29 @@
       // $('#load').load("test_load.html p");
       $('#load').load("test_load.html .abc");
     });
+
+    // 테스트용
+    $('#form_btn').click(function() {
+      var datas = $('#form1').serialize();
+      $('#test2').html(datas);
+      // $('#test2').text($('#nameTest2').val());
+    });
+
+    $(function() {
+      var datas = $('#form1').serialize();
+      console.log(datas);
+      $('#test2').text($('#nameTest').val());
+      // $('#test2').text('bbb');
+
+      // $.ajax({
+      //   url: "test_post.php",
+      //   data: { name: "hyuk" },
+      //   method: "POST"
+      // })
+      // .done(function(data) {
+      //   $('#test2').html(data);
+      // })
+    })
 
     </script>
   </body>

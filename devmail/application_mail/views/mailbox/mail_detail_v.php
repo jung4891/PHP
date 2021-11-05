@@ -44,8 +44,6 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
 
        // 메일서버 접속정보 설정
        $mailserver = "192.168.0.100";
-       $mbox = 'INBOX';
-
        $host = "{" . $mailserver . ":143/imap/novalidate-cert}".$mbox;
        $user_id = "hjsong@durianit.co.kr";
        $user_pwd = "durian12#";
@@ -53,6 +51,8 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
 
        // 메일함 접속
        $mails= @imap_open($host, $user_id, $user_pwd);
+
+       $body_HTML = '';
 
         foreach($flattenedParts as $partNumber => $part) {
 
@@ -71,7 +71,14 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
               }
 
         			$message = getPart($mails, $msg_no, $partNumber, $part->encoding, $charset);
-              echo $message;
+              $pos = strpos($message, 'cid');
+              if ($pos == null) {   // 삽입된 이미지가 없음
+                echo $message;
+              } else {  // 삽입된 이미지가 하나이상 있음
+                echo $message;
+                global $body_HTML;
+                $body_HTML = $message;
+              }
         			// now do something with the message, e.g. render it
         		  break;
 
@@ -85,29 +92,29 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
         		case 3: // application	(attachment)
         		case 4: // audio
         		case 5: // image		(PNG 인라인출력이든 첨부든)
+              // if (false)
               if ($part->ifdisposition == 0 || $part->disposition == "inline") {   // 첨부가 아닌 삽입된 이미지
                 $data = imap_fetchbody($mails, $msg_no, $partNumber);
                 $data = str_replace("\r\n", " ", $data);    // 리턴, 줄개행코드 제거. $data에 이게 있으면 애러남
                 $filename = getFilenameFromPart($part);
-                var_dump($filename);
-                echo 'aa';
+                // var_dump($filename);
                 echo
                 "<script language='javascript'>
                   var imgArr = $('img');
                   var filename = '$filename';
-                  console.log(filename);
-                  for(var i=imgArr.length-1; i>0; i--) {
+                  // console.log(filename);
+                  for(var i=0; i<imgArr.length; i++) {
                     var src = imgArr.eq(i).attr('src');
-                    var is_target = src.indexOf(filename);
+                        // var is_target = src.indexOf(filename);
+                        // 네이버에서 보낸 이미지 삽입 메일은 src에 파일명이 없어서 위 라인 주석처리.
+                    var is_target = src.indexOf('cid');
                         // 대상 문자열(src 값) 안에 특정한 부분 문자열(이미지 파일명)이 있는지 찾을땐
                         // String 객체의 내장 indexOf를 사용하면 된다.
-                    if(is_target != -1)
+                    if(is_target != -1) {
                       imgArr.eq(i).attr('src', 'data:image/png;base64,$data');
-                    // console.log(src);
+                      break;
+                    }
                   }
-                  // $('img').eq(15).attr('src', 'data:image/png;base64,$data');
-                  // var imgArr = $('img').eq(14).attr('src');
-                  // console.log(imgArr);
                 </script>";
                 // echo '<img src="data:image/png;base64,' . $data . '" />';
                 break;
@@ -186,14 +193,14 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
       <!-- <?php // var_pre($struct); ?> -->
 
      <!-- struct 테스트용 -->
-     <!-- <tr>
+     <tr>
       <td colspan="2">
         <h3>$struct</h3>
         <pre>
-          <?php // var_dump($struct);?>
+          <?php var_dump($struct);?>
         </pre>
       </td>
-     </tr> -->
+     </tr>
 
      <!-- flattenedParts 테스트용 -->
     <tr>

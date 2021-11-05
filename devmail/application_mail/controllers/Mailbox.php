@@ -235,6 +235,7 @@ class Mailbox extends CI_Controller {
 
     // 내용을 제외한 부분 헤더에서 가져옴
     $data = array();
+    $data['mbox'] = $mbox;
     $head = imap_headerinfo($mails, $num);
     // echo '<pre>';
     // var_dump($head);
@@ -271,8 +272,11 @@ class Mailbox extends CI_Controller {
     // 테스트용
     $struct = imap_fetchstructure($mails, $msg_no);
     $data['struct'] = $struct;
-    $flattenedParts = $this->flattenParts($struct->parts);
-    $data['flattenedParts'] = $flattenedParts;
+    // Microsoft Office Outlook 테스트 메시지	( 2021/09/03 11:04 )는 parts가 없고 html만 있어서 제어문 처리함
+    if (isset($struct->parts)) {
+      $flattenedParts = $this->flattenParts($struct->parts);
+      $data['flattenedParts'] = $flattenedParts;
+    }
     $body = imap_body($mails, $msg_no);   // 본문 전체
     $data['body'] = $body;
 

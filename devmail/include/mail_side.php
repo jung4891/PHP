@@ -1,4 +1,4 @@
-<link href="/misc/css/sidebar.css" type="text/css" rel="stylesheet">
+<link href="/devmail/misc/css/sidebar.css" type="text/css" rel="stylesheet">
 
 <div id="main">
     <div id="sideBar">
