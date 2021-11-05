@@ -6,7 +6,9 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
 <div id="main_contents" style="margin:unset;">
   <div class="main_div" >
   <?php echo $test_msg; ?> <br><br>
-  <!-- <?php echo'<pre>'; var_dump($test); echo '</pre>' ?> <br> -->
+
+  <!-- mailboxes 테스트용 -->
+  <!-- <?php // echo'<pre>'; var_dump($test); echo '</pre>' ?> <br> -->
 
   <table border="1" width="600" >
     <thead>
@@ -24,49 +26,36 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
       <form name="frm" method="post">
       <?php
       for($i=$page-1; $i<$page+($per_page-1); $i++) {
-        if (isset($mailno[$i])) {
+        if (isset($mailno_arr[$i])) {
       ?>
       <tr>
         <?php
+        // 발신자 이름 or 메일주소 가져오기
         /*
-         참고
-         - 이름+메일주소(송혁중 <go_go_ssing@naver.com>) 으로 출력하려면
-           htmlspecialchars(mb_decode_mimeheader($head[$num]->fromaddress))
-           - mb_decode_mimeheader() : MIME 인코드(암호화)되어있는 메일의 제목을 디코드(복호화)함
-           - htmlspecialchars() : 제목에 포함된 HTML태그를 무효로 처리함
-         - $recent = $head->Recent; -> 새메일 여부를 리턴
-         -
+          이름+메일주소(송혁중 <go_go_ssing@naver.com>) 으로 출력하려면
+          htmlspecialchars(mb_decode_mimeheader($head[$num]->fromaddress))
+          - mb_decode_mimeheader() : MIME 인코드(암호화)되어있는 메일의 제목을 디코드(복호화)함
+          - htmlspecialchars() : 제목에 포함된 HTML태그를 무효로 처리함
         */
-
-        // 테스트용
-        // echo '<pre>';
-        // var_dump($head);
-        // echo '</pre>';
-
-        // 발신자 이름 or 메일주소 표시
-        $from_obj = $head[$mailno[$i]]->from[0];              // 보낸 사람의 이름 또는 메일주소를 얻기위함
-        $from_addr = $from_obj->mailbox.'@'.$from_obj->host;  // hjsong@durianit.co.kr
+        $from_obj = $head[$mailno_arr[$i]]->from[0];              // 보낸 사람의 이름 또는 메일주소를 얻기위함
+        $from_addr = $from_obj->mailbox.'@'.$from_obj->host;      // hjsong@durianit.co.kr
         if (isset($from_obj->personal)) {
-          $from_name = imap_utf8($from_obj->personal);        // 송혁중 (이름이 명시되어 있는 메일)
+          $from_name = imap_utf8($from_obj->personal);            // 송혁중 (이름이 명시되어 있는 메일)
         } else {
           $from_name = $from_addr;          // 이름이 명시되어 있지 않은 메일은 메일주소 그대로 출력
         }
-        $msg_no = trim($head[$mailno[$i]]->Msgno);               // 메일번호
-
-        // echo '<pre>';
-        // var_dump($head[$mailno[$i]]);
-        // echo '</pre>';
-
+        $msg_no = trim($head[$mailno_arr[$i]]->Msgno);            // 메일번호
         ?>
+
         <!-- 메일목록 출력 -->
-        <td><?php echo $head[$mailno[$i]]->Unseen?></td>   <!-- 메일 클릭해서 읽으면 "U" -> ""로 바뀜 -->
+        <td><?php echo $head[$mailno_arr[$i]]->Unseen?></td>      <!-- 메일 클릭해서 읽으면 "U" -> ""로 바뀜 -->
         <td><?php echo $msg_no?></td>
         <td><input type="checkbox" name="chk" value=<?php echo $msg_no;?>></td>
         <td><?php echo "<a href=mailto:$from_addr>$from_name</a>";?></td>
-        <td><a href="<?php echo site_url(); ?>/mailbox/mail_detail/<?php echo $box ?>/<?php echo $mailno[$i] ?>">
-          <?php echo imap_utf8($head[$mailno[$i]]->subject)?></a></td>
-        <td nowrap><?php echo date("Y/m/d H:i", $head[$mailno[$i]]->udate)?></td>
-        <!-- <td nowrap><?php echo $head[$mailno[$i]]->Size?> bytes</td> -->
+        <td><a href="<?php echo site_url(); ?>/mailbox/mail_detail/<?php echo $box ?>/<?php echo $mailno_arr[$i] ?>">
+          <?php echo imap_utf8($head[$mailno_arr[$i]]->subject)?></a></td>
+        <td nowrap><?php echo date("Y/m/d H:i", $head[$mailno_arr[$i]]->udate)?></td>
+        <!-- <td nowrap><?php echo $head[$mailno_arr[$i]]->Size?> bytes</td> -->
       </tr>
       <?php
         } // if

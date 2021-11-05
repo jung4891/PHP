@@ -17,6 +17,8 @@
     <link href="/misc/lib/bootstrap/css/bootstrap-responsive.css" rel="stylesheet" media="screen">
     <!-- <link rel="stylesheet" href="/misc/css/topic.css"> -->
     <title>header test</title>
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="/misc/lib/bootstrap/js/bootstrap.min.js"></script>
     <style media="screen">
       /* body {
         background-color: pink;

@@ -103,6 +103,8 @@
     $page = ($this->uri->segment(3))? $this->uri->segment(3):0;
     $data2['res'] = $this->m->fetch_users($config['per_page'], $page);  // ($limit, $start)
 
+    $data2['js_test'] = '이게 js에서 받을수 있을까?';
+
     $this->load->view('topic/main', $data2);
     $this->load->view('templates/footer');
   }

@@ -30,112 +30,11 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
      <tr>
        <td align="center" bgcolor="#E7E7E7">첨부파일</td>
        <td bgcolor="#F7F7F7">
-         <?php
-         foreach($f_arr AS $file_info) {
-           echo "&nbsp;<a href=\"javascript:download('{$file_info['mbox']}', '{$file_info['msg_no']}',
-                   '{$file_info['part_no']}', '{$file_info['file_name']}');\">".$file_info['file_name'].'</a><br>';
-         }
-          ?>
+         <?php echo $attachments; ?>
        </td>
      </tr>
      <tr>
-       <td colspan="2">
        <?php
-
-       // 메일서버 접속정보 설정
-       $mailserver = "192.168.0.100";
-       $host = "{" . $mailserver . ":143/imap/novalidate-cert}".$mbox;
-       $user_id = "hjsong@durianit.co.kr";
-       $user_pwd = "durian12#";
-       // echo $host;   {192.168.0.100:143/imap/novalidate-cert}INBOX
-
-       // 메일함 접속
-       $mails= @imap_open($host, $user_id, $user_pwd);
-
-       $body_HTML = '';
-
-        foreach($flattenedParts as $partNumber => $part) {
-
-        	switch($part->type) {
-        		case 0:
-        			// the HTML or plain text part of the email
-              if ($part->subtype == "PLAIN") break;
-
-              // charset이 parameters 배열에 [0] or [1]에 있음 그래서 반복문 돌려서 charset 구함.
-              if($part->ifparameters) {
-                foreach($part->parameters as $object) {
-                  if(strtolower($object->attribute) == 'charset') {
-                    $charset = $object->value;
-                  }
-                }
-              }
-
-        			$message = getPart($mails, $msg_no, $partNumber, $part->encoding, $charset);
-              $pos = strpos($message, 'cid');
-              if ($pos == null) {   // 삽입된 이미지가 없음
-                echo $message;
-              } else {  // 삽입된 이미지가 하나이상 있음
-                echo $message;
-                global $body_HTML;
-                $body_HTML = $message;
-              }
-        			// now do something with the message, e.g. render it
-        		  break;
-
-        		case 1:
-        			// multi-part headers, can ignore  (MIXED, ALTERNATIVE, RELATED)
-        		break;
-        		case 2:
-        			// attached message headers, can ignore
-        		break;
-
-        		case 3: // application	(attachment)
-        		case 4: // audio
-        		case 5: // image		(PNG 인라인출력이든 첨부든)
-              // if (false)
-              if ($part->ifdisposition == 0 || $part->disposition == "inline") {   // 첨부가 아닌 삽입된 이미지
-                $data = imap_fetchbody($mails, $msg_no, $partNumber);
-                $data = str_replace("\r\n", " ", $data);    // 리턴, 줄개행코드 제거. $data에 이게 있으면 애러남
-                $filename = getFilenameFromPart($part);
-                // var_dump($filename);
-                echo
-                "<script language='javascript'>
-                  var imgArr = $('img');
-                  var filename = '$filename';
-                  // console.log(filename);
-                  for(var i=0; i<imgArr.length; i++) {
-                    var src = imgArr.eq(i).attr('src');
-                        // var is_target = src.indexOf(filename);
-                        // 네이버에서 보낸 이미지 삽입 메일은 src에 파일명이 없어서 위 라인 주석처리.
-                    var is_target = src.indexOf('cid');
-                        // 대상 문자열(src 값) 안에 특정한 부분 문자열(이미지 파일명)이 있는지 찾을땐
-                        // String 객체의 내장 indexOf를 사용하면 된다.
-                    if(is_target != -1) {
-                      imgArr.eq(i).attr('src', 'data:image/png;base64,$data');
-                      break;
-                    }
-                  }
-                </script>";
-                // echo '<img src="data:image/png;base64,' . $data . '" />';
-                break;
-              }
-        		case 6: // video
-        		case 7: // other
-        			$filename = getFilenameFromPart($part);
-              if ($filename)      // 첨부파일
-              echo "&nbsp;<a href=\"javascript:download('{$mbox}', '{$msg_no}',
-                      '{$partNumber}', '{$filename}');\">".$filename.'</a><br>';
-        			if($filename) {
-        				// it's an attachment
-        				// $attachment = getPart($connection, $messageNumber, $partNumber, $part->encoding);
-        				// now do something with the attachment, e.g. save it somewhere
-        			}
-        			else {
-        				// don't know what it is
-        			}
-        		break;
-    	   }
-       }
 
       function getPart($connection, $messageNumber, $partNumber, $encoding, $charset) {
       	$data = imap_fetchbody($connection, $messageNumber, $partNumber);
@@ -180,9 +79,7 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
       }
 
     ?>
-
-      <!-- <td colspan="2"><?php // echo $contents; ?> </td> -->
-      </td>
+     <td colspan="2"><?php echo $contents; ?> </td>
      </tr>
 
      <?php
@@ -193,24 +90,24 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
       <!-- <?php // var_pre($struct); ?> -->
 
      <!-- struct 테스트용 -->
-     <tr>
+     <!-- <tr>
       <td colspan="2">
         <h3>$struct</h3>
         <pre>
-          <?php var_dump($struct);?>
+          <?php // var_dump($struct);?>
         </pre>
       </td>
-     </tr>
+     </tr> -->
 
      <!-- flattenedParts 테스트용 -->
-    <tr>
+    <!-- <tr>
      <td colspan="2">
        <h3>$flattenedParts</h3>
        <pre>
-         <?php var_dump($flattenedParts);?>
+         <?php // var_dump($flattenedParts);?>
        </pre>
      </td>
-    </tr>
+    </tr> -->
 
      <!-- body 테스트용 -->
      <!-- <tr>

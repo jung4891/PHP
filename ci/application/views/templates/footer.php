@@ -1,9 +1,6 @@
 
       </div>
     </div>
-  <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
-  <script src="/misc/lib/bootstrap/js/bootstrap.min.js"></script>
-
   <!-- <script src="http://code.jquery.com/jquery-1.11.3.min.js"></script> -->
   <!-- <script src="\misc\js\jquery.bpopup-0.1.1.min.js"></script> -->
   <!-- <script src="jquery.bpopup-0.1.1.min.js"></script> 이렇게 하면 안됨 -->
