@@ -28,10 +28,12 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
        <td bgcolor="#F7F7F7">&nbsp;<?php echo $title;?></td>
      </tr>
      <tr>
+       <?php if ($attachments != "") { ?>
        <td align="center" bgcolor="#E7E7E7">첨부파일</td>
        <td bgcolor="#F7F7F7">
          <?php echo $attachments; ?>
        </td>
+       <?php } ?>
      </tr>
      <tr>
        <td colspan="2"><?php echo $contents; ?> </td>

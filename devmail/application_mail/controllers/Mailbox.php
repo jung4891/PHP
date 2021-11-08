@@ -233,10 +233,13 @@ class Mailbox extends CI_Controller {
            case 5: // image		(PNG 인라인출력 or 첨부 모두 type아 5임. 여기서는 삽입된거만 처리 첨부는 아래로 내려감)
              if ($part->ifdisposition == 0 || $part->disposition == "inline") {
 
-               $test = strpos($contents, 'cid');
-               echo $test;
                $img_data = imap_fetchbody($mails, $msg_no, $partNumber);
                $img_data = str_replace("\r\n", " ", $img_data);    // 리턴, 줄개행코드 제거. $img_data에 이게 있으면 애러남
+
+               $pattern = '/src="cid:[a-zA-Z0-9.@]+"/';
+               preg_match_all($pattern, $contents, $matches);
+               $contents = str_replace($matches[0][0], "src='data:image/png;base64,$img_data'", $contents);
+
                // $filename = getFilenameFromPart($part);
                // $script =
                // "<script language='javascript'>

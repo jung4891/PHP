@@ -37,12 +37,14 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
           - mb_decode_mimeheader() : MIME 인코드(암호화)되어있는 메일의 제목을 디코드(복호화)함
           - htmlspecialchars() : 제목에 포함된 HTML태그를 무효로 처리함
         */
-        $from_obj = $head[$mailno_arr[$i]]->from[0];              // 보낸 사람의 이름 또는 메일주소를 얻기위함
-        $from_addr = $from_obj->mailbox.'@'.$from_obj->host;      // hjsong@durianit.co.kr
-        if (isset($from_obj->personal)) {
-          $from_name = imap_utf8($from_obj->personal);            // 송혁중 (이름이 명시되어 있는 메일)
-        } else {
-          $from_name = $from_addr;          // 이름이 명시되어 있지 않은 메일은 메일주소 그대로 출력
+        if (isset($head[$mailno_arr[$i]]->from[0])) {
+          $from_obj = $head[$mailno_arr[$i]]->from[0];              // 보낸 사람의 이름 또는 메일주소를 얻기위함
+          $from_addr = $from_obj->mailbox.'@'.$from_obj->host;      // hjsong@durianit.co.kr
+          if (isset($from_obj->personal)) {
+            $from_name = imap_utf8($from_obj->personal);            // 송혁중 (이름이 명시되어 있는 메일)
+          } else {
+            $from_name = $from_addr;          // 이름이 명시되어 있지 않은 메일은 메일주소 그대로 출력
+          }
         }
         $msg_no = trim($head[$mailno_arr[$i]]->Msgno);            // 메일번호
         ?>
@@ -51,7 +53,7 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
         <td><?php echo $head[$mailno_arr[$i]]->Unseen?></td>      <!-- 메일 클릭해서 읽으면 "U" -> ""로 바뀜 -->
         <td><?php echo $msg_no?></td>
         <td><input type="checkbox" name="chk" value=<?php echo $msg_no;?>></td>
-        <td><?php echo "<a href=mailto:$from_addr>$from_name</a>";?></td>
+        <td><?php if(isset($from_addr)) echo "<a href=mailto: $from_addr>$from_name</a>"; else echo ""; ?></td>
         <td><a href="<?php echo site_url(); ?>/mailbox/mail_detail/<?php echo $box ?>/<?php echo $mailno_arr[$i] ?>">
           <?php echo imap_utf8($head[$mailno_arr[$i]]->subject)?></a></td>
         <td nowrap><?php echo date("Y/m/d H:i", $head[$mailno_arr[$i]]->udate)?></td>

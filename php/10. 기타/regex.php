@@ -6,7 +6,8 @@
   </head>
   <body>
     <?php
-
+      // https://openwiki.kr/tech/regex
+      
       // 정규표현식
       // - 값이 한글로만 혹은 영어로만 구성되어 있는지, 메일주소/전화번호가 올바른지
       //   체크하기위해 사용한다. 패턴을 사용하려면 preg_match()함수를 사용한다.
@@ -36,7 +37,13 @@
       $str = 'abc bc abbbaa cabz ab ';
       preg_match_all('/ab./', $str, $matches);  // .은 모든문자 한개를 의미
       echo '<pre>';
-      print_r($matches);      // [0] => abc, [1] => abb, [2] => abz, [3] => ab( ) 
+      print_r($matches);      // [0] => abc, [1] => abb, [2] => abz, [3] => ab( )
+      echo '</pre>';
+
+      $str = 'src="cid:image001.png@1234512.1Agsd1243"> ';
+      preg_match_all('/"cid:.+"/', $str, $matches);  // .은 모든문자 한개를 의미
+      echo '<pre>';
+      print_r($matches);      // [0] => abc, [1] => abb, [2] => abz, [3] => ab( )
       echo '</pre>';
 
       echo '<br>';
