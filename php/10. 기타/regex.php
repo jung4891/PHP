@@ -19,8 +19,8 @@
       // 패턴식은 검사할 바이트 수를 지정하지 않으면 기본적으로 1byte를 검사한다.
       // 영문과 특수문자는 1byte의 용량을 사용 / 한글은 3byte
       // + : 1byte 이상을 검사하는 기호
-      $pattern = '/^s+$/';
-      $str = 'sss';
+      $pattern = '/^s.+a$/';
+      $str = 'a saaasab ssa';
       // echo preg_match($pattern, $str, $res);  // 적합하면 1, 부적합이면 0 출력됨
       if (preg_match($pattern, $str, $res)) {
         echo '문자열 s+ 검사 적합';
@@ -30,6 +30,15 @@
       } else {
         echo '문자열 s+ 검사 부적합';
       }
+      echo '<br>';
+
+      // preg_match_all : 정규표현식에 맞는 것을 모두 추출하는 함수
+      $str = 'abc bc abbbaa cabz ab ';
+      preg_match_all('/ab./', $str, $matches);  // .은 모든문자 한개를 의미
+      echo '<pre>';
+      print_r($matches);      // [0] => abc, [1] => abb, [2] => abz, [3] => ab( ) 
+      echo '</pre>';
+
       echo '<br>';
 
       // 문자열의 값이 한글/영어/기타 특수문자 인지 검사
@@ -81,7 +90,7 @@
     // - @앞에 아이디는 영어대소문자, 숫자, _, -, .이 섞여들어감
     // - 아이디 앞에는 _, -, .이 위치하지 않음
     // [\-] : 간격이 아닌 문자로 사용
-    // \.[] : .은 []밖에선 모든 문자를 의미
+    // \.[] : .은 []밖에선 모든 문자를 의미 \.은 문자열 .을 의미
     // $pattern = '/^[^\-_.]/';
     // $pattern = '/^[a-zA-Z]{1}/' -> 첫글자는 영어 대소문자만.
     // $pattern = '/[a-zA-Z0-9.\-_]+/'  -> 첫글자 이후 아아디 패턴식

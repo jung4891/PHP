@@ -203,15 +203,16 @@ class Mailbox extends CI_Controller {
     // 내용 가져오는 부분
     if (isset($struct->parts)) {
       $contents = '';
+      $scripts = '';
       $attachments = '';
       $flattenedParts = $this->flattenParts($struct->parts);
 
       foreach($flattenedParts as $partNumber => $part) {
          switch($part->type) {
-           case 0:
-             // the HTML or plain text part of the email
+           case 0:    // the HTML or plain text part of the email
              if ($part->subtype == "PLAIN") break;
 
+             // HTML
              // charset이 parameters 배열에 [0] or [1]에 있음 그래서 반복문 돌려서 charset 구함.
              if($part->ifparameters) {
                foreach($part->parameters as $object) {
@@ -220,8 +221,7 @@ class Mailbox extends CI_Controller {
                  }
                }
              }
-
-             $message = getPart($mails, $msg_no, $partNumber, $part->encoding, $charset);
+             $message = $this->getPart($mails, $msg_no, $partNumber, $part->encoding, $charset);
              $contents .= $message;
              break;
            case 1:  // multi-part headers, can ignore  (MIXED, ALTERNATIVE, RELATED)
@@ -230,60 +230,56 @@ class Mailbox extends CI_Controller {
              break;
            case 3: // application	(attachment)
            case 4: // audio
-           case 5: // image		(PNG 인라인출력 or 첨부)
-             if ($part->ifdisposition == 0 || $part->disposition == "inline") {   // 첨부가 아닌 삽입된 이미지인 경우
-               $data = imap_fetchbody($mails, $msg_no, $partNumber);
-               $data = str_replace("\r\n", " ", $data);    // 리턴, 줄개행코드 제거. $data에 이게 있으면 애러남
-               $filename = getFilenameFromPart($part);
-               echo
-               "<script language='javascript'>
-                 var imgArr = $('img');
-                 var filename = '$filename';
-                 // console.log(filename);
-                 for(var i=0; i<imgArr.length; i++) {
-                   var src = imgArr.eq(i).attr('src');
-                       // var is_target = src.indexOf(filename);
-                       // 네이버에서 보낸 이미지 삽입 메일은 src에 파일명이 없어서 위 라인 주석처리.
-                   var is_target = src.indexOf('cid');
-                       // 대상 문자열(src 값) 안에 특정한 부분 문자열(이미지 파일명)이 있는지 찾을땐
-                       // String 객체의 내장 indexOf를 사용하면 된다.
-                   if(is_target != -1) {
-                     imgArr.eq(i).attr('src', 'data:image/png;base64,$data');
-                     break;
-                   }
-                 }
-               </script>";
-               // echo '<img src="data:image/png;base64,' . $data . '" />';
+           case 5: // image		(PNG 인라인출력 or 첨부 모두 type아 5임. 여기서는 삽입된거만 처리 첨부는 아래로 내려감)
+             if ($part->ifdisposition == 0 || $part->disposition == "inline") {
+
+               $test = strpos($contents, 'cid');
+               echo $test;
+               $img_data = imap_fetchbody($mails, $msg_no, $partNumber);
+               $img_data = str_replace("\r\n", " ", $img_data);    // 리턴, 줄개행코드 제거. $img_data에 이게 있으면 애러남
+               // $filename = getFilenameFromPart($part);
+               // $script =
+               // "<script language='javascript'>
+               //   var imgArr = $('img');
+               //   // console.log(filename);
+               //   for(var i=0; i<imgArr.length; i++) {
+               //     var src = imgArr.eq(i).attr('src');
+               //         // var is_target = src.indexOf(filename);
+               //         // 네이버에서 보낸 이미지 삽입 메일은 src에 파일명이 없어서 위 라인 주석처리.
+               //     var is_target = src.indexOf('cid');
+               //         // 대상 문자열(src 값) 안에 특정한 부분 문자열(이미지 파일명)이 있는지 찾을땐
+               //         // String 객체의 내장 indexOf를 사용하면 된다.
+               //     if(is_target != -1) {
+               //       console.log(i);
+               //       imgArr.eq(i).attr('src', 'data:image/png;base64,$img_data');
+               //       break;
+               //     }
+               //   }
+               // </script>";
+               // $contents .= $script;
                break;
              }
            case 6: // video
-           case 7: // other
-             $filename = getFilenameFromPart($part);
-             if ($filename)      // 첨부파일
-             echo "&nbsp;<a href=\"javascript:download('{$mbox}', '{$msg_no}',
+           case 7: // other (첨부파일)
+             $filename = $this-> getFilenameFromPart($part);
+             if ($filename)
+             $down_link = "&nbsp;<a href=\"javascript:download('{$mbox}', '{$msg_no}',
                      '{$partNumber}', '{$filename}');\">".$filename.'</a><br>';
-             if($filename) {
-               // it's an attachment
-               // $attachment = getPart($connection, $messageNumber, $partNumber, $part->encoding);
-               // now do something with the attachment, e.g. save it somewhere
-             }
-             else {
-               // don't know what it is
-             }
+             $attachments .= $down_link;
            break;
-        }
-      }
-      // $data['contents'] = $contents;
-      // $data['attachments'] = $attachments;
+        } // type switch
+      } // part foreach
+      $data['contents'] = $contents;
+      $data['attachments'] = $attachments;
     } else {
       // Microsoft Office Outlook 테스트 메시지	( 2021/09/03 11:04 )는 parts가 없고 html만 있어서 제어문 처리함
       $data = imap_fetchbody($mails, $msg_no, 1);
       $data['contents'] = $data;
     }
-
+    // var_dump($data);
     imap_close($mails);
     $this->load->view('mailbox/mail_detail_v', $data);
-  }
+  } // mail_detail
 
   // 메일의 입체구조 -> 평면화
   function flattenParts($messageParts, $flattenedParts = array(), $prefix = '', $index = 1, $fullPrefix = true) {
@@ -304,6 +300,66 @@ class Mailbox extends CI_Controller {
       $index++;
     }
     return $flattenedParts;
+  }
+
+  // 주로 HTML 부분 가져오되 인코딩 여부에 따라 디코딩후 내용 가져옴
+  function getPart($connection, $messageNumber, $partNumber, $encoding, $charset) {
+    $data = imap_fetchbody($connection, $messageNumber, $partNumber);
+    $body = imap_body($connection, $messageNumber);
+    // echo '<pre>';
+    // var_dump($body);
+    // echo '<br>여기까지가 body<br>';
+    // echo '</pre>';
+    switch($encoding) {
+      case 0: return $data; // 7BIT
+      case 1: return $data; // 8BIT
+      case 2: return $data; // BINARY
+      case 3: return base64_decode($data); // BASE64
+      case 4:
+      // echo $data;
+        $data = quoted_printable_decode($data);    // QUOTED_PRINTABLE
+
+        if ($charset == 'ks_c_5601-1987')          // else는 charset이 utf-8로 iconv 불필요
+          $data = iconv('euc-kr', 'utf-8', $data);
+        return $data;
+
+      case 5: return $data; // OTHER
+    }
+  }
+
+  // 첨부파일 다운로드 링크의 파일명 가져오는 부분
+  function getFilenameFromPart($part) {
+    $filename = '';
+    foreach($part->parameters as $object) {
+      if(strtolower($object->attribute) == 'name') {
+        $filename = $object->value;
+      }
+    }
+    // if(!$filename && $part->ifparameters) {
+    // 	foreach($part->parameters as $object) {
+    // 		if(strtolower($object->attribute) == 'name') {
+    // 			$filename = $object->value;
+    // 		}
+    // 	}
+    // }
+    return imap_utf8($filename);   // 한글일 경우 ?ks_c_5601-1987?여서 디코딩 해야함
+  }
+
+  // 첨부파일 클릭시 다운로드 되는 부분
+  function download() {
+    // 메일서버 접속정보 설정
+    $mailserver = "192.168.0.100";
+    $host = "{" . $mailserver . ":143/imap/novalidate-cert}" . $_POST['mbox'];
+    $user_id = "hjsong@durianit.co.kr";
+    $user_pwd = "durian12#";
+
+    // 메일함 접속
+    $mails= @imap_open($host, $user_id, $user_pwd);
+    $fileSource = imap_fetchbody($mails, $_POST['msg_no'], (string)$_POST['part_no']);
+    $fileSource = imap_base64($fileSource);
+    force_download($_POST['f_name'], $fileSource);
+
+    imap_close($mails);
   }
 
   // 메일의 구조를 분석
@@ -511,23 +567,6 @@ class Mailbox extends CI_Controller {
 
     return $tmp;
   } // func printbody
-
-  function download() {
-    // 메일서버 접속정보 설정
-    $mailserver = "192.168.0.100";
-    $host = "{" . $mailserver . ":143/imap/novalidate-cert}" . $_POST['mbox'];
-    $user_id = "hjsong@durianit.co.kr";
-    $user_pwd = "durian12#";
-
-    // 메일함 접속
-    $mails= @imap_open($host, $user_id, $user_pwd);
-    $fileSource = imap_fetchbody($mails, $_POST['msg_no'], (string)$_POST['part_no']);
-    $fileSource = imap_base64($fileSource);
-    force_download($_POST['f_name'], $fileSource);
-
-    imap_close($mails);
-  }
-
 
 }
 

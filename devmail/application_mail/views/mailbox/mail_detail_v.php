@@ -34,56 +34,8 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
        </td>
      </tr>
      <tr>
-       <?php
-
-      function getPart($connection, $messageNumber, $partNumber, $encoding, $charset) {
-      	$data = imap_fetchbody($connection, $messageNumber, $partNumber);
-        $body = imap_body($connection, $messageNumber);
-        // echo '<pre>';
-        // var_dump($body);
-        // echo '<br>여기까지가 body<br>';
-        // echo '</pre>';
-      	switch($encoding) {
-      		case 0: return $data; // 7BIT
-      		case 1: return $data; // 8BIT
-      		case 2: return $data; // BINARY
-      		case 3: return base64_decode($data); // BASE64
-      		case 4:
-          // echo $data;
-            $data = quoted_printable_decode($data);    // QUOTED_PRINTABLE
-
-            if ($charset == 'ks_c_5601-1987')          // else는 charset이 utf-8로 iconv 불필요
-              $data = iconv('euc-kr', 'utf-8', $data);
-            return $data;
-
-      		case 5: return $data; // OTHER
-      	}
-      }
-
-      function getFilenameFromPart($part) {
-      	$filename = '';
-    		foreach($part->parameters as $object) {
-    			if(strtolower($object->attribute) == 'name') {
-    				$filename = $object->value;
-    			}
-    		}
-
-      	// if(!$filename && $part->ifparameters) {
-      	// 	foreach($part->parameters as $object) {
-      	// 		if(strtolower($object->attribute) == 'name') {
-      	// 			$filename = $object->value;
-      	// 		}
-      	// 	}
-      	// }
-      	return imap_utf8($filename);   // 한글일 경우 ?ks_c_5601-1987?여서 디코딩 해야함
-      }
-
-    ?>
-     <td colspan="2"><?php echo $contents; ?> </td>
+       <td colspan="2"><?php echo $contents; ?> </td>
      </tr>
-
-     <?php
-      ?>
 
       <!-- 아래 pre태그를 이용해서 간편하게 조회하기 위해 만든 헬퍼 함수 -->
       <!-- ★ 헬퍼 로드 안하고 아래 실행하면 internal 서버오류나고 자바스크립트 실행 안되게됨~~~!!!  -->
@@ -94,33 +46,22 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
       <td colspan="2">
         <h3>$struct</h3>
         <pre>
-          <?php // var_dump($struct);?>
+          <?php //var_dump($struct);?>
         </pre>
       </td>
      </tr> -->
-
-     <!-- flattenedParts 테스트용 -->
-    <!-- <tr>
-     <td colspan="2">
-       <h3>$flattenedParts</h3>
-       <pre>
-         <?php // var_dump($flattenedParts);?>
-       </pre>
-     </td>
-    </tr> -->
 
      <!-- body 테스트용 -->
      <!-- <tr>
        <td colspan="2">
          <h3>$body</h3>
          <pre>
-           <?php // var_dump($body); ?>
+           <?php //var_dump($body); ?>
          </pre>
        </td>
      </tr> -->
 
      <?php
-
      // 메일함 목록 테스트
      // $user_id = "hjsong@durianit.co.kr";
      // $user_pwd = "durian12#";
