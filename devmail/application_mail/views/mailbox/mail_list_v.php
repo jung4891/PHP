@@ -5,21 +5,27 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
  ?>
 <div id="main_contents" style="margin:unset;">
   <div class="main_div" >
-  <?php echo $test_msg; ?> <br><br>
+  <!-- <?php // echo $test_msg; ?> <br><br> -->
 
   <!-- mailboxes 테스트용 -->
   <!-- <?php // echo'<pre>'; var_dump($test); echo '</pre>' ?> <br> -->
 
-  <table border="1" width="600" >
+  <table border="0" width="1000" style="border-spacing: 7px;">
     <thead>
       <tr>
-        <th>U</th>
-        <th>No</th>
+        &nbsp;   <!-- 검색창 -->
+      </tr>
+      <tr>
+        <!-- <th>U</th> -->
+        <!-- <th>No</th> -->
         <th><input type="checkbox" onClick="check_all(this);"> </th>
-        <th>발신자</th>
-        <th>제목</th>
-        <th>날짜</th>
-        <!-- <th>크기</th> -->
+        <th></th>
+        <th></th>
+        <th></th>
+        <th></th>
+      </tr>
+      <tr>
+        <td colspan="6" style="border-bottom: 2px solid lightgray; "></td>
       </tr>
     </thead>
     <tbody>
@@ -50,14 +56,22 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
         ?>
 
         <!-- 메일목록 출력 -->
-        <td><?php echo $head[$mailno_arr[$i]]->Unseen?></td>      <!-- 메일 클릭해서 읽으면 "U" -> ""로 바뀜 -->
-        <td><?php echo $msg_no?></td>
+        <!-- <td><?php // echo $head[$mailno_arr[$i]]->Unseen?></td>      메일 클릭해서 읽으면 "U" -> ""로 바뀜 -->
+        <!-- <td><?php // echo $msg_no?></td> -->
         <td><input type="checkbox" name="chk" value=<?php echo $msg_no;?>></td>
         <td><?php if(isset($from_addr)) echo "<a href=mailto: $from_addr>$from_name</a>"; else echo ""; ?></td>
         <td><a href="<?php echo site_url(); ?>/mailbox/mail_detail/<?php echo $box ?>/<?php echo $mailno_arr[$i] ?>">
           <?php echo imap_utf8($head[$mailno_arr[$i]]->subject)?></a></td>
-        <td nowrap><?php echo date("Y/m/d H:i", $head[$mailno_arr[$i]]->udate)?></td>
-        <!-- <td nowrap><?php echo $head[$mailno_arr[$i]]->Size?> bytes</td> -->
+        <td style="color: darkgray; font-weight: 400;"><?php echo date("y.m.d", $head[$mailno_arr[$i]]->udate)?></td>
+        <!-- 시, 분은 H:i -->
+        <?php
+          $size = round(($head[$mailno_arr[$i]]->Size)/1024, 1);
+          ($size < 1000)? $size .= 'KB' : $size = round($size/1000, 1).'MB';
+         ?>
+        <td style="color: darkgray; font-weight: 400; padding-left: 20px"><?php echo $size ?></td>
+      </tr>
+      <tr>
+        <td colspan="6" style="border-bottom: 2px solid lightgray; "></td>
       </tr>
       <?php
         } // if
