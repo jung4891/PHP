@@ -3,14 +3,26 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/base.php";
 include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_header.php";
 include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
  ?>
+
+ <style media="screen">
+   a.visit:visited {color: black}
+   a.visit:hover {text-decoration: underline;};
+ </style>
+
 <div id="main_contents" style="margin:unset;">
   <div class="main_div" >
   <!-- <?php // echo $test_msg; ?> <br><br> -->
 
   <!-- mailboxes 테스트용 -->
   <!-- <?php // echo'<pre>'; var_dump($test); echo '</pre>' ?> <br> -->
-
-  <table border="0" width="1000" style="border-spacing: 7px;">
+  <table border="0" width="98%" style="border-spacing: 7px;">
+    <colgroup>
+      <col width="5%" >
+      <col width="25%" >
+      <col width="*" >
+      <col width="5%" >
+      <col width="5%" >
+    </colgroup>
     <thead>
       <tr>
         &nbsp;   <!-- 검색창 -->
@@ -18,11 +30,11 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
       <tr>
         <!-- <th>U</th> -->
         <!-- <th>No</th> -->
-        <th><input type="checkbox" onClick="check_all(this);"> </th>
-        <th></th>
-        <th></th>
-        <th></th>
-        <th></th>
+        <td><input type="checkbox" onClick="check_all(this);"> </td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
       </tr>
       <tr>
         <td colspan="6" style="border-bottom: 2px solid lightgray; "></td>
@@ -59,8 +71,9 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
         <!-- <td><?php // echo $head[$mailno_arr[$i]]->Unseen?></td>      메일 클릭해서 읽으면 "U" -> ""로 바뀜 -->
         <!-- <td><?php // echo $msg_no?></td> -->
         <td><input type="checkbox" name="chk" value=<?php echo $msg_no;?>></td>
-        <td><?php if(isset($from_addr)) echo "<a href=mailto: $from_addr>$from_name</a>"; else echo ""; ?></td>
-        <td><a href="<?php echo site_url(); ?>/mailbox/mail_detail/<?php echo $box ?>/<?php echo $mailno_arr[$i] ?>">
+        <td><a class="visit" onclick="test(event, '<?php echo $from_addr; ?>')" href="<?php echo site_url(); ?>/mailbox/mail_detail/<?php echo $box ?>/<?php echo $mailno_arr[$i] ?>">
+          <?php echo $from_name; ?></a></td>
+        <td><a class="visit" href="<?php echo site_url(); ?>/mailbox/mail_detail/<?php echo $box ?>/<?php echo $mailno_arr[$i] ?>">
           <?php echo imap_utf8($head[$mailno_arr[$i]]->subject)?></a></td>
         <td style="color: darkgray; font-weight: 400;"><?php echo date("y.m.d", $head[$mailno_arr[$i]]->udate)?></td>
         <!-- 시, 분은 H:i -->
@@ -88,7 +101,6 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
 include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_footer.php";
  ?>
 
-
  <script type="text/javascript">
 
  // 상단 체크박스 클릭시 전체선택/해제 설정
@@ -98,7 +110,14 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_footer.php"
    for(var i=0; i<document.frm.length; i++)
     if(document.frm[i].name == 'chk') document.frm[i].checked = checked;
    checked = checked?  false : true;
- }
+ };
+
+ // 보낸사람 링크 변경
+ function test(e, addr) {
+   e.preventDefault();    // a태그 href 이동 이벤트 막음
+   location.href='<?php echo site_url(); ?>/mail_write/page';
+ };
+ // const from_name = document.getElementById('from_name')
 
  // 나중에 삭제부분
  // <input type=button name=HOWTO22 value="삭 제" class="tk1" onClick="delete();">

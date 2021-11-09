@@ -151,10 +151,41 @@
 
   - bookmark <br><br>
   <a href="#bookmark">서식태그로 뿅~</a>
+  <!-- 이동할 위치의 태그 앞에 name의 속성값으로 bookmark인 a태그 붙이기 -->
 
   <hr>
+  <h3>< 이미지 ></h3>
+  <!-- src 속성은 이미지가 저장된 주소의 URL, alt 속성은 이미지가 없을때 나오는 문자열 -->
+  <!-- 크기 조절은 style속성 or width, height속성을 사용가능. style 속성 사용 권장 -->
+  <style media="screen">
+    img {
+      /* width: 100%; -> html 가로세로 설정보다 우선한다. */
+      border: 1px solid white;
+    }
+  </style>
+  <img src="/img/earth.gif" alt="x" width="220" height="114" >
+  <img src="/img/earth.gif" width="20%">
+  <img src="/img/earth.gif" style="width: 220px; height: 114px;"> <br><br>
 
+  - image map <br><br>
+  <!-- <map>태그를 이용하여 이미지 맵(이미지 일부를 버튼화한것)을 제작할 수 있다. -->
+  <!-- <img>의 usemap 속성을 <map>의 name 속성과 연결하면 이미지와 맵과의 관계가 설정됨 -->
+  <!-- <map>은 하나 이상의 <area>를 가지며, 이게 바로 버튼과 같은 역할을 한다. -->
+  <img src="http://www.fishnet.co.kr/data/C030_152/201106/1307922677.JPG"
+        usemap="#mymap" width="300">;
+  <map name="mymap">
+    <area shape="rect" coords="120,30,150,60" href="https://www.jecheon.go.kr/site/corona_new/intro_new.html" alt="">
+    <!-- 직사각형은 좌표(coords)가 x1, y1, x2, y2. y좌표는 아래방향임 -->
+    <!-- 추가 가능 -->
+  </map> &nbsp;&nbsp;&nbsp;
 
+  <img src="/img/coffee.jpg"
+        usemap="#mymap2" width="200">;
+  <map name="mymap2">
+    <area shape="circle" coords="117,180,25" target="_blank" href="https://ko.wikipedia.org/wiki/%EC%BB%A4%ED%94%BC">
+    <!-- 원은 x, y, 반지름 -->
+  </map>
+  <hr>
 
 
 

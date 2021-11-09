@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+    <style media="screen">
+      #two {color: green;}
+    </style>
+  </head>
+  <body>
+    &lt; Element.style & getComputedStyle() &gt; <br><br>
+    <div id="one" style="color: blue; font-size: 1.5em;">
+      one
+    </div>
+    <div id="two" style="background-color:pink">
+      two
+    </div>
+
+  <script type="text/javascript">
+
+    // @ Element.style 속성과 getComputedStyle() 메소드
+
+    // 개발자도구 > Elements > Styles 부분 확인해가면서 학습
+    // element의 속성은 태그 내의 인라인으로 정의한것들만 들어감
+    const element_1 = document.getElementById('one');   // 특정 엘리먼트 노드 가져옴
+    const style_1 = element_1.style;      // 해당 엘리먼트에 적용된 스타일 속성값 가져옴
+    console.log(style_1.color);           // blue
+
+    const element_2 = document.getElementById('two');
+    // console.log(element_2.style.color);   // x
+
+    // 외부에서 선언된 엘리먼트의 스타일 값 가져오기
+    // window.getComputedStyle() : 인자로 전달받은 엘리먼트에 최종 적용된 모든 CSS 속성값을
+    //                              담은 객체를 반환. (인라인, 외부선언 모두)
+    // jQuery는 안됨.
+    console.log(window.getComputedStyle(element_2).color);    // rgb(0, 128, 0)
+    console.log(window.getComputedStyle(element_2).backgroundColor);  // rgb(255, 192, 203)
+
+    // element.style : 해당 엘리먼트에 새로운 스타일을 설정하는 용도.
+    // getComputedStyle() : 적용된 최종 스타일을 확인하는 용도.
+    element_1.style.color = 'orange';
+    element_1.style.backgroundColor = 'silver';
+    element_1.style.color = window.getComputedStyle(element_2).color;
+
+  </script>
+  </body>
+</html>

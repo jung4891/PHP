@@ -1,77 +1,73 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-/*
-  @ 메일박스 구조
-    array(5) {
-     [0]=>
-     string(59) "{192.168.0.100:143/imap/novalidate-cert}&vPSwuA- &07jJwNVo-"  -> 보낸 편지함
-     [1]=>
-     string(59) "{192.168.0.100:143/imap/novalidate-cert}&ycDGtA- &07jJwNVo-"  -> 지운 편지함
-     [2]=>
-     string(59) "{192.168.0.100:143/imap/novalidate-cert}&x4TC3A- &vPStANVo-"  -> 임시 보관함
-     [3]=>
-     string(57) "{192.168.0.100:143/imap/novalidate-cert}&yBXQbA- &ulTHfA-"    -> 정크 메일
-     [4]=>
-     string(45) "{192.168.0.100:143/imap/novalidate-cert}INBOX"  -> 전체 메일함
-    }
+  // @ IMAP(Internet Message Access Protocol) : 메일서버에 접속하여 메일을 가져오기 위한 프로토콜
+  // PHP에서 imap 기능을 사용하려면 php.ini의 extension=imap 부분 주석 해제해야함 (디폴드가 해제상태)
 
-  @ 메일함 목록 테스트
-    $user_id = "hjsong@durianit.co.kr";
-    $user_pwd = "durian12#";
-    $mailserver = "192.168.0.100";
-    $mails= @imap_open("{" . $mailserver . ":143/imap/novalidate-cert}{$mbox}", $user_id, $user_pwd);
+  // @ 메일박스 구조
+    // array(5) {
+    //  [0]=>
+    //  string(59) "{192.168.0.100:143/imap/novalidate-cert}&vPSwuA- &07jJwNVo-"  -> 보낸 편지함
+    //  [1]=>
+    //  string(59) "{192.168.0.100:143/imap/novalidate-cert}&ycDGtA- &07jJwNVo-"  -> 지운 편지함
+    //  [2]=>
+    //  string(59) "{192.168.0.100:143/imap/novalidate-cert}&x4TC3A- &vPStANVo-"  -> 임시 보관함
+    //  [3]=>
+    //  string(57) "{192.168.0.100:143/imap/novalidate-cert}&yBXQbA- &ulTHfA-"    -> 정크 메일
+    //  [4]=>
+    //  string(45) "{192.168.0.100:143/imap/novalidate-cert}INBOX"  -> 전체 메일함
+    // }
 
-    $mailboxes = imap_list($mails, "{" . $mailserver . ":143}", '*');
-    echo '<pre>';
-    var_dump($mailboxes);
-    echo '</pre>';
+  // @ 메일함 목록 테스트
+  //   $user_id = "hjsong@durianit.co.kr";
+  //   $user_pwd = "durian12#";
+  //   $mailserver = "192.168.0.100";
+  //   $mails= @imap_open("{" . $mailserver . ":143/imap/novalidate-cert}{$mbox}", $user_id, $user_pwd);
+  //
+  //   $mailboxes = imap_list($mails, "{" . $mailserver . ":143}", '*');
+  //   echo '<pre>';
+  //   var_dump($mailboxes);
+  //   echo '</pre>';
 
-  @ 메일박스 url segment
-    메일함       Mailbox
-    전체메일     inbox
-    보낸편지함   sent
-    임시보관함   tmp
-    스팸메일함   spam
-    휴지통       trash
+  // @ 메일박스 url segment
+  //   메일함       Mailbox
+  //   전체메일     inbox
+  //   보낸편지함   sent
+  //   임시보관함   tmp
+  //   스팸메일함   spam
+  //   휴지통       trash
+  //
+  //   받은편지함
+  //   별표편지함  Starred
+  //   중요편지함  Important
 
-    받은편지함
-    별표편지함  Starred
-    중요편지함  Important
-
-
-  @ IMAP(Internet Message Access Protocol) : 메일서버에 접속하여 메일을 가져오기 위한 프로토콜
-    PHP에서 imap 기능을 사용하려면 php.ini의 extension=imap 부분 주석 해제해야함 (디폴드가 해제상태)
-
-
-  @ 접속정보 설정
-    $user_id = $this->input->post('inputId');
-    $user_pwd = $this->input->post('inputPass');
-
-    100서버
-    $mailserver = "192.168.0.100";
-    $user_id = "hjsong@durianit.co.kr";
-    $user_pwd = "durian12#";
-
-    50서버
-    $mailserver = "192.168.0.50";
-    $user_id = "test2@durianict.co.kr";
-    $user_pwd = "durian12#";
-
-    네이버(테스트용)
-    $mailserver = "imap.naver.com";
-    $user_id = "go_go_ssing";
-    $user_pwd = "gurwndA!23";
-
-    POP3 서버
-    $mailbox = @imap_open("{" . $mailserver . ":110/pop3}INBOX", $user_id, $user_pwd);
-
-    IMAP 서버
-    $mailbox = @imap_open("{" . $mailserver . ":143/imap/novalidate-cert}INBOX", $user_id, $user_pwd);
-
-    Gmail/NaverMail 서버
-    $mailbox = imap_open("{" . $mailserver . ":993/imap/novalidate-cert/ssl}INBOX", $user_id, $user_pwd);
-*/
+  // @ 접속정보 설정
+  //   $user_id = $this->input->post('inputId');
+  //   $user_pwd = $this->input->post('inputPass');
+  //
+  //   100서버
+  //   $mailserver = "192.168.0.100";
+  //   $user_id = "hjsong@durianit.co.kr";
+  //   $user_pwd = "durian12#";
+  //
+  //   50서버
+  //   $mailserver = "192.168.0.50";
+  //   $user_id = "test2@durianict.co.kr";
+  //   $user_pwd = "durian12#";
+  //
+  //   네이버(테스트용)
+  //   $mailserver = "imap.naver.com";
+  //   $user_id = "go_go_ssing";
+  //   $user_pwd = "gurwndA!23";
+  //
+  //   POP3 서버
+  //   $mailbox = @imap_open("{" . $mailserver . ":110/pop3}INBOX", $user_id, $user_pwd);
+  //
+  //   IMAP 서버
+  //   $mailbox = @imap_open("{" . $mailserver . ":143/imap/novalidate-cert}INBOX", $user_id, $user_pwd);
+  //
+  //   Gmail/NaverMail 서버
+  //   $mailbox = imap_open("{" . $mailserver . ":993/imap/novalidate-cert/ssl}INBOX", $user_id, $user_pwd);
 
 class Mailbox extends CI_Controller {
   function __construct() {
@@ -352,7 +348,6 @@ class Mailbox extends CI_Controller {
     }
     return $flattenedParts;
   }
-
 }
 
 
