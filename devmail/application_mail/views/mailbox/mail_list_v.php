@@ -31,7 +31,13 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
         <!-- <th>U</th> -->
         <!-- <th>No</th> -->
         <td><input type="checkbox" onClick="check_all(this);"> </td>
-        <td></td>
+        <td>
+          <?php if($box == "trash") {?>
+          <button type="button" id="delete" onclick="del_ever();" disabled="disabled">영구삭제</button>
+          <?php }else {?>
+          <button type="button" id="delete" onclick="del_trash();" disabled="disabled">삭제</button>
+          <?php } ?>
+        </td>
         <td></td>
         <td></td>
         <td>
@@ -77,7 +83,7 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
         <!-- 메일목록 출력 -->
         <!-- <td><?php // echo $head[$mailno_arr[$i]]->Unseen?></td>      메일 클릭해서 읽으면 "U" -> ""로 바뀜 -->
         <!-- <td><?php // echo $msg_no?></td> -->
-        <td><input type="checkbox" name="chk" value=<?php echo $msg_no;?>></td>
+        <td><input type="checkbox" name="checkbox" onClick="check_one();" value=<?php echo $msg_no;?>></td>
         <td><a class="visit" onclick="change_href(event, '<?php echo $from_addr; ?>')"
             href="<?php echo site_url(); ?>/mailbox/mail_detail/<?php echo $box ?>/<?php echo $mailno_arr[$i] ?>">
             <?php echo $from_name; ?></a></td>
@@ -111,26 +117,49 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_footer.php"
 
  <script type="text/javascript">
 
+
  // 상단 체크박스 클릭시 전체선택/해제 설정
- var checked = true;
- function check_all(button) {
-   // console.log('aa');
+ function check_all(chk_all) {
+   delete_btn = document.getElementById('delete');
+   delete_btn.disabled = (chk_all.checked)? false : "disabled";
    for(var i=0; i<document.frm.length; i++)
-    if(document.frm[i].name == 'chk') document.frm[i].checked = checked;
-   checked = checked?  false : true;
+    if(document.frm[i].name == 'checkbox') document.frm[i].checked = chk_all.checked;
  };
+
+ // 체크박스 하나 클릭시
+ function check_one() {
+   let checked = false;
+   for(var i=0; i<document.frm.length; i++) {
+    if(document.frm[i].checked) {
+      document.getElementById('delete').disabled = false;
+      checked = true;
+    }
+   }
+   if(!checked) document.getElementById('delete').disabled = "disabled";
+   //  if(document.frm[i].name == 'checkbox') document.frm[i].checked = chk_all.checked;
+ };
+
+ // 휴지통으로 삭제
+  function del_trash(){
+    let arr = [];
+    for(var i=0; i<document.frm.length; i++) {
+     if(document.frm[i].checked) {
+       arr.push(document.frm[i].value)
+     }
+    }
+    // console.log(arr);
+    // console.log(arr.length);
+  }
 
  // 보기 설정
  function mails_cnt(s) {
   const cnt = s.options[s.selectedIndex].value;
-
   var newForm = $('<form></form>');
   newForm.attr("method","post");
   newForm.attr("action", "<?php echo site_url(); ?>/mailbox/mail_list");
   newForm.append($('<input>', {type: 'hidden', name: 'mail_cnt_show', value: cnt }));
   newForm.appendTo('body');
   newForm.submit();
-
 }
 
  // 보낸사람 링크 변경
