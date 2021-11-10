@@ -117,6 +117,10 @@ class Mail_write extends CI_Controller {
 				$return_val = $this->email->return_val();
 				var_dump($return_val);
 				// $this->load->view('mail_write_page');
+
+				// 메일주소 클릭시 메일주소 post로 가져오는지 확인 (추가_송혁중)
+				echo '<br>';
+				if ($_POST)	echo $_POST['addr'];
 			}
 
 

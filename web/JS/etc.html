@@ -9,6 +9,22 @@
     </style>
   </head>
   <body>
+    &lt; 웹페이지 이동 막기 &gt; <br><br>
+    <!-- js에서 void(0)은 undefined라서 반환해주는것 없이 현재 페이지가 유지된다. -->
+    <a href="javascript:void(0);">페이지 이동x</a> <br>
+    <!-- a태그 클릭시 onclick의 속성값인 함수가 실행되고 preventDefault()에 의해 클릭이벤 취소됨 -->
+    <a href="http://www.google.com" onclick="preventClick(event)">preventDefault()</a>
+    <hr><br>
+
+    &lt; selectbox 바로실행 &gt; <br><br>
+    <select id="searchYear" name="searchYear" onchange="mails_cnt(this);" style="background-color: #E0E0E0;">
+      <option value="">보기설정</option>
+      <option value="10">10개</option>
+      <option value="20">20개</option>
+      <option value="30">30개</option>
+    </select>
+    <hr>
+
     &lt; Element.style & getComputedStyle() &gt; <br><br>
     <div id="one" style="color: blue; font-size: 1.5em;">
       one
@@ -18,6 +34,18 @@
     </div>
 
   <script type="text/javascript">
+
+    // @ preventDefault()
+    function preventClick(e) {
+      e.preventDefault();
+    }
+
+    // @ selectbox
+    function mails_cnt(s) {
+      const cnt = s.options[s.selectedIndex].value;
+      console.log(cnt);
+    }
+
 
     // @ Element.style 속성과 getComputedStyle() 메소드
 

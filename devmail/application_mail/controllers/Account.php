@@ -34,7 +34,6 @@ class Account extends CI_Controller {
 					$db_pass = $check_id['password'];
 					if (hash_equals($db_pass, crypt($password, $db_pass))) {
 						$check_domain = $this->M_account->domain_check($userid);
-
 						// $_SESSION['roles'] = array();
 						// $_SESSION['roles']['domain'] = 'admin';
 						$_SESSION['userid'] = $check_domain['username'];
@@ -72,35 +71,23 @@ class Account extends CI_Controller {
 							$db_pass = $check_id['password'];
 							if (hash_equals($db_pass, crypt($password, $db_pass))) {
 
-								$_SESSION['userid'] = $check_id['username'];
-								$_SESSION['roles'] = "user";
-								$_SESSION['name'] =  $check_id['name'];
+								$key_pass = $this->db->password;
+								$key_pass = substr(hash('sha256', $key_pass, true), 0, 32);
+
+								$iv = chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0);
+
+								$encrypted = base64_encode(openssl_encrypt($password, 'aes-256-cbc', $key_pass, OPENSSL_RAW_DATA, $iv));
+								$create_key = $this->M_account->aes_key($check_id['username'], $encrypted);
+								if($create_key){
+									$_SESSION['userid'] = $check_id['username'];
+									$_SESSION['roles'] = "user";
+									$_SESSION['name'] =  $check_id['name'];
+
+									echo "<script>location.href='".site_url()."/mail/main'</script>";
+								}
 
 
-								$config['useragent'] = '';
-								$config['protocol'] = 'smtp';
-								// $config['smtp_host'] = '192.168.0.50';
-								// $config['smtp_user'] = 'test4@durianict.co.kr';
-								// $config['smtp_pass'] = 'durian12#';
-								$config['smtp_host'] = '192.168.0.100';
-								$config['smtp_user'] = 'yjjo@durianit.co.kr';
-								$config['smtp_pass'] = 'durian12#';
-								$config['smtp_port'] = 25;
-								$config['smtp_timeout'] = 5;
-								$config['wordwrap'] = TRUE;
-								$config['wrapchars'] = 76;
-								$config['mailtype'] = 'html';
-								$config['charset'] = 'utf-8';
-								$config['validate'] = FALSE;
-								$config['priority'] = 3;
-								$config['crlf'] = "\r\n";
-								$config['newline'] = "\r\n";
-								$config['bcc_batch_mode'] = FALSE;
-								$config['bcc_batch_size'] = 200;
-								$return_val = $this->email->initialize($config);
-								$return_val = $this->email->return_val();
-								// var_dump($return_val);
-								echo "<script>location.href='".site_url()."/mail/main'</script>";
+
 
 							}else{
 								echo "<script>alert('이메일 주소나 패스워드가 정확하지 않습니다.');history.go(-1);</script>";
@@ -111,6 +98,7 @@ class Account extends CI_Controller {
       }
 
 		}
+
 
 		public function logout(){
 			session_unset();

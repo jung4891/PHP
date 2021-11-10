@@ -34,7 +34,14 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
         <td></td>
         <td></td>
         <td></td>
-        <td></td>
+        <td>
+          <select onchange="mails_cnt(this);" style="background-color: #F0F0F0;">
+            <option value="">보기설정</option>
+            <option value="10">10개</option>
+            <option value="20">20개</option>
+            <option value="30">30개</option>
+          </select>
+        </td>
       </tr>
       <tr>
         <td colspan="6" style="border-bottom: 2px solid lightgray; "></td>
@@ -71,8 +78,9 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
         <!-- <td><?php // echo $head[$mailno_arr[$i]]->Unseen?></td>      메일 클릭해서 읽으면 "U" -> ""로 바뀜 -->
         <!-- <td><?php // echo $msg_no?></td> -->
         <td><input type="checkbox" name="chk" value=<?php echo $msg_no;?>></td>
-        <td><a class="visit" onclick="test(event, '<?php echo $from_addr; ?>')" href="<?php echo site_url(); ?>/mailbox/mail_detail/<?php echo $box ?>/<?php echo $mailno_arr[$i] ?>">
-          <?php echo $from_name; ?></a></td>
+        <td><a class="visit" onclick="change_href(event, '<?php echo $from_addr; ?>')"
+            href="<?php echo site_url(); ?>/mailbox/mail_detail/<?php echo $box ?>/<?php echo $mailno_arr[$i] ?>">
+            <?php echo $from_name; ?></a></td>
         <td><a class="visit" href="<?php echo site_url(); ?>/mailbox/mail_detail/<?php echo $box ?>/<?php echo $mailno_arr[$i] ?>">
           <?php echo imap_utf8($head[$mailno_arr[$i]]->subject)?></a></td>
         <td style="color: darkgray; font-weight: 400;"><?php echo date("y.m.d", $head[$mailno_arr[$i]]->udate)?></td>
@@ -112,12 +120,31 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_footer.php"
    checked = checked?  false : true;
  };
 
+ // 보기 설정
+ function mails_cnt(s) {
+  const cnt = s.options[s.selectedIndex].value;
+
+  var newForm = $('<form></form>');
+  newForm.attr("method","post");
+  newForm.attr("action", "<?php echo site_url(); ?>/mailbox/mail_list");
+  newForm.append($('<input>', {type: 'hidden', name: 'mail_cnt_show', value: cnt }));
+  newForm.appendTo('body');
+  newForm.submit();
+
+}
+
  // 보낸사람 링크 변경
- function test(e, addr) {
-   e.preventDefault();    // a태그 href 이동 이벤트 막음
-   location.href='<?php echo site_url(); ?>/mail_write/page';
+ function change_href(e, addr) {
+   e.preventDefault();    // a태그 href 이동 이벤트 막고 아래로 addr post로 보냄.
+
+   var newForm = $('<form></form>');
+   newForm.attr("method","post");
+   newForm.attr("action", "<?php echo site_url(); ?>/mail_write/page");
+   newForm.append($('<input>', {type: 'hidden', name: 'addr', value: addr }));
+   newForm.appendTo('body');
+   newForm.submit();
  };
- // const from_name = document.getElementById('from_name')
+
 
  // 나중에 삭제부분
  // <input type=button name=HOWTO22 value="삭 제" class="tk1" onClick="delete();">

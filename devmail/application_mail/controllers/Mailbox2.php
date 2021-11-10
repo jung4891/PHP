@@ -72,21 +72,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 class Mailbox extends CI_Controller {
   function __construct() {
       parent::__construct();
-      if(!isset($_SESSION)){
-          session_start();
-      }
       $this->load->helper(array('url', 'download'));
       $this->load->library('pagination', 'email');
-      $this->load->Model('M_account');
-
-      $encryp_password = $this->M_account->mbox_conf($_SESSION['userid']);
-			$iv = chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0);
-      $key = $this->db->password;
-      $key = substr(hash('sha256', $key, true), 0, 32);
-			$decrypted = openssl_decrypt(base64_decode($encryp_password), 'aes-256-cbc', $key, OPENSSL_RAW_DATA, $iv);
-      $this->mailserver = "192.168.0.100";
-      $this->user_id = $_SESSION["userid"];
-      $this->user_pwd = $decrypted;
   }
 
   public function index(){
@@ -117,10 +104,10 @@ class Mailbox extends CI_Controller {
     $mbox = $this->box_name_encode($box);
 
     // 접속정보 설정
-    $mailserver = $this->mailserver;
+    $mailserver = "192.168.0.100";
     $host = "{" . $mailserver . ":143/imap/novalidate-cert}$mbox";
-    $user_id = $this->user_id;
-    $user_pwd = $this->user_pwd;
+    $user_id = "hjsong@durianit.co.kr";
+    $user_pwd = "durian12#";
 
     // 메일함 접속
     // imap_open() : 메일서버에 접속하기 위한 함수 (접속에 성공하면 $mailbox에 IMAP 스트림(mailstream)이 할당됨)
@@ -143,7 +130,8 @@ class Mailbox extends CI_Controller {
       $config = array();
       $config['base_url'] = "/devmail/index.php/Mailbox/mail_list/$box";
       $config['total_rows'] = $mails_cnt;
-      $config['per_page'] = ($_POST)? $_POST['mail_cnt_show'] : 15;   // 보기 설정
+      $per_page = if($_POST) $_POST['mail_cnt_show'] else 15;
+      $config['per_page'] = $per_page;
       $data['per_page'] = $config['per_page'];
       $data['page'] = $page;
 
@@ -193,10 +181,10 @@ class Mailbox extends CI_Controller {
     $mbox = $this->box_name_encode($box);
 
     // 메일서버 접속정보 설정
-    $mailserver = $this->mailserver;
+    $mailserver = "192.168.0.100";
     $host = "{" . $mailserver . ":143/imap/novalidate-cert}$mbox";
-    $user_id = $this->user_id;
-    $user_pwd = $this->user_pwd;
+    $user_id = "hjsong@durianit.co.kr";
+    $user_pwd = "durian12#";
 
     // 메일함 접속
     $mails= @imap_open($host, $user_id, $user_pwd);
@@ -322,10 +310,10 @@ class Mailbox extends CI_Controller {
 
   // 첨부파일 클릭시 다운로드 되는 부분
   function download() {
-    $mailserver = $this->mailserver;
-    $host = "{" . $mailserver . ":143/imap/novalidate-cert}$mbox";
-    $user_id = $this->user_id;
-    $user_pwd = $this->user_pwd;
+    $mailserver = "192.168.0.100";
+    $host = "{" . $mailserver . ":143/imap/novalidate-cert}" . $_POST['mbox'];
+    $user_id = "hjsong@durianit.co.kr";
+    $user_pwd = "durian12#";
     $mails= @imap_open($host, $user_id, $user_pwd);
 
     $fileSource = imap_fetchbody($mails, $_POST['msg_no'], $_POST['part_no']);
