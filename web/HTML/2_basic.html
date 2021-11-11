@@ -34,17 +34,40 @@
         <td>데이터22</td>
       </tr>
     </table>
-    <hr><br>
+    <br><hr><br>
+
 
     < 블록과 인라인 >
     <!-- HTML의 모든 요소는 해당 요소가 웹 브라우저에 어떻게 보이는가 하는 display 속성을 가진다. -->
+    <!-- 대표적으로 display의 속성값은 block과 inline이 있다. -->
     <!-- 1. block: 언제나 새로운 라인으로 시작하고 해당 라인의 모든 너비를 차지함
                    -> <p>, <div>, <h>, <ul>, <ol>, <form>
     -->
     <p style="border: 2px dotted red">
       p태그는 display 속성값이 블록인 요소이다.
     </p>
-    <!-- 2. inline:  -->
+    <div style="background-color: silver; color: green; text-align: center">
+      <h5>div 요소는</h5>
+      <p>여러 HTML 요소들을 하나라 묶어주는 block 요소다</p>
+      <span>이렇게 여러 요소들을 한번에 스타일을 적용할 수 있다.</span>
+    </div>
+    <!-- 2. inline: 새로운 라인에서 시작하지 않고 너비도 내용만큼만 차지한다.
+                    -> <span>, <a>, <img>
+    -->
+    <p>
+      <span style="background-color: darkgreen" >span태그는</span> display 속성값이 인라인인 요소이다.
+    </p>
+    <br><hr><br>
+
+
+    < iframe > <br>
+    <!-- iframe이란 inline frame의 약자로 페이지 안에 다른 웹페이지를 삽입할 수 있다. -->
+    <iframe src="1_basic.html" name="frame_target" width="50%" height="200px"
+            style="border: none; ">
+    </iframe>
+    <p>
+      <a href="etc.html" target="frame_target">iframe 페이지 변경하기</a>
+    </p>
 
   </body>
 </html>

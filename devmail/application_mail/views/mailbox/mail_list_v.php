@@ -147,48 +147,78 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_footer.php"
      }
     }
     $.ajax({
-      url : "<?php echo site_url(); ?>/mailbox/test",
+      url : "<?php echo site_url(); ?>/mailbox/mail_move",
       type : "post",
-      data : arr,
+      data : {box: '<?php echo $box ?>', to_box: 'trash', mail_arr: arr},
       success : function(data){
-        alert(data);
-        if(param == "OK") {
-          alert("성공");
-        } else {
-          alert("뭐지?");
-        }
+        (data == 1)? alert("삭제되었습니다.") : alert("애러발생");
       },
       error : function(request, status, error){
           console.log("AJAX_ERROR");
+      },
+      complete : function() {
+        location.reload();
       }
     });
-
     // console.log(arr);
     // console.log(arr.length);
   }
 
- // 보기 설정
- function mails_cnt(s) {
-  const cnt = s.options[s.selectedIndex].value;
-  var newForm = $('<form></form>');
-  newForm.attr("method","post");
-  newForm.attr("action", "<?php echo site_url(); ?>/mailbox/mail_list");
-  newForm.append($('<input>', {type: 'hidden', name: 'mail_cnt_show', value: cnt }));
-  newForm.appendTo('body');
-  newForm.submit();
-}
+ // 휴지통에서 완전삭제
+  function del_ever(){
+    if (confirm("정말 삭제하시겠습니까??") == true) {
+      let arr = [];
+      for(var i=0; i<document.frm.length; i++) {
+        if(document.frm[i].checked) {
+          arr.push(document.frm[i].value)
+        }
+      }
+      $.ajax({
+        url : "<?php echo site_url(); ?>/mailbox/mail_delete",
+        type : "post",
+        data : {box: '<?php echo $box ?>', mail_arr: arr},
+        success : function(data){
+          (data == 1)? alert("영구삭제 되었습니다.") : alert("애러발생");
+        },
+        error : function(request, status, error){
+          console.log("AJAX_ERROR");
+        },
+        complete : function() {
+          location.reload();
+        }
+      });
+    } else {
+      return;
+    }
+    // console.log(arr);
+    // console.log(arr.length);
+  }
 
- // 보낸사람 링크 변경
- function change_href(e, addr) {
-   e.preventDefault();    // a태그 href 이동 이벤트 막고 아래로 addr post로 보냄.
 
-   var newForm = $('<form></form>');
-   newForm.attr("method","post");
-   newForm.attr("action", "<?php echo site_url(); ?>/mail_write/page");
-   newForm.append($('<input>', {type: 'hidden', name: 'addr', value: addr }));
-   newForm.appendTo('body');
-   newForm.submit();
- };
+
+
+   // 보기 설정
+   function mails_cnt(s) {
+    const cnt = s.options[s.selectedIndex].value;
+    var newForm = $('<form></form>');
+    newForm.attr("method","post");
+    newForm.attr("action", "<?php echo site_url(); ?>/mailbox/mail_list");
+    newForm.append($('<input>', {type: 'hidden', name: 'mail_cnt_show', value: cnt }));
+    newForm.appendTo('body');
+    newForm.submit();
+  }
+
+   // 보낸사람 링크 변경
+   function change_href(e, addr) {
+     e.preventDefault();    // a태그 href 이동 이벤트 막고 아래로 addr post로 보냄.
+
+     var newForm = $('<form></form>');
+     newForm.attr("method","post");
+     newForm.attr("action", "<?php echo site_url(); ?>/mail_write/page");
+     newForm.append($('<input>', {type: 'hidden', name: 'addr', value: addr }));
+     newForm.appendTo('body');
+     newForm.submit();
+   };
 
 
  // 나중에 삭제부분

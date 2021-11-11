@@ -70,6 +70,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
   //   $mailbox = imap_open("{" . $mailserver . ":993/imap/novalidate-cert/ssl}INBOX", $user_id, $user_pwd);
 
 class Mailbox extends CI_Controller {
+
   function __construct() {
       parent::__construct();
       if(!isset($_SESSION)){
@@ -109,11 +110,12 @@ class Mailbox extends CI_Controller {
     }
   }
 
-  // 전체메일 출력: 메일함에 있는 메일들의 헤더정보(제목, 날짜, 보낸이 등등)를 뷰로 넘김
-  // imap_check() : 메일박스의 정보(driver(imap), Mailbox(~~INBOX), Nmsgs)를 객체(object)로 돌려줌
-  public function mail_list($box='inbox'){
+  // 메일서버 접속후 메일박스 접근
+  public function connect_mailserver($box) {
 
-    // 메일박스명 인코딩 (side페이지에서 post로 전송시 페이징 처리시 애러남. 페이징 링크 생성시에는 post로 보내질 않으니 받질 못함.)
+    // 메일박스명 인코딩
+    // (side페이지에서 post로 전송시 페이징 처리시 애러남.
+    //  페이징 링크 생성시에는 post로 보내질 않으니 받질 못함.)
     $mbox = $this->box_name_encode($box);
 
     // 접속정보 설정
@@ -125,10 +127,19 @@ class Mailbox extends CI_Controller {
     // 메일함 접속
     // imap_open() : 메일서버에 접속하기 위한 함수 (접속에 성공하면 $mailbox에 IMAP 스트림(mailstream)이 할당됨)
     // (@ : 오류메시지를 무효로 처리하여 경고 문구가 표시되지 않게함)
-    $mails= @imap_open($host, $user_id, $user_pwd);
+    return @imap_open($host, $user_id, $user_pwd);
+  }
+
+
+  // 전체메일 출력: 메일함에 있는 메일들의 헤더정보(제목, 날짜, 보낸이 등등)를 뷰로 넘김
+  // imap_check() : 메일박스의 정보(driver(imap), Mailbox(~~INBOX), Nmsgs)를 객체(object)로 돌려줌
+  public function mail_list($box='inbox'){
+
+    // 메일서버 접속후 메일박스 가져옴
+    $mails = $this->connect_mailserver($box);
 
     // 메일박스 리스트 (테스트용)
-    $mailboxes = imap_list($mails, "{" . $mailserver . ":143}", '*');
+    $mailboxes = imap_list($mails, "{" . $this->mailserver . ":143}", '*');
 
     // 뷰로 보낼 내용들 세팅
     $data = array();
@@ -190,21 +201,13 @@ class Mailbox extends CI_Controller {
   // 메일 조회 : body부분의 내용을 구조를 분석해 내용(string)을 뷰로 보냄
   public function mail_detail($box, $num){
 
-    $mbox = $this->box_name_encode($box);
-
-    // 메일서버 접속정보 설정
-    $mailserver = $this->mailserver;
-    $host = "{" . $mailserver . ":143/imap/novalidate-cert}$mbox";
-    $user_id = $this->user_id;
-    $user_pwd = $this->user_pwd;
-
-    // 메일함 접속
-    $mails= @imap_open($host, $user_id, $user_pwd);
+    // 메일서버 접속후 메일박스 가져옴
+    $mails = $this->connect_mailserver($box);
     $mails_cnt = imap_num_msg($mails);
 
     // 내용을 제외한 부분 헤더에서 가져옴
     $data = array();
-    $data['mbox'] = $mbox;
+    $data['box'] = $box;
     $head = imap_headerinfo($mails, $num);
     $data['date'] = date("Y/m/d H:i", $head->udate);
     $data['from_addr'] = htmlspecialchars(mb_decode_mimeheader($head->fromaddress));
@@ -225,9 +228,9 @@ class Mailbox extends CI_Controller {
     $data['body'] = $body;
 
     // 내용 가져오는 부분
+    $contents = '';       // 내용 부분 담을 변수
+    $attachments = '';    // 첨부파일 부분 담을 변수
     if (isset($struct->parts)) {
-      $contents = '';       // 내용 부분 담을 변수
-      $attachments = '';    // 첨부파일 부분 담을 변수
       $flattenedParts = $this->flattenParts($struct->parts);  // 메일구조 평면화
 
       foreach($flattenedParts as $partNumber => $part) {
@@ -271,7 +274,7 @@ class Mailbox extends CI_Controller {
          case 7: // other (첨부파일)
            $filename = $this-> getFilenameFromPart($part);
            if ($filename)
-           $down_link = "&nbsp;<a href=\"javascript:download('{$mbox}', '{$msg_no}',
+           $down_link = "&nbsp;<a href=\"javascript:download('{$box}', '{$msg_no}',
                    '{$partNumber}', '{$filename}');\">".$filename.'</a><br>';
            $attachments .= $down_link;
          break;
@@ -282,19 +285,41 @@ class Mailbox extends CI_Controller {
     } else {
       // Microsoft Office Outlook 테스트 메시지	( 2021/09/03 11:04 )는
       // parts가 없고 html만 있어서 제어문 처리함
-      $contents = imap_fetchbody($mails, $msg_no, 1);
+      // + [전자결재]결재문서 최종 승인 메일은 역시 parts가 없는데 base64로 디코딩됨
+      $contents = $this->getPart($mails, $msg_no, 1, $struct->encoding, $struct->parameters[0]->value);
       $data['contents'] = $contents;
+      $data['attachments'] = $attachments;
     }
     imap_close($mails);
     $this->load->view('mailbox/mail_detail_v', $data);
   } // mail_detail
 
-  function test() {
-    
-    $t = "OK";
-    return $t;
+
+  // 메일함 이동 (휴지통으로 이동 포함)
+  function mail_move() {
+    $mails = $this->connect_mailserver($_POST['box']);
+    $arr = $_POST['mail_arr'];
+    $arr_str = implode(',', $arr);
+    $to_box = $this->box_name_encode($_POST['to_box']);
+    $res = imap_mail_move($mails, $arr_str, $to_box);
+    // imap_expunge() : Deletes all the messages marked for deletion
+    //                  by imap_delete(), imap_mail_move(), or imap_setflag_full().
+    // imap_expunge() 안해주면 삭제버튼 클릭시 이동은 되는데 본 메일박스에 남아있음
+    imap_expunge($mails);
+    imap_close($mails);
+    echo $res;
   }
 
+  // 메일 완전삭제
+  function mail_delete() {
+    $mails = $this->connect_mailserver($_POST['box']);
+    $arr = $_POST['mail_arr'];
+    $arr_str = implode(',', $arr);
+    $res = imap_delete($mails, $arr_str);
+    imap_expunge($mails);
+    imap_close($mails);
+    echo $res;
+  }
 
   // 주로 HTML 부분 가져오되 인코딩 여부에 따라 디코딩후 내용 가져옴
   function getPart($connection, $messageNumber, $partNumber, $encoding, $charset) {
@@ -328,12 +353,7 @@ class Mailbox extends CI_Controller {
 
   // 첨부파일 클릭시 다운로드 되는 부분
   function download() {
-    $mailserver = $this->mailserver;
-    $host = "{" . $mailserver . ":143/imap/novalidate-cert}$mbox";
-    $user_id = $this->user_id;
-    $user_pwd = $this->user_pwd;
-    $mails= @imap_open($host, $user_id, $user_pwd);
-
+    $mails = $this->connect_mailserver($_POST['box']);
     $fileSource = imap_fetchbody($mails, $_POST['msg_no'], $_POST['part_no']);
     $fileSource = imap_base64($fileSource);
     force_download($_POST['f_name'], $fileSource);

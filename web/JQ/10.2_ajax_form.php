@@ -80,14 +80,14 @@
         //  퍼센트 인코딩을 통해 한글 문자는 퍼센트 기호(%)를 포함한 16진수 값으로 변환됨.)
         // let datas = $('#form_id').serialize();
         url: "test_ajax.php",
-        // data: $('form[name=frm]').serialize(),
+        data: $('form').serialize(),      // 이렇게도 되는군
         // data: $('form[name=frm]').serialize(),
         method: "POST",
         dataType: "json",
         success: function(json) {
           console.log(json);
           alert("도시: " + json.city);
-          alert("음악: " + json.music);   // music은 name을 배열로 해야 잘 된다.
+          alert("음악: " + json.music);   // music은 여러개 선택시 name을 배열로 해야 된다.
           // alert("음악: " + json.music[1]);
         },
         error: function(err) {

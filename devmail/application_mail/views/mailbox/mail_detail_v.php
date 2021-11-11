@@ -40,7 +40,7 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
       <td colspan="2">
         <h3>$struct</h3>
         <pre>
-          <?php //var_dump($struct);?>
+          <?php // var_dump($struct);?>
         </pre>
       </td>
      </tr> -->
@@ -50,7 +50,7 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
        <td colspan="2">
          <h3>$body</h3>
          <pre>
-           <?php //var_dump($body); ?>
+           <?php // var_dump($body); ?>
          </pre>
        </td>
      </tr> -->
@@ -61,13 +61,13 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
 
 <script type="text/javascript">
 
-  function download(mbox, msg_no, part_no, f_name) {
+  function download(box, msg_no, part_no, f_name) {
     var newForm = $('<form></form>');
     newForm.attr("method","post");
     newForm.attr("action", "<?php echo site_url(); ?>/mailbox/download");
     // site_url() : http://dev.mail.durianit.co.kr/devmail/index.php
 
-    newForm.append($('<input>', {type: 'hidden', name: 'mbox', value: mbox }));
+    newForm.append($('<input>', {type: 'hidden', name: 'box', value: box }));
     newForm.append($('<input>', {type: 'hidden', name: 'msg_no', value: msg_no }));
     newForm.append($('<input>', {type: 'hidden', name: 'part_no', value: part_no }));
     newForm.append($('<input>', {type: 'hidden', name: 'f_name', value: f_name }));

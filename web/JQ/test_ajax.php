@@ -7,7 +7,7 @@
   // $name = $_POST['name'];
   // if ($name == 'song') echo true; else echo false;
 
-  // 연습용 2 (post로 받은값 배열에 넣어 보내기)
+  // 연습용 2,3 (post로 받은값 배열에 넣어 보내기)
   // json으로 보내야함. 그냥 arr을 print_r로 출력한걸 보내면 그냥 싹다 문자열처리되서 감
   $arr = array();
   $arr["name"] = $_POST['name'];
