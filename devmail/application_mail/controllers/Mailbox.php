@@ -289,6 +289,12 @@ class Mailbox extends CI_Controller {
     $this->load->view('mailbox/mail_detail_v', $data);
   } // mail_detail
 
+  function test() {
+    
+    $t = "OK";
+    return $t;
+  }
+
 
   // 주로 HTML 부분 가져오되 인코딩 여부에 따라 디코딩후 내용 가져옴
   function getPart($connection, $messageNumber, $partNumber, $encoding, $charset) {
@@ -362,6 +368,5 @@ class Mailbox extends CI_Controller {
     return $flattenedParts;
   }
 }
-
 
  ?>

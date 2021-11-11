@@ -117,7 +117,6 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_footer.php"
 
  <script type="text/javascript">
 
-
  // 상단 체크박스 클릭시 전체선택/해제 설정
  function check_all(chk_all) {
    delete_btn = document.getElementById('delete');
@@ -147,6 +146,23 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_footer.php"
        arr.push(document.frm[i].value)
      }
     }
+    $.ajax({
+      url : "<?php echo site_url(); ?>/mailbox/test",
+      type : "post",
+      data : arr,
+      success : function(data){
+        alert(data);
+        if(param == "OK") {
+          alert("성공");
+        } else {
+          alert("뭐지?");
+        }
+      },
+      error : function(request, status, error){
+          console.log("AJAX_ERROR");
+      }
+    });
+
     // console.log(arr);
     // console.log(arr.length);
   }
