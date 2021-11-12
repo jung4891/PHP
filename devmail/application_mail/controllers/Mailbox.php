@@ -18,17 +18,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     //  string(45) "{192.168.0.100:143/imap/novalidate-cert}INBOX"  -> 전체 메일함
     // }
 
-  // @ 메일함 목록 테스트
-  //   $user_id = "hjsong@durianit.co.kr";
-  //   $user_pwd = "durian12#";
-  //   $mailserver = "192.168.0.100";
-  //   $mails= @imap_open("{" . $mailserver . ":143/imap/novalidate-cert}{$mbox}", $user_id, $user_pwd);
-  //
-  //   $mailboxes = imap_list($mails, "{" . $mailserver . ":143}", '*');
-  //   echo '<pre>';
-  //   var_dump($mailboxes);
-  //   echo '</pre>';
-
   // @ 메일박스 url segment
   //   메일함       Mailbox
   //   전체메일     inbox
@@ -258,7 +247,6 @@ class Mailbox extends CI_Controller {
          case 4: // audio
          case 5: // image		(PNG 인라인출력 or 첨부 모두 type아 5임. 여기서는 삽입된거만 처리 첨부는 아래로 내려감)
            if ($part->ifdisposition == 0 || $part->disposition == "inline") {
-
              $img_data = imap_fetchbody($mails, $msg_no, $partNumber);
              // 리턴, 줄개행코드 제거. $img_data에 이게 있으면 애러발생함(HTML로 보내질때)
              $img_data = str_replace("\r\n", " ", $img_data);
@@ -300,7 +288,7 @@ class Mailbox extends CI_Controller {
     $mails = $this->connect_mailserver($_POST['box']);
     $arr = $_POST['mail_arr'];
     $arr_str = implode(',', $arr);
-    $to_box = $this->box_name_encode($_POST['to_box']);
+    $to_box = mb_convert_encoding($_POST['to_box'], 'UTF7-IMAP', 'UTF-8');
     $res = imap_mail_move($mails, $arr_str, $to_box);
     // imap_expunge() : Deletes all the messages marked for deletion
     //                  by imap_delete(), imap_mail_move(), or imap_setflag_full().

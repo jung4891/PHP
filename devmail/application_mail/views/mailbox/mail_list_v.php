@@ -26,28 +26,70 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
     <thead>
       <tr>
         &nbsp;   <!-- 검색창 -->
+        <pre>
+          <?php
+            // 메일박스 가져오기
+            $arr_boxname = array();
+            foreach($mailboxes as $mailbox) {
+              array_push($arr_boxname, mb_convert_encoding(substr($mailbox, 19), 'UTF-8', 'UTF7-IMAP'));
+            }
+            sort($arr_boxname);
+            print_r($arr_boxname);
+
+            // 메일박스명 변경
+            $arr_boxname_side = array();
+            for($i=0; $i<count($arr_boxname); $i++) {
+              if($arr_boxname[$i] == 'INBOX') $arr_boxname_side[$i] = '전체메일';
+              elseif($arr_boxname[$i] == '보낸 편지함') $arr_boxname_side[$i] = '보낸메일함';
+              elseif($arr_boxname[$i] == '임시 보관함') $arr_boxname_side[$i] = '임시보관함';
+              elseif($arr_boxname[$i] == '정크 메일') $arr_boxname_side[$i] = '스팸메일함';
+              elseif($arr_boxname[$i] == '지운 편지함') $arr_boxname_side[$i] = '휴지통';
+              else $arr_boxname_side[$i] = $arr_boxname[$i];
+            }
+            $arr_boxname_side_sorted = $arr_boxname_side;
+            print_r($arr_boxname_side);
+            sort($arr_boxname_side_sorted);
+            print_r($arr_boxname_side_sorted);
+           ?>
+           </pre>
       </tr>
       <tr>
         <!-- <th>U</th> -->
         <!-- <th>No</th> -->
-        <td><input type="checkbox" onClick="check_all(this);"> </td>
-        <td>
-          <?php if($box == "trash") {?>
-          <button type="button" id="delete" onclick="del_ever();" disabled="disabled">영구삭제</button>
-          <?php }else {?>
-          <button type="button" id="delete" onclick="del_trash();" disabled="disabled">삭제</button>
-          <?php } ?>
-        </td>
-        <td></td>
-        <td></td>
-        <td>
-          <select onchange="mails_cnt(this);" style="background-color: #F0F0F0;">
-            <option value="">보기설정</option>
-            <option value="10">10개</option>
-            <option value="20">20개</option>
-            <option value="30">30개</option>
-          </select>
-        </td>
+        &nbsp;
+        <input type="checkbox" onClick="check_all(this);">
+        &nbsp;
+        <?php if($box == "trash") {?>
+        <button type="button" class="top_button" onclick="del_ever();" disabled="disabled">영구삭제</button>
+        <?php }else {?>
+        <button type="button" class="top_button" onclick="del_trash();" disabled="disabled">삭제</button>
+        <?php } ?>
+
+        &nbsp;&nbsp;
+        <select class="top_button" id="selected_box" style="background-color: #F0F0F0; height: 25px;" disabled="disabled" >
+          <option value="">이동할 메일함</option>
+          <?php
+            for($i=0; $i<count($arr_boxname_side_sorted); $i++) {
+              foreach($arr_boxname_side as $index => $value) {
+                if($value == $arr_boxname_side_sorted[$i]) {
+                  echo "<option value=\"$arr_boxname[$index]\">$arr_boxname_side_sorted[$i]</option>";
+                  break;
+                }
+              }
+            }
+          ?>
+        </select>
+
+        &nbsp;&nbsp;
+        <button type="button" class="top_button" onclick="move();" disabled="disabled">이동</button>
+
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <select onchange="mails_cnt(this);" style="background-color: #F0F0F0;" >
+          <option value="">보기설정</option>
+          <option value="10">10개</option>
+          <option value="20">20개</option>
+          <option value="30">30개</option>
+        </select>
       </tr>
       <tr>
         <td colspan="6" style="border-bottom: 2px solid lightgray; "></td>
@@ -119,8 +161,11 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_footer.php"
 
  // 상단 체크박스 클릭시 전체선택/해제 설정
  function check_all(chk_all) {
-   delete_btn = document.getElementById('delete');
-   delete_btn.disabled = (chk_all.checked)? false : "disabled";
+   let top_buttons = document.getElementsByClassName('top_button');
+   for(var i = 0; i < top_buttons.length; i++ ){
+     top_buttons[i].disabled = (chk_all.checked)? false : "disabled";
+   }
+
    for(var i=0; i<document.frm.length; i++)
     if(document.frm[i].name == 'checkbox') document.frm[i].checked = chk_all.checked;
  };
@@ -128,13 +173,17 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_footer.php"
  // 체크박스 하나 클릭시
  function check_one() {
    let checked = false;
+   let top_buttons = document.getElementsByClassName('top_button');
    for(var i=0; i<document.frm.length; i++) {
     if(document.frm[i].checked) {
-      document.getElementById('delete').disabled = false;
+      for(var i = 0; i < top_buttons.length; i++ ){
+        top_buttons[i].disabled = false;
+      }
       checked = true;
     }
    }
-   if(!checked) document.getElementById('delete').disabled = "disabled";
+   if(!checked)
+    for(var i = 0; i < top_buttons.length; i++ )  top_buttons[i].disabled = "disabled";
    //  if(document.frm[i].name == 'checkbox') document.frm[i].checked = chk_all.checked;
  };
 
@@ -149,7 +198,7 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_footer.php"
     $.ajax({
       url : "<?php echo site_url(); ?>/mailbox/mail_move",
       type : "post",
-      data : {box: '<?php echo $box ?>', to_box: 'trash', mail_arr: arr},
+      data : {box: '<?php echo $box ?>', to_box: '지운 편지함', mail_arr: arr},
       success : function(data){
         (data == 1)? alert("삭제되었습니다.") : alert("애러발생");
       },
@@ -194,8 +243,31 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_footer.php"
     // console.log(arr.length);
   }
 
-
-
+  // 메일함 이동
+  function move() {
+    const s = document.getElementById('selected_box');
+    const to_box = s.options[s.selectedIndex].value;
+    let arr = [];
+    for(var i=0; i<document.frm.length; i++) {
+     if(document.frm[i].checked) {
+       arr.push(document.frm[i].value)
+     }
+    }
+    $.ajax({
+      url : "<?php echo site_url(); ?>/mailbox/mail_move",
+      type : "post",
+      data : {box: '<?php echo $box ?>', to_box: to_box, mail_arr: arr},
+      success : function(data){
+        (data == 1)? alert("이동되었습니다.") : alert("애러발생");
+      },
+      error : function(request, status, error){
+          console.log("AJAX_ERROR");
+      },
+      complete : function() {
+        location.reload();
+      }
+    });
+ }
 
    // 보기 설정
    function mails_cnt(s) {
