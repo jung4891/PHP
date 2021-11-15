@@ -1,4 +1,4 @@
-<link href="<?php echo $misc; ?>css/sidebar.css" type="text/css" rel="stylesheet">
+<link href="/devmail/misc/css/sidebar.css" type="text/css" rel="stylesheet">
 
 <div id="main">
     <div id="sideBar">
@@ -17,23 +17,11 @@
             안읽음
           </span>
           </a>
-          <a href="#"><img src="<?php echo $misc;?>img/icon/schedule.svg" width="20"> 중요</a>
-          <a href="#"><img src="<?php echo $misc;?>img/icon/schedule.svg" width="20"> 첨부</a>
-<!--
-<a href="<?php // echo site_url(); ?>/mailbox/mail_list/<?php // echo $this->uri->segment(3); ?>/unread"><img src="<?php // echo $misc;?>img/icon/schedule.svg" width="20"> 중요</a>
-<a href="<?php // echo site_url(); ?>/mailbox/mail_list/<?php // echo $this->uri->segment(3); ?>/attachments">
-  <img src="<?php // echo $misc;?>img/icon/schedule.svg" width="20"> 첨부</a>
- -->
+          <a href="<?php echo site_url(); ?>/mailbox/mail_list/<?php echo $this->uri->segment(3); ?>/unread"><img src="<?php echo $misc;?>img/icon/schedule.svg" width="20"> 중요</a>
+          <a href="<?php echo site_url(); ?>/mailbox/mail_list/<?php echo $this->uri->segment(3); ?>/attachments">
+            <img src="<?php echo $misc;?>img/icon/schedule.svg" width="20"> 첨부</a>
+
       </div>
-      <form name="boxform" id="boxform" class="" action="" method="get">
-        <input type="hidden" name="curpage" id="curpage" value="">
-        <input type="hidden" name="searchbox" id="searchbox" value="">
-        <input type="hidden" name="boxname" id="boxname" value="">
-        <div id="sidetree">
-
-        </div>
-      </form>
-
       <div class="">
         <ul>
           <a href="<?php echo site_url(); ?>/mailbox/mail_list/inbox">
@@ -50,6 +38,14 @@
             <img src="<?php echo $misc;?>img/icon/schedule.svg" width="20"> 보낸메일함</a>
         </ul>
         <ul>
+
+          <!-- 기존 url로 디코딩된 메일함명 보냈던 부분 -->
+          <!-- // $box = mb_convert_encoding('임시 보관함', 'UTF7-IMAP', 'UTF-8');    // UTF-8 -> UTF7-IMAP 인코딩 -->
+          <!-- <a href="<?php echo site_url(); ?>/Mailbox/mail_list/<?php echo $box ?>"><img src="<?php echo $misc;?>img/ico  n/schedule.svg" width="20"> 임시보관함</a> -->
+
+          <!-- 기존 동적 form 사용해서 post로 보냈던 부분 (페이징에서 오류) -->
+          <!-- <a href="javascript:mailbox('<?php echo mb_convert_encoding('임시 보관함', 'UTF7-IMAP', 'UTF-8'); ?>')"> -->
+
           <a href="<?php echo site_url(); ?>/mailbox/mail_list/tmp">
             <img src="<?php echo $misc;?>img/icon/schedule.svg" width="20"> 임시보관함</a>
         </ul>
@@ -74,6 +70,8 @@
         <ul>
           <a href="<?php echo site_url(); ?>/equipment/meeting_room_list"><img src="<?php echo $misc;?>img/icon/schedule.svg" width="20"> 회의실</a>
         </ul>
+
+
       </div>
     </div>
     <div id="sideMini">
@@ -82,38 +80,9 @@ aa
 
 
 <script type="text/javascript">
-
-
-$(function (){
-  $.ajax({
-    url: "<?php echo site_url(); ?>/mailbox/decode_mailbox",
-    type: 'POST',
-    dataType: 'json',
-    // cache: false,
-    async:true,
-    success: function (result) {
-      $('#sidetree').jstree({
-        'core' :{
-          'data' : result
-          },
-          "plugins" : [ "wholerow" ]
-        });
-    }
-  });
-})
-
   $("#headMenu").on("click", function(){
+
       $("#sideBar, #sideMini").toggle();
+
   })
-
-  $('#sidetree').on("select_node.jstree", function (e, data) {
-    var box_name = data.node.id;
-    $("#boxname").val(box_name);
-    var action = "<?php echo site_url(); ?>/mailbox/mail_list";
-    $("#boxform").attr("action", action);
-    $("#boxform").submit();
-  });
-
-
-
 </script>

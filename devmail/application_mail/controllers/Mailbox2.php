@@ -18,17 +18,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     //  string(45) "{192.168.0.100:143/imap/novalidate-cert}INBOX"  -> 전체 메일함
     // }
 
-  // @ 메일함 목록 테스트
-  //   $user_id = "hjsong@durianit.co.kr";
-  //   $user_pwd = "durian12#";
-  //   $mailserver = "192.168.0.100";
-  //   $mails= @imap_open("{" . $mailserver . ":143/imap/novalidate-cert}{$mbox}", $user_id, $user_pwd);
-  //
-  //   $mailboxes = imap_list($mails, "{" . $mailserver . ":143}", '*');
-  //   echo '<pre>';
-  //   var_dump($mailboxes);
-  //   echo '</pre>';
-
   // @ 메일박스 url segment
   //   메일함       Mailbox
   //   전체메일     inbox
@@ -70,10 +59,24 @@ defined('BASEPATH') OR exit('No direct script access allowed');
   //   $mailbox = imap_open("{" . $mailserver . ":993/imap/novalidate-cert/ssl}INBOX", $user_id, $user_pwd);
 
 class Mailbox extends CI_Controller {
+
   function __construct() {
       parent::__construct();
+      if(!isset($_SESSION)){
+          session_start();
+      }
       $this->load->helper(array('url', 'download'));
       $this->load->library('pagination', 'email');
+      $this->load->Model('M_account');
+
+      $encryp_password = $this->M_account->mbox_conf($_SESSION['userid']);
+			$iv = chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0);
+      $key = $this->db->password;
+      $key = substr(hash('sha256', $key, true), 0, 32);
+			$decrypted = openssl_decrypt(base64_decode($encryp_password), 'aes-256-cbc', $key, OPENSSL_RAW_DATA, $iv);
+      $this->mailserver = "192.168.0.100";
+      $this->user_id = $_SESSION["userid"];
+      $this->user_pwd = $decrypted;
   }
 
   public function index(){
@@ -96,42 +99,61 @@ class Mailbox extends CI_Controller {
     }
   }
 
-  // 전체메일 출력: 메일함에 있는 메일들의 헤더정보(제목, 날짜, 보낸이 등등)를 뷰로 넘김
-  // imap_check() : 메일박스의 정보(driver(imap), Mailbox(~~INBOX), Nmsgs)를 객체(object)로 돌려줌
-  public function mail_list($box='inbox'){
+  // 메일서버 접속후 메일박스 접근
+  public function connect_mailserver($box) {
 
-    // 메일박스명 인코딩 (side페이지에서 post로 전송시 페이징 처리시 애러남. 페이징 링크 생성시에는 post로 보내질 않으니 받질 못함.)
+    // 메일박스명 인코딩
+    // (side페이지에서 post로 전송시 페이징 처리시 애러남.
+    //  페이징 링크 생성시에는 post로 보내질 않으니 받질 못함.)
     $mbox = $this->box_name_encode($box);
 
     // 접속정보 설정
-    $mailserver = "192.168.0.100";
+    $mailserver = $this->mailserver;
     $host = "{" . $mailserver . ":143/imap/novalidate-cert}$mbox";
-    $user_id = "hjsong@durianit.co.kr";
-    $user_pwd = "durian12#";
+    $user_id = $this->user_id;
+    $user_pwd = $this->user_pwd;
 
     // 메일함 접속
     // imap_open() : 메일서버에 접속하기 위한 함수 (접속에 성공하면 $mailbox에 IMAP 스트림(mailstream)이 할당됨)
     // (@ : 오류메시지를 무효로 처리하여 경고 문구가 표시되지 않게함)
-    $mails= @imap_open($host, $user_id, $user_pwd);
+    return @imap_open($host, $user_id, $user_pwd);
+  }
+
+
+  // 전체메일 출력: 메일함에 있는 메일들의 헤더정보(제목, 날짜, 보낸이 등등)를 뷰로 넘김
+  // imap_check() : 메일박스의 정보(driver(imap), Mailbox(~~INBOX), Nmsgs)를 객체(object)로 돌려줌
+  public function mail_list($box='inbox'){
+
+    // 메일서버 접속후 메일박스 가져옴
+    $mails = $this->connect_mailserver($box);
 
     // 메일박스 리스트 (테스트용)
-    $mailboxes = imap_list($mails, "{" . $mailserver . ":143}", '*');
+    $mailboxes = imap_list($mails, "{" . $this->mailserver . ":143}", '*');
 
     // 뷰로 보낼 내용들 세팅
     $data = array();
     $data['box'] = $box;
     $data['mailboxes'] = $mailboxes;
 
+
+
     if($mails) {
-      $mails_cnt = imap_num_msg($mails);  // 메일의 총 개수를 리턴
 
       // 페이징 처리 (동적)
-      $page = ($this->uri->segment(4))? $this->uri->segment(4)+1:1;
       $config = array();
-      $config['base_url'] = "/devmail/index.php/Mailbox/mail_list/$box";
+      if($this->uri->segment(4) != "attachments") {
+        $mails_cnt = imap_num_msg($mails);  // 메일의 총 개수를 리턴
+        $page = ($this->uri->segment(4))? $this->uri->segment(4)+1:1;
+        $config['base_url'] = "/devmail/index.php/Mailbox/mail_list/$box";
+      }else {
+        // 첨부파일이 있는 메일만 처리
+        $mailno_attached_arr = $this->get_attached_mails($mails);
+        $mails_cnt = count($mailno_attached_arr);
+        $page = ($this->uri->segment(5))? $this->uri->segment(5)+1:1;
+        $config['base_url'] = "/devmail/index.php/Mailbox/mail_list/$box/attachments";
+      }
       $config['total_rows'] = $mails_cnt;
-      $per_page = if($_POST) $_POST['mail_cnt_show'] else 15;
-      $config['per_page'] = $per_page;
+      $config['per_page'] = ($_POST)? $_POST['mail_cnt_show'] : 15;   // 보기 설정
       $data['per_page'] = $config['per_page'];
       $data['page'] = $page;
 
@@ -152,7 +174,10 @@ class Mailbox extends CI_Controller {
 
       // imap_sort($mailstream, SORTDATE, 1); 메일을 날짜순으로 내림차순(1)/오름차순(0)하여 정렬된 메일번호가 배열에 담겨 변수에 들어감
       //                                      메일번호가 날짜순으로 되어있지 않기에 설정해줘야함.
-      $mailno_arr = imap_sort($mails, SORTDATE, 1);
+      if($this->uri->segment(4) != "attachments")
+        $mailno_arr = imap_sort($mails, SORTDATE, 1);
+      else
+        $mailno_arr = $this->get_attached_mails($mails);
       $data['mailno_arr'] = $mailno_arr;
       $recent = imap_num_recent($mails);      // 새로운 메일의 개수를 리턴(메일리스트만 봐도 개수 적용 제외됨)
 
@@ -174,25 +199,28 @@ class Mailbox extends CI_Controller {
     $this->load->view('mailbox/mail_list_v', $data);
   } // function(mail_list)
 
+  // 첨부파일이 있는 메일들만 메일번호를 배열에 넣어 반환
+  public function get_attached_mails($mails) {
+    $mailno_attached_arr = array();
+    $mailno_arr = imap_sort($mails, SORTDATE, 1);
+    foreach($mailno_arr as $no) {
+      if(imap_headerinfo($mails, $no)->Size > 30000)
+        array_push($mailno_attached_arr, $no);
+    }
+    return $mailno_attached_arr;
+  }
+
 
   // 메일 조회 : body부분의 내용을 구조를 분석해 내용(string)을 뷰로 보냄
   public function mail_detail($box, $num){
 
-    $mbox = $this->box_name_encode($box);
-
-    // 메일서버 접속정보 설정
-    $mailserver = "192.168.0.100";
-    $host = "{" . $mailserver . ":143/imap/novalidate-cert}$mbox";
-    $user_id = "hjsong@durianit.co.kr";
-    $user_pwd = "durian12#";
-
-    // 메일함 접속
-    $mails= @imap_open($host, $user_id, $user_pwd);
+    // 메일서버 접속후 메일박스 가져옴
+    $mails = $this->connect_mailserver($box);
     $mails_cnt = imap_num_msg($mails);
 
     // 내용을 제외한 부분 헤더에서 가져옴
     $data = array();
-    $data['mbox'] = $mbox;
+    $data['box'] = $box;
     $head = imap_headerinfo($mails, $num);
     $data['date'] = date("Y/m/d H:i", $head->udate);
     $data['from_addr'] = htmlspecialchars(mb_decode_mimeheader($head->fromaddress));
@@ -213,9 +241,9 @@ class Mailbox extends CI_Controller {
     $data['body'] = $body;
 
     // 내용 가져오는 부분
+    $contents = '';       // 내용 부분 담을 변수
+    $attachments = '';    // 첨부파일 부분 담을 변수
     if (isset($struct->parts)) {
-      $contents = '';       // 내용 부분 담을 변수
-      $attachments = '';    // 첨부파일 부분 담을 변수
       $flattenedParts = $this->flattenParts($struct->parts);  // 메일구조 평면화
 
       foreach($flattenedParts as $partNumber => $part) {
@@ -243,7 +271,6 @@ class Mailbox extends CI_Controller {
          case 4: // audio
          case 5: // image		(PNG 인라인출력 or 첨부 모두 type아 5임. 여기서는 삽입된거만 처리 첨부는 아래로 내려감)
            if ($part->ifdisposition == 0 || $part->disposition == "inline") {
-
              $img_data = imap_fetchbody($mails, $msg_no, $partNumber);
              // 리턴, 줄개행코드 제거. $img_data에 이게 있으면 애러발생함(HTML로 보내질때)
              $img_data = str_replace("\r\n", " ", $img_data);
@@ -259,7 +286,7 @@ class Mailbox extends CI_Controller {
          case 7: // other (첨부파일)
            $filename = $this-> getFilenameFromPart($part);
            if ($filename)
-           $down_link = "&nbsp;<a href=\"javascript:download('{$mbox}', '{$msg_no}',
+           $down_link = "&nbsp;<a href=\"javascript:download('{$box}', '{$msg_no}',
                    '{$partNumber}', '{$filename}');\">".$filename.'</a><br>';
            $attachments .= $down_link;
          break;
@@ -270,13 +297,41 @@ class Mailbox extends CI_Controller {
     } else {
       // Microsoft Office Outlook 테스트 메시지	( 2021/09/03 11:04 )는
       // parts가 없고 html만 있어서 제어문 처리함
-      $contents = imap_fetchbody($mails, $msg_no, 1);
+      // + [전자결재]결재문서 최종 승인 메일은 역시 parts가 없는데 base64로 디코딩됨
+      $contents = $this->getPart($mails, $msg_no, 1, $struct->encoding, $struct->parameters[0]->value);
       $data['contents'] = $contents;
+      $data['attachments'] = $attachments;
     }
     imap_close($mails);
     $this->load->view('mailbox/mail_detail_v', $data);
   } // mail_detail
 
+
+  // 메일함 이동 (휴지통으로 이동 포함)
+  function mail_move() {
+    $mails = $this->connect_mailserver($_POST['box']);
+    $arr = $_POST['mail_arr'];
+    $arr_str = implode(',', $arr);
+    $to_box = mb_convert_encoding($_POST['to_box'], 'UTF7-IMAP', 'UTF-8');
+    $res = imap_mail_move($mails, $arr_str, $to_box);
+    // imap_expunge() : Deletes all the messages marked for deletion
+    //                  by imap_delete(), imap_mail_move(), or imap_setflag_full().
+    // imap_expunge() 안해주면 삭제버튼 클릭시 이동은 되는데 본 메일박스에 남아있음
+    imap_expunge($mails);
+    imap_close($mails);
+    echo $res;
+  }
+
+  // 메일 완전삭제
+  function mail_delete() {
+    $mails = $this->connect_mailserver($_POST['box']);
+    $arr = $_POST['mail_arr'];
+    $arr_str = implode(',', $arr);
+    $res = imap_delete($mails, $arr_str);
+    imap_expunge($mails);
+    imap_close($mails);
+    echo $res;
+  }
 
   // 주로 HTML 부분 가져오되 인코딩 여부에 따라 디코딩후 내용 가져옴
   function getPart($connection, $messageNumber, $partNumber, $encoding, $charset) {
@@ -310,12 +365,7 @@ class Mailbox extends CI_Controller {
 
   // 첨부파일 클릭시 다운로드 되는 부분
   function download() {
-    $mailserver = "192.168.0.100";
-    $host = "{" . $mailserver . ":143/imap/novalidate-cert}" . $_POST['mbox'];
-    $user_id = "hjsong@durianit.co.kr";
-    $user_pwd = "durian12#";
-    $mails= @imap_open($host, $user_id, $user_pwd);
-
+    $mails = $this->connect_mailserver($_POST['box']);
     $fileSource = imap_fetchbody($mails, $_POST['msg_no'], $_POST['part_no']);
     $fileSource = imap_base64($fileSource);
     force_download($_POST['f_name'], $fileSource);
@@ -350,6 +400,5 @@ class Mailbox extends CI_Controller {
     return $flattenedParts;
   }
 }
-
 
  ?>

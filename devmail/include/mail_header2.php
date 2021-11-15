@@ -6,13 +6,9 @@
     <link href="/devmail/misc/css/main.css" type="text/css" rel="stylesheet">
     <link href="/devmail/misc/css/jquery-ui.css" type="text/css" rel="stylesheet">
     <link href="/devmail/misc/css/style.css" type="text/css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/themes/default/style.min.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/jstree.min.js"></script>
     <script src="/devmail/misc/js/jquery-ui.min.js"></script>
     <script src="/devmail/misc/js/jquery.bpopup-0.1.1.min.js"></script>
-    <!-- v2 -->
-  <script src='https://unpkg.com/tesseract.js@v2.1.0/dist/tesseract.min.js'></script>
   </head>
   <body>
       <div id="header">

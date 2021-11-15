@@ -5,7 +5,15 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
  ?>
 
  <style media="screen">
-   a.visit:visited {color: black};
+
+  <?php if($head[$mailno_arr[$i]]->Unseen == "U") { ?>
+   a.visit {color: blue;}
+  <?php } else { ?>
+   a.visit {color: black;}
+   a.visit:visited {color: black}
+  <?php }   // 위 2개 다 black해줘야 읽은 페이지 링크 보라색으로 안뜸 ?>
+   /* a.visit:link {color: black};
+   a.visit:visited {color: black}; */
    a.visit:hover {text-decoration: underline;};
  </style>
 
@@ -123,7 +131,7 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
         ?>
 
         <!-- 메일목록 출력 -->
-        <!-- <td><?php // echo $head[$mailno_arr[$i]]->Unseen?></td>      메일 클릭해서 읽으면 "U" -> ""로 바뀜 -->
+        <!-- <td><?php // echo $head[$mailno_arr[$i]]->Unseen   // 메일 클릭해서 읽으면 "U" -> ""로 바뀜?></td> -->
         <!-- <td><?php // echo $msg_no?></td> -->
         <td><input type="checkbox" name="checkbox" onClick="check_one();" value=<?php echo $msg_no;?>>
           <!-- 메일크기로 첨부파일 유무 파악 -->
