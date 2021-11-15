@@ -5,7 +5,7 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
  ?>
 
  <style media="screen">
-   a.visit:visited {color: black}
+   a.visit:visited {color: black};
    a.visit:hover {text-decoration: underline;};
  </style>
 
@@ -125,7 +125,12 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
         <!-- 메일목록 출력 -->
         <!-- <td><?php // echo $head[$mailno_arr[$i]]->Unseen?></td>      메일 클릭해서 읽으면 "U" -> ""로 바뀜 -->
         <!-- <td><?php // echo $msg_no?></td> -->
-        <td><input type="checkbox" name="checkbox" onClick="check_one();" value=<?php echo $msg_no;?>></td>
+        <td><input type="checkbox" name="checkbox" onClick="check_one();" value=<?php echo $msg_no;?>>
+          <!-- 메일크기로 첨부파일 유무 파악 -->
+          <?php if($head[$mailno_arr[$i]]->Size > 30000) { ?>
+          <img src="/devmail/misc/img/icon/attachment.png" alt="ss" style="margin-top: 10px">
+          <?php } ?>
+        </td>
         <td><a class="visit" onclick="change_href(event, '<?php echo $from_addr; ?>')"
             href="<?php echo site_url(); ?>/mailbox/mail_detail/<?php echo $box ?>/<?php echo $mailno_arr[$i] ?>">
             <?php echo $from_name; ?></a></td>
