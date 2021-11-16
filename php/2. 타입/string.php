@@ -53,9 +53,13 @@
     if ($pos == null) {          // 찾는 문자가 없으면 null임
       echo '111 <br>';           // ★ isset($pos)는 근데 참임.
     } else {
-      echo '222';
+      echo '222 <br>';
     }
+    echo '<br>';
 
+    // substr_count(전체 문자열, 찾을 문자) : 특정 문자가 몇번 나왔는지 반환
+    $cnt = substr_count("일이삼일이삼삼", "이");
+    echo $cnt.'<br>';   // 2
 
     echo '<br>';
     // substr(대상 문자열, 자르기 시작위치, 자를 문자열 수)

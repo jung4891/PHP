@@ -83,7 +83,6 @@ class Mailbox extends CI_Controller {
   }
 
   public function get_folders(){
-
     $mailserver = $this->mailserver;
     $host = "{" . $mailserver . ":143/imap/novalidate-cert}";
     $user_id = $this->user_id;
@@ -91,9 +90,18 @@ class Mailbox extends CI_Controller {
     $mails= @imap_open($host, $user_id, $user_pwd);
 
     $folders = imap_list($mails, "{" . $mailserver . "}", '*');
+    // echo '<pre>';
+    // var_dump($folders);
+    // echo '</pre>';
     $folders = str_replace("{" . $mailserver . "}", "", $folders);
-
+    // echo '<br>';
+    // echo '<pre>';
+    // var_dump($folders);
+    // echo '</pre>';
+    sort($folders);
     return $folders;
+    // var_dump($folders);
+    // exit;
   }
 
   function decode_mailbox(){
@@ -101,10 +109,16 @@ class Mailbox extends CI_Controller {
     $mailbox_tree = array();
     for ($i=0; $i < count($folders); $i++) {
       $id = $folders[$i];
-      // $exp_folder = explode(".", $folders[$i], -1);
       $exp_folder = explode(".", $folders[$i]);
       $length = count($exp_folder);
       $text = mb_convert_encoding($exp_folder[$length-1], 'UTF-8', 'UTF7-IMAP');
+      switch($text) {
+        case "INBOX":  $text="전체메일";  break;
+        case "보낸 편지함":  $text="보낸메일함";  break;
+        case "임시 보관함":  $text="임시보관함";  break;
+        case "정크 메일":  $text="스팸메일함";  break;
+        case "지운 편지함":  $text="휴지통";  break;
+      }
 
       $substr_count = substr_count($folders[$i], ".");
       if($substr_count > 1){
@@ -114,8 +128,6 @@ class Mailbox extends CI_Controller {
       }else{
         $parent_folder = "#";
       }
-
-      // $parent_folder = ($length > 1)?$exp_folder[$length-2]:"#";
       $tree = array(
         // "name" => $folders[$i],
         "id" => $id,
@@ -126,9 +138,6 @@ class Mailbox extends CI_Controller {
     }
     echo json_encode($mailbox_tree);
   }
-
-
-
 
 
   // 메일박스명 IMAP 규격에 맞게 인코딩
@@ -289,8 +298,8 @@ class Mailbox extends CI_Controller {
     $data['box'] = $box;
     $head = imap_headerinfo($mails, $num);
     $data['date'] = date("Y/m/d H:i", $head->udate);
-    $data['from_addr'] = htmlspecialchars(mb_decode_mimeheader($head->fromaddress));
-    $data['to_addr'] = htmlspecialchars(mb_decode_mimeheader($head->toaddress));
+    $data['from_addr'] = imap_utf8($head->fromaddress);
+    $data['to_addr'] = imap_utf8($head->toaddress);
     $data['title'] = imap_utf8($head->subject);
     $msg_no = trim($head->Msgno);
     $data['msg_no'] = $msg_no;

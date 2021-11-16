@@ -43,14 +43,18 @@
     $arr = range(1, 5, 2);    // 2 간격으로 1부터 5까지 출력
     echo '<pre>';
     var_dump($arr);   // 1, 3, 5
-    echo '-----------------<br>';
+    echo '--------------------------------------------------- 1<br>';
 
 
     // # 배열에 값 추가하기
     $arr = array('a', 'b');
     array_push($arr, 'c');
     print $arr[2].'<br>';    // c
-    echo '-----------------<br>';
+    $arr[2] = 'd';
+    print $arr[2].'<br>';    // d (c가 바뀜)
+    print_r($arr);
+
+    echo '--------------------------------------------------- 2<br>';
 
 
     // # 배열 출력하기
@@ -84,17 +88,24 @@
     echo min($arr).'<br>';    // 3
 
     // explode() : 문자열을 구분자를 기준으로 나눈 값들을 배열로 생성
+    // 파라미터인 limit을 넣어주면 배열의 크기를 제한할 수 있다.
     $str = 'jwjung,sylim,hbhwang,kipark,bhkim';
     $tmpArr = explode(',', $str);
-
     foreach($tmpArr as $id) {
       echo $id.' ';
     }
+    echo '<br>';
+    $tmpArr2 = explode(',', $str, 3);
+    print_r($tmpArr2);    //     [0] => jwjung, [1] => sylim, [2] => hbhwang,kipark,bhkim
+    echo '<br>';
+    $tmpArr3 = explode(',', $str, -1);    // 5개가 아닌 4개인 배열생성(제일뒤의 bhkim은 빠짐)
+    print_r($tmpArr3);
+    echo '<br>';
 
     // implode() : 반대로 배열에 구분자를 넣어 문자열 생성
     $jbary = array( 'one', 'two', 'three' );
     $jbstr = implode( '/', $jbary );
-
+    echo $jbstr;    // one/two/three
 
 
      ?>
