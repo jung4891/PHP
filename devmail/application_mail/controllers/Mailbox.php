@@ -58,6 +58,23 @@ defined('BASEPATH') OR exit('No direct script access allowed');
   //   Gmail/NaverMail 서버
   //   $mailbox = imap_open("{" . $mailserver . ":993/imap/novalidate-cert/ssl}INBOX", $user_id, $user_pwd);
 
+  // 나중에 삭제
+  // 메일박스명 IMAP 규격에 맞게 인코딩
+  // public function box_name_encode($box) {
+  //   switch($box) {
+  //     case "inbox":
+  //       return $box;
+  //     case "sent":
+  //       return mb_convert_encoding('보낸 편지함', 'UTF7-IMAP', 'UTF-8');
+  //     case "tmp":
+  //       return mb_convert_encoding('임시 보관함', 'UTF7-IMAP', 'UTF-8');
+  //     case "spam":
+  //       return mb_convert_encoding('정크 메일', 'UTF7-IMAP', 'UTF-8');
+  //     case "trash":
+  //       return mb_convert_encoding('지운 편지함', 'UTF7-IMAP', 'UTF-8');
+  //   }
+  // }
+
 class Mailbox extends CI_Controller {
   function __construct() {
       parent::__construct();
@@ -82,26 +99,40 @@ class Mailbox extends CI_Controller {
     $this->mail_list();
   }
 
-  public function get_folders(){
+  // 메일서버 접속후 메일박스 접근
+  public function connect_mailserver($mbox="") {
+
+    // 접속정보 설정
     $mailserver = $this->mailserver;
-    $host = "{" . $mailserver . ":143/imap/novalidate-cert}";
+    $host = "{" . $mailserver . ":143/imap/novalidate-cert}$mbox";
     $user_id = $this->user_id;
     $user_pwd = $this->user_pwd;
-    $mails= @imap_open($host, $user_id, $user_pwd);
 
+    // 메일함 접속
+    // imap_open() : 메일서버에 접속하기 위한 함수 (접속에 성공하면 $mailbox에 IMAP 스트림(mailstream)이 할당됨)
+    // (@ : 오류메시지를 무효로 처리하여 경고 문구가 표시되지 않게함)
+    return @imap_open($host, $user_id, $user_pwd);
+  }
+
+  public function get_folders(){
+    $mails= $this->connect_mailserver();
+    $mailserver = $this->mailserver;
     $folders = imap_list($mails, "{" . $mailserver . "}", '*');
-    // echo '<pre>';
-    // var_dump($folders);
-    // echo '</pre>';
     $folders = str_replace("{" . $mailserver . "}", "", $folders);
-    // echo '<br>';
-    // echo '<pre>';
-    // var_dump($folders);
-    // echo '</pre>';
     sort($folders);
-    return $folders;
-    // var_dump($folders);
-    // exit;
+
+    // 인덱스 초기화
+    $folders_sorted = array();
+    $folders_sorted[0] = "INBOX";
+    $folders_sorted[1] = "&vPSwuA- &07jJwNVo-";   // 보낸메일함
+    $folders_sorted[2] = "&x4TC3A- &vPStANVo-";   // 임시보관함
+    foreach($folders as $f) {
+      if($f == "INBOX") continue;
+      elseif($f == "&vPSwuA- &07jJwNVo-") continue;
+      elseif($f == "&x4TC3A- &vPStANVo-") continue;
+      array_push($folders_sorted, $f);
+    }
+    return $folders_sorted;
   }
 
   function decode_mailbox(){
@@ -140,70 +171,16 @@ class Mailbox extends CI_Controller {
   }
 
 
-  // 메일박스명 IMAP 규격에 맞게 인코딩
-  public function box_name_encode($box) {
-    switch($box) {
-      case "inbox":
-        return $box;
-      case "sent":
-        return mb_convert_encoding('보낸 편지함', 'UTF7-IMAP', 'UTF-8');
-      case "tmp":
-        return mb_convert_encoding('임시 보관함', 'UTF7-IMAP', 'UTF-8');
-      case "spam":
-        return mb_convert_encoding('정크 메일', 'UTF7-IMAP', 'UTF-8');
-      case "trash":
-        return mb_convert_encoding('지운 편지함', 'UTF7-IMAP', 'UTF-8');
-    }
-  }
-
-  // 메일서버 접속후 메일박스 접근
-  public function connect_mailserver($box) {
-
-    // 메일박스명 인코딩
-    // (side페이지에서 post로 전송시 페이징 처리시 애러남.
-    //  페이징 링크 생성시에는 post로 보내질 않으니 받질 못함.)
-    $mbox = $this->box_name_encode($box);
-
-    // 접속정보 설정
-    $mailserver = $this->mailserver;
-    $host = "{" . $mailserver . ":143/imap/novalidate-cert}$mbox";
-    $user_id = $this->user_id;
-    $user_pwd = $this->user_pwd;
-
-    // 메일함 접속
-    // imap_open() : 메일서버에 접속하기 위한 함수 (접속에 성공하면 $mailbox에 IMAP 스트림(mailstream)이 할당됨)
-    // (@ : 오류메시지를 무효로 처리하여 경고 문구가 표시되지 않게함)
-    return @imap_open($host, $user_id, $user_pwd);
-  }
-
   // 전체메일 출력: 메일함에 있는 메일들의 헤더정보(제목, 날짜, 보낸이 등등)를 뷰로 넘김
   // imap_check() : 메일박스의 정보(driver(imap), Mailbox(~~INBOX), Nmsgs)를 객체(object)로 돌려줌
-  public function mail_list($box='inbox'){
+  public function mail_list(){
 
-    // 메일서버 접속후 메일박스 가져옴
-    // $mails = $this->connect_mailserver($box);
-
-    // 메일박스명 인코딩 (side페이지에서 post로 전송시 페이징 처리시 애러남. 페이징 링크 생성시에는 post로 보내질 않으니 받질 못함.)
-    // $mbox = $this->box_name_encode($box);
     $mbox = $this->input->get("boxname");
-    // 접속정보 설정
-    $mailserver = $this->mailserver;
-    $host = "{" . $mailserver . ":143/imap/novalidate-cert}$mbox";
-    $user_id = $this->user_id;
-    $user_pwd = $this->user_pwd;
-
-    // 메일함 접속
-    // imap_open() : 메일서버에 접속하기 위한 함수 (접속에 성공하면 $mailbox에 IMAP 스트림(mailstream)이 할당됨)
-    // (@ : 오류메시지를 무효로 처리하여 경고 문구가 표시되지 않게함)
-    $mails= @imap_open($host, $user_id, $user_pwd);
-
-    // 메일박스 리스트 (테스트용)
-    $mailboxes = imap_list($mails, "{" . $this->mailserver . ":143}", '*');
+    $mails= $this->connect_mailserver($mbox);
 
     // 뷰로 보낼 내용들 세팅
     $data = array();
-    $data['box'] = $box;
-    $data['mailboxes'] = $mailboxes;
+    $data['mbox'] = $mbox;
 
     if($mails) {
       $mails_cnt = imap_num_msg($mails);  // 메일의 총 개수를 리턴
@@ -223,8 +200,12 @@ class Mailbox extends CI_Controller {
       // }
 
       $config = array();
+      // pagination이 uri segment식(INBOX/28)으로 생성되어 get방식으로는 일단 보류
+      // $curpage = $this->input->get("curpage");
+      // $page = ($curpage)? $curpage+1:1;
       $page = ($this->uri->segment(4))? $this->uri->segment(4)+1:1;
-      $config['base_url'] = "/devmail/index.php/Mailbox/mail_list/$box";
+      $config['base_url'] = "/devmail/index.php/mailbox/mail_list/$mbox";
+      // $config['base_url'] = "/devmail/index.php/mailbox/mail_list?curpage=&searchbox=&boxname=$mbox";
       $config['total_rows'] = $mails_cnt;
       $config['per_page'] = 14;
       // $config['per_page'] = ($_POST)? $_POST['mail_cnt_show'] : 15;   // 보기 설정
@@ -286,6 +267,7 @@ class Mailbox extends CI_Controller {
   //   }
   //   return $mailno_attached_arr;
   // }
+
   // 메일 조회 : body부분의 내용을 구조를 분석해 내용(string)을 뷰로 보냄
   public function mail_detail($box, $num){
 
