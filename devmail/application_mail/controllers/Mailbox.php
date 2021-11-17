@@ -185,6 +185,55 @@ class Mailbox extends CI_Controller {
     if($mails) {
       $mails_cnt = imap_num_msg($mails);  // 메일의 총 개수를 리턴
 
+      // php 페이징
+      $curpage = $this->input->get("curpage");
+      $curpage = ($curpage == "")? 1:$curpage;  // 1페이지라 가정
+      $total_rows = $mails_cnt;   // 총 16개 데이터라 가정.
+      $per_page = 15;             // 한 페이지에 보여줄 데이터 갯수
+      $pagingNum_cnt = 5;            // 페이징 블록에서의 페이징 번호 갯수
+
+      $paging_block = ceil($curpage/$pagingNum_cnt);   // 1/5 -> 1번째 페이징 블록
+      $block_start = (($paging_block - 1) * $pagingNum_cnt) + 1;   // (1-1)*5 + 1 -> 1
+      $block_end = $block_start + $pagingNum_cnt - 1;  // 1 + 5 -1 -> 5 (1~5)
+
+      $total_pages = ceil($total_rows/$per_page);    // 16/15 -> 총 2페이지
+      if($block_end > $total_pages)  $block_end = $total_pages;   // 페이징 블록을 1~2로 수정
+      $total_blocks = ceil($total_pages/$pagingNum_cnt);    // 2/5 -> 페이징 블록 총 1개
+      $start_row = ($curpage-1) * $per_page;    // (1-1)*15 -> 0번째 데이터부터 출력.
+                                                // (만일 2페이지일경우 16번째(인덱스15) 데이터 출력)
+      $data['per_page'] = $per_page;
+      $data['start_row'] = $start_row;
+
+      $paging = '';
+      if($curpage == 1) {
+        $paging .= '<a href="" style=""> << </a>';
+      }else {
+        $paging .= "<a href='javascript:go_page(1);' style='font-weight: bold'> << </a>";
+      }
+      if($paging_block == 1) {
+        $paging .= '<a href="" style=""> &nbsp; < &nbsp;</a>';
+      }else {
+        $paging .= '<a href="" style="font-weight: bold"> &nbsp; < &nbsp;</a>';
+      }
+      for($i=$block_start; $i<=$block_end; $i++) {
+        if($curpage == $i) {
+          $paging .= "<a href='' style='color:red'> &nbsp;[$i] </a>";
+        }else {
+          $paging .= "<a href='' style=''> &nbsp;[$i] </a>";
+        }
+      }
+      if($paging_block == $total_blocks) {
+        $paging .= '<a href="" style=""> &nbsp;&nbsp; > </a>';
+      }else {
+        $paging .= '<a href="" style="font-weight: bold"> &nbsp;&nbsp; > </a>';
+      }
+      if($curpage == $total_pages) {
+        $paging .= '<a href="" style=""> &nbsp; >> </a>';
+      }else {
+        $paging .= "<a href='javascript:go_page($total_pages);' style='font-weight: bold'> &nbsp; >> </a>";
+      }
+      $data['links'] = $paging;
+
       // 페이징 처리 (동적)
       // $config = array();
       // if($this->uri->segment(4) != "attachments") {
@@ -198,35 +247,6 @@ class Mailbox extends CI_Controller {
       //   $page = ($this->uri->segment(5))? $this->uri->segment(5)+1:1;
       //   $config['base_url'] = "/devmail/index.php/Mailbox/mail_list/$box/attachments";
       // }
-
-      $config = array();
-      // pagination이 uri segment식(INBOX/28)으로 생성되어 get방식으로는 일단 보류
-      // $curpage = $this->input->get("curpage");
-      // $page = ($curpage)? $curpage+1:1;
-      $page = ($this->uri->segment(4))? $this->uri->segment(4)+1:1;
-      $config['base_url'] = "/devmail/index.php/mailbox/mail_list/$mbox";
-      // $config['base_url'] = "/devmail/index.php/mailbox/mail_list?curpage=&searchbox=&boxname=$mbox";
-      $config['total_rows'] = $mails_cnt;
-      $config['per_page'] = 14;
-      // $config['per_page'] = ($_POST)? $_POST['mail_cnt_show'] : 15;   // 보기 설정
-
-      $data['per_page'] = $config['per_page'];
-      $data['page'] = $page;
-
-      // 페이징 처리 (정적)
-      $config['num_links'] = 2;
-      $config['first_link'] = '<< &nbsp&nbsp';
-      $config['first_tag_open'] = '<span style="letter-spacing:0px;">';
-      $config['first_tag_close'] = '</span>';
-      $config['last_link'] = ' >>';
-      $config['last_tag_open'] = '<span style="letter-spacing:0px;">';
-      $config['last_tag_close'] = '</span>';
-      $config['next_link'] = '';
-      $config['prev_link'] = '';
-      $config['cur_tag_open'] = '<span style="color:red;">';
-      $config['cur_tag_close'] = '</span>';
-      $this->pagination->initialize($config);
-      $data['links'] = $this->pagination->create_links();
 
       // imap_sort($mailstream, SORTDATE, 1); 메일을 날짜순으로 내림차순(1)/오름차순(0)하여 정렬된 메일번호가 배열에 담겨 변수에 들어감
       //                                      메일번호가 날짜순으로 되어있지 않기에 설정해줘야함.
@@ -243,9 +263,9 @@ class Mailbox extends CI_Controller {
       // imap_headerinfo : 메일의 제목이나 날짜같은 메일정보를 넣어둔 객체를 돌려줌
       if($mails_cnt >= 1) {
         $data['test_msg'] = "총 메일수: {$mails_cnt}건<br> 새편지: {$recent}건";
-        for($i=$page-1; $i<$page+($config['per_page']-1); $i++) {
+        for($i=$start_row; $i<$start_row+$per_page; $i++) {
           if (isset($mailno_arr[$i]))         // 마지막 페이지에서 15개가 안될경우 오류처리
-          $data['head'][$mailno_arr[$i]] = imap_headerinfo($mails, $mailno_arr[$i]);
+            $data['head'][$mailno_arr[$i]] = imap_headerinfo($mails, $mailno_arr[$i]);
         }
       } else {
         $data['test_msg'] = "메일이 없습니다.";

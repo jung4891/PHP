@@ -33,7 +33,8 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
     </colgroup>
     <thead>
       <tr>
-        &nbsp;   <!-- 검색창 -->
+        <br>
+        <!-- 검색창 -->
         <!-- <pre>
           <?php
             // // 메일박스 가져오기
@@ -67,7 +68,7 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
         &nbsp;
         <input type="checkbox" onClick="check_all(this);">
         &nbsp;
-        <?php if($mbox == "&ycDGtA- &07jJwNVo-") {  // 휴지통?>
+        <?php if($mbox == "&ycDGtA- &07jJwNVo-") {  // 휴지통 ?>
         <button type="button" class="top_button" onclick="del_ever();" disabled="disabled">영구삭제</button>
         <?php }else {?>
         <button type="button" class="top_button" onclick="del_trash();" disabled="disabled">삭제</button>
@@ -87,7 +88,6 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
             }
           ?>
         </select>
-
         &nbsp;&nbsp;
         <button type="button" class="top_button" onclick="move();" disabled="disabled">이동</button>
 
@@ -106,7 +106,7 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
     <tbody>
       <form name="frm" method="post">
       <?php
-      for($i=$page-1; $i<$page+($per_page-1); $i++) {
+      for($i=$start_row; $i<$start_row+$per_page; $i++) {
         if (isset($mailno_arr[$i])) {
       ?>
       <tr>
@@ -162,7 +162,10 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
        </form>
     </tbody>
   </table>
-  <p style="text-align: center; letter-spacing: 7px"><?php echo $links.'<br>' ?></p>
+  <div class="" style="text-align: center">
+    <?php echo $links.'<br><br>' ?>
+  </div>
+  <!-- <p style="text-align: center; letter-spacing: 7px"><?php echo $links.'<br>' ?></p> -->
 </div>
 </div>
 
@@ -199,6 +202,18 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_footer.php"
     for(var i = 0; i < top_buttons.length; i++ )  top_buttons[i].disabled = "disabled";
    //  if(document.frm[i].name == 'checkbox') document.frm[i].checked = chk_all.checked;
  };
+
+ // 페이지 이동
+ function go_page(page) {
+  var mbox = '<?php echo $mbox; ?>';
+  var newForm = $('<form></form>');
+  newForm.attr("method","get");
+  newForm.attr("action", "<?php echo site_url(); ?>/mailbox/mail_list");
+  newForm.append($('<input>', {type: 'hidden', name: 'curpage', value: page }));
+  newForm.append($('<input>', {type: 'hidden', name: 'boxname', value: mbox }));
+  newForm.appendTo('body');
+  newForm.submit();
+}
 
  // 휴지통으로 삭제
   function del_trash(){
@@ -304,21 +319,5 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_footer.php"
      newForm.appendTo('body');
      newForm.submit();
    };
-
-
- // 나중에 삭제부분
- // <input type=button name=HOWTO22 value="삭 제" class="tk1" onClick="delete();">
- // function delete(){
- //   var count = 0;
- //   for(var i=0;i<document.frm.length;i++){
- //     if(document.frm[i].name == "NO[]" && document.frm[i].checked == true){count++; }
- //   }
- //   if ( count != 0 ){
- //   document.frm.action = "mail_cmd.php?CMD=del";
- //   document.frm.submit();
- //   } else {
- //     alert('삭제할 항목을 선택하세요!');
- //   }
- // }
 
  </script>
