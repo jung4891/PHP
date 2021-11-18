@@ -36,14 +36,14 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
      </tr>
 
      <!-- struct 테스트용 -->
-     <tr>
+     <!-- <tr>
       <td colspan="2">
         <h3>$struct</h3>
         <pre>
-          <?php var_dump($struct);?>
+          <?php // var_dump($struct);?>
         </pre>
       </td>
-     </tr>
+     </tr> -->
 
      <!-- body 테스트용 -->
      <!-- <tr>
@@ -71,7 +71,6 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
     newForm.append($('<input>', {type: 'hidden', name: 'msg_no', value: msg_no }));
     newForm.append($('<input>', {type: 'hidden', name: 'part_no', value: part_no }));
     newForm.append($('<input>', {type: 'hidden', name: 'f_name', value: f_name }));
-
     newForm.appendTo('body');
     newForm.submit();
   }

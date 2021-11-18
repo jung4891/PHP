@@ -15,6 +15,7 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
    /* a.visit:link {color: black};
    a.visit:visited {color: black}; */
    a.visit:hover {text-decoration: underline;};
+
  </style>
 
 <div id="main_contents" style="margin:unset;">
@@ -35,32 +36,6 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
       <tr>
         <br>
         <!-- 검색창 -->
-        <!-- <pre>
-          <?php
-            // // 메일박스 가져오기
-            // $arr_boxname = array();
-            // foreach($mailboxes as $mailbox) {
-            //   array_push($arr_boxname, mb_convert_encoding(substr($mailbox, 19), 'UTF-8', 'UTF7-IMAP'));
-            // }
-            // sort($arr_boxname);
-            // // print_r($arr_boxname);
-            //
-            // // 메일박스명 변경
-            // $arr_boxname_side = array();
-            // for($i=0; $i<count($arr_boxname); $i++) {
-            //   if($arr_boxname[$i] == 'INBOX') $arr_boxname_side[$i] = '전체메일';
-            //   elseif($arr_boxname[$i] == '보낸 편지함') $arr_boxname_side[$i] = '보낸메일함';
-            //   elseif($arr_boxname[$i] == '임시 보관함') $arr_boxname_side[$i] = '임시보관함';
-            //   elseif($arr_boxname[$i] == '정크 메일') $arr_boxname_side[$i] = '스팸메일함';
-            //   elseif($arr_boxname[$i] == '지운 편지함') $arr_boxname_side[$i] = '휴지통';
-            //   else $arr_boxname_side[$i] = $arr_boxname[$i];
-            // }
-            // $arr_boxname_side_sorted = $arr_boxname_side;
-            // // print_r($arr_boxname_side);
-            // sort($arr_boxname_side_sorted);
-            // // print_r($arr_boxname_side_sorted);
-           ?>
-           </pre> -->
       </tr>
       <tr>
         <!-- <th>U</th> -->
@@ -78,13 +53,8 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
         <select class="top_button" id="selected_box" style="background-color: #F0F0F0; height: 25px;" disabled="disabled" >
           <option value="">이동할 메일함</option>
           <?php
-            for($i=0; $i<count($arr_boxname_side_sorted); $i++) {
-              foreach($arr_boxname_side as $index => $value) {
-                if($value == $arr_boxname_side_sorted[$i]) {
-                  echo "<option value=\"$arr_boxname[$index]\">$arr_boxname_side_sorted[$i]</option>";
-                  break;
-                }
-              }
+            foreach($boxname_arr as $name => $encoded) {
+              echo "<option value=\"$encoded\">$name</option>";
             }
           ?>
         </select>
@@ -140,10 +110,15 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
           <?php } ?>
         </td>
         <td><a class="visit" onclick="change_href(event, '<?php echo $from_addr; ?>')"
-            href="<?php echo site_url(); ?>/mailbox/mail_detail/<?php echo $mbox ?>/<?php echo $mailno_arr[$i] ?>">
+            href="<?php echo site_url(); ?>/mailbox/mail_detail?boxname=<?php echo $mbox ?>&mailno=<?php echo $mailno_arr[$i] ?>">
             <?php echo $from_name; ?></a></td>
-        <td><a class="visit" href="<?php echo site_url(); ?>/mailbox/mail_detail/<?php echo $mbox ?>/<?php echo $mailno_arr[$i] ?>">
-          <?php echo imap_utf8($head[$mailno_arr[$i]]->subject)?></a></td>
+        <?php
+          // get방식으로 데이터를 직접 url에 적으면 &가 데이터 구별기호로 인식되서 바꿔줘야함
+          $mbox2 = str_replace('&', '%26', $mbox);
+          $mbox2 = str_replace(' ', '+', $mbox);
+         ?>
+        <td><a class="visit" href="<?php echo site_url(); ?>/mailbox/mail_detail?boxname=<?php echo $mbox2 ?>&mailno=<?php echo $mailno_arr[$i] ?>">
+            <?php echo imap_utf8($head[$mailno_arr[$i]]->subject)?></a></td>
         <td style="color: darkgray; font-weight: 400;"><?php echo date("y.m.d", $head[$mailno_arr[$i]]->udate)?></td>
         <!-- 시, 분은 H:i -->
         <?php
@@ -175,13 +150,28 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_footer.php"
 
  <script type="text/javascript">
 
+ // 테스트
+ // $(function() {
+ //   let arr = [];
+ //   $.ajax({
+ //     url: "<?php echo site_url(); ?>/mailbox/decode_mailbox",
+ //     type: 'POST',
+ //     dataType: 'json',
+ //     success: function (result) {
+ //       for(let i=0; i<result.length; i++) {
+ //         arr.push(result[i].text);
+ //       }
+ //     }
+ //   });
+ //   console.log(arr);
+ // })
+
  // 상단 체크박스 클릭시 전체선택/해제 설정
  function check_all(chk_all) {
    let top_buttons = document.getElementsByClassName('top_button');
    for(var i = 0; i < top_buttons.length; i++ ){
      top_buttons[i].disabled = (chk_all.checked)? false : "disabled";
    }
-
    for(var i=0; i<document.frm.length; i++)
     if(document.frm[i].name == 'checkbox') document.frm[i].checked = chk_all.checked;
  };
@@ -206,11 +196,13 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_footer.php"
  // 페이지 이동
  function go_page(page) {
   var mbox = '<?php echo $mbox; ?>';
+  var per_page = '<?php echo $per_page; ?>';
   var newForm = $('<form></form>');
   newForm.attr("method","get");
   newForm.attr("action", "<?php echo site_url(); ?>/mailbox/mail_list");
-  newForm.append($('<input>', {type: 'hidden', name: 'curpage', value: page }));
   newForm.append($('<input>', {type: 'hidden', name: 'boxname', value: mbox }));
+  newForm.append($('<input>', {type: 'hidden', name: 'curpage', value: page }));
+  newForm.append($('<input>', {type: 'hidden', name: 'mail_cnt_show', value: per_page }));
   newForm.appendTo('body');
   newForm.submit();
 }
@@ -226,7 +218,7 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_footer.php"
     $.ajax({
       url : "<?php echo site_url(); ?>/mailbox/mail_move",
       type : "post",
-      data : {box: '<?php echo $mbox ?>', to_box: '지운 편지함', mail_arr: arr},
+      data : {mbox: '<?php echo $mbox ?>', to_box: '&ycDGtA- &07jJwNVo-', mail_arr: arr},
       success : function(data){
         (data == 1)? alert("삭제되었습니다.") : alert("애러발생");
       },
@@ -253,7 +245,7 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_footer.php"
       $.ajax({
         url : "<?php echo site_url(); ?>/mailbox/mail_delete",
         type : "post",
-        data : {box: '<?php echo $mbox ?>', mail_arr: arr},
+        data : {mbox: '<?php echo $mbox ?>', mail_arr: arr},
         success : function(data){
           (data == 1)? alert("영구삭제 되었습니다.") : alert("애러발생");
         },
@@ -284,7 +276,7 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_footer.php"
     $.ajax({
       url : "<?php echo site_url(); ?>/mailbox/mail_move",
       type : "post",
-      data : {box: '<?php echo $mbox ?>', to_box: to_box, mail_arr: arr},
+      data : {mbox: '<?php echo $mbox ?>', to_box: to_box, mail_arr: arr},
       success : function(data){
         (data == 1)? alert("이동되었습니다.") : alert("애러발생");
       },
@@ -300,9 +292,13 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_footer.php"
    // 보기 설정
    function mails_cnt(s) {
     const cnt = s.options[s.selectedIndex].value;
+    var mbox = '<?php echo $mbox; ?>';
+    var curpage = '<?php echo $curpage; ?>';
     var newForm = $('<form></form>');
-    newForm.attr("method","post");
+    newForm.attr("method","get");
     newForm.attr("action", "<?php echo site_url(); ?>/mailbox/mail_list");
+    newForm.append($('<input>', {type: 'hidden', name: 'boxname', value: mbox }));
+    newForm.append($('<input>', {type: 'hidden', name: 'curpage', value: curpage }));
     newForm.append($('<input>', {type: 'hidden', name: 'mail_cnt_show', value: cnt }));
     newForm.appendTo('body');
     newForm.submit();
@@ -311,7 +307,6 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_footer.php"
    // 보낸사람 링크 변경
    function change_href(e, addr) {
      e.preventDefault();    // a태그 href 이동 이벤트 막고 아래로 addr post로 보냄.
-
      var newForm = $('<form></form>');
      newForm.attr("method","post");
      newForm.attr("action", "<?php echo site_url(); ?>/mail_write/page");

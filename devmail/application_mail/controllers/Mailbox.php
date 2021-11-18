@@ -8,7 +8,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     // array(5) {
     //  [0]=>
     //  string(59) "{192.168.0.100:143/imap/novalidate-cert}&vPSwuA- &07jJwNVo-"  -> 보낸 편지함
-    //  [1]=>
+    //  [1]=>                                               %26vPSwuA-+%2607jJwNVo-  -> ajax get방식으로 보낼때 이렇게 변환됨
     //  string(59) "{192.168.0.100:143/imap/novalidate-cert}&ycDGtA- &07jJwNVo-"  -> 지운 편지함
     //  [2]=>
     //  string(59) "{192.168.0.100:143/imap/novalidate-cert}&x4TC3A- &vPStANVo-"  -> 임시 보관함
@@ -57,23 +57,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
   //
   //   Gmail/NaverMail 서버
   //   $mailbox = imap_open("{" . $mailserver . ":993/imap/novalidate-cert/ssl}INBOX", $user_id, $user_pwd);
-
-  // 나중에 삭제
-  // 메일박스명 IMAP 규격에 맞게 인코딩
-  // public function box_name_encode($box) {
-  //   switch($box) {
-  //     case "inbox":
-  //       return $box;
-  //     case "sent":
-  //       return mb_convert_encoding('보낸 편지함', 'UTF7-IMAP', 'UTF-8');
-  //     case "tmp":
-  //       return mb_convert_encoding('임시 보관함', 'UTF7-IMAP', 'UTF-8');
-  //     case "spam":
-  //       return mb_convert_encoding('정크 메일', 'UTF7-IMAP', 'UTF-8');
-  //     case "trash":
-  //       return mb_convert_encoding('지운 편지함', 'UTF7-IMAP', 'UTF-8');
-  //   }
-  // }
 
 class Mailbox extends CI_Controller {
   function __construct() {
@@ -175,11 +158,28 @@ class Mailbox extends CI_Controller {
   // imap_check() : 메일박스의 정보(driver(imap), Mailbox(~~INBOX), Nmsgs)를 객체(object)로 돌려줌
   public function mail_list(){
 
+    $data = array();
+
+    // 메일함 이동 selectbox 내용
+    $boxname_arr = array();
+    $folders = $this->get_folders();
+    for ($i=0; $i < count($folders); $i++) {
+      $exp_folder = explode(".", $folders[$i]);
+      $length = count($exp_folder);
+      $text = mb_convert_encoding($exp_folder[$length-1], 'UTF-8', 'UTF7-IMAP');
+      switch($text) {
+        case "INBOX":  $text="전체메일";  break;
+        case "보낸 편지함":  $text="보낸메일함";  break;
+        case "임시 보관함":  $text="임시보관함";  break;
+        case "정크 메일":  $text="스팸메일함";  break;
+        case "지운 편지함":  $text="휴지통";  break;
+      }
+      $boxname_arr[$text] = $folders[$i];
+    }
+    $data['boxname_arr'] = $boxname_arr;
+
     $mbox = $this->input->get("boxname");
     $mails= $this->connect_mailserver($mbox);
-
-    // 뷰로 보낼 내용들 세팅
-    $data = array();
     $data['mbox'] = $mbox;
 
     if($mails) {
@@ -187,9 +187,11 @@ class Mailbox extends CI_Controller {
 
       // php 페이징
       $curpage = $this->input->get("curpage");
+      $mail_cnt_show = $this->input->get("mail_cnt_show");
+
       $curpage = ($curpage == "")? 1:$curpage;  // 1페이지라 가정
       $total_rows = $mails_cnt;   // 총 16개 데이터라 가정.
-      $per_page = 15;             // 한 페이지에 보여줄 데이터 갯수
+      $per_page = ($mail_cnt_show == "")? 15:$mail_cnt_show; // 한 페이지에 보여줄 데이터 갯수
       $pagingNum_cnt = 5;            // 페이징 블록에서의 페이징 번호 갯수
 
       $paging_block = ceil($curpage/$pagingNum_cnt);   // 1/5 -> 1번째 페이징 블록
@@ -203,35 +205,39 @@ class Mailbox extends CI_Controller {
                                                 // (만일 2페이지일경우 16번째(인덱스15) 데이터 출력)
       $data['per_page'] = $per_page;
       $data['start_row'] = $start_row;
+      $data['curpage'] = $curpage;
 
       $paging = '';
       if($curpage == 1) {
-        $paging .= '<a href="" style=""> << </a>';
+        $paging .= '<a href="" class="link" style=""> << </a>';
       }else {
-        $paging .= "<a href='javascript:go_page(1);' style='font-weight: bold'> << </a>";
+        $paging .= "<a href='javascript:go_page(1);' class='link' style='font-weight: bold'> << </a>";
       }
       if($paging_block == 1) {
-        $paging .= '<a href="" style=""> &nbsp; < &nbsp;</a>';
+        $paging .= '<a href="" class="link" style=""> &nbsp; < &nbsp;</a>';
       }else {
-        $paging .= '<a href="" style="font-weight: bold"> &nbsp; < &nbsp;</a>';
+        $p = (($paging_block-2)*$pagingNum_cnt) + 1;
+        $paging .= "<a href='javascript:go_page($p);' class='link' style='font-weight: bold'> &nbsp; < &nbsp;</a>";
       }
       for($i=$block_start; $i<=$block_end; $i++) {
         if($curpage == $i) {
           $paging .= "<a href='' style='color:red'> &nbsp;[$i] </a>";
         }else {
-          $paging .= "<a href='' style=''> &nbsp;[$i] </a>";
+          $paging .= "<a href='javascript:go_page($i);' class='link' style=''> &nbsp;[$i] </a>";
         }
       }
       if($paging_block == $total_blocks) {
-        $paging .= '<a href="" style=""> &nbsp;&nbsp; > </a>';
+        $paging .= '<a href="" class="link" style=""> &nbsp;&nbsp; > </a>';
       }else {
-        $paging .= '<a href="" style="font-weight: bold"> &nbsp;&nbsp; > </a>';
+        $p = ($paging_block*$pagingNum_cnt) + 1;
+        $paging .= "<a href='javascript:go_page($p);' class='link' style='font-weight: bold'> &nbsp;&nbsp; > </a>";
       }
       if($curpage == $total_pages) {
-        $paging .= '<a href="" style=""> &nbsp; >> </a>';
+        $paging .= '<a href="" class="link" style=""> &nbsp; >> </a>';
       }else {
-        $paging .= "<a href='javascript:go_page($total_pages);' style='font-weight: bold'> &nbsp; >> </a>";
+        $paging .= "<a href='javascript:go_page($total_pages);' class='link' style='font-weight: bold'> &nbsp; >> </a>";
       }
+      $paging .= "<style> .link {color:black; } </style>";
       $data['links'] = $paging;
 
       // 페이징 처리 (동적)
@@ -288,17 +294,19 @@ class Mailbox extends CI_Controller {
   //   return $mailno_attached_arr;
   // }
 
-  // 메일 조회 : body부분의 내용을 구조를 분석해 내용(string)을 뷰로 보냄
-  public function mail_detail($box, $num){
 
-    // 메일서버 접속후 메일박스 가져옴
-    $mails = $this->connect_mailserver($box);
+  // 메일 조회 : body부분의 내용을 구조를 분석해 내용(string)을 뷰로 보냄
+  public function mail_detail(){
+
+    $mbox = $this->input->get("boxname");
+    $mailno = $this->input->get("mailno");
+    $mails= $this->connect_mailserver($mbox);
     $mails_cnt = imap_num_msg($mails);
 
     // 내용을 제외한 부분 헤더에서 가져옴
     $data = array();
-    $data['box'] = $box;
-    $head = imap_headerinfo($mails, $num);
+    $data['mbox'] = $mbox;
+    $head = imap_headerinfo($mails, $mailno);
     $data['date'] = date("Y/m/d H:i", $head->udate);
     $data['from_addr'] = imap_utf8($head->fromaddress);
     $data['to_addr'] = imap_utf8($head->toaddress);
@@ -364,7 +372,7 @@ class Mailbox extends CI_Controller {
          case 7: // other (첨부파일)
            $filename = $this-> getFilenameFromPart($part);
            if ($filename)
-           $down_link = "&nbsp;<a href=\"javascript:download('{$box}', '{$msg_no}',
+           $down_link = "&nbsp;<a href=\"javascript:download('{$mbox}', '{$msg_no}',
                    '{$partNumber}', '{$filename}');\">".$filename.'</a><br>';
            $attachments .= $down_link;
          break;
@@ -386,10 +394,12 @@ class Mailbox extends CI_Controller {
 
   // 메일함 이동 (휴지통으로 이동 포함)
   function mail_move() {
-    $mails = $this->connect_mailserver($_POST['box']);
-    $arr = $_POST['mail_arr'];
+    $mbox = $this->input->post("mbox");
+    $mails= $this->connect_mailserver($mbox);
+    $to_box = $this->input->post("to_box");
+
+    $arr = $this->input->post("mail_arr");
     $arr_str = implode(',', $arr);
-    $to_box = mb_convert_encoding($_POST['to_box'], 'UTF7-IMAP', 'UTF-8');
     $res = imap_mail_move($mails, $arr_str, $to_box);
     // imap_expunge() : Deletes all the messages marked for deletion
     //                  by imap_delete(), imap_mail_move(), or imap_setflag_full().
@@ -401,7 +411,8 @@ class Mailbox extends CI_Controller {
 
   // 메일 완전삭제
   function mail_delete() {
-    $mails = $this->connect_mailserver($_POST['box']);
+    $mbox = $this->input->post("mbox");
+    $mails= $this->connect_mailserver($mbox);
     $arr = $_POST['mail_arr'];
     $arr_str = implode(',', $arr);
     $res = imap_delete($mails, $arr_str);
@@ -442,7 +453,6 @@ class Mailbox extends CI_Controller {
   // 첨부파일 클릭시 다운로드 되는 부분
   function download() {
     $mails = $this->connect_mailserver($_POST['box']);
-
     $fileSource = imap_fetchbody($mails, $_POST['msg_no'], $_POST['part_no']);
     $fileSource = imap_base64($fileSource);
     force_download($_POST['f_name'], $fileSource);
