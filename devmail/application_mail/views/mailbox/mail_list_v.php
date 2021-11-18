@@ -5,25 +5,17 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
  ?>
 
  <style media="screen">
-
-  <?php if($head[$mailno_arr[$i]]->Unseen == "U") { ?>
-   a.visit {color: blue;}
-  <?php } else { ?>
-   a.visit {color: black;}
+   a.unseen {color: blue;}
+   a.seen {color: black;}
    a.visit:visited {color: black}
-  <?php }   // 위 2개 다 black해줘야 읽은 페이지 링크 보라색으로 안뜸 ?>
-   /* a.visit:link {color: black};
-   a.visit:visited {color: black}; */
-   a.visit:hover {text-decoration: underline;};
-
+   /* 위 2개 다 black해줘야 읽은 페이지 링크 보라색으로 안뜸 */
+   a.unseen:hover {text-decoration: underline;};
+   a.seen:hover {text-decoration: underline;};
  </style>
 
 <div id="main_contents" style="margin:unset;">
   <div class="main_div" >
   <!-- <?php // echo $test_msg; ?> <br><br> -->
-
-  <!-- mailboxes 테스트용 -->
-  <!-- <?php // echo'<pre>'; var_dump($test); echo '</pre>' ?> <br> -->
   <table border="0" width="98%" style="border-spacing: 7px;">
     <colgroup>
       <col width="5%" >
@@ -99,9 +91,9 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
         }
         $msg_no = trim($head[$mailno_arr[$i]]->Msgno);            // 메일번호
         ?>
-
+        
         <!-- 메일목록 출력 -->
-        <!-- <td><?php // echo $head[$mailno_arr[$i]]->Unseen   // 메일 클릭해서 읽으면 "U" -> ""로 바뀜?></td> -->
+        <!-- <td><?php // echo $head[$mailno_arr[$i]]->Unseen ?></td> -->
         <!-- <td><?php // echo $msg_no?></td> -->
         <td><input type="checkbox" name="checkbox" onClick="check_one();" value=<?php echo $msg_no;?>>
           <!-- 메일크기로 첨부파일 유무 파악 -->
@@ -109,15 +101,19 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
           <img src="/devmail/misc/img/icon/attachment.png" alt="ss" style="margin-top: 10px">
           <?php } ?>
         </td>
-        <td><a class="visit" onclick="change_href(event, '<?php echo $from_addr; ?>')"
-            href="<?php echo site_url(); ?>/mailbox/mail_detail?boxname=<?php echo $mbox ?>&mailno=<?php echo $mailno_arr[$i] ?>">
-            <?php echo $from_name; ?></a></td>
         <?php
-          // get방식으로 데이터를 직접 url에 적으면 &가 데이터 구별기호로 인식되서 바꿔줘야함
-          $mbox2 = str_replace('&', '%26', $mbox);
-          $mbox2 = str_replace(' ', '+', $mbox);
-         ?>
-        <td><a class="visit" href="<?php echo site_url(); ?>/mailbox/mail_detail?boxname=<?php echo $mbox2 ?>&mailno=<?php echo $mailno_arr[$i] ?>">
+        // get방식으로 데이터를 직접 url에 적으면 &가 데이터 구별기호로 인식되서 바꿔줘야함
+        $mbox2 = str_replace('&', '%26', $mbox);
+        $mbox2 = str_replace(' ', '+', $mbox2);
+
+        // 메일 읽은경우/읽지 않은경우 class명 지정하여 색 변경 (메일 읽으면 "U" -> ""로 바뀜)
+        $unseen = $head[$mailno_arr[$i]]->Unseen;
+        $unseen = ($unseen == "U")? "unseen":"seen";
+        ?>
+        <td><a class= <?php echo $unseen ?> onclick="change_href(event, '<?php echo $from_addr; ?>')"
+            href="<?php echo site_url(); ?>/mailbox/mail_detail?boxname=<?php echo $mbox2 ?>&mailno=<?php echo $mailno_arr[$i] ?>">
+            <?php echo $from_name; ?></a></td>
+        <td><a class=<?php echo $unseen ?> href="<?php echo site_url(); ?>/mailbox/mail_detail?boxname=<?php echo $mbox2 ?>&mailno=<?php echo $mailno_arr[$i] ?>">
             <?php echo imap_utf8($head[$mailno_arr[$i]]->subject)?></a></td>
         <td style="color: darkgray; font-weight: 400;"><?php echo date("y.m.d", $head[$mailno_arr[$i]]->udate)?></td>
         <!-- 시, 분은 H:i -->

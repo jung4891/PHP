@@ -178,6 +178,7 @@ class Mailbox extends CI_Controller {
     }
     $data['boxname_arr'] = $boxname_arr;
 
+    // 메일 리스트 가져오기
     $mbox = $this->input->get("boxname");
     $mails= $this->connect_mailserver($mbox);
     $data['mbox'] = $mbox;
@@ -283,16 +284,17 @@ class Mailbox extends CI_Controller {
     $this->load->view('mailbox/mail_list_v', $data);
   } // function(mail_list)
 
+
   // 첨부파일이 있는 메일들만 메일번호를 배열에 넣어 반환
-  // public function get_attached_mails($mails) {
-  //   $mailno_attached_arr = array();
-  //   $mailno_arr = imap_sort($mails, SORTDATE, 1);
-  //   foreach($mailno_arr as $no) {
-  //     if(imap_headerinfo($mails, $no)->Size > 30000)
-  //       array_push($mailno_attached_arr, $no);
-  //   }
-  //   return $mailno_attached_arr;
-  // }
+  public function get_attached_mails($mails) {
+    $mailno_attached_arr = array();
+    $mailno_arr = imap_sort($mails, SORTDATE, 1);
+    foreach($mailno_arr as $no) {
+      if(imap_headerinfo($mails, $no)->Size > 30000)
+        array_push($mailno_attached_arr, $no);
+    }
+    return $mailno_attached_arr;
+  }
 
 
   // 메일 조회 : body부분의 내용을 구조를 분석해 내용(string)을 뷰로 보냄

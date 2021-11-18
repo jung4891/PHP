@@ -7,9 +7,12 @@
         <!-- <button type="button" name="button">메일쓰기</button> -->
         <button type="button" name="button" onclick = "location.href='<?php echo site_url(); ?>/mail/mail_self_write'">내게쓰기</button>
       </div>
+      <?php
+        $mbox2 = str_replace('&', '%26', $mbox);
+        $mbox2 = str_replace(' ', '+', $mbox2);
+      ?>
       <div class="">
           <a href="#">
-
           <span style="align:center;">
             <img src="<?php echo $misc;?>img/icon/schedule.svg" width="20">
           </span><br>
@@ -18,7 +21,8 @@
           </span>
           </a>
           <a href="#"><img src="<?php echo $misc;?>img/icon/schedule.svg" width="20"> 중요</a>
-          <a href="#"><img src="<?php echo $misc;?>img/icon/schedule.svg" width="20"> 첨부</a>
+          <a href="<?php echo site_url(); ?>/mailbox/mail_list?boxname=<?php echo $mbox2?>&type=attachment">
+            <img src="<?php echo $misc;?>img/icon/schedule.svg" width="20"> 첨부</a>
 <!--
 <a href="<?php // echo site_url(); ?>/mailbox/mail_list/<?php // echo $this->uri->segment(3); ?>/unread"><img src="<?php // echo $misc;?>img/icon/schedule.svg" width="20"> 중요</a>
 <a href="<?php // echo site_url(); ?>/mailbox/mail_list/<?php // echo $this->uri->segment(3); ?>/attachments">
@@ -34,36 +38,6 @@
         </div>
       </form>
 
-      <div class="">
-        <ul>
-          <a href="<?php echo site_url(); ?>/mailbox/mail_list/inbox">
-            <img src="<?php echo $misc;?>img/icon/schedule.svg" width="20"> 전체메일</a>
-        </ul>
-        <ul>
-          <a href="#"><img src="<?php echo $misc;?>img/icon/schedule.svg" width="20"> 받은메일함</a>
-        </ul>
-        <ul>
-          <a href="#"><img src="<?php echo $misc;?>img/icon/schedule.svg" width="20"> 내게쓴메일함</a>
-        </ul>
-        <ul>
-          <a href="<?php echo site_url(); ?>/mailbox/mail_list/sent">
-            <img src="<?php echo $misc;?>img/icon/schedule.svg" width="20"> 보낸메일함</a>
-        </ul>
-        <ul>
-          <a href="<?php echo site_url(); ?>/mailbox/mail_list/tmp">
-            <img src="<?php echo $misc;?>img/icon/schedule.svg" width="20"> 임시보관함</a>
-        </ul>
-      </div>
-      <div class="">
-        <ul>
-          <a href="<?php echo site_url(); ?>/mailbox/mail_list/spam">
-            <img src="<?php echo $misc;?>img/icon/schedule.svg" width="20"> 스팸메일함</a>
-        </ul>
-        <ul>
-          <a href="<?php echo site_url(); ?>/mailbox/mail_list/trash">
-            <img src="<?php echo $misc;?>img/icon/schedule.svg" width="20"> 휴지통</a>
-        </ul>
-      </div>
       <div class="">
         <ul>
           <a href="#"><img src="<?php echo $misc;?>img/icon/schedule.svg" width="20"> 주소록</a>
