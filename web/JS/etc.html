@@ -6,6 +6,7 @@
     <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
     <style media="screen">
       #two {color: green;}
+      .abc {color: pink;}
     </style>
   </head>
   <body>
@@ -13,8 +14,8 @@
     <!-- js에서 void(0)은 undefined라서 반환해주는것 없이 현재 페이지가 유지된다. -->
     <a href="javascript:void(0);">페이지 이동x</a> <br>
     <!-- a태그 클릭시 onclick의 속성값인 함수가 실행되고 preventDefault()에 의해 클릭이벤 취소됨 -->
-    <a href="http://www.google.com" onclick="preventClick(event)">preventDefault()</a>
-    <hr><br>
+    <a href="http://www.google.com" onclick="preventClick(event)">preventDefault()</a><br>
+    <br><hr><br>
 
     &lt; selectbox 바로실행 &gt; <br><br>
     <select id="searchYear" name="searchYear" onchange="mails_cnt(this);" style="background-color: #E0E0E0;">
@@ -22,8 +23,8 @@
       <option value="10">10개</option>
       <option value="20">20개</option>
       <option value="30">30개</option>
-    </select>
-    <hr>
+    </select><br>
+    <br><hr><br>
 
     &lt; Element.style & getComputedStyle() &gt; <br><br>
     <div id="one" style="color: blue; font-size: 1.5em;">
@@ -32,8 +33,63 @@
     <div id="two" style="background-color:pink">
       two
     </div>
+    <br><hr><br>
+
+    &lt; 4) 동적으로 li 추가/삭제 &gt; <br>
+    <ul id="fruits">
+      <li>test</li>
+    </ul>
+    <input type="text" id="addValue">
+    <input type="button" value="추가" onclick="addList()">&nbsp;
+    <input type="button" value="삭제" onclick="delList()"><br><br>
+
+    &lt; 동적으로 별표 즐겨찾기 이미지 변경 &gt; <br>
+
 
   <script type="text/javascript">
+
+    // 4)
+    function addList() {
+      const li = document.createElement("li");                 // li element 생성
+      // li.appendChild(document.createTextNode('test'));      // li text에 내용 넣음
+      li.setAttribute('class', 'abc');                         // 속성값 추가도 가능함. (필수아님)
+      const val = document.getElementById("addValue").value;
+      li.appendChild(document.createTextNode(val));            // 입력한 값을 li text에 넣음
+
+      const a = document.createElement("a");                   // 선택삭제를 위한 a태그 추가
+      a.appendChild(document.createTextNode(" x"));
+      a.setAttribute('href', 'javascript:void(0);');
+      a.setAttribute('onclick', 'delList2(this)');
+      li.appendChild(a);
+
+      document.getElementById('fruits').appendChild(li);       // ul에 li 자식노드 삽입
+      document.getElementById("addValue").value = "";          // 추가후 입력창 초기화
+    }
+
+    function delList() {
+      const ul = document.getElementById('fruits');
+      const lists = ul.getElementsByTagName('li');
+      if(lists.length > 0) {
+        lists[0].remove();
+      }
+    }
+
+    function delList2(ths) {
+      // [this - Javascript] 이벤트가 발생한 태그 요소가 표시됨 (href가 아닌 onclick으로 이벤트 걸어줘야함)
+      console.log(ths);     // <a href="javascript:void(0);" onclick="delList2(this)"> x</a>
+      // ths.remove();                 // x만 지우는건 됨.
+      // ths.parents("li").remove();   // 이건 안됨
+      console.log('---------');
+
+      console.log(this);    // Window {window: Window, self: Window, document: document, name: '', location: Location, …}
+      console.log('---------');
+
+      // [ $(this) - Jquery] 이벤트가 발생한 요소의 정보들이 Object로 표시됨
+      var ths = $(ths);
+      console.log(ths);     // n.fn.init [a, context: a]
+      ths.parents("li").remove();
+      // ths.remove();         // x만 사라짐
+    }
 
     // @ preventDefault()
     function preventClick(e) {
@@ -45,7 +101,6 @@
       const cnt = s.options[s.selectedIndex].value;
       console.log(cnt);
     }
-
 
     // @ Element.style 속성과 getComputedStyle() 메소드
 

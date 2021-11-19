@@ -18,7 +18,7 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
   <!-- <?php // echo $test_msg; ?> <br><br> -->
   <table border="0" width="98%" style="border-spacing: 7px;">
     <colgroup>
-      <col width="5%" >
+      <col width="12%" >
       <col width="25%" >
       <col width="*" >
       <col width="5%" >
@@ -54,7 +54,7 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
         <button type="button" class="top_button" onclick="move();" disabled="disabled">이동</button>
 
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-        <select onchange="mails_cnt(this);" style="background-color: #F0F0F0;" >
+        <select onchange="mails_cnt(this);" style="background-color: #F0F0F0; height: 25px" >
           <option value="">보기설정</option>
           <option value="10">10개</option>
           <option value="20">20개</option>
@@ -91,15 +91,19 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
         }
         $msg_no = trim($head[$mailno_arr[$i]]->Msgno);            // 메일번호
         ?>
-        
+
         <!-- 메일목록 출력 -->
         <!-- <td><?php // echo $head[$mailno_arr[$i]]->Unseen ?></td> -->
         <!-- <td><?php // echo $msg_no?></td> -->
-        <td><input type="checkbox" name="checkbox" onClick="check_one();" value=<?php echo $msg_no;?>>
+        <td>
           <!-- 메일크기로 첨부파일 유무 파악 -->
           <?php if($head[$mailno_arr[$i]]->Size > 30000) { ?>
           <img src="/devmail/misc/img/icon/attachment.png" alt="ss" style="margin-top: 10px">
           <?php } ?>
+          <input type="checkbox" name="checkbox" onClick="check_one();" value=<?php echo $msg_no;?>>
+          &nbsp;
+          <a href="javascript:void(0);" onclick="starClick(this); ">
+          <img class="emptyStar" src="/devmail/misc/img/btn/star1.png" alt="" width="15px"></a>
         </td>
         <?php
         // get방식으로 데이터를 직접 url에 적으면 &가 데이터 구별기호로 인식되서 바꿔줘야함
@@ -114,6 +118,7 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
             href="<?php echo site_url(); ?>/mailbox/mail_detail?boxname=<?php echo $mbox2 ?>&mailno=<?php echo $mailno_arr[$i] ?>">
             <?php echo $from_name; ?></a></td>
         <td><a class=<?php echo $unseen ?> href="<?php echo site_url(); ?>/mailbox/mail_detail?boxname=<?php echo $mbox2 ?>&mailno=<?php echo $mailno_arr[$i] ?>">
+            <!-- <?php // echo '<pre>'; var_dump($head[$mailno_arr[$i]]); echo '</pre>';?></a></td> -->
             <?php echo imap_utf8($head[$mailno_arr[$i]]->subject)?></a></td>
         <td style="color: darkgray; font-weight: 400;"><?php echo date("y.m.d", $head[$mailno_arr[$i]]->udate)?></td>
         <!-- 시, 분은 H:i -->
@@ -150,7 +155,7 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_footer.php"
  // $(function() {
  //   let arr = [];
  //   $.ajax({
- //     url: "<?php echo site_url(); ?>/mailbox/decode_mailbox",
+ //     url: "<?php // echo site_url(); ?>/mailbox/decode_mailbox",
  //     type: 'POST',
  //     dataType: 'json',
  //     success: function (result) {
@@ -193,10 +198,12 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_footer.php"
  function go_page(page) {
   var mbox = '<?php echo $mbox; ?>';
   var per_page = '<?php echo $per_page; ?>';
+  var type = '<?php if(isset($type)) echo $type; else echo "original"; ?>';
   var newForm = $('<form></form>');
   newForm.attr("method","get");
   newForm.attr("action", "<?php echo site_url(); ?>/mailbox/mail_list");
   newForm.append($('<input>', {type: 'hidden', name: 'boxname', value: mbox }));
+  newForm.append($('<input>', {type: 'hidden', name: 'type', value: type }));
   newForm.append($('<input>', {type: 'hidden', name: 'curpage', value: page }));
   newForm.append($('<input>', {type: 'hidden', name: 'mail_cnt_show', value: per_page }));
   newForm.appendTo('body');
@@ -290,10 +297,12 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_footer.php"
     const cnt = s.options[s.selectedIndex].value;
     var mbox = '<?php echo $mbox; ?>';
     var curpage = '<?php echo $curpage; ?>';
+    var type = '<?php if(isset($type)) echo $type; else echo "original"; ?>';
     var newForm = $('<form></form>');
     newForm.attr("method","get");
     newForm.attr("action", "<?php echo site_url(); ?>/mailbox/mail_list");
     newForm.append($('<input>', {type: 'hidden', name: 'boxname', value: mbox }));
+    newForm.append($('<input>', {type: 'hidden', name: 'type', value: type }));
     newForm.append($('<input>', {type: 'hidden', name: 'curpage', value: curpage }));
     newForm.append($('<input>', {type: 'hidden', name: 'mail_cnt_show', value: cnt }));
     newForm.appendTo('body');

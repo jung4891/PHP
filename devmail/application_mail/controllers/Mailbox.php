@@ -184,14 +184,43 @@ class Mailbox extends CI_Controller {
     $data['mbox'] = $mbox;
 
     if($mails) {
-      $mails_cnt = imap_num_msg($mails);  // 메일의 총 개수를 리턴
+      $mails_cnt = imap_num_msg($mails);    // 메일의 총 개수를 리턴
+      // $recent = imap_num_recent($mails);    // 새로운 메일의 개수를 리턴(메일리스트만 봐도 개수 적용 제외됨)
+
+      // imap_sort($mailstream, SORTDATE, 1); 메일을 날짜순으로 내림차순(1)/오름차순(0)하여 정렬된 메일번호가 배열에 담겨 변수에 들어감
+      //                                      메일번호가 날짜순으로 되어있지 않기에 설정해줘야함.
+      // $mailno_arr = imap_sort($mails, SORTDATE, 1);
+      if($this->input->get('type') == "attachments") {
+        $mailno_arr = imap_sort($mails, SORTDATE, 1);
+        $mailno_attached_arr = array();
+        foreach($mailno_arr as $no) {
+          if(imap_headerinfo($mails, $no)->Size > 30000)
+            array_push($mailno_attached_arr, $no);
+        }
+        $mailno_arr = $mailno_attached_arr;
+        $mails_cnt = count($mailno_arr);
+        $data['type'] = "attachments";
+      }else if($this->input->get('type') == "unseen") {
+        $mailno_arr = imap_sort($mails, SORTDATE, 1);
+        $mailno_unseen_arr = array();
+        foreach($mailno_arr as $no) {
+          if(imap_headerinfo($mails, $no)->Unseen == "U")
+            array_push($mailno_unseen_arr, $no);
+        }
+        $mailno_arr = $mailno_unseen_arr;
+        $mails_cnt = count($mailno_arr);
+        $data['type'] = "unseen";
+      }else {
+        $mailno_arr = imap_sort($mails, SORTDATE, 1);
+      }
+      $data['mailno_arr'] = $mailno_arr;
 
       // php 페이징
       $curpage = $this->input->get("curpage");
       $mail_cnt_show = $this->input->get("mail_cnt_show");
 
       $curpage = ($curpage == "")? 1:$curpage;  // 1페이지라 가정
-      $total_rows = $mails_cnt;   // 총 16개 데이터라 가정.
+      $total_rows = $mails_cnt;      // 총 16개 데이터라 가정.
       $per_page = ($mail_cnt_show == "")? 15:$mail_cnt_show; // 한 페이지에 보여줄 데이터 갯수
       $pagingNum_cnt = 5;            // 페이징 블록에서의 페이징 번호 갯수
 
@@ -241,35 +270,10 @@ class Mailbox extends CI_Controller {
       $paging .= "<style> .link {color:black; } </style>";
       $data['links'] = $paging;
 
-      // 페이징 처리 (동적)
-      // $config = array();
-      // if($this->uri->segment(4) != "attachments") {
-      //   $mails_cnt = imap_num_msg($mails);  // 메일의 총 개수를 리턴
-      //   $page = ($this->uri->segment(4))? $this->uri->segment(4)+1:1;
-      //   $config['base_url'] = "/devmail/index.php/Mailbox/mail_list/$box";
-      // }else {
-      //   // 첨부파일이 있는 메일만 처리
-      //   $mailno_attached_arr = $this->get_attached_mails($mails);
-      //   $mails_cnt = count($mailno_attached_arr);
-      //   $page = ($this->uri->segment(5))? $this->uri->segment(5)+1:1;
-      //   $config['base_url'] = "/devmail/index.php/Mailbox/mail_list/$box/attachments";
-      // }
-
-      // imap_sort($mailstream, SORTDATE, 1); 메일을 날짜순으로 내림차순(1)/오름차순(0)하여 정렬된 메일번호가 배열에 담겨 변수에 들어감
-      //                                      메일번호가 날짜순으로 되어있지 않기에 설정해줘야함.
-      $mailno_arr = imap_sort($mails, SORTDATE, 1);
-      // if($this->uri->segment(4) != "attachments")
-      //   $mailno_arr = imap_sort($mails, SORTDATE, 1);
-      // else
-      //   $mailno_arr = $this->get_attached_mails($mails);
-
-      $data['mailno_arr'] = $mailno_arr;
-      $recent = imap_num_recent($mails);      // 새로운 메일의 개수를 리턴(메일리스트만 봐도 개수 적용 제외됨)
-
       // 메일박스 head 정보를 배열에 담아 뷰에 보낼 data에 세팅
       // imap_headerinfo : 메일의 제목이나 날짜같은 메일정보를 넣어둔 객체를 돌려줌
       if($mails_cnt >= 1) {
-        $data['test_msg'] = "총 메일수: {$mails_cnt}건<br> 새편지: {$recent}건";
+        // $data['test_msg'] = "총 메일수: {$mails_cnt}건<br> 새편지: {$recent}건";
         for($i=$start_row; $i<$start_row+$per_page; $i++) {
           if (isset($mailno_arr[$i]))         // 마지막 페이지에서 15개가 안될경우 오류처리
             $data['head'][$mailno_arr[$i]] = imap_headerinfo($mails, $mailno_arr[$i]);
@@ -283,18 +287,6 @@ class Mailbox extends CI_Controller {
     }
     $this->load->view('mailbox/mail_list_v', $data);
   } // function(mail_list)
-
-
-  // 첨부파일이 있는 메일들만 메일번호를 배열에 넣어 반환
-  public function get_attached_mails($mails) {
-    $mailno_attached_arr = array();
-    $mailno_arr = imap_sort($mails, SORTDATE, 1);
-    foreach($mailno_arr as $no) {
-      if(imap_headerinfo($mails, $no)->Size > 30000)
-        array_push($mailno_attached_arr, $no);
-    }
-    return $mailno_attached_arr;
-  }
 
 
   // 메일 조회 : body부분의 내용을 구조를 분석해 내용(string)을 뷰로 보냄

@@ -11,24 +11,15 @@
         $mbox2 = str_replace('&', '%26', $mbox);
         $mbox2 = str_replace(' ', '+', $mbox2);
       ?>
+      <br>
       <div class="">
-          <a href="#">
-          <span style="align:center;">
-            <img src="<?php echo $misc;?>img/icon/schedule.svg" width="20">
-          </span><br>
-          <span>
-            안읽음
-          </span>
-          </a>
+          <a href="<?php echo site_url(); ?>/mailbox/mail_list?boxname=<?php echo $mbox2?>&type=unseen">
+            <img src="<?php echo $misc;?>img/icon/schedule.svg" width="20">안읽음</a>
           <a href="#"><img src="<?php echo $misc;?>img/icon/schedule.svg" width="20"> 중요</a>
-          <a href="<?php echo site_url(); ?>/mailbox/mail_list?boxname=<?php echo $mbox2?>&type=attachment">
+          <a href="<?php echo site_url(); ?>/mailbox/mail_list?boxname=<?php echo $mbox2?>&type=attachments">
             <img src="<?php echo $misc;?>img/icon/schedule.svg" width="20"> 첨부</a>
-<!--
-<a href="<?php // echo site_url(); ?>/mailbox/mail_list/<?php // echo $this->uri->segment(3); ?>/unread"><img src="<?php // echo $misc;?>img/icon/schedule.svg" width="20"> 중요</a>
-<a href="<?php // echo site_url(); ?>/mailbox/mail_list/<?php // echo $this->uri->segment(3); ?>/attachments">
-  <img src="<?php // echo $misc;?>img/icon/schedule.svg" width="20"> 첨부</a>
- -->
       </div>
+      <br>
       <form name="boxform" id="boxform" class="" action="" method="get">
         <input type="hidden" name="curpage" id="curpage" value="">
         <input type="hidden" name="searchbox" id="searchbox" value="">

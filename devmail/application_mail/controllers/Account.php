@@ -83,7 +83,8 @@ class Account extends CI_Controller {
 									$_SESSION['roles'] = "user";
 									$_SESSION['name'] =  $check_id['name'];
 
-									echo "<script>location.href='".site_url()."/mail/main'</script>";
+									echo "<script>location.href='".site_url()."/mailbox/mail_list'</script>";
+									// echo "<script>location.href='".site_url()."/mail/main'</script>";
 								}
 
 
