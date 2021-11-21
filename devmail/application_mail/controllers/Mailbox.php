@@ -210,6 +210,23 @@ class Mailbox extends CI_Controller {
         $mailno_arr = $mailno_unseen_arr;
         $mails_cnt = count($mailno_arr);
         $data['type'] = "unseen";
+      }else if($this->input->get('type') == "important") {
+        $mailno_arr = imap_sort($mails, SORTDATE, 1);
+        $mailno_unseen_arr = array();
+        foreach($mailno_arr as $no) {
+          if(imap_headerinfo($mails, $no)->Flagged == "F")
+            array_push($mailno_unseen_arr, $no);
+        }
+        $mailno_arr = $mailno_unseen_arr;
+        $mails_cnt = count($mailno_arr);
+        $data['type'] = "important";
+      }else if($this->input->get('type') == "search") {
+        $subject = $this->input->get("subject");
+        $mailno_arr = imap_search($mails, 'ALL');
+        // $mailno_arr = imap_search($mails, 'SUBJECT "송혁중" SINCE "3 September 2021"');
+        $mails_cnt = count($mailno_arr);
+        echo $mails_cnt;
+        $data['type'] = "search";
       }else {
         $mailno_arr = imap_sort($mails, SORTDATE, 1);
       }
@@ -287,6 +304,20 @@ class Mailbox extends CI_Controller {
     }
     $this->load->view('mailbox/mail_list_v', $data);
   } // function(mail_list)
+
+  // flag 지정 (중요메일)
+  public function set_flag() {
+    $mbox = $this->input->get("boxname");
+    $mailno = $this->input->get("mailno");
+    $state = $this->input->get("state");
+    $mails= $this->connect_mailserver($mbox);
+
+    if($state == "emptyStar") {
+      imap_setflag_full($mails, $mailno, "\\Flagged");
+    } else {
+      imap_clearflag_full($mails, $mailno, "\\Flagged");
+    }
+  }
 
 
   // 메일 조회 : body부분의 내용을 구조를 분석해 내용(string)을 뷰로 보냄

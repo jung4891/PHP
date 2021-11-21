@@ -15,7 +15,8 @@
       <div class="">
           <a href="<?php echo site_url(); ?>/mailbox/mail_list?boxname=<?php echo $mbox2?>&type=unseen">
             <img src="<?php echo $misc;?>img/icon/schedule.svg" width="20">안읽음</a>
-          <a href="#"><img src="<?php echo $misc;?>img/icon/schedule.svg" width="20"> 중요</a>
+          <a href="<?php echo site_url(); ?>/mailbox/mail_list?boxname=<?php echo $mbox2?>&type=important">
+            <img src="<?php echo $misc;?>img/icon/schedule.svg" width="20"> 중요</a>
           <a href="<?php echo site_url(); ?>/mailbox/mail_list?boxname=<?php echo $mbox2?>&type=attachments">
             <img src="<?php echo $misc;?>img/icon/schedule.svg" width="20"> 첨부</a>
       </div>

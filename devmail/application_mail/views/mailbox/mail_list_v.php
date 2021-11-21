@@ -26,8 +26,15 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
     </colgroup>
     <thead>
       <tr>
+        <div class="" style="width: 210px; height: 40px; position: relative; top: 10px; left: 10px;">
+          <div class="" style="border: solid 1px lightgray;">
+            <input type="text" style="outline: none; margin: 3px; margin-left: 10px; width: 77%; height: 25px; border: none; color: green; font-weight: bold; font-size:1em" >
+            <a href="javascript:void(0)" onclick="search_mail(this);">
+            <img style="width: 20px; position: relative; top:5px " src="/devmail/misc/img/icon/search.png" alt="">
+            </a>
+          </div>
+        </div>
         <br>
-        <!-- 검색창 -->
       </tr>
       <tr>
         <!-- <th>U</th> -->
@@ -94,16 +101,23 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
 
         <!-- 메일목록 출력 -->
         <!-- <td><?php // echo $head[$mailno_arr[$i]]->Unseen ?></td> -->
-        <!-- <td><?php // echo $msg_no?></td> -->
+        <td style="display:none;"><?php echo $msg_no?></td>
         <td>
           <!-- 메일크기로 첨부파일 유무 파악 -->
           <?php if($head[$mailno_arr[$i]]->Size > 30000) { ?>
           <img src="/devmail/misc/img/icon/attachment.png" alt="ss" style="margin-top: 10px">
+          <?php }else { ?>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
           <?php } ?>
           <input type="checkbox" name="checkbox" onClick="check_one();" value=<?php echo $msg_no;?>>
           &nbsp;
           <a href="javascript:void(0);" onclick="starClick(this); ">
-          <img class="emptyStar" src="/devmail/misc/img/btn/star1.png" alt="" width="15px"></a>
+            <?php if($head[$mailno_arr[$i]]->Flagged == "F") {?>
+              <img class="fullStar" src="/devmail/misc/img/btn/star2.png" alt="" width="15px">
+            <?php   }else {?>
+              <img class="emptyStar" src="/devmail/misc/img/btn/star1.png" alt="" width="15px">
+            <?php   } ?>
+          </a>
         </td>
         <?php
         // get방식으로 데이터를 직접 url에 적으면 &가 데이터 구별기호로 인식되서 바꿔줘야함
@@ -167,6 +181,20 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_footer.php"
  //   console.log(arr);
  // })
 
+ // 검색
+ function search_mail(ths) {
+   let parent_tr = ths.parentNode;
+   let subject = parent_tr.childNodes[1].value;
+   var newForm = $('<form></form>');
+   newForm.attr("method","get");
+   newForm.attr("action", "<?php echo site_url(); ?>/mailbox/mail_list");
+   newForm.append($('<input>', {type: 'hidden', name: 'boxname', value: '<?php echo $mbox ?>'}));
+   newForm.append($('<input>', {type: 'hidden', name: 'type', value: 'search' }));
+   newForm.append($('<input>', {type: 'hidden', name: 'subject', value: subject }));
+   newForm.appendTo('body');
+   newForm.submit();
+ }
+
  // 상단 체크박스 클릭시 전체선택/해제 설정
  function check_all(chk_all) {
    let top_buttons = document.getElementsByClassName('top_button');
@@ -193,6 +221,28 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_footer.php"
     for(var i = 0; i < top_buttons.length; i++ )  top_buttons[i].disabled = "disabled";
    //  if(document.frm[i].name == 'checkbox') document.frm[i].checked = chk_all.checked;
  };
+
+ // 중요메일 체크
+ function starClick(ths) {
+   let childNodes = ths.childNodes;
+   let imgTag = childNodes[1];
+   let className = imgTag.className;
+   if(className == "emptyStar") {
+     imgTag.src = "/devmail/misc/img/btn/star2.png";
+     imgTag.className = "fullStar";
+   }else {
+     imgTag.src = "/devmail/misc/img/btn/star1.png";
+     imgTag.className = "emptyStar";
+   }
+
+   let parent_tr = ths.parentNode.parentNode;
+   let mailno = parent_tr.childNodes[5].innerText;
+   $.ajax({
+     url : "<?php echo site_url(); ?>/mailbox/set_flag",
+     type : "get",
+     data : {boxname: '<?php echo $mbox ?>', mailno: mailno, state: className},
+   });
+ }
 
  // 페이지 이동
  function go_page(page) {
