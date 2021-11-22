@@ -158,6 +158,9 @@ class Mailbox extends CI_Controller {
   // imap_check() : 메일박스의 정보(driver(imap), Mailbox(~~INBOX), Nmsgs)를 객체(object)로 돌려줌
   public function mail_list(){
 
+    echo imap_base64("송혁중");
+    echo iconv('utf-8', 'euc-kr', "테스트");
+
     $data = array();
 
     // 메일함 이동 selectbox 내용
@@ -222,10 +225,16 @@ class Mailbox extends CI_Controller {
         $data['type'] = "important";
       }else if($this->input->get('type') == "search") {
         $subject = $this->input->get("subject");
-        $mailno_arr = imap_search($mails, 'ALL');
-        // $mailno_arr = imap_search($mails, 'SUBJECT "송혁중" SINCE "3 September 2021"');
-        $mails_cnt = count($mailno_arr);
-        echo $mails_cnt;
+        // $subject = iconv('utf-8', 'euc-kr', $subject);
+        // $mailno_arr = imap_search($mails, "ALL");
+        // $subject = iconv('utf-8', 'euc-kr', "$subject");
+        echo $subject;
+        // $mailno_arr = imap_search($mails, "SUBJECT $subject", SE_FREE, "utf-8");
+        $mailno_arr = imap_search($mails, "SUBJECT $subject");
+        if($mailno_arr)   // 검색결과 없으면 false반환되어 count(false)로 애러방지
+          $mails_cnt = count($mailno_arr);
+        // echo $mails_cnt.'<br>';
+        // print_r($mailno_arr);
         $data['type'] = "search";
       }else {
         $mailno_arr = imap_sort($mails, SORTDATE, 1);
@@ -458,7 +467,7 @@ class Mailbox extends CI_Controller {
       case 4:
         $data = quoted_printable_decode($data);    // QUOTED_PRINTABLE (업무일지 서식)
         if ($charset == 'ks_c_5601-1987')          // else는 charset이 utf-8로 iconv 불필요
-          $data = iconv('euc-kr', 'utf-8', $data);
+          $data = iconv('euc-kr', 'utf-8', $data);  // charset 변경
         return $data;
       case 5: return $data; // OTHER
     }

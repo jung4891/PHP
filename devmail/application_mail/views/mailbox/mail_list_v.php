@@ -111,7 +111,7 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
           <?php } ?>
           <input type="checkbox" name="checkbox" onClick="check_one();" value=<?php echo $msg_no;?>>
           &nbsp;
-          <a href="javascript:void(0);" onclick="starClick(this); ">
+          <a href="javascript:void(0);" onclick="starClick(this); " >
             <?php if($head[$mailno_arr[$i]]->Flagged == "F") {?>
               <img class="fullStar" src="/devmail/misc/img/btn/star2.png" alt="" width="15px">
             <?php   }else {?>
