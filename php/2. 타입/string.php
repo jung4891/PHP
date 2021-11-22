@@ -47,7 +47,7 @@
     $str = "web developer";
     $findStr = 'e';              // 'develop'은 'd'랑 결과가 같다.
     $pos = strpos($str, $findStr);
-    echo '$pos: '.$pos.'<br>';   // 1  (뒤에 있어도 앞 인덱스 반환)
+    echo '$pos:    '.$pos.'<br>';   // 1  (뒤에 있어도 앞 인덱스 반환)
     $pos = strpos($str, $findStr, 2);   // 2는 2번째 e를 찾음
     echo '$pos: '.$pos.'<br>';   // 5
     if ($pos == null) {          // 찾는 문자가 없으면 null임

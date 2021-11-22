@@ -249,11 +249,13 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_footer.php"
   var mbox = '<?php echo $mbox; ?>';
   var per_page = '<?php echo $per_page; ?>';
   var type = '<?php if(isset($type)) echo $type; else echo "original"; ?>';
+  var subject = '<?php if(isset($subject)) echo $subject; else echo ""; ?>';
   var newForm = $('<form></form>');
   newForm.attr("method","get");
   newForm.attr("action", "<?php echo site_url(); ?>/mailbox/mail_list");
   newForm.append($('<input>', {type: 'hidden', name: 'boxname', value: mbox }));
   newForm.append($('<input>', {type: 'hidden', name: 'type', value: type }));
+  newForm.append($('<input>', {type: 'hidden', name: 'subject', value: subject }));
   newForm.append($('<input>', {type: 'hidden', name: 'curpage', value: page }));
   newForm.append($('<input>', {type: 'hidden', name: 'mail_cnt_show', value: per_page }));
   newForm.appendTo('body');

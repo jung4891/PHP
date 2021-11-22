@@ -4,12 +4,12 @@
     <meta charset="utf-8">
     <title>HTML_2_basic</title>
     <style media="screen">
-        body {background-color: lightgrey}
+        body {background-color: silver}
     </style>
   </head>
   <body>
 
-    &lt; 테이블 &gt;
+    <h3>< 테이블 ></h3>
     <!-- tr: 행, th: 행의 제목(볼드체, 가운데 정렬), td: 데이터  -->
     <!-- border-collapse: collapse(두줄로 표현되는 테두리를 한 줄로 표현) -->
     <!-- <caption>: 테이블 상단에 제목이나 짧은 설명을 붙임 -->
@@ -18,7 +18,7 @@
         table, th, td { border: 1px solid black; border-collapse: collapse }
     </style>
 
-    <table style="width: 70%">
+    <table style="width: 80%">
       <caption>caption</caption>
       <tr style="background-color: wheat">
         <th>제목1</th>
@@ -40,7 +40,7 @@
     <br><hr><br>
 
 
-    < 블록과 인라인 >
+    <h3>< 블록과 인라인 ></h3>
     <!-- HTML의 모든 요소는 해당 요소가 웹 브라우저에 어떻게 보이는가 하는 display 속성을 가진다. -->
     <!-- 대표적으로 display의 속성값은 block과 inline이 있다. -->
     <!-- 1. block: 언제나 새로운 라인으로 시작하고 해당 라인의 모든 너비를 차지함
@@ -49,11 +49,12 @@
     <p style="border: 2px dotted red">
       p태그는 display 속성값이 블록인 요소이다.
     </p>
-    <div style="background-color: silver; color: green; text-align: center">
+    <div style="background-color: lightgrey; color: green; text-align: center">
       <h5>div 요소는</h5>
       <p>여러 HTML 요소들을 하나라 묶어주는 block 요소다</p>
       <span>이렇게 여러 요소들을 한번에 스타일을 적용할 수 있다.</span>
     </div>
+
     <!-- 2. inline: 새로운 라인에서 시작하지 않고 너비도 내용만큼만 차지한다.
                     -> <span>, <a>, <img>
     -->
@@ -63,7 +64,7 @@
     <br><hr><br>
 
 
-    < iframe > <br>
+    <h3>< iframe ></h3>
     <!-- iframe이란 inline frame의 약자로 페이지 안에 다른 웹페이지를 삽입할 수 있다. -->
     <iframe src="1_basic.html" name="frame_target" width="50%" height="200px"
             style="border: none; ">
@@ -73,10 +74,34 @@
     </p>
     <br><hr><br>
 
-    HTML 레이아웃(Layout) <br>
+    <h3>< HTML 레이아웃(Layout) ></h3>
     <!-- 레이아웃이란 특정 공간에 여러 구성요소를 보기 좋게 효과적으로 배치하는 작업이다. -->
     <!-- 웹 페이지의 레이아웃은 웹 사이트의 외관을 결정짓는 매우 중요한 요소이다. -->
 
     <p>1. div 요소를 이용한 레이아웃</p>
+    <!-- div요소는 CSS 스타일을 손쉽게 적용할 수 있으므로 레아이웃을 작성하는데 자주 사용됨 -->
+    <style media="screen">
+      #header, #nav, #section, #footer { text-align: center; }
+      #header, #footer { color:white; line-height: 40px; /* 상하 가운데 정렬됨*/ }
+      #nav, #section { line-height: }
+      #header {
+        background-color: pink;
+        height: 40px;
+      }
+      #nav {
+        background-color: green;
+        color: white;
+        width: 20%;
+        height: 120px;
+        float: left;  /* float 속성은 해당 HTML 요소가 주변의 다른 요소들과 자연스럽게 어울리도록 해줌.*/
+      }
+    </style>
+
+    <div id="header">
+      <h3>HEADER 영역</h3>
+    </div>
+    <div id="nav">
+      <h3>NAV 영역</h3>
+    </div>
   </body>
 </html>

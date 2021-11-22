@@ -158,8 +158,8 @@ class Mailbox extends CI_Controller {
   // imap_check() : 메일박스의 정보(driver(imap), Mailbox(~~INBOX), Nmsgs)를 객체(object)로 돌려줌
   public function mail_list(){
 
-    echo imap_base64("송혁중");
-    echo iconv('utf-8', 'euc-kr', "테스트");
+    // echo imap_base64("송혁중");
+    // echo iconv('utf-8', 'euc-kr', "테스트");
 
     $data = array();
 
@@ -224,18 +224,35 @@ class Mailbox extends CI_Controller {
         $mails_cnt = count($mailno_arr);
         $data['type'] = "important";
       }else if($this->input->get('type') == "search") {
-        $subject = $this->input->get("subject");
-        // $subject = iconv('utf-8', 'euc-kr', $subject);
-        // $mailno_arr = imap_search($mails, "ALL");
-        // $subject = iconv('utf-8', 'euc-kr', "$subject");
-        echo $subject;
-        // $mailno_arr = imap_search($mails, "SUBJECT $subject", SE_FREE, "utf-8");
-        $mailno_arr = imap_search($mails, "SUBJECT $subject");
-        if($mailno_arr)   // 검색결과 없으면 false반환되어 count(false)로 애러방지
+        $subject_target = $this->input->get("subject");
+        $mailno_arr = imap_sort($mails, SORTDATE, 1);
+
+        if($mailno_arr) {   // 검색결과 없으면 false반환되어 count(false)로 애러방지
+          $mailno_arr_target = array();
+          foreach($mailno_arr as $index => $no) {
+            $subject= imap_utf8(imap_headerinfo($mails, $no)->subject);
+            if(strpos($subject, $subject_target))  array_push($mailno_arr_target, $no);
+          }
+          $mailno_arr = $mailno_arr_target;
           $mails_cnt = count($mailno_arr);
-        // echo $mails_cnt.'<br>';
-        // print_r($mailno_arr);
+          // echo $mails_cnt;
+        }
+        /*
+        imap_search로 제목 검색하는부분 일단 보류....
+
+        $subject = iconv('utf-8', 'euc-kr', $subject);
+        $mailno_arr = imap_search($mails, "SUBJECT \"$subject\"");
+        $mailno_arr = imap_search($mails, "SUBJECT $subject", SE_FREE, "euc-kr");
+        $mailno_arr = array_reverse($mailno_arr);   // 날짜 최신순으로
+
+        검색 테스트2 (이놈이 검색이 안됨. outlook에서 보낸것들.)
+        =?ks_c_5601-1987?B?sMu79iDF1726xq4y?=		iconv(utf8-> euc-kr): Ʈ ??
+
+        검색 테스트1 (일일업무일지, 이건됨 브라우저 메일홈피에서 보낸것들)
+        =?UTF-8?Q?=EC=9D=B8=ED=84=B4=EC=82=AC=EC=9B=90=20=EC=86=A1?= =?UTF-8?Q?=ED=98=81=EC=A4=91=20=EC=9D=BC=EC=9D=BC=EC=97=85=EB=AC=B4?= =?UTF-8?Q?=EC=9D=BC=EC=A7=80=20=EC=9E=85=EB=8B=88=EB=8B=A4=2E=28=EA=B2=80?= =?UTF-8?Q?=EC=83=89=20=ED=85=8C=EC=8A=A4=ED=8A=B8=31=29?=
+        */
         $data['type'] = "search";
+        $data['subject'] = $subject_target;
       }else {
         $mailno_arr = imap_sort($mails, SORTDATE, 1);
       }
@@ -344,6 +361,7 @@ class Mailbox extends CI_Controller {
     $data['date'] = date("Y/m/d H:i", $head->udate);
     $data['from_addr'] = imap_utf8($head->fromaddress);
     $data['to_addr'] = imap_utf8($head->toaddress);
+    // $data['title'] = $head->subject;
     $data['title'] = imap_utf8($head->subject);
     $msg_no = trim($head->Msgno);
     $data['msg_no'] = $msg_no;
