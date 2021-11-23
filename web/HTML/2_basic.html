@@ -80,10 +80,11 @@
 
     <p>1. div 요소를 이용한 레이아웃</p>
     <!-- div요소는 CSS 스타일을 손쉽게 적용할 수 있으므로 레아이웃을 작성하는데 자주 사용됨 -->
+    <!-- HTML5 이전의 레이아웃임 -->
     <style media="screen">
       #header, #nav, #section, #footer { text-align: center; }
       #header, #footer { color:white; line-height: 40px; /* 상하 가운데 정렬됨*/ }
-      #nav, #section { line-height: 20% }
+      #nav, #section { line-height: 120px }
       #header {
         background-color: pink;
         height: 40px;
@@ -92,8 +93,19 @@
         background-color: green;
         color: white;
         width: 20%;
-        height: 120px;
+        height: 140px;
         float: left;  /* float 속성은 해당 HTML 요소가 주변의 다른 요소들과 자연스럽게 어울리도록 해줌.*/
+      }
+      #section {
+        width: 70%;
+        height: 120px;
+        /* padding: 10px; */
+        float: left;
+      }
+      #footer {
+        background-color: purple;
+        height: 40px;
+        clear: both;
       }
     </style>
 
@@ -103,5 +115,12 @@
     <div id="nav">
       <h3>NAV 영역</h3>
     </div>
+    <div id="section">
+      <h3>SECTION 영역</h3>
+    </div>
+    <div id="footer">
+      <h3>FOOTER 영역</h3>
+    </div>
+
   </body>
 </html>

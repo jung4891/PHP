@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/jstree.min.js"></script>
+    <title></title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/themes/default/style.min.css" />
+  </head>
+  <body>
+
+    <input type="text" id="input_search" name="" value="" >
+    <button type="button" name="button" onclick="test();">검색</button>
+    <br>
+
+    <div id="tree">
+    </div>
+
+    <script type="text/javascript">
+
+      // jstree
+      // jquey 기반올 HTML 또는 JSON 데이터를 가지고 Tree 형식의 구조를 출력해주는 라이브러리
+      /*
+      {
+      	id : "string", // node id
+      	parent : "string", // 부모 요소 이다 있을 경우 id를 없을 경우 "#"을 넣어주면 된다.
+      	text : "string", // node text
+      	icon : "string", // node icon
+      	state : {
+      		opened : boolean,  // is the node open
+      		disabled : boolean,  // is the node disabled
+      		selected : boolean  // is the node selected
+      	},
+      	li_attr : {},  // attributes for the generated LI node
+      	a_attr : {}  // attributes for the generated A node
+      }
+      */
+      $('#tree').jstree({
+        'core' : {
+          'data' : [
+            { "id" : "ajson1", "parent" : "#", "text" : "Root node 1", "icon" : "/img/star2.png",
+                      "state" : {"disabled" : true} },
+            { "id" : "ajson2", "parent" : "#", "text" : "Root node 2", "state" : {"opened" : true} },
+            { "id" : "ajson3", "parent" : "ajson2", "text" : "Child 1" },
+            { "id" : "ajson4", "parent" : "ajson2", "text" : "Child 2" },
+            { "id" : "ajson5", "parent" : 'ajson2', "text" : "test2" },
+            { "id" : "ajson6", "parent" : 'ajson5', "text" : "t22" },
+            { "id" : "ajson7", "parent" : '#', "text" : "test", "state" : {"selected" : true}},
+          ],
+          'check_callback' : true    // 안해주면 드래그는 되는데 이동이 안됨.
+        },
+        "plugins" : ["dnd", "contextmenu", "wholerow", "search"],
+                                          // dnd : 드래그앤드롭 기능 제공해주는 플러그인 선언
+                                          // contextmenu : 마우스 우클릭 서브메뉴 사용
+                                          // wholerow : node row(해당 라인 끝까지)에 마우스를 올려놓으면 클릭가능해져 편해짐
+        'contextmenu' : {                 // 커스터마이징 할때는 이처럼 하면됨(없으면 디폴트 메뉴) - https://www.jstree.com/api/#/?q=$.jstree.defaults.contextmenu&f=$.jstree.defaults.contextmenu.items
+      		"items" : {
+      			"test" : {                    // 사실상 "test"라는 이름은 안중요함
+              "separator_before" : false,
+      				"separator_after" : true,
+      				"label" : "메뉴1",
+      				"action" : function(obj){alert('메뉴1')}
+      			},
+      			"test1" : {
+      				"separator_before" : false,
+      				"separator_after" : true,
+      				"label" : "메뉴2",
+      				"action" : function(obj){alert('메뉴2')}
+      			}
+      		}
+      	},
+        "search" : {                      // search 옵션 : https://www.jstree.com/api/#/?q=$.jstree.defaults.search
+            "show_only_matches" : true,
+            "show_only_matches_children" : true,    // 해당되지 않는 자식노드도 다같이 출력되게함
+        }
+      });
+
+      // 버튼 클릭시 search함
+      function test() {
+        let txt = $('#input_search').val();    // let var은 왜인지 모르겠는데 이러면 jstree 작동안함
+        $('#tree').jstree(true).search(txt);
+      };
+
+      // 사용자가 값을 입력하면 실시간으로 감지함
+      $("#input_search").on("change keyup paste", function(){
+      	// alert("change");
+        // console.log($(this).val());
+        let txt = $('#input_search').val();    
+        $('#tree').jstree(true).search(txt);
+      });
+
+    </script>
+  </body>
+</html>
