@@ -282,15 +282,15 @@ class Mailbox extends CI_Controller {
 
       $paging = '';
       if($curpage == 1) {
-        $paging .= '<a href="" class="link" style=""> << </a>';
+        $paging .= '<a href="" class="link" style="color: silver"> << </a>';
       }else {
-        $paging .= "<a href='javascript:go_page(1);' class='link' style='font-weight: bold'> << </a>";
+        $paging .= "<a href='javascript:go_page(1);' class='link' style='font-weight: 700'> << </a>";
       }
       if($paging_block == 1) {
-        $paging .= '<a href="" class="link" style=""> &nbsp; < &nbsp;</a>';
+        $paging .= '<a href="" class="link" style="color: silver"> &nbsp; < &nbsp;</a>';
       }else {
         $p = (($paging_block-2)*$pagingNum_cnt) + 1;
-        $paging .= "<a href='javascript:go_page($p);' class='link' style='font-weight: bold'> &nbsp; < &nbsp;</a>";
+        $paging .= "<a href='javascript:go_page($p);' class='link' style='font-weight: 700'> &nbsp; < &nbsp;</a>";
       }
       for($i=$block_start; $i<=$block_end; $i++) {
         if($curpage == $i) {
@@ -300,15 +300,15 @@ class Mailbox extends CI_Controller {
         }
       }
       if($paging_block == $total_blocks) {
-        $paging .= '<a href="" class="link" style=""> &nbsp;&nbsp; > </a>';
+        $paging .= '<a href="" class="link" style="color: silver"> &nbsp;&nbsp; > </a>';
       }else {
         $p = ($paging_block*$pagingNum_cnt) + 1;
-        $paging .= "<a href='javascript:go_page($p);' class='link' style='font-weight: bold'> &nbsp;&nbsp; > </a>";
+        $paging .= "<a href='javascript:go_page($p);' class='link' style='font-weight: 700'> &nbsp;&nbsp; > </a>";
       }
       if($curpage == $total_pages) {
-        $paging .= '<a href="" class="link" style=""> &nbsp; >> </a>';
+        $paging .= '<a href="" class="link" style="color: silver"> &nbsp; >> </a>';
       }else {
-        $paging .= "<a href='javascript:go_page($total_pages);' class='link' style='font-weight: bold'> &nbsp; >> </a>";
+        $paging .= "<a href='javascript:go_page($total_pages);' class='link' style='font-weight: 700;'> &nbsp; >> </a>";
       }
       $paging .= "<style> .link {color:black; } </style>";
       $data['links'] = $paging;

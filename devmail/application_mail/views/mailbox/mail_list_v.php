@@ -26,15 +26,18 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
     </colgroup>
     <thead>
       <tr>
-        <div class="" style="width: 210px; height: 40px; position: relative; top: 10px; left: 10px;">
-          <div class="" style="border: solid 1px lightgray;">
-            <input type="text" style="outline: none; margin: 3px; margin-left: 10px; width: 77%; height: 25px; border: none; color: green; font-weight: bold; font-size:1em" >
-            <a href="javascript:void(0)" onclick="search_mail(this);">
-            <img style="width: 20px; position: relative; top:5px " src="/devmail/misc/img/icon/search.png" alt="">
-            </a>
-          </div>
+        <div style="display: inline-block; width: 210px; height: 35px; position: relative; top: 10px; left: 10px; border: solid 1px lightgray;">
+          <input type="text" style="outline: none; margin: 5px; margin-left: 10px; width: 77%; height: 25px; border: none; color: green; font-weight: bold; font-size:1em" >
+          <a href="javascript:void(0)" onclick="search_mail(this);">
+          <img style="width: 20px; position: relative; top:5px " src="/devmail/misc/img/icon/search.png" alt="">
+          </a>
         </div>
-        <br>
+        <!-- <div class="" style="display: inline-block; width: 58px; height: 35px; position: relative; top: 5px; left: 9px; border: solid 1px lightgray;">
+          <a onclick="search_detail();" style="position: relative; top: 5px; left: 5px; font-weight: 300; color: grey">
+            상세 <img style="width: 11px; position: relative; top:2px " src="/devmail/misc/img/icon/detail.png" alt="">
+          </a>
+        </div> -->
+        <br><br>
       </tr>
       <tr>
         <!-- <th>U</th> -->
