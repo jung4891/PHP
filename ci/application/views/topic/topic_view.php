@@ -26,36 +26,3 @@
     ?>
   </ul>
 </div>
-
-<!-- <br><br>
-<button>모달창</button>
-<div class="modal">
-  <div class="modal_content" title="클릭하면 창이 닫힙니다.">
-    여기에 모달창 내용을 적어줍니다.<br> 이미지여도 좋고 글이어도 좋습니다.
-  </div>
-</div>
-
-<style media="screen">
-.modal{ position:absolute; width:100%; height:100%; background: rgba(0,0,0,0.7); top:0; left:0;
-        display:none; }
-.modal_content{
-  width:400px; height:200px;
-  background:#fff; border-radius:10px;
-  position:relative; top:50%; left:50%;
-  margin-top:-100px; margin-left:-200px;
-  text-align:center;
-  box-sizing:border-box; padding:74px 0;
-  line-height:23px; cursor:pointer;
-}
-</style>
-
-<script type="text/javascript">
-$(function(){
-  $("button").click(function(){
-    $(".modal").fadeIn();
-  });
-  $(".modal_content").click(function(){
-    $(".modal").fadeOut();
-  });
-});
-</script> -->

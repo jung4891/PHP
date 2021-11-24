@@ -53,7 +53,8 @@ $("#headMenu").on("click", function(){
   $("#sideBar, #sideMini").toggle();
 })
 
-$(function (){
+$(function(){
+
   $.ajax({
     url: "<?php echo site_url(); ?>/mailbox/decode_mailbox",
     type: 'POST',
@@ -69,6 +70,8 @@ $(function (){
         });
     }
   });
+
+
 })
 
 $('#sidetree').on("select_node.jstree", function (e, data) {

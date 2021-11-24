@@ -19,6 +19,10 @@
       p.hex {
         color: #FF0000;
       }
+      /*  4. rgba : 4번째 인수에 0~1사이 소수점을 넣어서 투명도를 포함*/
+      p.rgba {
+        background-color: rgba(0, 255, 0, 0.1);
+      }
 
       /* 배경 */
       p#bg_color {
@@ -49,6 +53,7 @@
     <p id="blue">색상 이름으로 표현</p>
     <p class="rgb">RGB 색상값으로 표현</p>
     <p class="hex">16진수 색상값으로 표현</p>
+    <p class="rgba">rgba로 투명색 표현</p>
     <hr>
 
     <!-- 배경 -->

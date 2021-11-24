@@ -26,17 +26,49 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
     </colgroup>
     <thead>
       <tr>
-        <div style="display: inline-block; width: 210px; height: 35px; position: relative; top: 10px; left: 10px; border: solid 1px lightgray;">
-          <input type="text" style="outline: none; margin: 5px; margin-left: 10px; width: 77%; height: 25px; border: none; color: green; font-weight: bold; font-size:1em" >
+        <div style="display: inline-block; width: 210px; height: 35px; position: relative; top: 10px; left: 10px; border: solid 1px lightgray; background-color: rgb(245,245,245)">
+          <input type="text" style="outline: none; margin: 5px; margin-left: 10px; width: 77%; height: 25px; border: none; color: green; font-weight: bold; font-size:1em; background-color: inherit; " >
           <a href="javascript:void(0)" onclick="search_mail(this);">
           <img style="width: 20px; position: relative; top:5px " src="/devmail/misc/img/icon/search.png" alt="">
           </a>
         </div>
-        <!-- <div class="" style="display: inline-block; width: 58px; height: 35px; position: relative; top: 5px; left: 9px; border: solid 1px lightgray;">
-          <a onclick="search_detail();" style="position: relative; top: 5px; left: 5px; font-weight: 300; color: grey">
+        <div class="" style="display: inline-block; cursor: pointer; width: 65px; height: 35px; position: relative; top: 5px; left: 9px; border: solid 1px lightgray; background-color: rgb(220,220,220); text-align: center">
+          <a onclick="search_detail();" style="position: relative; top: 5px; font-weight: 300; color: grey">
             상세 <img style="width: 11px; position: relative; top:2px " src="/devmail/misc/img/icon/detail.png" alt="">
           </a>
-        </div> -->
+        </div>
+        <div class="modal">
+          <div class="modal_content" title="">
+            <div class="" style="margin-left: 300px">
+              <button type="button" name="button" id="modal_form_close"
+              style=" border: none; background-color: inherit; font-size: 1em;" >X</button>
+            </div>
+            <form class="" name="modal_form" action="<?php echo site_url(); ?>/mailbox/mail_list" method="get">
+              <input type="hidden" name="boxname" value="<?php echo $mbox ?>" >
+              <input type="hidden" name="type" value="search" >
+              <div class="">
+                <div class="" style="float: left; width: 13%; margin-left: 30px">
+                  제목
+                </div>
+                <div class="" style="width: 90%">
+                  <input type="text" name="subject" value="" style="height: 1.5em">
+                </div>
+              </div>
+              <br>
+              <div class="">
+                <div class="" style="float: left; width: 13%; margin-left: 30px">
+                  내용
+                </div>
+                <div class="" style="width: 90%">
+                  <input type="text" name="contents" value="" style="height: 1.5em">
+                </div>
+              </div>
+              <br><br>
+              <button type="submit" id="modal_form_submit" style="width: 70px; font-size: 1.1em">검색</button>
+            </form>
+            <br><br>
+          </div>
+        </div>
         <br><br>
       </tr>
       <tr>
@@ -166,6 +198,21 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
 include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_footer.php";
  ?>
 
+<!-- 상세검색 -->
+<style media="screen">
+.modal{ position:absolute; width:100%; height:100%; background: rgba(0,0,0,0.1); top:0; left:0;
+        display:none; }
+.modal_content{
+  width:350px; height:300px;
+  background:#fff; border-radius:10px;
+  position:relative; top:18%; left:58%;
+  margin-top:-100px; margin-left:-200px;
+  text-align:center;
+  box-sizing:border-box; padding:20px 0;
+  line-height:30px; cursor:pointer;
+}
+</style>
+
  <script type="text/javascript">
 
  // 테스트
@@ -197,6 +244,17 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_footer.php"
    newForm.appendTo('body');
    newForm.submit();
  }
+
+ // 상세검색
+ function search_detail() {
+   $(".modal").fadeIn();
+ }
+ $('#modal_form_submit').click(function() {
+   // console.log($('[name=contents]').val());
+ })
+ $('#modal_form_close').click(function() {
+   $(".modal").fadeOut();
+ })
 
  // 상단 체크박스 클릭시 전체선택/해제 설정
  function check_all(chk_all) {

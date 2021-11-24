@@ -227,17 +227,16 @@ class Mailbox extends CI_Controller {
       }else if($this->input->get('type') == "search") {
         $subject_target = $this->input->get("subject");
         $mailno_arr = imap_sort($mails, SORTDATE, 1);
-
-        if($mailno_arr) {   // 검색결과 없으면 false반환되어 count(false)로 애러방지
-          $mailno_arr_target = array();
-          foreach($mailno_arr as $index => $no) {
-            $subject= imap_utf8(imap_headerinfo($mails, $no)->subject);
-            if(strpos($subject, $subject_target))  array_push($mailno_arr_target, $no);
+        $mailno_arr_target = array();
+        foreach($mailno_arr as $index => $no) {
+          $subject= imap_utf8(imap_headerinfo($mails, $no)->subject);
+          if(strpos($subject, $subject_target) !== false)  {
+            array_push($mailno_arr_target, $no);
           }
-          $mailno_arr = $mailno_arr_target;
-          $mails_cnt = count($mailno_arr);
-          // echo $mails_cnt;
         }
+        $mailno_arr = $mailno_arr_target;
+        $mails_cnt = count($mailno_arr);
+
         /*
         imap_search로 제목 검색하는부분 일단 보류....
 
