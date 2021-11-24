@@ -66,22 +66,23 @@
 
     <h3>< iframe ></h3>
     <!-- iframe이란 inline frame의 약자로 페이지 안에 다른 웹페이지를 삽입할 수 있다. -->
-    <iframe src="1_basic.html" name="frame_target" width="50%" height="200px"
+    <!-- <iframe src="1_basic.html" name="frame_target" width="50%" height="200px"
             style="border: none; ">
     </iframe>
     <p>
       <a href="etc.html" target="frame_target">iframe 페이지 변경하기</a>
-    </p>
+    </p> -->
     <br><hr><br>
 
     <h3>< HTML 레이아웃(Layout) ></h3>
     <!-- 레이아웃이란 특정 공간에 여러 구성요소를 보기 좋게 효과적으로 배치하는 작업이다. -->
     <!-- 웹 페이지의 레이아웃은 웹 사이트의 외관을 결정짓는 매우 중요한 요소이다. -->
 
+    <br>
     <p>1. div 요소를 이용한 레이아웃</p>
     <!-- div요소는 CSS 스타일을 손쉽게 적용할 수 있으므로 레아이웃을 작성하는데 자주 사용됨 -->
     <!-- HTML5 이전의 레이아웃임 -->
-    <style media="screen">
+    <!-- <style media="screen">
       #header, #nav, #section, #footer { text-align: center; }
       #header, #footer { color:white; line-height: 40px; /* 상하 가운데 정렬됨*/ }
       #nav, #section { line-height: 120px }
@@ -120,7 +121,39 @@
     </div>
     <div id="footer">
       <h3>FOOTER 영역</h3>
-    </div>
+    </div> -->
 
+    <p>2. HTML5 레이아웃</p>
+    <!--
+  	<header>
+  		<h2>HEADER 영역</h2>
+  	</header>
+  	<nav>
+  		<h2>NAV 영역</h2>
+  	</nav>
+  	<section>
+  		<p>SECTION 영역</p>
+  	</section>
+  	<footer>
+  		<h2>FOOTER 영역</h2>
+  	</footer>
+    -->
+
+    <p>3. table 요소를 이용한 레이아웃</p>
+    <!-- 오래전에 사용하던 방식으로 현재는 거의 사용하지 않음 -->
+    <!-- 레이아웃을 만들기 위해 설계된 요소가 아니기에 수정이 매우 힘들다.  -->
+    <!-- <table width="90%" style="text-align:center; border: none">
+      <tr>
+        <td colspan="2" style="background-color:lightgrey"><h2>Header 영역</h2></td>
+      </tr>
+      <tr>
+        <td style="background-color:#339999; color:white; width:20%"><h2>Nav 영역</h2></td>
+        <td style="height:100px; text-align:left"><p>Section 영역</p></td>
+      </tr>
+      <tr>
+        <td colspan="2" style="background-color:#FFCC00"><h2>Footer 영역</h2></td>
+      </tr>
+    </table> -->
+    <br><hr><br>
   </body>
 </html>

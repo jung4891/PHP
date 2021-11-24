@@ -27,43 +27,6 @@
   </ul>
 </div>
 
-<!-- <div id="bpopup">
-  bpopup 테스트
-</div>
-
-<button id="btn1" type="button">버튼1</button>
-
-<script type="text/javascript">
-$(function(){
-   $("#btn1").click(function(){
-      $('#bpopup').bPopup();
-      // alert("버튼1");
-   });
-});
-</script>
-
-
-<div class="wrap">
-<input type="button" id="btn_open" value="레이어 팝업 열기">
-</div> -->
-
-<!--팝업 영역 시작 -->
-<!-- <div id="popup" class="Pstyle">
-
-  <table>
-    <tr>
-      <th>bPopup를 이용한 레이어 팝업입니다</th>
-    </tr>
-    <tr>
-      <td style="height: 200px">jquery bPopup 팝업 플러그인은<br><br> https://plugins.jquery.com/bpopup/에서 버젼별로 다운로드 받으실 수 있습니다</td>
-    </tr>
-  </table>
-  <br>
-  <input type="button" id="btn_close" value="닫 기">
-
-</div> -->
-<!--팝업 영역 끝 -->
-
 <!-- <br><br>
 <button>모달창</button>
 <div class="modal">

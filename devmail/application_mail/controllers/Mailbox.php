@@ -146,7 +146,8 @@ class Mailbox extends CI_Controller {
         // "name" => $folders[$i],
         "id" => $id,
         "parent" => $parent_folder,
-        "text" => $text
+        "text" => $text,
+        "state" => array("opened" => true)
       );
       array_push($mailbox_tree, $tree);
     }

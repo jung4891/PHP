@@ -1,2 +1,0 @@
-Account.php -> 86
-misc > img > star.png 2개

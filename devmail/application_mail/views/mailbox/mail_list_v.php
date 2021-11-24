@@ -116,9 +116,9 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
           &nbsp;
           <a href="javascript:void(0);" onclick="starClick(this); " >
             <?php if($head[$mailno_arr[$i]]->Flagged == "F") {?>
-              <img class="fullStar" src="/devmail/misc/img/btn/star2.png" alt="" width="15px">
+              <img class="fullStar" src="/devmail/misc/img/icon/star2.png" alt="" width="15px">
             <?php   }else {?>
-              <img class="emptyStar" src="/devmail/misc/img/btn/star1.png" alt="" width="15px">
+              <img class="emptyStar" src="/devmail/misc/img/icon/star1.png" alt="" width="15px">
             <?php   } ?>
           </a>
         </td>

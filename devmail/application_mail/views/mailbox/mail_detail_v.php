@@ -36,24 +36,24 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
      </tr>
 
      <!-- struct 테스트용 -->
-     <tr>
+     <!-- <tr>
       <td colspan="2">
         <h3>$struct</h3>
         <pre>
-          <?php var_dump($struct);?>
+          <?php // var_dump($struct);?>
         </pre>
       </td>
-     </tr>
+     </tr> -->
 
      <!-- body 테스트용 -->
-     <tr>
+     <!-- <tr>
        <td colspan="2">
          <h3>$body</h3>
          <pre>
-           <?php var_dump($body); ?>
+           <?php // var_dump($body); ?>
          </pre>
        </td>
-     </tr>
+     </tr> -->
 
    </table>
  </div>

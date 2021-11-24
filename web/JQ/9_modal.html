@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bPopup/0.11.0/jquery.bpopup.js"></script>
+  </head>
+  <body>
+    <div id="bpopup" style="display: none">
+      <table>
+        <tr>
+          <th>bPopup를 이용한 레이어 팝업입니다</th>
+        </tr>
+        <tr>
+          <td style="height: 200px">jquery bPopup 팝업 플러그인은<br><br> https://plugins.jquery.com/bpopup/에서 버젼별로 다운로드 받으실 수 있습니다</td>
+        </tr>
+      </table>
+      <br>
+      <input type="button" id="btn_close" value="닫 기">
+    </div>
+
+    <button id="btn1" type="button">bPopup()</button> <br><br>
+
+    <script type="text/javascript">
+
+    $("#btn1").click(function(){
+       $('#bpopup').bPopup();
+    });
+
+    </script>
+
+    <div class="wrap">
+    <input type="button" id="btn_open" value="레이어 팝업 열기">
+    </div>
+
+    <!--팝업 영역 시작 -->
+    <div id="popup" class="Pstyle">
+
+    </div>
+    <!--팝업 영역 끝 -->
+  </body>
+</html>

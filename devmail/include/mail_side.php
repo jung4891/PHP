@@ -43,12 +43,15 @@
       </div>
     </div>
     <div id="sideMini">
-aa
+
     </div>
 
 
 <script type="text/javascript">
 
+$("#headMenu").on("click", function(){
+  $("#sideBar, #sideMini").toggle();
+})
 
 $(function (){
   $.ajax({
@@ -68,17 +71,13 @@ $(function (){
   });
 })
 
-  $("#headMenu").on("click", function(){
-      $("#sideBar, #sideMini").toggle();
-  })
-
-  $('#sidetree').on("select_node.jstree", function (e, data) {
-    var box_name = data.node.id;
-    $("#boxname").val(box_name);
-    var action = "<?php echo site_url(); ?>/mailbox/mail_list";
-    $("#boxform").attr("action", action);
-    $("#boxform").submit();
-  });
+$('#sidetree').on("select_node.jstree", function (e, data) {
+  var box_name = data.node.id;
+  $("#boxname").val(box_name);
+  var action = "<?php echo site_url(); ?>/mailbox/mail_list";
+  $("#boxform").attr("action", action);
+  $("#boxform").submit();
+});
 
 
 

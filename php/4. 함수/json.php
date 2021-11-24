@@ -14,6 +14,7 @@
       echo $str.'<br>';
       echo json_encode(['a','b']).'<br>';   // ["a","b"]
       echo json_encode(true).'<br>';   // "true"    (bool -> string)
+      var_dump(json_encode(array("opened" => true)));  // string(15) "{"opened":true}"
       echo '<br>';
 
 
