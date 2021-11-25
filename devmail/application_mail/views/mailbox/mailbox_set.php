@@ -27,9 +27,14 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
     </form>
 
     <br><br>
-    <div class="" align="left" style="margin-left: 55px">
+    <div class="" align="left" style="margin-left: 45px">
+      <button type="button" name="button" onclick="add_mybox()">내메일함 추가</button>
+      <?php if(count($mbox_info) == 5) {?>
+      <button type="button" name="button" onclick="add_mybox()">내메일함 추가</button>
+      <?php }else { ?>
       새 메일함 &nbsp;<input type="text" name="" value="">
       <button type="button" name="button">추가</button>
+      <?php } ?>
     </div>
     <br>
     <table width="87%">
@@ -48,7 +53,7 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
       <tr align="center">
         <td rowspan="9">기본메일함</td>
         <td>전체메일</td>
-        <td>10/100</td>
+        <td><?php echo $mbox_info[0]["unseen_cnt"].'/'.$mbox_info[0]["mails_cnt"];?></td>
         <td>비우기 | 모두 읽음표시</td>
       </tr>
       <tr>
@@ -56,7 +61,7 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
       </tr>
       <tr align="center">
         <td>보낸메일함</td>
-        <td>10/100</td>
+        <td><?php echo $mbox_info[1]["unseen_cnt"].'/'.$mbox_info[1]["mails_cnt"];?></td>
         <td>비우기 | 모두 읽음표시</td>
       </tr>
       <tr>
@@ -64,7 +69,7 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
       </tr>
       <tr align="center">
         <td>임시보관함</td>
-        <td>10/100</td>
+        <td><?php echo $mbox_info[2]["unseen_cnt"].'/'.$mbox_info[2]["mails_cnt"];?></td>
         <td>비우기 | 모두 읽음표시</td>
       </tr>
       <tr>
@@ -72,7 +77,7 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
       </tr>
       <tr align="center">
         <td>스팸메일함</td>
-        <td>10/100</td>
+        <td><?php echo $mbox_info[3]["unseen_cnt"].'/'.$mbox_info[3]["mails_cnt"];?></td>
         <td>비우기 | 모두 읽음표시</td>
       </tr>
       <tr>
@@ -80,13 +85,18 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
       </tr>
       <tr align="center">
         <td>휴지통</td>
-        <td>10/100</td>
+        <td><?php echo $mbox_info[4]["unseen_cnt"].'/'.$mbox_info[4]["mails_cnt"];?></td>
         <td>비우기 | 모두 읽음표시</td>
       </tr>
       <tr>
         <td colspan="4" style="border-bottom: 2px solid lightgray; "></td>
       </tr>
-      <tr align="center">
+      <?php
+        // $my_mbox_cnt = count($mbox_info)-6;
+        // if(count($mbox_info)>)
+
+       ?>
+      <!-- <tr align="center">
         <td rowspan="3">내메일함</td>
         <td>테스트1</td>
         <td>10/100</td>
@@ -99,19 +109,29 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
         <td>테스트2</td>
         <td>10/100</td>
         <td>수정 | 삭제 | 비우기 | 모두 읽음표시</td>
-      </tr>
-      <tr>
+      </tr> -->
+      <!-- <tr>
         <td colspan="4" style="border-bottom: 2px solid lightgray; "></td>
-      </tr>
+      </tr> -->
     </table>
+
+    <br>
+    <pre align="left">
+      <?php var_dump($mbox_info[5]); ?>
+    </pre>
 </div>
 
-
-
-
-
 <script type="text/javascript">
-
+  function add_mybox() {
+      $.ajax({
+        url: "<?php echo site_url(); ?>/option/add_mybox",
+        success: function (res) {
+          if(res=='o')  alert("내메일함이 생성되었습니다.");
+          else  alert("내메일함 생성 실패");
+          location.reload();
+        }
+      });
+  }
 </script>
 
 <?php

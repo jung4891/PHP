@@ -16,7 +16,12 @@
     echo '# 비교연산자<br>';
     var_dump(1==1);    // bool(true)
     var_dump(1===1);   // 데이터타입까지 비교함
+    echo (1==1);        // 1
+    echo (1==2)=="";    // 1
+    var_dump(1==2);     // bool(false)
     echo '<br><br>';
+    $test = imap_utf7_encode("임시 보관함");
+    echo $test.'<br>';
 
     echo '# isset() -> ()안의 값이 없으면 false<br>';
     $var = '';

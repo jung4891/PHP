@@ -10,6 +10,16 @@ class Option extends CI_Controller {
 			}
 			$this->load->helper('url');
 			$this->load->model('M_option');
+			$this->load->Model('M_account');
+
+			$encryp_password = $this->M_account->mbox_conf($_SESSION['userid']);
+			$iv = chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0);
+      $key = $this->db->password;
+      $key = substr(hash('sha256', $key, true), 0, 32);
+			$decrypted = openssl_decrypt(base64_decode($encryp_password), 'aes-256-cbc', $key, 1, $iv);
+      $this->mailserver = "192.168.0.100";
+      $this->user_id = $_SESSION["userid"];
+      $this->user_pwd = $decrypted;
 	}
 
 
@@ -21,8 +31,78 @@ class Option extends CI_Controller {
 			}
 		}
 
+	  public function connect_mailserver($mbox="") {
+	    $mailserver = $this->mailserver;
+	    $host = "{" . $mailserver . ":143/imap/novalidate-cert}$mbox";
+	    $user_id = $this->user_id;
+	    $user_pwd = $this->user_pwd;
+	    return @imap_open($host, $user_id, $user_pwd);
+	  }
+
+		public function get_mbox_info(){
+			$mails= $this->connect_mailserver();
+			$mailserver = $this->mailserver;
+			$folders_tmp = imap_list($mails, "{" . $mailserver . "}", '*');
+			$folders_tmp = str_replace("{" . $mailserver . "}", "", $folders_tmp);
+			sort($folders_tmp);
+
+			$folders = array();
+			$folders[0] = "INBOX";
+			$folders[1] = "&vPSwuA- &07jJwNVo-";   // 보낸메일함
+			$folders[2] = "&x4TC3A- &vPStANVo-";   // 임시보관함
+			$folders[3] = "&yBXQbA- &ulTHfA-";     // 스팸메일함
+			$folders[4] = "&ycDGtA- &07jJwNVo-";   // 휴지통
+			foreach($folders_tmp as $f) {
+				if($f == "INBOX") continue;
+				elseif($f == "&vPSwuA- &07jJwNVo-") continue;
+				elseif($f == "&x4TC3A- &vPStANVo-") continue;
+				elseif($f == "&yBXQbA- &ulTHfA-") continue;
+				elseif($f == "&ycDGtA- &07jJwNVo-") continue;
+				array_push($folders, $f);
+			}
+			$mailbox_info = array();
+			for($i=0; $i<count($folders); $i++) {
+				$folder = $folders[$i];
+				$folder_kor = mb_convert_encoding($folder, 'UTF-8', 'UTF7-IMAP');
+				switch($folder_kor) {
+					case "INBOX":  $folder_kor="전체메일";  break;
+					case "보낸 편지함":  $folder_kor="보낸메일함";  break;
+					case "임시 보관함":  $folder_kor="임시보관함";  break;
+					case "정크 메일":  $folder_kor="스팸메일함";  break;
+					case "지운 편지함":  $folder_kor="휴지통";  break;
+				}
+				$mails = $this->connect_mailserver($folder);
+				$mbox_status = imap_status($mails, "{" . $mailserver . "}".$folder, SA_ALL);
+				$mails_cnt = 0;
+				$unseen_cnt = 0;
+				if($mbox_status) {
+					$mails_cnt = $mbox_status->messages;
+					$unseen_cnt = $mbox_status->unseen;
+					// $recent_cnt = $mbox_status->recent;
+				}
+				$mbox_info[$i]['boxname'] = $folder;
+				$mbox_info[$i]['boxname_kor'] = $folder_kor;
+				$mbox_info[$i]['mails_cnt'] = $mails_cnt;
+				$mbox_info[$i]['unseen_cnt'] = $unseen_cnt;
+			}
+			imap_close($mails);
+			return $mbox_info;
+		}
+
 		function mailbox() {
-			$this->load->view('mailbox/mailbox_set');
+			$mbox_info = $this->get_mbox_info();
+			$data['mbox_info'] = $mbox_info;
+			$this->load->view('mailbox/mailbox_set', $data);
+		}
+
+		function add_mybox() {
+			$mails= $this->connect_mailserver();
+			$mailserver = $this->mailserver;
+			$host = "{" . $mailserver . ":143/imap/novalidate-cert}";
+			$encoded = mb_convert_encoding("내메일함4", 'UTF7-IMAP', 'UTF-8');
+			$create = imap_createmailbox($mails, imap_utf7_encode($host.$encoded));
+			if($create) echo "o"; else echo "x";
+			imap_close($mails);
 		}
 
 		function sign_list(){
@@ -49,9 +129,7 @@ class Option extends CI_Controller {
 				$data = array("sign_name" => $sign_name);
 				$result = $this->M_option->sign_save($data, $sign_seq);
 			}
-
 			echo json_encode($result);
-
 		}
 
 		function get_signcontent(){

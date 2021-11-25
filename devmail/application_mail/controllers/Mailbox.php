@@ -109,11 +109,15 @@ class Mailbox extends CI_Controller {
     $folders_sorted[0] = "INBOX";
     $folders_sorted[1] = "&vPSwuA- &07jJwNVo-";   // 보낸메일함
     $folders_sorted[2] = "&x4TC3A- &vPStANVo-";   // 임시보관함
+    $folders_sorted[3] = "&yBXQbA- &ulTHfA-";     // 스팸메일함
+    $folders_sorted[4] = "&ycDGtA- &07jJwNVo-";   // 휴지통
     foreach($folders as $f) {
       if($f == "INBOX") continue;
       elseif($f == "&vPSwuA- &07jJwNVo-") continue;
       elseif($f == "&x4TC3A- &vPStANVo-") continue;
-      array_push($folders_sorted, $f);
+      elseif($f == "&yBXQbA- &ulTHfA-") continue;
+      elseif($f == "&ycDGtA- &07jJwNVo-") continue;
+      array_push($folders_sorted, $f);  
     }
     return $folders_sorted;
   }
@@ -235,7 +239,7 @@ class Mailbox extends CI_Controller {
           }
         }
         // 내용으로 검색하는것 역시 반복문으로 돌려야할듯.. 일단 이건 추후에.
-        // 할때 mail_list 상세검색부분 div > table로 바꾸셈
+        // 할때 mail_list 상세검색부분 div > table로 바꾸기
         // 그리고 상세 옆에 대표 검색은 그냥 다 검색되야함. 내용이나 보낸사람 등등.
         $mailno_arr = $mailno_arr_target;
         if($mailno_arr)
