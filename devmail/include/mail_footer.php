@@ -63,12 +63,12 @@
         cache: false,
         success: function (result) {
 
-          $("#address_name").val(' ');
-          $("#address_email").val(' ');
-          $("#address_department").val(' ');
-          $("#address_group").val(' ');
-          $("#address_id").val(' ');
-          $("#address_comment").val(' ');
+          $("#address_name").val('');
+          $("#address_email").val('');
+          $("#address_department").val('');
+          $("#address_group").val('');
+          $("#address_id").val('');
+          $("#address_comment").val('');
           $('#address_modal').bPopup().close();
 
           // var input = document.getElementById('#address_info');

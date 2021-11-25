@@ -76,7 +76,7 @@ class Account extends CI_Controller {
 
 								$iv = chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0);
 
-								$encrypted = base64_encode(openssl_encrypt($password, 'aes-256-cbc', $key_pass, OPENSSL_RAW_DATA, $iv));
+								$encrypted = base64_encode(openssl_encrypt($password, 'aes-256-cbc', $key_pass, 1, $iv));
 								$create_key = $this->M_account->aes_key($check_id['username'], $encrypted);
 								if($create_key){
 									$_SESSION['userid'] = $check_id['username'];

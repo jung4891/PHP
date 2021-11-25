@@ -11,8 +11,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/jstree.min.js"></script>
     <script src="/devmail/misc/js/jquery-ui.min.js"></script>
     <script src="/devmail/misc/js/jquery.bpopup-0.1.1.min.js"></script>
-    <!-- v2 -->
-  <script src='https://unpkg.com/tesseract.js@v2.1.0/dist/tesseract.min.js'></script>
+
   </head>
   <body>
       <div id="header">

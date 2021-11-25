@@ -17,17 +17,18 @@ class Home extends CI_Controller {
 			if(isset($_SESSION['userid'])){
 				if($_SESSION['userid'] != "" && $_SESSION['roles'] == "admin"){
 
-					$this->load->view("admin/main");
+					echo "<script>location.href='".site_url()."/admin/main'</script>";
 
+				}else{
+					echo "<script>location.href='".site_url()."/mail/main'</script>";
 				}
-				// var_dump($_SESSION);
-			}else{
-				$this->load->view('login');
 
+			}else{
+				// phpinfo();
+				$this->load->view('login');
 			}
 
 		}
-
 
 
 }

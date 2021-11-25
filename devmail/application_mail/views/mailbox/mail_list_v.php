@@ -26,13 +26,13 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
     </colgroup>
     <thead>
       <tr>
-        <div style="display: inline-block; width: 210px; height: 35px; position: relative; top: 10px; left: 10px; border: solid 1px lightgray; background-color: rgb(245,245,245)">
-          <input type="text" style="outline: none; margin: 5px; margin-left: 10px; width: 77%; height: 25px; border: none; color: green; font-weight: bold; font-size:1em; background-color: inherit; " >
+        <div style="display: inline-block; width: 210px; height: 35px; position: relative; top: 10px; left: 10px; border: solid 1px lightgray;">
+          <input type="text" style="outline: none; margin: 5px; margin-left: 10px; width: 77%; height: 25px; border: none; color: green; font-weight: bold; font-size:1em" >
           <a href="javascript:void(0)" onclick="search_mail(this);">
           <img style="width: 20px; position: relative; top:5px " src="/devmail/misc/img/icon/search.png" alt="">
           </a>
         </div>
-        <div class="" style="display: inline-block; cursor: pointer; width: 65px; height: 35px; position: relative; top: 5px; left: 9px; border: solid 1px lightgray; background-color: rgb(220,220,220); text-align: center">
+        <!-- <div class="" style="display: inline-block; cursor: pointer; width: 65px; height: 35px; position: relative; top: 5px; left: 9px; border: solid 1px lightgray; background-color: rgb(220,220,220); text-align: center">
           <a onclick="search_detail();" style="position: relative; top: 5px; font-weight: 300; color: grey">
             상세 <img style="width: 11px; position: relative; top:2px " src="/devmail/misc/img/icon/detail.png" alt="">
           </a>
@@ -68,7 +68,7 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
             </form>
             <br><br>
           </div>
-        </div>
+        </div>-->
         <br><br>
       </tr>
       <tr>

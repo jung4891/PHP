@@ -48,9 +48,8 @@ class Mailbox extends CI_Controller {
 			$data['search_keyword'] = $search_keyword;
 			$data['search_domain'] = $search_domain;
       $data["domain_list"] = $this->M_mailbox->domain_list();
-			$mail_list = $this->M_mailbox->mailbox_list($search_domain, $search_keyword,( $cur_page - 1 ) * $no_page_list, $no_page_list);
-			$data["count"] = $mail_list["rows"];
-			$data["mail_list"] = $mail_list["list"];
+			$data["count"] = $this->M_mailbox->mailbox_list_count($search_domain, $search_keyword)->ucount;
+			$data["mail_list"] = $this->M_mailbox->mailbox_list($search_domain, $search_keyword,( $cur_page - 1 ) * $no_page_list, $no_page_list);
 
 			$total_page = 1;
 			if  ( $data['count'] % $no_page_list == 0 )
@@ -198,7 +197,8 @@ class Mailbox extends CI_Controller {
 
 
 		function getRandStr($length = 8) {
-			$characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'; $charactersLength = strlen($characters); $randomString = '';
+			$characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'; $charactersLength = strlen($characters);
+			$randomString = '';
 			for ($i = 0; $i < $length; $i++) {
 				$randomString .= $characters[rand(0, $charactersLength - 1)];
 			}

@@ -140,13 +140,26 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
               <td></td>
           </tr>
           <tr>
-            <td></td>
+            <td valign="bottom">
+              서명<br>
+              <select class="" name="" id="signature_list" style="width:95%" onchange="sign_select(this.value)">
+                <option value="no">서명없음</option>
+<?php
+foreach ($sign_list as $sl) {
+  $selected = ($sl->active == "Y")? " selected" : "";
+  ?>
+                <option value="<?php echo $sl->seq; ?>" <?php echo $selected; ?>><?php echo $sl->sign_name; ?></option>
+<?php
+}
+?>
+              </select>
+            </td>
             <td colspan="2">
               <table class="basic_table" width="100%" height="auto" style="min-height: 60px;border:solid 1px #B0B0B0;">
      							 <tbody id="fileTableTbody">
      									<tr>
-     										 <td id="dropZone" align="center" style="color:#B0B0B0;">
-                          마우스로 파일을 끌어오세요.
+     										 <td id="dropZone" align="center" style="color:#B0B0B0;border:none;">
+                          마우스로 첨부 할 파일을 끌어오세요.
      										 </td>
      									</tr>
      							 </tbody>
@@ -248,6 +261,33 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
 <!-- main_contents 끝 -->
  </div>
   <script>
+  $(function (){
+    $("#signature_list").change();
+  })
+
+function sign_select(seq){
+  if(seq =="no"){
+    $("#content").html(" ");
+    loadContent();
+    return false;
+  }
+  $.ajax({
+    url: "<?php echo site_url(); ?>/option/get_signcontent",
+    type: 'POST',
+    dataType: 'json',
+    data: {seq:seq},
+    success: function (result) {
+      var content = result.sign_content;
+      if(content == null){
+        content = " ";
+      }
+      $("#content").html(content);
+      loadContent();
+    }
+  });
+}
+
+
      $('#address_button').bind('click', function(e) {
        e.preventDefault();
         $('#adress_modal').bPopup({
@@ -561,8 +601,8 @@ var chkForm = function () {
            console.log(result);
             if (result == "success") {
               $("#loading_div").bPopup().close();
-             //  alert("전송되었습니다.");
-             // location.href ="<?php echo site_url();?>/mail_write/page";
+              alert("전송되었습니다.");
+             location.href ="<?php echo site_url();?>/mail_write/page";
             } else {
               console.log(result);
               alert("전송에 실패하였습니다.");

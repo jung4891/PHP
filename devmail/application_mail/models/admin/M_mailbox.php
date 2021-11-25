@@ -52,28 +52,53 @@ ON a.username = b.address
 LEFT JOIN quota2 c
 ON a.username = c.username
 WHERE 1=1 {$searchdomain}{$searchkeyword}";
-// echo $sql;
-// exit;
 
-		// $sql = "SELECT * FROM virtual_users WHERE 1=1 {$searchdomain}";
-
-		$rows = $this->db->query($sql)->num_rows();
 
 		if  ( $offset <> 0 ) {
 			$sql = $sql." LIMIT {$start_limit}, {$offset}";
 		}
 
 		$query = $this->db->query($sql);
-		if ($query->num_rows() <= 0) {
-		$result['rows'] = 0;
-		$result['list'] = false;
-			return $result;
-		} else {
-			$result['rows'] = $rows;
-			$result['list'] = $query->result();
-			return $result;
+	
+		$result = $query->result();
+		return $result;
+
+	}
+
+	function mailbox_list_count($searchdomain, $searchkeyword){
+	if($searchdomain == ""){
+		$searchdomain = "";
+	}else{
+		$searchdomain = " AND a.domain = '{$searchdomain}'";
+	}
+
+	if($searchkeyword == ""){
+		$searchkeyword = "";
+	}else{
+		$ptn = '/^[a-zA-Z0-9]+$/';
+		// $chk_char = $this->is_hangul_char($searchkeyword);
+		$chk_char = preg_match($ptn, $searchkeyword);
+
+		if($chk_char){
+			$searchkeyword = " AND a.username LIKE '%{$searchkeyword}%'";
+		}else{
+			$searchkeyword = " AND a.name LIKE '%{$searchkeyword}%'";
 		}
 	}
+
+		$sql = "SELECT COUNT(*) as ucount
+FROM mailbox a
+JOIN alias b
+ON a.username = b.address
+LEFT JOIN quota2 c
+ON a.username = c.username
+WHERE 1=1 {$searchdomain}{$searchkeyword}";
+
+
+		$query = $this->db->query($sql);
+ 		return $query->row();
+			return $result;
+		}
 
 
 	function dupl_mailbox($id){

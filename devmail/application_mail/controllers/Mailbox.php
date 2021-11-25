@@ -72,7 +72,7 @@ class Mailbox extends CI_Controller {
 			$iv = chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0);
       $key = $this->db->password;
       $key = substr(hash('sha256', $key, true), 0, 32);
-			$decrypted = openssl_decrypt(base64_decode($encryp_password), 'aes-256-cbc', $key, OPENSSL_RAW_DATA, $iv);
+			$decrypted = openssl_decrypt(base64_decode($encryp_password), 'aes-256-cbc', $key, 1, $iv);
       $this->mailserver = "192.168.0.100";
       $this->user_id = $_SESSION["userid"];
       $this->user_pwd = $decrypted;
@@ -234,25 +234,28 @@ class Mailbox extends CI_Controller {
             array_push($mailno_arr_target, $no);
           }
         }
+        // 내용으로 검색하는것 역시 반복문으로 돌려야할듯.. 일단 이건 추후에.
+        // 할때 mail_list 상세검색부분 div > table로 바꾸셈
+        // 그리고 상세 옆에 대표 검색은 그냥 다 검색되야함. 내용이나 보낸사람 등등.
         $mailno_arr = $mailno_arr_target;
-        $mails_cnt = count($mailno_arr);
+        if($mailno_arr)
+          $mails_cnt = count($mailno_arr);
+        $data['type'] = "search";
+        $data['subject'] = $subject_target;
 
         /*
         imap_search로 제목 검색하는부분 일단 보류....
+        (보니까 서명부분이 들어간 메일은 검색이 안됨)
 
-        $subject = iconv('utf-8', 'euc-kr', $subject);
-        $mailno_arr = imap_search($mails, "SUBJECT \"$subject\"");
+        $mailno_arr = imap_search($mails, "BODY \"$subject_target\"");  // "공백포함 검색"일경우 ""있어야함
         $mailno_arr = imap_search($mails, "SUBJECT $subject", SE_FREE, "euc-kr");
         $mailno_arr = array_reverse($mailno_arr);   // 날짜 최신순으로
 
         검색 테스트2 (이놈이 검색이 안됨. outlook에서 보낸것들.)
         =?ks_c_5601-1987?B?sMu79iDF1726xq4y?=		iconv(utf8-> euc-kr): Ʈ ??
-
         검색 테스트1 (일일업무일지, 이건됨 브라우저 메일홈피에서 보낸것들)
         =?UTF-8?Q?=EC=9D=B8=ED=84=B4=EC=82=AC=EC=9B=90=20=EC=86=A1?= =?UTF-8?Q?=ED=98=81=EC=A4=91=20=EC=9D=BC=EC=9D=BC=EC=97=85=EB=AC=B4?= =?UTF-8?Q?=EC=9D=BC=EC=A7=80=20=EC=9E=85=EB=8B=88=EB=8B=A4=2E=28=EA=B2=80?= =?UTF-8?Q?=EC=83=89=20=ED=85=8C=EC=8A=A4=ED=8A=B8=31=29?=
         */
-        $data['type'] = "search";
-        $data['subject'] = $subject_target;
       }else {
         $mailno_arr = imap_sort($mails, SORTDATE, 1);
       }
