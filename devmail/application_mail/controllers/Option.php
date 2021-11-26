@@ -84,6 +84,10 @@ class Option extends CI_Controller {
 				$mbox_info[$i]['boxname_kor'] = $folder_kor;
 				$mbox_info[$i]['mails_cnt'] = $mails_cnt;
 				$mbox_info[$i]['unseen_cnt'] = $unseen_cnt;
+				// $quota = imap_get_quotaroot($mails, "inbox");				// 현재 사용자의 메일사용량/총할당량 (KB)
+				// $quota = imap_get_quota($mails, "user.inbox");		   	// imap메일 관리자 가능
+				// $mbox_info["quota"] = $quota;
+
 			}
 			imap_close($mails);
 			return $mbox_info;
@@ -99,11 +103,74 @@ class Option extends CI_Controller {
 			$mails= $this->connect_mailserver();
 			$mailserver = $this->mailserver;
 			$host = "{" . $mailserver . ":143/imap/novalidate-cert}";
-			$encoded = mb_convert_encoding("내메일함4", 'UTF7-IMAP', 'UTF-8');
-			$create = imap_createmailbox($mails, imap_utf7_encode($host.$encoded));
+			$encoded = mb_convert_encoding("내메일함", 'UTF7-IMAP', 'UTF-8');
+			$create = imap_createmailbox($mails, $host.$encoded);
 			if($create) echo "o"; else echo "x";
 			imap_close($mails);
 		}
+
+		function add_mailbox() {
+			$new_mbox = $this->input->post('mbox');
+			$mails= $this->connect_mailserver();
+			$mailserver = $this->mailserver;
+			$host = "{" . $mailserver . ":143/imap/novalidate-cert}";
+			$encoded = mb_convert_encoding('내메일함.'.$new_mbox, 'UTF7-IMAP', 'UTF-8');
+			$create = imap_createmailbox($mails, $host.$encoded);
+			if($create) echo "o"; else echo "x";
+			imap_close($mails);
+		}
+
+		function del_mailbox() {
+			$mbox = $this->input->post('mbox');
+			$mbox = mb_convert_encoding($mbox, 'UTF7-IMAP', 'UTF-8');
+			$mails= $this->connect_mailserver();
+			$mailserver = $this->mailserver;
+			$host = "{" . $mailserver . ":143/imap/novalidate-cert}";
+			$res = imap_deletemailbox($mails, $host.$mbox);
+			if($res) echo "o"; else echo "x";
+			imap_close($mails);
+		}
+
+		function trash_all_mails() {
+			$mbox = $this->input->post("mbox");
+			$mbox = mb_convert_encoding($mbox, 'UTF7-IMAP', 'UTF-8');
+			$trash = mb_convert_encoding('지운 편지함', 'UTF7-IMAP', 'UTF-8');
+			$mails= $this->connect_mailserver($mbox);
+
+			$mailno_arr = imap_sort($mails, SORTDATE, 1);
+			$arr_str = implode(',', $mailno_arr);
+			$res = imap_mail_move($mails, $arr_str, $trash);
+			imap_expunge($mails);
+			imap_close($mails);
+			echo $res;
+		}
+
+ 		function del_all_mails() {
+			$trash = mb_convert_encoding('지운 편지함', 'UTF7-IMAP', 'UTF-8');
+			$mails= $this->connect_mailserver($trash);
+
+			$mailno_arr = imap_sort($mails, SORTDATE, 1);
+			$arr_str = implode(',', $mailno_arr);
+			$res = imap_delete($mails, $arr_str);
+			imap_expunge($mails);
+			imap_close($mails);
+			echo $res;
+		}
+
+ 		function set_seen() {
+			$mbox = $this->input->post("mbox");
+			$mbox = mb_convert_encoding($mbox, 'UTF7-IMAP', 'UTF-8');
+			$mails= $this->connect_mailserver($mbox);
+
+			$mailno_arr = imap_sort($mails, SORTDATE, 1);
+			$arr_str = implode(',', $mailno_arr);
+			$res = imap_setflag_full($mails, $arr_str, "\\Seen");
+			imap_expunge($mails);
+			imap_close($mails);
+			echo $res;
+		}
+
+
 
 		function sign_list(){
 			$user_id = $_SESSION["userid"];

@@ -21,6 +21,8 @@
 
     <!-- Null과 '' -->
     <?php
+    $mbox = mb_convert_encoding('inbox', 'UTF7-IMAP', 'UTF-8');
+    echo $mbox;
     $s = '';
     var_dump($s);          // string(0) ""
     var_dump(isset($s));   // true
