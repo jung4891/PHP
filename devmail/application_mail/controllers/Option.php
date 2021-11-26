@@ -120,10 +120,23 @@ class Option extends CI_Controller {
 			imap_close($mails);
 		}
 
+		function rename_mailbox() {
+			$old_mbox = $this->input->post('old_mbox');
+			$new_mbox = $this->input->post('new_mbox');
+			$old_mbox = mb_convert_encoding($old_mbox, 'UTF7-IMAP', 'UTF-8');
+			$new_mbox = mb_convert_encoding($new_mbox, 'UTF7-IMAP', 'UTF-8');
+			$mails = $this->connect_mailserver();
+			$mailserver = $this->mailserver;
+			$host = "{" . $mailserver . ":143/imap/novalidate-cert}";
+			$res = imap_renamemailbox($mails, $host.$old_mbox, $host.$new_mbox);
+			if($res) echo "o"; else echo "x";
+			imap_close($mails);
+		}
+
 		function del_mailbox() {
 			$mbox = $this->input->post('mbox');
 			$mbox = mb_convert_encoding($mbox, 'UTF7-IMAP', 'UTF-8');
-			$mails= $this->connect_mailserver();
+			$mails = $this->connect_mailserver();
 			$mailserver = $this->mailserver;
 			$host = "{" . $mailserver . ":143/imap/novalidate-cert}";
 			$res = imap_deletemailbox($mails, $host.$mbox);
