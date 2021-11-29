@@ -258,7 +258,7 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_footer.php"
 
  // 상단 체크박스 클릭시 전체선택/해제 설정
  function check_all(chk_all) {
-   if(chk_all.checked) {
+   if(this.checked) {
      $('.top_button').prop('disabled', false);
      $('input[type="checkbox"]').prop('checked', true);
    }else {
@@ -269,33 +269,16 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_footer.php"
 
  // 체크박스 하나 클릭시
  $('input[name="chk"]').on('click', function(){
+   if(this.checked) $('.top_button').prop('disabled', false)
+    else $('.top_button').prop('disabled', 'disabled');
    chk_cnt = $('input[name="chk"]').length;
    if($('input[name="chk"]:checked').length == chk_cnt) {
-
+     $('#total').prop('checked', true);
    }else {
-
+     $('#total').prop('checked', false);
    }
-   alert(length);
  })
 
-
-
- // 체크박스 하나 클릭시
- function check_one() {
-   let checked = false;
-   let top_buttons = document.getElementsByClassName('top_button');
-   for(var i=0; i<document.frm.length; i++) {
-    if(document.frm[i].checked) {
-      for(var i = 0; i < top_buttons.length; i++ ){
-        top_buttons[i].disabled = false;
-      }
-      checked = true;
-    }
-   }
-   if(!checked)
-    for(var i = 0; i < top_buttons.length; i++ )  top_buttons[i].disabled = "disabled";
-   //  if(document.frm[i].name == 'checkbox') document.frm[i].checked = chk_all.checked;
- };
 
  // 중요메일 체크
  function starClick(ths) {

@@ -33,12 +33,19 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
 
     <br><br>
     <div class="" align="left" style="margin-left: 45px">
-      <?php if(count($mbox_info) == 5) {?>
-      <button type="button" name="button" onclick="add_mybox()">내메일함 추가</button>
-      <?php }else { ?>
-      새 메일함 &nbsp;<input type="text" id="new_mbox" value="">
+      <select class="top_button" id="selected_box" style="background-color: #F0F0F0; height: 25px;">
+        <option value="">메일함 추가</option>
+        <?php
+          $my_mbox_cnt = count($mbox_info)-5;
+          for($i=5; $i<5+$my_mbox_cnt; $i++) {
+        ?>
+            <option value= "<?php echo $mbox_info[$i]['boxname_kor']?>"><?php echo $mbox_info[$i]['boxname_kor']?></option>";
+        <?php
+          }
+         ?>
+      </select>
+      <input type="text" id="new_mbox" style="width: 60px">
       <button type="button" name="button" onclick="add_mailbox()">추가</button>
-      <?php } ?>
     </div>
     <br>
     <table width="87%">
@@ -90,32 +97,30 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
       <tr align="center">
         <td>휴지통</td>
         <td><?php echo $mbox_info[4]["unseen_cnt"].'/'.$mbox_info[4]["mails_cnt"];?></td>
-        <td><span onclick="del_ever();" style="cursor: pointer">완전삭제</span><span class="pipe">|</span><span onclick="set_seen('지운 편지함');" style="cursor: pointer">모두 읽음</span></td>
+        <td><span onclick="del_ever();" style="cursor: pointer">비우기</span><span class="pipe">|</span><span onclick="set_seen('지운 편지함');" style="cursor: pointer">모두 읽음</span></td>
       </tr>
       <tr>
         <td colspan="4" style="border-bottom: 2px solid lightgray; "></td>
       </tr>
       <?php
-        $my_mbox_cnt = count($mbox_info)-6;
-        if($my_mbox_cnt == 0) {
+        $my_mbox_cnt = count($mbox_info)-5;
+        for($i=5; $i<5+$my_mbox_cnt; $i++) {
        ?>
-         <!-- 0 -->
-         <tr align="center">
-           <td rowspan="1">내메일함</td>
-         </tr>
-         <tr>
-           <td colspan="4" style="border-bottom: 2px solid lightgray; "></td>
-         </tr>
-       <?php } ?>
 
-       <?php if($my_mbox_cnt == 1) { ?>
-         <!-- 1 -->
+         <!-- subfolder가 없을경우  제일 끝놈을 따로 뺴서 처리?-->
+         <?php
+          if(strpos($mbox_info[$i]["boxname_kor"], '.') == null) {
+
+          ?>
          <tr align="center">
-           <td rowspan="1">내메일함</td>
-           <td><?php echo substr($mbox_info[6]["boxname_kor"], 13) ?></td>
-           <td><?php echo $mbox_info[6]["unseen_cnt"].'/'.$mbox_info[6]["mails_cnt"];?></td>
+           <td rowspan="1"><?php echo $mbox_info[$i]["boxname_kor"] ?></td>
+           <td></td>
+           <td><?php echo $mbox_info[$i]["unseen_cnt"].'/'.$mbox_info[$i]["mails_cnt"];?></td>
            <td>
-             <span onclick="del_trash('<?php echo $mbox_info[6]["boxname_kor"] ?>');" style="cursor: pointer">비우기</span><span class="pipe">|</span><span onclick="set_seen('<?php echo $mbox_info[6]["boxname_kor"] ?>');" style="cursor: pointer">모두 읽음</span><span class="pipe">|</span><span onclick="show_modify(this, 6)" style="cursor: pointer">수정</span><span class="pipe">|</span><span onclick="del_mailbox('<?php echo $mbox_info[6]["boxname_kor"] ?>');" style="cursor: pointer">삭제</span>
+             <span onclick="del_trash('<?php echo $mbox_info[$i]["boxname_kor"] ?>');" style="cursor: pointer">비우기 </span><span class="pipe">|</span>
+             <span onclick="set_seen('<?php echo $mbox_info[$i]["boxname_kor"] ?>');" style="cursor: pointer">모두 읽음 </span><span class="pipe">|</span>
+             <span onclick="show_modify(this, <?php echo $i; ?>)" style="cursor: pointer">수정 </span><span class="pipe">|</span>
+             <span onclick="del_mailbox('<?php echo $mbox_info[$i]["boxname_kor"] ?>');" style="cursor: pointer">삭제</span>
              <div style="display: none; border: solid 1px silver; border-radius: 7px; margin: 8px; text-align: left; font-size: 0.7em; padding: 5px 20px; line-height: 20px; width: 250px">
                <table>
                  <tr>
@@ -125,15 +130,15 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
                  </tr>
                  <tr>
                    <td>기존메일함</td>
-                   <td><span id="old_modify_6"><?php echo substr($mbox_info[6]["boxname_kor"], 13) ?></span></td>
+                   <td><span id="old_modify_<?php echo $i;?>"><?php echo $mbox_info[$i]["boxname_kor"] ?></span></td>
                    <td rowspan="2">
-                     <button onclick="modify_mbox(6)" style="width: 38px; font-size: 0.4em">수정</button>
-                     <button onclick="modify_close(6)" style="width: 38px; font-size: 0.4em">취소</button>
+                     <button onclick="modify_mbox(<?php echo $i;?>)" style="width: 38px; font-size: 0.4em">수정</button>
+                     <button onclick="modify_close(<?php echo $i;?>)" style="width: 38px; font-size: 0.4em">취소</button>
                    </td>
                  </tr>
                  <tr>
                    <td>새메일함</td>
-                   <td><input type="text" id="new_modify_6" style="width:60px"></td>
+                   <td><input type="text" id="new_modify_<?php echo $i;?>" style="width:60px"></td>
                  </tr>
                </table>
              </div>
@@ -142,97 +147,35 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
          <tr>
            <td colspan="4" style="border-bottom: 2px solid lightgray; "></td>
          </tr>
-       <?php } ?>
-
-       <?php if($my_mbox_cnt >= 2) { ?>
-         <tr align="center">
-           <td rowspan="<?php echo(1 + 2*($my_mbox_cnt-1)) ?>">내메일함</td>
-           <td><?php echo substr($mbox_info[6]["boxname_kor"], 13) ?></td>
-           <td><?php echo $mbox_info[6]["unseen_cnt"].'/'.$mbox_info[6]["mails_cnt"];?></td>
-           <td>
-             <span onclick="del_trash('<?php echo $mbox_info[6]["boxname_kor"] ?>');" style="cursor: pointer">비우기</span><span class="pipe">|</span><span onclick="set_seen('<?php echo $mbox_info[6]["boxname_kor"] ?>');" style="cursor: pointer">모두 읽음</span><span class="pipe">|</span><span onclick="show_modify(this, 6)" style="cursor: pointer">수정</span><span class="pipe">|</span><span onclick="del_mailbox('<?php echo $mbox_info[6]["boxname_kor"] ?>');" style="cursor: pointer">삭제</span>
-             <div style="display: none; border: solid 1px silver; border-radius: 7px; margin: 8px; text-align: left; font-size: 0.7em; padding: 5px 20px; line-height: 20px; width: 250px">
-               <table>
-                 <tr>
-                   <td width="30%"></td>
-                   <td width="54%"></td>
-                   <td width="*"></td>
-                 </tr>
-                 <tr>
-                   <td>기존메일함</td>
-                   <td><span id="old_modify_6"><?php echo substr($mbox_info[6]["boxname_kor"], 13) ?></span></td>
-                   <td rowspan="2">
-                     <button onclick="modify_mbox(6)" style="width: 38px; font-size: 0.4em">수정</button>
-                     <button onclick="modify_close(6)" style="width: 38px; font-size: 0.4em">취소</button>
-                   </td>
-                 </tr>
-                 <tr>
-                   <td>새메일함</td>
-                   <td><input type="text" id="new_modify_6" style="width:60px"></td>
-                 </tr>
-               </table>
-             </div>
-           </td>
-         </tr>
-         <?php for($i=7; $i<count($mbox_info); $i++) { ?>
-             <tr>
-               <td colspan="3" style="border-bottom: 2px solid lightgray; "></td>
-             </tr>
-             <tr align="center">
-               <td><?php echo substr($mbox_info[$i]["boxname_kor"], 13) ?></td>
-               <td><?php echo $mbox_info[$i]["unseen_cnt"].'/'.$mbox_info[$i]["mails_cnt"];?></td>
-               <td>
-                 <span onclick="del_trash('<?php echo $mbox_info[$i]["boxname_kor"] ?>');" style="cursor: pointer">비우기</span><span class="pipe">|</span><span onclick="set_seen('<?php echo $mbox_info[$i]["boxname_kor"] ?>');" style="cursor: pointer">모두 읽음</span><span class="pipe">|</span><span onclick="show_modify(this, <?php echo $i; ?>)" style="cursor: pointer">수정</span><span class="pipe">|</span><span onclick="del_mailbox('<?php echo $mbox_info[$i]["boxname_kor"] ?>');" style="cursor: pointer">삭제</span>
-                 <div style="display: none; border: solid 1px silver; border-radius: 7px; margin: 8px; text-align: left; font-size: 0.7em; padding: 5px 20px; line-height: 20px; width: 250px">
-                   <table>
-                     <tr>
-                       <td width="30%"></td>
-                       <td width="54%"></td>
-                       <td width="*"></td>
-                     </tr>
-                     <tr>
-                       <td>기존메일함</td>
-                       <td><span id="old_modify_<?php echo $i; ?>"><?php echo substr($mbox_info[$i]["boxname_kor"], 13) ?></span></td>
-                       <td rowspan="2">
-                         <button onclick="modify_mbox(<?php echo $i; ?>)" style="width: 38px; font-size: 0.4em">수정</button>
-                         <button onclick="modify_close(<?php echo $i; ?>)" style="width: 38px; font-size: 0.4em">취소</button>
-                       </td>
-                     </tr>
-                     <tr>
-                       <td>새메일함</td>
-                       <td><input type="text" id="new_modify_<?php echo $i; ?>" style="width:60px"></td>
-                     </tr>
-                   </table>
-                 </div>
-               </td>
-             </tr>
-         <?php } ?>
-         <tr>
-           <td colspan="4" style="border-bottom: 2px solid lightgray; "></td>
-         </tr>
-       <?php } ?>
-
+       <?php }
+            } ?>
     </table>
 
+    <br>
     <pre align="left">
-      <?php // var_dump($mbox_info); ?>
+      메일함수: <?php echo count($mbox_info)-5 ?>
+      <br>
+      <?php var_dump($mbox_info[5]); ?>
+      <?php var_dump($mbox_info[6]); ?>
+      <?php // var_dump($mbox_info[7]); ?>
     </pre>
 </div>
 
 <script type="text/javascript">
 
   function show_modify(ths, i) {
-    let divTag = ths.parentNode.childNodes[9];
+    let divTag = ths.parentNode.childNodes[12];
     divTag.id = 'mbox_modify_' + i;
     $('#'+divTag.id)[0].style.display = "block";
+
     // divTag.style.display = "block";
   }
 
   function modify_mbox(i) {
     old_mbox = $('#old_modify_'+i).text();
     new_mbox = $('#new_modify_'+i).val();
-    old_mbox = '내메일함.' + old_mbox;
-    new_mbox = '내메일함.' + new_mbox;
+    // old_mbox = '내메일함.' + old_mbox;
+    // new_mbox = '내메일함.' + new_mbox;
     $.ajax({
       url: "<?php echo site_url(); ?>/option/rename_mailbox",
       type : "post",
@@ -251,29 +194,21 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
     divTag.style.display = "none";
   }
 
-  function add_mybox() {
-      $.ajax({
-        url: "<?php echo site_url(); ?>/option/add_mybox",
-        success: function (res) {
-          if(res=='o')  alert("내메일함이 생성되었습니다.");
-          else  alert("내메일함 생성 실패");
-          location.reload();
-        }
-      });
-  }
-
   function add_mailbox() {
-      new_mbox = $('#new_mbox').val();
-      $.ajax({
-        url: "<?php echo site_url(); ?>/option/add_mailbox",
-        type : "post",
-        data : {mbox: new_mbox},
-        success: function (res) {
-          if(res=='o')  alert("메일함 [" + new_mbox + "] 생성완료");
-          else  alert("메일함 생성 실패");
-          location.reload();
-        }
-      });
+    const s = document.getElementById('selected_box');
+    const parent_mbox = s.options[s.selectedIndex].value;
+    let new_mbox = $('#new_mbox').val();
+    if(parent_mbox != "")  new_mbox = parent_mbox + '.' + new_mbox;
+    $.ajax({
+      url: "<?php echo site_url(); ?>/option/add_mailbox",
+      type : "post",
+      data : {mbox: new_mbox},
+      success: function (res) {
+        if(res=='o')  alert("메일함 [" + new_mbox + "] 생성완료");
+        else  alert("메일함 생성 실패");
+        location.reload();
+      }
+    });
   }
 
   function del_mailbox(mbox) {

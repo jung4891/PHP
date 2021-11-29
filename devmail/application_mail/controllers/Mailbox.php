@@ -102,7 +102,7 @@ class Mailbox extends CI_Controller {
     $mailserver = $this->mailserver;
     $folders = imap_list($mails, "{" . $mailserver . "}", '*');
     $folders = str_replace("{" . $mailserver . "}", "", $folders);
-    sort($folders);
+    // sort($folders);
 
     // 인덱스 초기화
     $folders_sorted = array();
@@ -117,7 +117,7 @@ class Mailbox extends CI_Controller {
       elseif($f == "&x4TC3A- &vPStANVo-") continue;
       elseif($f == "&yBXQbA- &ulTHfA-") continue;
       elseif($f == "&ycDGtA- &07jJwNVo-") continue;
-      array_push($folders_sorted, $f);  
+      array_push($folders_sorted, $f);
     }
     return $folders_sorted;
   }

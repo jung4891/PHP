@@ -44,7 +44,7 @@ class Option extends CI_Controller {
 			$mailserver = $this->mailserver;
 			$folders_tmp = imap_list($mails, "{" . $mailserver . "}", '*');
 			$folders_tmp = str_replace("{" . $mailserver . "}", "", $folders_tmp);
-			sort($folders_tmp);
+			// sort($folders_tmp);
 
 			$folders = array();
 			$folders[0] = "INBOX";
@@ -96,17 +96,7 @@ class Option extends CI_Controller {
 		function mailbox() {
 			$mbox_info = $this->get_mbox_info();
 			$data['mbox_info'] = $mbox_info;
-			$this->load->view('mailbox/mailbox_set', $data);
-		}
-
-		function add_mybox() {
-			$mails= $this->connect_mailserver();
-			$mailserver = $this->mailserver;
-			$host = "{" . $mailserver . ":143/imap/novalidate-cert}";
-			$encoded = mb_convert_encoding("내메일함", 'UTF7-IMAP', 'UTF-8');
-			$create = imap_createmailbox($mails, $host.$encoded);
-			if($create) echo "o"; else echo "x";
-			imap_close($mails);
+			$this->load->view('mailbox/mbox_setting', $data);
 		}
 
 		function add_mailbox() {
@@ -114,7 +104,7 @@ class Option extends CI_Controller {
 			$mails= $this->connect_mailserver();
 			$mailserver = $this->mailserver;
 			$host = "{" . $mailserver . ":143/imap/novalidate-cert}";
-			$encoded = mb_convert_encoding('내메일함.'.$new_mbox, 'UTF7-IMAP', 'UTF-8');
+			$encoded = mb_convert_encoding("$new_mbox", 'UTF7-IMAP', 'UTF-8');
 			$create = imap_createmailbox($mails, $host.$encoded);
 			if($create) echo "o"; else echo "x";
 			imap_close($mails);

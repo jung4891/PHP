@@ -57,6 +57,8 @@
     } else {
       echo '222 <br>';
     }
+    var_dump(0 == null);             // bool(true)
+    var_dump(0 === null);            // bool(false)
     echo '<br>';
 
     // substr_count(전체 문자열, 찾을 문자) : 특정 문자가 몇번 나왔는지 반환
@@ -64,8 +66,9 @@
     echo $cnt.'<br>';   // 2
 
     echo '<br>';
-    // substr(대상 문자열, 자르기 시작위치, 자를 문자열 수)
+    // substr(대상 문자열, 자르기 시작위치, 자를 문자열 수(한글은 3개 먹음..))
     $str = "abcde";
+    echo $str[1].'<br>';      // b
     $cutStr = substr($str, 2);
     echo $cutStr.'<br>';      // cde (인덱스2부터 쫙 출력)
     $cutStr = substr($str, 2, 2);
@@ -76,6 +79,11 @@
     echo $cutStr.'<br><br>';  // cd
     $cutStr = substr($str, 1, -1);    // 제일 뒤가 -1
     echo $cutStr.'<br><br>';  // bcd (인덱스1부터 인덱스-1 앞까지. 중간부분 출력시)
+    $str = "가나.다라";
+    $cutStr = substr($str, 0, 6);   // 가나 (한글은 3바이트로. 이런식으로 해야 출력됨.)
+    echo strpos($str, ".").'<br>';  // 6
+    echo $str[6].'<br>';            // .
+    echo $cutStr.'<br><br>';
 
     // str_replace('치환할 문자열', '대체할 문자열', 대상 문자열변수)
     $str = "welcome to korea!";

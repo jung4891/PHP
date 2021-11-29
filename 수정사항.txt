@@ -1,0 +1,1 @@
+Mailbox.php > get_folder()에서 105라인 (sort($folders);) 주석
