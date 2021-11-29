@@ -75,7 +75,7 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
         <!-- <th>U</th> -->
         <!-- <th>No</th> -->
         &nbsp;
-        <input type="checkbox" onClick="check_all(this);">
+        <input type="checkbox" id="total" onClick="check_all(this);">
         &nbsp;
         <?php if($mbox == "&ycDGtA- &07jJwNVo-") {  // 휴지통 ?>
         <button type="button" class="top_button" onclick="del_ever();" disabled="disabled">영구삭제</button>
@@ -144,7 +144,7 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
           <?php }else { ?>
           &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
           <?php } ?>
-          <input type="checkbox" name="checkbox" onClick="check_one();" value=<?php echo $msg_no;?>>
+          <input type="checkbox" name="chk" value=<?php echo $msg_no;?>>
           &nbsp;
           <a href="javascript:void(0);" onclick="starClick(this); " >
             <?php if($head[$mailno_arr[$i]]->Flagged == "F") {?>
@@ -258,13 +258,27 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_footer.php"
 
  // 상단 체크박스 클릭시 전체선택/해제 설정
  function check_all(chk_all) {
-   let top_buttons = document.getElementsByClassName('top_button');
-   for(var i = 0; i < top_buttons.length; i++ ){
-     top_buttons[i].disabled = (chk_all.checked)? false : "disabled";
+   if(chk_all.checked) {
+     $('.top_button').prop('disabled', false);
+     $('input[type="checkbox"]').prop('checked', true);
+   }else {
+     $('.top_button').prop('disabled', "disabled");
+     $('input[type="checkbox"]').prop('checked', false);
    }
-   for(var i=0; i<document.frm.length; i++)
-    if(document.frm[i].name == 'checkbox') document.frm[i].checked = chk_all.checked;
  };
+
+ // 체크박스 하나 클릭시
+ $('input[name="chk"]').on('click', function(){
+   chk_cnt = $('input[name="chk"]').length;
+   if($('input[name="chk"]:checked').length == chk_cnt) {
+
+   }else {
+
+   }
+   alert(length);
+ })
+
+
 
  // 체크박스 하나 클릭시
  function check_one() {
