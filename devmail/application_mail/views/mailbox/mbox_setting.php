@@ -358,6 +358,7 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
     const parent_mbox = s.options[s.selectedIndex].value;
     let new_mbox = $('#new_mbox').val();
     if(parent_mbox != "")  new_mbox = parent_mbox + '.' + new_mbox;
+    alert(new_mbox);
     $.ajax({
       url: "<?php echo site_url(); ?>/option/add_mailbox",
       type : "post",
