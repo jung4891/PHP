@@ -87,7 +87,6 @@ class Option extends CI_Controller {
 				// $quota = imap_get_quotaroot($mails, "inbox");				// 현재 사용자의 메일사용량/총할당량 (KB)
 				// $quota = imap_get_quota($mails, "user.inbox");		   	// imap메일 관리자 가능
 				// $mbox_info["quota"] = $quota;
-
 			}
 			imap_close($mails);
 			return $mbox_info;
@@ -95,6 +94,8 @@ class Option extends CI_Controller {
 
 		function mailbox() {
 			$mbox_info = $this->get_mbox_info();
+			$length = count($mbox_info);
+			$mbox_info[$length]['boxname_kor'] = "";		// 메일함 관리에서 배열 마지막 임시데이터
 			$data['mbox_info'] = $mbox_info;
 			$this->load->view('mailbox/mbox_setting', $data);
 		}

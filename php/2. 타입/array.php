@@ -21,7 +21,7 @@
 
     // 3) =>로 값을 추가
     $country = array('name2' => 'korea2', 1 => '테스트1');    // 초기화되면서 값 들어감
-    echo $country['name2'].' '.$country['1'].'<br>';         // korea2 테스트1
+    echo $country['name2'].' '.$country['1'].'<br>';         // korea2 테스트1 ('1'이나 1이나 결국 인덱스는 1로 됨)
 
     // 4) 값으로 배열을 선언
     $country['nation'] = array();
@@ -81,6 +81,8 @@
     $arr = ['a', 'b', 'c'];
     unset($arr[1]);
     print_r($arr);          // [0] => a [2] => c
+    unset($arr);
+    print_r($arr);          // $arr이 아예 사라져서 undefined뜸
     echo '<br>';
 
     // 3) array_splice(삭제될 배열, 삭제 시작 인덱스, [개수, 추가할 배열] ) : 자동으로 키(인덱스)를 다시 색인화함
@@ -94,6 +96,13 @@
     $arr1 = ['a', 'b'];
     $arr = array_diff($arr, $arr1, array('d'), ['e']);
     print_r($arr);    // [2] => c  (역시나 인덱스는 변하지 않음)
+    echo '<br>';
+    // +
+    var_dump(isset($arr['test']));    // false
+    echo '<br>';
+    $arr['test'] = array();
+    var_dump(isset($arr['test']));    // true
+    echo gettype($arr['test']);       // array
     echo '<br><br><hr>';
 
 

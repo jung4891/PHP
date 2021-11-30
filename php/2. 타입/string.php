@@ -128,6 +128,16 @@
     <?php
     echo "aaa<br>bbb";    // 브라우저는 개행되고 소스코드보기에선 <br>로 보임
     echo '5'+'5';         // 10임
+    echo '<br><br>';
+
+    var_dump('a' == 'a');   // true
+    var_dump('a' === 'a');  // true
+    var_dump('a' != 'a');   // false
+    var_dump('a' !== 'a');  // false
+    var_dump('1' == 1);     // true
+    var_dump('1' === 1);    // false
+    var_dump('1' != 1);     // false
+    var_dump('1' !== 1);    // true
      ?>
 
 </body>
