@@ -32,7 +32,7 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
     </form>
 
     <br><br>
-    <div class="" align="left" style="margin-left: 45px">
+    <div class="" align="left" style="margin-left: 45px;">
       <select class="top_button" id="selected_box" style="background-color: #F0F0F0; height: 25px;">
         <option value="">메일함 추가</option>
         <?php
@@ -44,15 +44,15 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
           }
          ?>
       </select>
-      <input type="text" id="new_mbox" style="width: 60px">
+      <input type="text" id="new_mbox" style="width: 70px; height: 19px"> &nbsp;
       <button type="button" name="button" onclick="add_mailbox()">추가</button>
-    </div>
-    <br>
-    <table width="87%">
+
+    <br><br>
+    <table style="width: 95%;">
       <colgroup>
-        <col width="15%">
-        <col width="25%">
+        <col width="12%">
         <col width="20%">
+        <col width="17%">
         <col width="40%">
       </colgroup>
       <tr style="background-color: lightgray; height: 30px;">
@@ -298,14 +298,9 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
 
     } // for
 
-
-
-
-
-
       ?>
     </table>
-
+    </div>
 
     <br>
     <!-- <pre align="left">
@@ -358,7 +353,6 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
     const parent_mbox = s.options[s.selectedIndex].value;
     let new_mbox = $('#new_mbox').val();
     if(parent_mbox != "")  new_mbox = parent_mbox + '.' + new_mbox;
-    alert(new_mbox);
     $.ajax({
       url: "<?php echo site_url(); ?>/option/add_mailbox",
       type : "post",

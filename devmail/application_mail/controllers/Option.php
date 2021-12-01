@@ -44,7 +44,7 @@ class Option extends CI_Controller {
 			$mails= $this->connect_mailserver();
 			$mailserver = $this->mailserver;
 			$folders_tmp = imap_list($mails, "{" . $mailserver . "}", '*');
-			var_dump($folders_tmp);
+			// var_dump($folders_tmp);
 			$folders_tmp = str_replace("{" . $mailserver . "}", "", $folders_tmp);
 			// sort($folders_tmp);
 
@@ -106,7 +106,8 @@ class Option extends CI_Controller {
 			$new_mbox = $this->input->post('mbox');
 			$mails= $this->connect_mailserver();
 			$mailserver = $this->mailserver;
-			$host = "{" . $mailserver . ":143/imap/novalidate-cert}";
+			$host = "{" . $mailserver . ":143/imap/novalidate-cert}";	// 100서버
+			// $host = "{" . $mailserver . "}";			// 50서버
 			$encoded = mb_convert_encoding("$new_mbox", 'UTF7-IMAP', 'UTF-8');
 			$create = imap_createmailbox($mails, $host.$encoded);
 			if($create) echo "o"; else echo "x";

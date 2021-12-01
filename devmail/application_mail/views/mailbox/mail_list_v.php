@@ -16,73 +16,29 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
 <div id="main_contents" style="margin:unset;">
   <div class="main_div" >
   <!-- <?php // echo $test_msg; ?> <br><br> -->
-  <table border="0" width="98%" style="border-spacing: 7px;">
+  <table border="0" width="98%" style="border-spacing: 6px;">
     <colgroup>
-      <col width="12%" >
-      <col width="25%" >
+      <col width="1%" >
+      <col width="1%" >
+      <col width="6%" >
+      <col width="28%" >
       <col width="*" >
       <col width="5%" >
       <col width="5%" >
     </colgroup>
     <thead>
+      <br>
       <tr>
-        <div style="display: inline-block; width: 210px; height: 35px; position: relative; top: 10px; left: 10px; border: solid 1px lightgray;">
-          <input type="text" style="outline: none; margin: 5px; margin-left: 10px; width: 77%; height: 25px; border: none; color: green; font-weight: bold; font-size:1em" >
-          <a href="javascript:void(0)" onclick="search_mail(this);">
-          <img style="width: 20px; position: relative; top:5px " src="/devmail/misc/img/icon/search.png" alt="">
-          </a>
-        </div>
-        <!-- <div class="" style="display: inline-block; cursor: pointer; width: 65px; height: 35px; position: relative; top: 5px; left: 9px; border: solid 1px lightgray; background-color: rgb(220,220,220); text-align: center">
-          <a onclick="search_detail();" style="position: relative; top: 5px; font-weight: 300; color: grey">
-            상세 <img style="width: 11px; position: relative; top:2px " src="/devmail/misc/img/icon/detail.png" alt="">
-          </a>
-        </div>
-        <div class="modal">
-          <div class="modal_content" title="">
-            <div class="" style="margin-left: 300px">
-              <button type="button" name="button" id="modal_form_close"
-              style=" border: none; background-color: inherit; font-size: 1em;" >X</button>
-            </div>
-            <form class="" name="modal_form" action="<?php echo site_url(); ?>/mailbox/mail_list" method="get">
-              <input type="hidden" name="boxname" value="<?php echo $mbox ?>" >
-              <input type="hidden" name="type" value="search" >
-              <div class="">
-                <div class="" style="float: left; width: 13%; margin-left: 30px">
-                  제목
-                </div>
-                <div class="" style="width: 90%">
-                  <input type="text" name="subject" value="" style="height: 1.5em">
-                </div>
-              </div>
-              <br>
-              <div class="">
-                <div class="" style="float: left; width: 13%; margin-left: 30px">
-                  내용
-                </div>
-                <div class="" style="width: 90%">
-                  <input type="text" name="contents" value="" style="height: 1.5em">
-                </div>
-              </div>
-              <br><br>
-              <button type="submit" id="modal_form_submit" style="width: 70px; font-size: 1.1em">검색</button>
-            </form>
-            <br><br>
-          </div>
-        </div>-->
-        <br><br>
-      </tr>
-      <tr>
-        <!-- <th>U</th> -->
-        <!-- <th>No</th> -->
-        &nbsp;
+        <td></td>
+        <td>
         <input type="checkbox" id="total" onClick="check_all(this);">
-        &nbsp;
+        </td>
+        <td colspan="2">
         <?php if($mbox == "&ycDGtA- &07jJwNVo-") {  // 휴지통 ?>
         <button type="button" class="top_button" onclick="del_ever();" disabled="disabled">영구삭제</button>
         <?php }else {?>
-        <button type="button" class="top_button" onclick="del_trash();" disabled="disabled">삭제</button>
+        <button type="button" class="top_button" onclick="del_trash();" disabled="disabled" style="height: 25px;">삭제</button>
         <?php } ?>
-
         &nbsp;&nbsp;
         <select class="top_button" id="selected_box" style="background-color: #F0F0F0; height: 25px;" disabled="disabled" >
           <option value="">이동할 메일함</option>
@@ -92,19 +48,65 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
             }
           ?>
         </select>
-        &nbsp;&nbsp;
-        <button type="button" class="top_button" onclick="move();" disabled="disabled">이동</button>
+        <button type="button" class="top_button" onclick="move();" disabled="disabled" style="height: 25px;">이동</button>
+        </td>
+        <td colspan="2">
+          <div style="display: inline-block; width: 180px; height: 25px;  border: solid 1px lightgray;">
+            <input type="text" style="outline: none; margin: 3px; margin-left: 6px; width: 77%; height: 20px; border: none; color: green; font-weight: bold; font-size:1em" >
+            <a href="javascript:void(0)" onclick="search_mail(this);">
+            <img style="width: 17px; position: relative; top:3px " src="/devmail/misc/img/icon/search.png" alt="">
+            </a>
+          </div>
 
-        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          <!-- <div class="" style="display: inline-block; cursor: pointer; width: 65px; height: 35px; position: relative; top: 5px; left: 9px; border: solid 1px lightgray; background-color: rgb(220,220,220); text-align: center">
+            <a onclick="search_detail();" style="position: relative; top: 5px; font-weight: 300; color: grey">
+              상세 <img style="width: 11px; position: relative; top:2px " src="/devmail/misc/img/icon/detail.png" alt="">
+            </a>
+          </div>
+          <div class="modal">
+            <div class="modal_content" title="">
+              <div class="" style="margin-left: 300px">
+                <button type="button" name="button" id="modal_form_close"
+                style=" border: none; background-color: inherit; font-size: 1em;" >X</button>
+              </div>
+              <form class="" name="modal_form" action="<?php echo site_url(); ?>/mailbox/mail_list" method="get">
+                <input type="hidden" name="boxname" value="<?php echo $mbox ?>" >
+                <input type="hidden" name="type" value="search" >
+                <div class="">
+                  <div class="" style="float: left; width: 13%; margin-left: 30px">
+                    제목
+                  </div>
+                  <div class="" style="width: 90%">
+                    <input type="text" name="subject" value="" style="height: 1.5em">
+                  </div>
+                </div>
+                <br>
+                <div class="">
+                  <div class="" style="float: left; width: 13%; margin-left: 30px">
+                    내용
+                  </div>
+                  <div class="" style="width: 90%">
+                    <input type="text" name="contents" value="" style="height: 1.5em">
+                  </div>
+                </div>
+                <br><br>
+                <button type="submit" id="modal_form_submit" style="width: 70px; font-size: 1.1em">검색</button>
+              </form>
+              <br><br>
+            </div>
+          </div>-->
+        </td>
+        <td>
         <select onchange="mails_cnt(this);" style="background-color: #F0F0F0; height: 25px" >
           <option value="">보기설정</option>
           <option value="10">10개</option>
           <option value="20">20개</option>
           <option value="30">30개</option>
         </select>
+        </td>
       </tr>
       <tr>
-        <td colspan="6" style="border-bottom: 2px solid lightgray; "></td>
+        <td colspan="7" style="border-bottom: 2px solid lightgray; "></td>
       </tr>
     </thead>
     <tbody>
@@ -113,7 +115,7 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
       for($i=$start_row; $i<$start_row+$per_page; $i++) {
         if (isset($mailno_arr[$i])) {
       ?>
-      <tr>
+      <tr style="border-spacing: 1px">
         <?php
         // 발신자 이름 or 메일주소 가져오기
         /*
@@ -140,12 +142,14 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
         <td>
           <!-- 메일크기로 첨부파일 유무 파악 -->
           <?php if($head[$mailno_arr[$i]]->Size > 30000) { ?>
-          <img src="/devmail/misc/img/icon/attachment.png" alt="ss" style="margin-top: 10px">
+          <img src="/devmail/misc/img/icon/attachment.png" alt="ss" style="margin-bottom: -6px; ">
           <?php }else { ?>
-          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
           <?php } ?>
+        </td>
+        <td>
           <input type="checkbox" name="chk" value=<?php echo $msg_no;?>>
-          &nbsp;
+        </td>
+        <td>
           <a href="javascript:void(0);" onclick="starClick(this); " >
             <?php if($head[$mailno_arr[$i]]->Flagged == "F") {?>
               <img class="fullStar" src="/devmail/misc/img/icon/star2.png" alt="" width="15px">
@@ -178,7 +182,7 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_side.php";
         <td style="color: darkgray; font-weight: 400; padding-left: 20px"><?php echo $size ?></td>
       </tr>
       <tr>
-        <td colspan="6" style="border-bottom: 2px solid lightgray; "></td>
+        <td colspan="7" style="border-bottom: 2px solid lightgray; "></td>
       </tr>
       <?php
         } // if
@@ -279,17 +283,16 @@ include $this->input->server('DOCUMENT_ROOT')."/devmail/include/mail_footer.php"
    }
  })
 
-
  // 중요메일 체크
  function starClick(ths) {
    let childNodes = ths.childNodes;
    let imgTag = childNodes[1];
    let className = imgTag.className;
    if(className == "emptyStar") {
-     imgTag.src = "/devmail/misc/img/btn/star2.png";
+     imgTag.src = "/devmail/misc/img/icon/star2.png";
      imgTag.className = "fullStar";
    }else {
-     imgTag.src = "/devmail/misc/img/btn/star1.png";
+     imgTag.src = "/devmail/misc/img/icon/star1.png";
      imgTag.className = "emptyStar";
    }
 
