@@ -59,6 +59,15 @@ $reply_cc_input = address_text($mail_info["cc"]);
        </tr>
        <tr>
          <td><span>보낸사람 </span>
+           <?php
+            // 보낸사람에서 ks_c_5601-1987 출력 애러 제거
+            if(strpos($mail_info["from"]["email"], 'ks_c_5601-1987')) {
+              $target = substr($mail_info["from"]["email"], 0, strpos($mail_info["from"]["email"], '?=')+2);
+              $rest = substr($mail_info["from"]["email"], strpos($mail_info["from"]["email"], '?=')+2);
+              $target = imap_utf8($target);
+              $mail_info["from"]["email"] = $target.$rest;
+            };
+            ?>
            <span id="from_td"><?php echo $mail_info["from"]["name"]."&lt;".$mail_info["from"]["email"]."&gt;"; ?></span>
          </td>
        </tr>

@@ -671,7 +671,6 @@ class Mailbox extends CI_Controller {
     $attachments = '';    // 첨부파일 부분 담을 변수
     if (isset($struct->parts)) {
       $flattenedParts = $this->flattenParts($struct->parts);  // 메일구조 평면화
-
       foreach($flattenedParts as $partNumber => $part) {
        switch($part->type) {
          case 0:    // the HTML or plain text part of the email
@@ -722,11 +721,16 @@ class Mailbox extends CI_Controller {
       $data['contents'] = $contents;
       $data['attachments'] = $attachments;
     } else {
-      // Microsoft Office Outlook 테스트 메시지	( 2021/09/03 11:04 )는
-      // parts가 없고 html만 있어서 제어문 처리함
-      // + [전자결재]결재문서 최종 승인 메일은 역시 parts가 없는데 base64로 디코딩됨
-      $contents = $this->getPart($mails, $msg_no, 1, $struct->encoding, $struct->parameters[0]->value);
-      $data['contents'] = $contents;
+      // MS-TNEF는 MAPI 메시지 속성을 캡슐화하기 위한 Microsoft 관련 형식. 일단 오류메시지 제거.
+      if($struct->subtype == "MS-TNEF") {
+        $data['contents'] = '메시지가 전부 또는 일부 받는 사람에게 도착하지 않았습니다.';
+      } else {
+        // Microsoft Office Outlook 테스트 메시지	( 2021/09/03 11:04 )는
+        // parts가 없고 html만 있어서 제어문 처리함
+        // + [전자결재]결재문서 최종 승인 메일은 역시 parts가 없는데 base64로 디코딩됨
+        $contents = $this->getPart($mails, $msg_no, 1, $struct->encoding, $struct->parameters[0]->value);
+        $data['contents'] = $contents;
+      }
       $data['attachments'] = $attachments;
     }
 
@@ -742,9 +746,9 @@ class Mailbox extends CI_Controller {
       // 'message_id'  => $head->message_id,
       'in_reply_to' => isset($head->in_reply_to) ? (string)$head->in_reply_to : '',
       'references'  => isset($head->references) ? explode(' ', $head->references) : array(),
-      'date'        => $head->date,//date('c', strtotime(substr($header->date, 0, 30))),
+      'date'        => isset($head->date) ? $head->date : '',//date('c', strtotime(substr($header->date, 0, 30))),
       'udate'       => (int)$head->udate,
-      'subject'     => imap_utf8($head->subject),
+      'subject'     => isset($head->subject) ? imap_utf8($head->subject) : '(제목 없음)',
       'recent'      => strlen(trim($head->Recent)) > 0,
       'read'        => strlen(trim($head->Unseen)) < 1,
       'answered'    => strlen(trim($head->Answered)) > 0,

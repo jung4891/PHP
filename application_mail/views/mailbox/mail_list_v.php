@@ -120,6 +120,7 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
        ?>
 
       <?php
+
         for($i=$start_row; $i<$start_row+$per_page; $i++) {
           if (isset($mailno_arr[$i])) {
 
@@ -132,7 +133,7 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
         */
         if (isset($head[$mailno_arr[$i]]->from[0])) {
           $from_obj = $head[$mailno_arr[$i]]->from[0];              // 보낸 사람의 이름 또는 메일주소를 얻기위함
-          $from_addr = $from_obj->mailbox.'@'.$from_obj->host;      // hjsong@durianit.co.kr
+          $from_addr = imap_utf8($from_obj->mailbox).'@'.imap_utf8($from_obj->host);      // hjsong@durianit.co.kr
           if (isset($from_obj->personal)) {
             $from_name = imap_utf8($from_obj->personal);            // 송혁중 (이름이 명시되어 있는 메일)
           } else {
@@ -177,15 +178,19 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
         ?>
         <td><a class= <?php echo $unseen ?> onclick="change_href(event, '<?php echo $from_addr; ?>')"
             href="<?php echo site_url(); ?>/mailbox/mail_detail?boxname=<?php echo $mbox2 ?>&mailno=<?php echo $mailno_arr[$i] ?>">
-            <?php echo $from_name; ?></a></td>
+            <?php echo (isset($from_name))? imap_utf8($from_name) : '(이름 없음)' ?></a></td>
         <td><a class=<?php echo $unseen ?> href="<?php echo site_url(); ?>/mailbox/mail_detail?boxname=<?php echo $mbox2 ?>&mailno=<?php echo $mailno_arr[$i] ?>">
             <!-- <?php // echo '<pre>'; var_dump($head[$mailno_arr[$i]]); echo '</pre>';?></a></td> -->
-            <?php echo imap_utf8($head[$mailno_arr[$i]]->subject)?></a></td>
-        <td style="color: darkgray; font-weight: 400;"><?php echo date("y.m.d", $head[$mailno_arr[$i]]->udate)?></td>
+            <?php echo (isset($head[$mailno_arr[$i]]->subject))? imap_utf8($head[$mailno_arr[$i]]->subject) : '(제목 없음)' ?></a></td>
+        <td style="color: darkgray; font-weight: 400;"><?php echo isset($head[$mailno_arr[$i]]->udate)? date("y.m.d", $head[$mailno_arr[$i]]->udate) : '' ?></td>
         <!-- 시, 분은 H:i -->
         <?php
-          $size = round(($head[$mailno_arr[$i]]->Size)/1024, 1);
-          ($size < 1000)? $size .= 'KB' : $size = round($size/1000, 1).'MB';
+          if(isset($head[$mailno_arr[$i]]->Size)) {
+            $size = round(($head[$mailno_arr[$i]]->Size)/1024, 1);
+            ($size < 1000)? $size .= 'KB' : $size = round($size/1000, 1).'MB';
+          } else {
+            $size = '';
+          }
          ?>
         <td style="color: darkgray; font-weight: 400; padding-left: 20px"><?php echo $size ?></td>
       </tr>
