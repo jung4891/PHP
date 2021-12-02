@@ -1,1 +1,7 @@
-Mailbox.php > get_folder()에서 105라인 (sort($folders);) 주석
+
+c
+Option  100   / 배열 마지막 테스트데이터 주석처리
+
+view
+mail_list_v   119 ~     / 메일함에 메일없는경우 메시지 출력
+mbox_setting  55 ~      / 전체메일->받은메일함 변경 및 내메일함 출력변경 

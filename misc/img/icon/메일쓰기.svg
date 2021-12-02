@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="60" height="60" viewBox="0 0 60 60">
+  <defs>
+    <filter id="패스_583" x="0" y="0" width="60" height="60" filterUnits="userSpaceOnUse">
+      <feOffset dy="1" input="SourceAlpha"/>
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feFlood flood-opacity="0.302"/>
+      <feComposite operator="in" in2="blur"/>
+      <feComposite in="SourceGraphic"/>
+    </filter>
+  </defs>
+  <g id="구성_요소_11_58" data-name="구성 요소 11 – 58" transform="translate(6 5)">
+    <g transform="matrix(1, 0, 0, 1, -6, -5)" filter="url(#패스_583)">
+      <path id="패스_583-2" data-name="패스 583" d="M24,0A24,24,0,1,1,0,24,24,24,0,0,1,24,0Z" transform="translate(6 5)" fill="#fff"/>
+    </g>
+    <g id="그룹_1015" data-name="그룹 1015" transform="translate(-12 -114)">
+      <rect id="사각형_1355" data-name="사각형 1355" width="24" height="4" rx="2" transform="translate(24 136)" fill="#0575e6"/>
+      <rect id="사각형_1356" data-name="사각형 1356" width="24" height="4" rx="2" transform="translate(38 126) rotate(90)" fill="#0575e6"/>
+    </g>
+  </g>
+</svg>
