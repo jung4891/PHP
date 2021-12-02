@@ -49,9 +49,12 @@
     $str = "web developer";
     $findStr = 'e';              // 'develop'은 'd'랑 결과가 같다.
     $pos = strpos($str, $findStr);
-    echo '$pos:    '.$pos.'<br>';   // 1  (뒤에 있어도 앞 인덱스 반환)
-    $pos = strpos($str, $findStr, 2);   // 2는 2번째 e를 찾음
+    echo '$pos:    '.$pos.'<br>';       // 1  (뒤에 있어도 앞 인덱스 반환)
+    $pos = strpos($str, $findStr, 2);   // 2는 offset으로 index 2부터 검색됨
     echo '$pos: '.$pos.'<br>';   // 5
+    $pos = strpos($str, $findStr, -6);  // -1이면 제일 뒷 인덱스임('r'). -2이면 'er'에서 검색됨.
+    echo '$pos: '.$pos.'<br>';   // 5
+
     if ($pos == null) {          // 찾는 문자가 없으면 null임
       echo '111 <br>';           // ★ isset($pos)는 근데 참임.
     } else {

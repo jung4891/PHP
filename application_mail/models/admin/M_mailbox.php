@@ -59,7 +59,7 @@ WHERE 1=1 {$searchdomain}{$searchkeyword}";
 		}
 
 		$query = $this->db->query($sql);
-	
+
 		$result = $query->result();
 		return $result;
 
@@ -157,7 +157,10 @@ WHERE 1=1 {$searchdomain}{$searchkeyword}";
 
 
     $mailbox_update = $this->db->update('mailbox', $mailbox, array('username' => $id));
-		$log_add = $this->db->insert('log', $log);
+		if($log != "password"){
+
+			$log_add = $this->db->insert('log', $log);
+		}
     if($mailbox_update){
       return true;
     }

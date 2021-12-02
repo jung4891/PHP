@@ -64,6 +64,17 @@ class M_account extends CI_Model {
 		}
  }
 
+ function change_password($mailbox, $id){
+
+	$change_pass = $this->db->update('mailbox', $mailbox, array('username' => $id));
+
+		if($change_pass){
+			return true;
+		}else{
+			return false;
+		}
+	}
+
  function mbox_conf($uid){
 	 $sql = "SELECT uid, pkey FROM aes_key WHERE uid = '{$uid}'";
 	 $query = $this->db->query($sql);

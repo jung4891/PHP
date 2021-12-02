@@ -112,8 +112,8 @@ class Mail_write extends CI_Controller {
      function mail_write_action(){
 				 $config['useragent'] = '';
 				 $config['protocol'] = 'smtp';
-				 // $config['smtp_host'] = '192.168.0.50';
-				 // $config['smtp_user'] = 'test4@durianict.co.kr';
+				 // $config['smtp_host'] = '192.168.0.100';
+				 // $config['smtp_user'] = 'bhkim@durianit.co.kr';
 				 // $config['smtp_pass'] = 'durian12#';
 				 $config['smtp_host'] = '192.168.0.50';
 				 $config['smtp_user'] = $_SESSION["userid"];
@@ -181,10 +181,12 @@ class Mail_write extends CI_Controller {
            if(!$result){
               $err_msg = $this->email->print_debugger();
               // echo $err_msg;
-              echo json_encode($err_msg);
+              // echo json_encode($err_msg);
+              echo $err_msg;
            }else{
               echo json_encode("success");
            }
+
          }
 
 

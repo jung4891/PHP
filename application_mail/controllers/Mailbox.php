@@ -662,6 +662,7 @@ class Mailbox extends CI_Controller {
     - imap_body($mailstream, $MSG_NO) : 메일내용을 특정부분을 객체로 리턴
     */
     $struct = imap_fetchstructure($mails, $msg_no);
+
     $data['struct'] = $struct;
     $body = imap_body($mails, $msg_no);
     $data['body'] = $body;
@@ -671,6 +672,7 @@ class Mailbox extends CI_Controller {
     $attachments = '';    // 첨부파일 부분 담을 변수
     if (isset($struct->parts)) {
       $flattenedParts = $this->flattenParts($struct->parts);  // 메일구조 평면화
+
       foreach($flattenedParts as $partNumber => $part) {
        switch($part->type) {
          case 0:    // the HTML or plain text part of the email

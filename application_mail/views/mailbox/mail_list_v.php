@@ -52,7 +52,7 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
         </td>
         <td colspan="2">
           <div style="display: inline-block; width: 180px; height: 25px;  border: solid 1px lightgray;">
-            <input type="text" style="outline: none; margin: 3px; margin-left: 6px; width: 77%; height: 20px; border: none; color: green; font-weight: bold; font-size:1em" >
+            <input type="text" id="search" style="outline: none; margin: 3px; margin-left: 6px; width: 77%; height: 20px; border: none; color: green; font-weight: bold; font-size:1em" >
             <a href="javascript:void(0)" onclick="search_mail(this);">
             <img style="width: 17px; position: relative; top:3px " src="/misc/img/icon/search.png" alt="">
             </a>
@@ -251,16 +251,22 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_footer.php";
 
  // 검색
  function search_mail(ths) {
-   let parent_tr = ths.parentNode;
-   let subject = parent_tr.childNodes[1].value;
-   var newForm = $('<form></form>');
-   newForm.attr("method","get");
-   newForm.attr("action", "<?php echo site_url(); ?>/mailbox/mail_list");
-   newForm.append($('<input>', {type: 'hidden', name: 'boxname', value: '<?php echo $mbox ?>'}));
-   newForm.append($('<input>', {type: 'hidden', name: 'type', value: 'search' }));
-   newForm.append($('<input>', {type: 'hidden', name: 'subject', value: subject }));
-   newForm.appendTo('body');
-   newForm.submit();
+   let search_word = $('#search').val();
+   if(search_word == "") {
+     alert('검색어를 입력하세요');
+     $('#search').focus();
+   }else {     
+     let parent_tr = ths.parentNode;
+     let subject = parent_tr.childNodes[1].value;
+     var newForm = $('<form></form>');
+     newForm.attr("method","get");
+     newForm.attr("action", "<?php echo site_url(); ?>/mailbox/mail_list");
+     newForm.append($('<input>', {type: 'hidden', name: 'boxname', value: '<?php echo $mbox ?>'}));
+     newForm.append($('<input>', {type: 'hidden', name: 'type', value: 'search' }));
+     newForm.append($('<input>', {type: 'hidden', name: 'subject', value: subject }));
+     newForm.appendTo('body');
+     newForm.submit();
+   }
  }
 
  // 상세검색

@@ -80,7 +80,7 @@ input:checked + .slider:before {
         <col width="30%">
       </colgroup>
       <tr>
-        <th colspan="3">메일박스 등록</th>
+        <th colspan="3">메일박스 수정</th>
       </tr>
       <tr>
         <td align="right">계정이름</td>

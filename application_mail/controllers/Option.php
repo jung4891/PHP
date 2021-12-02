@@ -9,7 +9,7 @@ class Option extends CI_Controller {
 					session_start();
 			}
 			$this->load->helper('url');
-			$this->load->model('M_option');
+			$this->load->Model('M_option');
 			$this->load->Model('M_account');
 
 			$encryp_password = $this->M_account->mbox_conf($_SESSION['userid']);
@@ -26,7 +26,7 @@ class Option extends CI_Controller {
 
 		public function index(){
 			if(isset($_SESSION['userid']) && ($_SESSION['userid'] != "")){
-        $this->load->view('option_list');
+        $this->account();
 			}else{
 				$this->load->view('login');
 			}
@@ -95,11 +95,16 @@ class Option extends CI_Controller {
 		}
 
 		function mailbox() {
-			$mbox_info = $this->get_mbox_info();
-			$length = count($mbox_info);
-			// $mbox_info[$length]['boxname_kor'] = "";		// 메일함 관리에서 배열 마지막 임시데이터
-			$data['mbox_info'] = $mbox_info;
-			$this->load->view('mailbox/mbox_setting', $data);
+			if(isset($_SESSION['userid']) && ($_SESSION['userid'] != "")){
+				$mbox_info = $this->get_mbox_info();
+				$length = count($mbox_info);
+				// $mbox_info[$length]['boxname_kor'] = "";		// 메일함 관리에서 배열 마지막 임시데이터
+				$data['mbox_info'] = $mbox_info;
+				$this->load->view('mbox_setting', $data);
+			}else{
+				$this->load->view('login');
+			}
+
 		}
 
 		function add_mailbox() {
@@ -191,6 +196,13 @@ class Option extends CI_Controller {
 		}
 
 
+		function singnature(){
+			if(isset($_SESSION['userid']) && ($_SESSION['userid'] != "")){
+				$this->load->view('sign_list');
+			}else{
+				$this->load->view('login');
+			}
+		}
 
 		function sign_list(){
 			$user_id = $_SESSION["userid"];
@@ -238,6 +250,64 @@ class Option extends CI_Controller {
 			$seq = $this->input->post("seq");
 			$result = $this->M_option->sign_del($seq);
 			echo json_encode($result);
+		}
+
+
+		function account() {
+			if(isset($_SESSION['userid']) && ($_SESSION['userid'] != "")){
+				$this->load->view('account_info');
+			}else{
+				$this->load->view('login');
+			}
+
+		}
+
+		function change_password(){
+			if(isset($_SESSION['userid']) && ($_SESSION['userid'] != "")){
+				redirect("");
+			}
+
+			if(!isset($_POST['username'])){
+				echo "<script>history.back();</script>";
+			}
+
+			$user_id = $this->input->post('username');
+			$password = $this->input->post('password');
+			$check_pass = $this->input->post('chk_pass');
+			$rand = $this->getRandStr();
+			$hash_salt = "$1$".$rand."$";
+			$hashed_password = crypt($password, $hash_salt);
+
+			$modify_array = array(
+				'password' => $hashed_password
+			);
+
+			var_dump($modify_array);
+			exit;
+
+			$result = $this->M_account->change_password($modify_array, $user_id);
+			if($result){
+				echo json_encode($result);
+			}
+
+			function getRandStr($length = 8) {
+				$characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'; $charactersLength = strlen($characters);
+				$randomString = '';
+				for ($i = 0; $i < $length; $i++) {
+					$randomString .= $characters[rand(0, $charactersLength - 1)];
+				}
+				return $randomString;
+			}
+
+		}
+
+		function address_book() {
+			if(isset($_SESSION['userid']) && ($_SESSION['userid'] != "")){
+				$this->load->view('address_book_view');
+			}else{
+				$this->load->view('login');
+			}
+
 		}
 
 

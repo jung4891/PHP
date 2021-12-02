@@ -83,7 +83,7 @@ include $this->input->server('DOCUMENT_ROOT')."/include/admin_side.php";
           <col width="20%">
           <col width="13%">
           <col width="10%">
-          <col width="20%">
+          <!-- <col width="20%"> -->
           <col width="7%">
           <col width="20%">
           <col width="5%">
@@ -93,7 +93,7 @@ include $this->input->server('DOCUMENT_ROOT')."/include/admin_side.php";
           <th>계정</th>
           <th>대상</th>
           <th>이름</th>
-          <th>용량(Mb)</th>
+          <!-- <th>용량(Mb)</th> -->
           <th>활성화</th>
           <th>최종수정일</th>
           <th colspan="2"></th>
@@ -115,7 +115,7 @@ foreach ($mail_list as $mail) {
   <td align="center"><?php echo $mail->username; ?></td>
   <td align="center"><?php echo $mail->target; ?></td>
   <td align="center"><?php echo $mail->name; ?></td>
-  <td align="center"><?php echo round($mail->bytes/1024000,2); ?> / <?php echo round($mail->quota/1024000); ?></td>
+  <!-- <td align="center"><?php echo round($mail->bytes/1024000,2); ?> / <?php echo round($mail->quota/1024000); ?></td> -->
   <td align="center"><?php echo $active; ?></td>
   <td align="center"><?php echo $mail->modified; ?></td>
   <td align="right"><button type="button" class="btn_basic btn_blue" name="button" onclick="mailbox_modify('<?php echo $mail->username; ?>', 'update');">수정</button></td>

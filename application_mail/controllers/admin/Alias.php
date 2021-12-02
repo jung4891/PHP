@@ -101,19 +101,7 @@ class Alias extends CI_Controller {
 		$goto = array_filter($goto);
 		$goto = implode(",",$goto);
 
-		$sess_id = $this->id;
-		$sess_ip = $_SERVER["REMOTE_ADDR"];
-		$log_name = $sess_id." ({$sess_ip})";
-		$log_domain = explode("@", $id);
-		$log_domain = $log_domain[1];
-		$insert_log = array(
-			'timestamp' => date("Y-m-d H:i:s"),
-			'username' => $log_name,
-			'domain' => $log_domain,
-			// 'domain' => explode("@", $id)[1], 이대로 쓰면 php5에서 에러남
-			'action' => 'delete_alias',
-			'data' => $id
-		);
+
 		if($input_mode == "insert"){
 			$domain = $this->input->post('mail_domain');
 			$address = $id."@".$domain;
@@ -126,7 +114,22 @@ class Alias extends CI_Controller {
 				'modified' => date("Y-m-d H:i:s"),
 				'active' => 1
 			);
-			$result = $this->M_alias->insert_alias($insert_data);
+
+			$sess_id = $this->id;
+			$sess_ip = $_SERVER["REMOTE_ADDR"];
+			$log_name = $sess_id." ({$sess_ip})";
+			// $log_domain = explode("@", $id);
+			// $log_domain = $log_domain[1];
+			$insert_log = array(
+				'timestamp' => date("Y-m-d H:i:s"),
+				'username' => $log_name,
+				'domain' => $domain,
+				// 'domain' => explode("@", $id)[1], 이대로 쓰면 php5에서 에러남
+				'action' => 'create_alias',
+				'data' => $address."=>".$goto
+			);
+
+			$result = $this->M_alias->insert_alias($insert_data, $insert_log);
 			if($result){
 				echo "<script>alert('등록되었습니다.');location.href='".site_url()."/admin/alias/alias_list';</script>";
 			}
@@ -141,7 +144,22 @@ class Alias extends CI_Controller {
 				"modified" => date("Y-m-d H:i:s"),
 				"active" => $check_active
 			);
-			$result = $this->M_alias->update_mailbox($update_data, $id);
+
+			$sess_id = $this->id;
+			$sess_ip = $_SERVER["REMOTE_ADDR"];
+			$log_name = $sess_id." ({$sess_ip})";
+			$log_domain = explode("@", $id);
+			$log_domain = $log_domain[1];
+			$update_log = array(
+				'timestamp' => date("Y-m-d H:i:s"),
+				'username' => $log_name,
+				'domain' => $log_domain,
+				// 'domain' => explode("@", $id)[1], 이대로 쓰면 php5에서 에러남
+				'action' => 'edit_alias',
+				'data' => $id."=>".$goto
+			);
+
+			$result = $this->M_alias->update_mailbox($update_data, $id, $update_log);
 			if($result){
 				echo "<script>alert('수정되었습니다.');location.href='".site_url()."/admin/alias/alias_list';</script>";
 			}

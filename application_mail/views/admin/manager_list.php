@@ -12,8 +12,8 @@ include $this->input->server('DOCUMENT_ROOT')."/include/admin_side.php";
         <col width="5%">
         <col width="30%">
         <col width="10%">
-        <col width="5%">
-        <col width="30%">
+        <col width="8%">
+        <col width="27%">
         <col width="5%">
         <col width="5%">
       </colgroup>

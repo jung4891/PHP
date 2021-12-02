@@ -11,6 +11,31 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
      text-align: center;
      cursor: pointer;
    }
+
+   .sign_selected{
+     background-color: #e3e3e3;
+   }
+
+   .nav_btn{
+     -webkit-appearance: none;
+     -moz-appearance: none;
+     appearance: none;
+     border:1px solid #B0B0B0;
+     border-bottom: none;
+     height: 30px;
+     width: 100px;
+     cursor: pointer;
+     background-color: #FFFFFF;
+     color: #1C1C1C;
+     border-radius: 10px 10px 0px 0px;
+   }
+
+   .select_btn{
+     border:none;
+     background-color: #1A8DFF;
+     color: #FFFFFF;
+   }
+
    .pipe {
      color: lightgrey;
      margin-left: 5px;
@@ -20,19 +45,15 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
 
   <div id="main_contents" align="center">
     <form name="mform" action="" method="post">
-      <div class="main_div">
-      <table id="nav_tbl" align="left" cellspacing=0>
-        <tr>
-          <td id="set_mailbox"><a href="<?php echo site_url(); ?>/option/mailbox">메일함 관리</a></td>
-          <td id="set_address">주소록 관리</td>
-          <td id="set_sign">서명 관리</td>
-        </tr>
-      </table>
+      <div class="" align="left" width=100% style="border-bottom:1px solid #1A8DFF;margin:-10px 40px 10px 40px;">
+        <button type="button" name="button" class="nav_btn" style="margin-left:10px;"onclick="location.href='<?php echo site_url(); ?>/option/account'">계정설정</button>
+        <button type="button" name="button" class="nav_btn select_btn" onclick="location.href='<?php echo site_url(); ?>/option/mailbox'">메일함설정</button>
+        <button type="button" name="button" class="nav_btn" onclick="location.href='<?php echo site_url(); ?>/option/address_book'">주소록관리</button>
+        <button type="button" name="button" class="nav_btn" onclick="location.href='<?php echo site_url(); ?>/option/singnature'">서명관리</button>
       </div>
     </form>
 
-    <br><br>
-    <div class="" align="left" style="margin-left: 45px;">
+    <div class="main_div" align="left" style="margin-left: 45px;">
       <select class="top_button" id="selected_box" style="background-color: #F0F0F0; height: 25px;">
         <option value="">메일함 추가</option>
         <?php
@@ -144,13 +165,18 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
 
           // 하위폴더 이름만 가져온후 단계에 따른 ㄴ 삽입
           if($dot_cnt != 0) {
-            $sub_pos = strpos($mbox_kor, '.', $dot_cnt) + 1;
-            $mbox_parent = substr($mbox_kor, 0, $sub_pos - 1);   // 상위폴더
-            $mbox_kor = substr($mbox_kor, $sub_pos);             // 하위폴더
-            $mbox_kor_span = '<span style="color: silver; font-size: 0.9em">ㄴ </span>'.$mbox_kor;
+            // $sub_pos = strpos($mbox_kor, '.', $dot_cnt) + 1;
+            $folders = explode('.', $mbox_kor);
+            $folders_parent = explode('.', $mbox_kor, -1);
+
+            $mbox_kor = $folders[count($folders) -1];             // 하위폴더
+            $mbox_parent = implode('.', $folders_parent);         // 상위폴더
+            $sub_sign = '<span style="color: silver; font-size: 0.9em">ㄴ </span>';
+            $blanks = '';
             for($j=1; $j<$dot_cnt; $j++) {
-              $mbox_kor_span = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'.$mbox_kor_span;
+              $blanks .= '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
             }
+            $mbox_kor_span = $blanks.$sub_sign.$mbox_kor;
           }
 
           ?>

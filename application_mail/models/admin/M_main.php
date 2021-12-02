@@ -29,7 +29,7 @@ function admin_log($searchdomain, $searchkeyword, $start_limit = 0, $offset = 0)
 	if($searchkeyword == ""){
 		$searchkeyword = "";
 	}else{
-		$searchkeyword = " AND username LIKE '%{$searchkeyword}%'";
+		$searchkeyword = " AND (username LIKE '%{$searchkeyword}%' OR action LIKE '%{$searchkeyword}%')";
 	}
 
 	$sql = "SELECT * FROM log

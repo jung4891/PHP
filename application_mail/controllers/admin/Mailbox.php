@@ -135,6 +135,7 @@ class Mailbox extends CI_Controller {
 				'bytes' => 0,
 				'messages' => 0
 			);
+
 			$sess_id = $this->id;
 			$sess_ip = $_SERVER["REMOTE_ADDR"];
 			$log_name = $sess_id." ({$sess_ip})";
@@ -230,7 +231,7 @@ class Mailbox extends CI_Controller {
 			$sess_id = $this->id;
 			$sess_ip = $_SERVER["REMOTE_ADDR"];
 			$log_name = $sess_id." ({$sess_ip})";
-			$log_domain = explode("@", $id);
+			$log_domain = explode("@", $modify_id);
 			$log_domain = $log_domain[1];
 			$insert_log = array(
 				'timestamp' => date("Y-m-d H:i:s"),
@@ -264,7 +265,7 @@ class Mailbox extends CI_Controller {
 			$modify_array = array(
 				'password' => $hashed_password
 			);
-			$result = $this->M_mailbox->update_mailbox($modify_array, $user_id);
+			$result = $this->M_mailbox->update_mailbox($modify_array, $user_id, "password");
 			if($result){
 				echo json_encode($result);
 			}

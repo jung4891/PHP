@@ -107,9 +107,9 @@ ORDER BY FIELD(domain, 'durianit.com', 'durianit.co.kr') DESC";
 		}
 	}
 
-	function insert_alias($aliases){
+	function insert_alias($aliases, $log){
 	  $alias_add = $this->db->insert('alias', $aliases);
-
+		$log_add = $this->db->insert('log', $log);
 	  if($alias_add){
 	    return true;
 	  }
@@ -144,11 +144,12 @@ ORDER BY FIELD(domain, 'durianit.com', 'durianit.co.kr') DESC";
 	// 	}
 	// }
 
-	function update_mailbox($goto, $id){
+	function update_mailbox($goto, $id, $log){
     // $this->db->where('username', $id);
     // $admin_update = $this->db->update('admin', $admin);
     // $admin_update = $this->db->update('domain_admins', $domain);
     $alias_update = $this->db->update('alias', $goto, array('address' => $id));
+		$log_add = $this->db->insert('log', $log);
     if($alias_update){
       return true;
     }
