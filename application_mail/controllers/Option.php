@@ -73,7 +73,7 @@ class Option extends CI_Controller {
 					case "정크 메일":  $folder_kor="스팸메일함";  break;
 					case "지운 편지함":  $folder_kor="휴지통";  break;
 				}
-				$mails = $this->connect_mailserver($folder);
+				$mails = $this->connect_mailserver();
 				$mbox_status = imap_status($mails, "{" . $mailserver . "}".$folder, SA_ALL);
 				$mails_cnt = 0;
 				$unseen_cnt = 0;
@@ -86,9 +86,9 @@ class Option extends CI_Controller {
 				$mbox_info[$i]['boxname_kor'] = $folder_kor;
 				$mbox_info[$i]['mails_cnt'] = $mails_cnt;
 				$mbox_info[$i]['unseen_cnt'] = $unseen_cnt;
-				// $quota = imap_get_quotaroot($mails, "inbox");				// 현재 사용자의 메일사용량/총할당량 (KB)
-				// $quota = imap_get_quota($mails, "user.inbox");		   	// imap메일 관리자 가능
-				// $mbox_info["quota"] = $quota;
+				// $quota = imap_get_quotaroot ($mails, '&yBXQbA- &ulTHfA-');				// 현재 사용자의 메일사용량/총할당량 (KB)
+				// $quota = imap_get_quota($mails, "user.inbox");		   	// imap메일 관리자만 가능
+				// $mbox_info[$i]["quota"] = $quota;
 			}
 			imap_close($mails);
 			return $mbox_info;

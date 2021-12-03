@@ -67,6 +67,7 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
       </select>
       <input type="text" id="new_mbox" style="width: 70px; height: 19px"> &nbsp;
       <button type="button" name="button" onclick="add_mailbox()">추가</button>
+      
 
     <br><br>
     <table style="width: 95%; line-height: 30px" >

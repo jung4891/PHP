@@ -97,7 +97,7 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
           </div>-->
         </td>
         <td>
-        <select onchange="mails_cnt(this);" style="background-color: #F0F0F0; height: 25px" >
+        <select id="show_cnt" onchange="mails_cnt(this);" style="background-color: #F0F0F0; height: 25px" >
           <option value="">보기설정</option>
           <option value="10">10개</option>
           <option value="20">20개</option>
@@ -249,13 +249,40 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_footer.php";
  //   console.log(arr);
  // })
 
+ $(function() {
+   // 검색창에 검색어 입력후 엔터키로 검색
+   const input = document.querySelector('#search');
+   input.addEventListener('keyup', function(e){
+     if(e.key === 'Enter') {
+       let search_word = $('#search').val();
+       if(search_word == "") {
+         alert('검색어를 입력하세요');
+         $('#search').focus();
+       }else {
+         var newForm = $('<form></form>');
+         newForm.attr("method","get");
+         newForm.attr("action", "<?php echo site_url(); ?>/mailbox/mail_list");
+         newForm.append($('<input>', {type: 'hidden', name: 'boxname', value: '<?php echo $mbox ?>'}));
+         newForm.append($('<input>', {type: 'hidden', name: 'type', value: 'search' }));
+         newForm.append($('<input>', {type: 'hidden', name: 'subject', value: search_word }));
+         newForm.appendTo('body');
+         newForm.submit();
+       }
+     }
+   })
+
+  // 보기설정 개수 선택시 새로고침된 페이지에서 옵션 selected 설정
+  var per_page = '<?php echo $per_page; ?>';
+  $('#show_cnt option[value='+per_page+']').attr('selected', true);
+ })
+
  // 검색
  function search_mail(ths) {
    let search_word = $('#search').val();
    if(search_word == "") {
      alert('검색어를 입력하세요');
      $('#search').focus();
-   }else {     
+   }else {
      let parent_tr = ths.parentNode;
      let subject = parent_tr.childNodes[1].value;
      var newForm = $('<form></form>');
