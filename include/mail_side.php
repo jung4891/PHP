@@ -66,6 +66,7 @@ $(function (){
     // cache: false,
     async:true,
     success: function (result) {
+      console.log(result);
       $('#sidetree').jstree({
         'core' :{
           'data' : result

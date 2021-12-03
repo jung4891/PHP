@@ -67,7 +67,7 @@ class Option extends CI_Controller {
 				$folder = $folders[$i];
 				$folder_kor = mb_convert_encoding($folder, 'UTF-8', 'UTF7-IMAP');
 				switch($folder_kor) {
-					case "INBOX":  $folder_kor="전체메일";  break;
+					case "INBOX":  $folder_kor="받은메일함";  break;
 					case "보낸 편지함":  $folder_kor="보낸메일함";  break;
 					case "임시 보관함":  $folder_kor="임시보관함";  break;
 					case "정크 메일":  $folder_kor="스팸메일함";  break;

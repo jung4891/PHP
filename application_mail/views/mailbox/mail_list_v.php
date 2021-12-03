@@ -20,8 +20,8 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
     <colgroup>
       <col width="1%" >
       <col width="1%" >
-      <col width="6%" >
-      <col width="28%" >
+      <col width="1%" >
+      <col width="32%" >
       <col width="*" >
       <col width="5%" >
       <col width="5%" >
@@ -176,12 +176,12 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
         $unseen = $head[$mailno_arr[$i]]->Unseen;
         $unseen = ($unseen == "U")? "unseen":"seen";
         ?>
-        <td><a class= <?php echo $unseen ?> onclick="change_href(event, '<?php echo $from_addr; ?>')"
+        <td style="padding-left: 15px"><a class= <?php echo $unseen ?> onclick="change_href(event, '<?php echo $from_addr; ?>')"
             href="<?php echo site_url(); ?>/mailbox/mail_detail?boxname=<?php echo $mbox2 ?>&mailno=<?php echo $mailno_arr[$i] ?>">
             <?php echo (isset($from_name))? imap_utf8($from_name) : '(이름 없음)' ?></a></td>
         <td><a class=<?php echo $unseen ?> href="<?php echo site_url(); ?>/mailbox/mail_detail?boxname=<?php echo $mbox2 ?>&mailno=<?php echo $mailno_arr[$i] ?>">
             <!-- <?php // echo '<pre>'; var_dump($head[$mailno_arr[$i]]); echo '</pre>';?></a></td> -->
-            <?php echo (isset($head[$mailno_arr[$i]]->subject))? imap_utf8($head[$mailno_arr[$i]]->subject) : '(제목 없음)' ?></a></td>
+            <?php echo (isset($head[$mailno_arr[$i]]->subject) && $head[$mailno_arr[$i]]->subject != "")? imap_utf8($head[$mailno_arr[$i]]->subject) : '(제목 없음)' ?></a></td>
         <td style="color: darkgray; font-weight: 400;"><?php echo isset($head[$mailno_arr[$i]]->udate)? date("y.m.d", $head[$mailno_arr[$i]]->udate) : '' ?></td>
         <!-- 시, 분은 H:i -->
         <?php
@@ -201,7 +201,7 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
         }
       }
       ?>
-
+     </pre>
        </form>
     </tbody>
   </table>
@@ -309,7 +309,7 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_footer.php";
 
  // 상단 체크박스 클릭시 전체선택/해제 설정
  function check_all(chk_all) {
-   if(this.checked) {
+   if(chk_all.checked) {
      $('.top_button').prop('disabled', false);
      $('input[type="checkbox"]').prop('checked', true);
    }else {
@@ -320,14 +320,18 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_footer.php";
 
  // 체크박스 하나 클릭시
  $('input[name="chk"]').on('click', function(){
-   if(this.checked) $('.top_button').prop('disabled', false)
-    else $('.top_button').prop('disabled', 'disabled');
    chk_cnt = $('input[name="chk"]').length;
    if($('input[name="chk"]:checked').length == chk_cnt) {
      $('#total').prop('checked', true);
    }else {
      $('#total').prop('checked', false);
    }
+   if(this.checked) {
+     $('.top_button').prop('disabled', false);
+   }else {
+      if($('input[name="chk"]:checked').length == 0)
+        $('.top_button').prop('disabled', 'disabled');
+    }
  })
 
  // 중요메일 체크

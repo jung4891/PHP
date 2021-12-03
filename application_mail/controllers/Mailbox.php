@@ -121,7 +121,7 @@ class Mailbox extends CI_Controller {
     }
     return $folders_sorted;
   }
-
+  
   function decode_mailbox(){
     $folders = $this->get_folders();
     $mailbox_tree = array();
@@ -159,6 +159,44 @@ class Mailbox extends CI_Controller {
   }
 
 
+
+  // function decode_mailbox(){
+  //   $folders = $this->get_folders();
+  //   $mailbox_tree = array();
+  //   for ($i=0; $i < count($folders); $i++) {
+  //     $id = $folders[$i];
+  //     $folders[$i] = mb_convert_encoding($folders[$i], 'UTF-8', 'UTF7-IMAP');
+  //     $folders[$i] = str_replace('INBOX', '받은메일함', $folders[$i]);
+  //     $folders[$i] = str_replace('보낸 편지함', '보낸메일함', $folders[$i]);
+  //     $folders[$i] = str_replace('임시 보관함', '임시보관함', $folders[$i]);
+  //     $folders[$i] = str_replace('정크 메일', '스팸메일함', $folders[$i]);
+  //     $folders[$i] = str_replace('지운 편지함', '휴지통', $folders[$i]);
+  //
+  //     $exp_folder = explode(".", $folders[$i]);
+  //     $length = count($exp_folder);
+  //     $text = $exp_folder[$length-1];
+  //
+  //     $substr_count = substr_count($folders[$i], ".");
+  //     if($substr_count > 1){
+  //       $parent_folder = implode(".", explode(".", $folders[$i], -1));
+  //     }elseif ($substr_count == 1) {
+  //       $parent_folder = $exp_folder[0];
+  //     }else{
+  //       $parent_folder = "#";
+  //     }
+  //     $tree = array(
+  //       // "name" => $folders[$i],
+  //       "id" => $id,
+  //       "parent" => $parent_folder,
+  //       "text" => $text,
+  //       "state" => array("opened" => true)
+  //     );
+  //     array_push($mailbox_tree, $tree);
+  //   }
+  //   echo json_encode($mailbox_tree);
+  // }
+
+
   // 전체메일 출력: 메일함에 있는 메일들의 헤더정보(제목, 날짜, 보낸이 등등)를 뷰로 넘김
   // imap_check() : 메일박스의 정보(driver(imap), Mailbox(~~INBOX), Nmsgs)를 객체(object)로 돌려줌
   public function mail_list(){
@@ -177,7 +215,7 @@ class Mailbox extends CI_Controller {
       $length = count($exp_folder);
       $text = mb_convert_encoding($exp_folder[$length-1], 'UTF-8', 'UTF7-IMAP');
       switch($text) {
-        case "INBOX":  $text="전체메일";  break;
+        case "INBOX":  $text="받은메일함";  break;
         case "보낸 편지함":  $text="보낸메일함";  break;
         case "임시 보관함":  $text="임시보관함";  break;
         case "정크 메일":  $text="스팸메일함";  break;
