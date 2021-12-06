@@ -60,7 +60,7 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
   <div id="main_contents" align="center">
     <form name="mform" action="" method="post">
       <div class="" align="left" width=100% style="border-bottom:1px solid #1A8DFF;margin:-10px 40px 10px 40px;">
-        <!-- <button type="button" name="button" class="nav_btn" style="margin-left:10px;"onclick="location.href='<?php echo site_url(); ?>/option/account'">계정설정</button> -->
+        <button type="button" name="button" class="nav_btn" style="margin-left:10px;"onclick="location.href='<?php echo site_url(); ?>/option/account'">계정설정</button>
         <button type="button" name="button" class="nav_btn" onclick="location.href='<?php echo site_url(); ?>/option/mailbox'">메일함설정</button>
         <button type="button" name="button" class="nav_btn" onclick="location.href='<?php echo site_url(); ?>/option/address_book'">주소록관리</button>
         <button type="button" name="button" class="nav_btn select_btn" onclick="location.href='<?php echo site_url(); ?>/option/singnature'">서명관리</button>
@@ -143,7 +143,7 @@ function sign_list(){
           var content = result[i].sign_content;
           if(content == null){
             // content = "";
-            $("#content").html("<p><br></p>");
+            $("#content").html(" ");
           }
           $("#content").html(content);
           loadContent();
@@ -174,7 +174,7 @@ function change_sign(ths){
     success: function (result) {
       var content = result.sign_content;
       if(content == null){
-        content = "<p><br></p>";
+        content = " ";
       }
       $("#content").html(content);
       loadContent();

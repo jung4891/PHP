@@ -16,25 +16,16 @@
   <body>
       <div id="header">
           <div id="headMenu">
-            <img src="/misc/img/icon/menu_icon.png" style="width:75px;height:75px;">
+            <img src="/misc/img/icon/menu_icon.png" style="width:75px;height:75px;cursor:pointer;">
           </div>
           <div id="headLogo">
               <span id="mailLogo">
                 D-mail
               </span>
-          <?php if(isset($_SESSION['roles']) && $_SESSION['roles'] == 'admin') { ?>
-              <span style="font-size:20px;font-weight: bolder;">
-                  Admin
-              </span>
-          <?php } ?>
           </div>
           <div id="headBtn">
-                <span onclick="myinfo();">
-                  <?php echo $_SESSION["userid"]; ?>
-                </span>
-
-            <!-- <button type="button" class="btn_basic btn_gray" id="logoutBtn" name="button">로그아웃</button> -->
-            <input type="button" class="btn_basic btn_gray" id="logoutBtn" name="button>" value="로그아웃">
+            <?php echo $_SESSION["userid"]; ?>
+            <button type="button" class="btn_basic btn_gray" id="logoutBtn" name="button">로그아웃</button>
           </div>
       </div>
 
@@ -60,5 +51,4 @@
       location.href='<?php echo site_url() ?>/account/logout';
 
   })
-
 </script>

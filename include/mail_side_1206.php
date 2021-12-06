@@ -51,9 +51,14 @@
 
       <div class="">
         <div class="" align="right" style="margin-right:5px;">
-          <a href="<?php echo site_url(); ?>/option/mailbox">설정</a>
+          <a href="<?php echo site_url(); ?>/option">설정</a>
         </div>
       </div>
+
+    <div class="">
+
+    </div>
+
     </div>
     <div id="sideMini">
 
@@ -74,48 +79,39 @@ $(function (){
     // cache: false,
     async:true,
     success: function (result) {
+      // console.log(result);
       $('#sidetree').jstree({
         'core' :{
-          'data' : result
+          'data' : result,
+          'check_callback' : true
           },
-          "plugins" : [ "wholerow" ]
+          "plugins" : [ "wholerow", "contextmenu", "dnd"],
+          'contextmenu' : {
+            "items" : {
+              "create" : {
+                "separator_before" : false,
+                "separator_after" : true,
+                "label" : "하위폴더 생성",
+                "action" : function(obj){
+                  // alert('하위폴더 생성')
+                  // console.log('aaa');
+                  var parentId = $('#sidetree').jstree('get_selected').attr('id');
+                  console.log(parentId);
+                }
+              }
+            }
+          },
         });
     }
-
-    // success: function (result) {
-    //   // console.log(result);
-    //   $('#sidetree').jstree({
-    //     'core' :{
-    //       'data' : result,
-    //       'check_callback' : true
-    //       },
-    //       "plugins" : [ "wholerow", "contextmenu", "dnd"],
-    //       'contextmenu' : {
-    //         "items" : {
-    //           "create" : {
-    //             "separator_before" : false,
-    //             "separator_after" : true,
-    //             "label" : "하위폴더 생성",
-    //             "action" : function(obj){
-    //               // alert('하위폴더 생성')
-    //               // console.log('aaa');
-    //               var parentId = $('#sidetree').jstree('get_selected').attr('id');
-    //               console.log(parentId);
-    //             }
-    //           }
-    //         }
-    //       },
-    //     });
-    // }
   });
 })
 
 $('#sidetree').on("select_node.jstree", function (e, data) {
 
   // 우클릭시 이벤트 방지
-  // var evt =  window.event || event;
-  // var button = evt.which || evt.button;
-  // if( button != 1 && ( typeof button != "undefined")) return false;
+  var evt =  window.event || event;
+  var button = evt.which || evt.button;
+  if( button != 1 && ( typeof button != "undefined")) return false;
 
   var box_name = data.node.id;
   $("#boxname").val(box_name);

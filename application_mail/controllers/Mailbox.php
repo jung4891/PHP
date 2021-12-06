@@ -121,7 +121,7 @@ class Mailbox extends CI_Controller {
     }
     return $folders_sorted;
   }
-  
+
   function decode_mailbox(){
     $folders = $this->get_folders();
     $mailbox_tree = array();
@@ -146,6 +146,15 @@ class Mailbox extends CI_Controller {
       }else{
         $parent_folder = "#";
       }
+      
+      // 기본메일함의 하위폴더 출력(parent와 상위id 같게하기)
+      switch($parent_folder) {
+        case "&vBvHQLpUx3zVaA-":  $parent_folder="INBOX";  break;
+        case "&vPSwuLpUx3zVaA-":  $parent_folder="&vPSwuA- &07jJwNVo-";  break;
+        case "&x4TC3Lz0rQDVaA-":  $parent_folder="&x4TC3A- &vPStANVo-";  break;
+        case "&wqTTOLpUx3zVaA-":  $parent_folder="&yBXQbA- &ulTHfA-";  break;
+        case "&1zTJwNG1-":  $parent_folder="&ycDGtA- &07jJwNVo-";  break;
+      }
       $tree = array(
         // "name" => $folders[$i],
         "id" => $id,
@@ -157,44 +166,6 @@ class Mailbox extends CI_Controller {
     }
     echo json_encode($mailbox_tree);
   }
-
-
-
-  // function decode_mailbox(){
-  //   $folders = $this->get_folders();
-  //   $mailbox_tree = array();
-  //   for ($i=0; $i < count($folders); $i++) {
-  //     $id = $folders[$i];
-  //     $folders[$i] = mb_convert_encoding($folders[$i], 'UTF-8', 'UTF7-IMAP');
-  //     $folders[$i] = str_replace('INBOX', '받은메일함', $folders[$i]);
-  //     $folders[$i] = str_replace('보낸 편지함', '보낸메일함', $folders[$i]);
-  //     $folders[$i] = str_replace('임시 보관함', '임시보관함', $folders[$i]);
-  //     $folders[$i] = str_replace('정크 메일', '스팸메일함', $folders[$i]);
-  //     $folders[$i] = str_replace('지운 편지함', '휴지통', $folders[$i]);
-  //
-  //     $exp_folder = explode(".", $folders[$i]);
-  //     $length = count($exp_folder);
-  //     $text = $exp_folder[$length-1];
-  //
-  //     $substr_count = substr_count($folders[$i], ".");
-  //     if($substr_count > 1){
-  //       $parent_folder = implode(".", explode(".", $folders[$i], -1));
-  //     }elseif ($substr_count == 1) {
-  //       $parent_folder = $exp_folder[0];
-  //     }else{
-  //       $parent_folder = "#";
-  //     }
-  //     $tree = array(
-  //       // "name" => $folders[$i],
-  //       "id" => $id,
-  //       "parent" => $parent_folder,
-  //       "text" => $text,
-  //       "state" => array("opened" => true)
-  //     );
-  //     array_push($mailbox_tree, $tree);
-  //   }
-  //   echo json_encode($mailbox_tree);
-  // }
 
 
   // 전체메일 출력: 메일함에 있는 메일들의 헤더정보(제목, 날짜, 보낸이 등등)를 뷰로 넘김

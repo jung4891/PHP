@@ -103,7 +103,7 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
               <td>
                 <input type="text" class="input_basic" id="recipient" name="recipient" value="<?php echo $reply_to; ?>" placeholder="받는 사람" style="width:100%">
               </td>
-              <td align="right" style="overflow:hidden;"><button class="btn_basic btn_white" type="button" id="address_button" name="address_button">주소록</button></td>
+              <td align="right"><button class="btn_basic btn_white" type="button" id="address_button" name="address_button">주소록</button></td>
           </tr>
 
 
@@ -188,16 +188,16 @@ foreach ($sign_list as $sl) {
 
     <!-- 모달창 -->
     <div id="adress_modal" style="display: none; background-color: white; width: 40vw; height: 70vh;">
-      <div id="modal_h" align="center">
-        <h2>주소록</h2>
-        <!-- <p>주소록검색<input type="text" name="" value=""></p> -->
+      <div id="modal_h">
+        <p>주소록</p>
+        <p>주소록검색<input type="text" name="" value=""></p>
       </div>
 
-      <div id="modal_b" align="center">
+      <div id="modal_b">
         <div class="mb_c" style="overflow:auto;" style="width:55%">
-          <button type="button" onclick="group_button_click('all');" name="button">주소록</button>
-          <button type="submit" id="group" onclick="group_button_click('tech');" name="button">메일박스</button>
-          <!-- <button type="button" onclick="group_button_click('salse');" name="button">즐겨찾기</button> -->
+          <button type="button" onclick="group_button_click('all');" name="button">전체</button>
+          <button type="submit" id="group" onclick="group_button_click('tech');" name="button">그룹</button>
+          <button type="button" onclick="group_button_click('salse');" name="button">즐겨찾기</button>
 
           <table id="group_table">
              <tbody>
@@ -256,7 +256,7 @@ foreach ($sign_list as $sl) {
         </div>
     </div>
 
-      <div id="modal_f" align="center">
+      <div id="modal_f">
         <button type="button" name="button" onclick="$('#adress_modal').bPopup().close();">취소</button>
         <button type="button" onclick="register_button();" name="button">확인</button>
       </div>
@@ -275,30 +275,28 @@ foreach ($sign_list as $sl) {
 function sign_select(seq){
   var load_content = $("#reply_content").html();
   if(seq =="no"){
-    var content = "<p><br></p>";
+    var content = " ";
     content += load_content;
     $("#content").html(content);
     loadContent();
     return false;
-  } else {
-    $.ajax({
-      url: "<?php echo site_url(); ?>/option/get_signcontent",
-      type: 'POST',
-      dataType: 'json',
-      data: {seq:seq},
-      success: function (result) {
-        var content = result.sign_content;
-        if(content == null){
-          content = "<p><br></p>";
-        }
-        content += load_content;
-
-        $("#content").html(content);
-        loadContent();
-      }
-    });
-
   }
+  $.ajax({
+    url: "<?php echo site_url(); ?>/option/get_signcontent",
+    type: 'POST',
+    dataType: 'json',
+    data: {seq:seq},
+    success: function (result) {
+      var content = result.sign_content;
+      if(content == null){
+        content = " ";
+      }
+      content += load_content;
+
+      $("#content").html(content);
+      loadContent();
+    }
+  });
 }
 
 
@@ -312,7 +310,7 @@ function sign_select(seq){
       function group_button_click(group_name){
 
        $.ajax({
-              url:"<?php echo site_url();?>/mail_write/group_button",
+              url:"<?php echo site_url();?>/mail/group_button",
               type:"GET",
               dataType : 'json',
               data:{g_name:group_name},
@@ -326,7 +324,7 @@ function sign_select(seq){
                   var name=result[i].user_name;
                   var groupName=result[i].parentGroupName;
                   var email=result[i].user_email;
-                  var tag = "<tr><td>"+ email +"/"+ name +"</td></tr>";
+                  var tag = "<tr><td>"+ name +" "+ groupName +" "+ email +"</td></tr>";
                   $("#group_table").append(tag);
                   // append이용해서 table tr태그를 생성해서 갖다붙임, group_table는 테이블id
                   }
@@ -388,7 +386,7 @@ function sign_select(seq){
            var bcc_mail = [];
            $("#recipients_tbl td").each(function(){
              var td_val = $(this).html(); //$(this).text랑 이양, each반복문으로 하나하나 가져옴
-             td_val = td_val.split("/")[0];
+             td_val = td_val.split(" ")[2];
 
              recipient_mail.push(td_val);
 
@@ -396,7 +394,7 @@ function sign_select(seq){
 
            $("#cc_tbl td").each(function(){
                var cc_td_val = $(this).html();
-               cc_td_val = cc_td_val.split("/")[0];
+               cc_td_val = cc_td_val.split(" ")[2];
                // console.log(cc_td_val);
                cc_mail.push(cc_td_val);
 
@@ -404,7 +402,7 @@ function sign_select(seq){
 
            $("#bcc_tbl td").each(function(){
                var bcc_td_val = $(this).html();
-               bcc_td_val = bcc_td_val.split("/")[0];
+               bcc_td_val = bcc_td_val.split(" ")[2];
                // console.log(cc_td_val);
                bcc_mail.push(bcc_td_val);
 
