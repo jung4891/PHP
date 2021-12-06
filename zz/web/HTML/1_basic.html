@@ -250,6 +250,10 @@
               <input type="checkbox" id="node21">
               <label for="node21" class="lastTree">node21</label>
             </li>
+            <li>
+              <input type="checkbox" id="node22">
+              <label for="node21" class="lastTree">node22</label>
+            </li>
           </ul>
         </li>
         <!-- <li>
@@ -315,11 +319,11 @@
   .tree label:before{
     content: '+'
   }
-  .tree label.lastTree:before{
-    content:'o';
-  }
   .tree label:hover:before{
     content: '+'
+  }
+  .tree label.lastTree:before{
+    content:'o';
   }
   .tree label.lastTree:hover:before{
     content:'o';
@@ -331,10 +335,10 @@
     display: none;
   }
   .tree input[type="checkbox"]:checked+label:before{
-    content: '-'
+    content: '↘';
   }
   .tree input[type="checkbox"]:checked+label:hover:before{
-    content: '-'
+    content: '↘';
   }
 
   .tree input[type="checkbox"]:checked+label.lastTree:before{

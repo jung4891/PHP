@@ -6,60 +6,6 @@
     cursor: pointer;
   }
 </style>
-<style media="screen">
-.tree{
-  margin-top: 5px;
-}
-.tree, .tree ul{
-  list-style: none; /* 기본 리스트 스타일 제거 */
-  padding-left:10px;
-}
-.tree *:before{
-  width:15px;
-  height:15px;
-  display:inline-block;
-}
-.tree label{
-  cursor: pointer;
-  font-family: NotoSansKrMedium, sans-serif !important;
-  font-size: 14px;
-  color: #0055CC;
-}
-.tree label:hover{
-  color: #00AACC;
-}
-.tree label:before{
-  content: '+'
-}
-.tree label:hover:before{
-  content: '+'
-}
-.tree label.lastTree:before{
-  content:'o';
-}
-.tree label.lastTree:hover:before{
-  content:'o';
-}
-.tree input[type="checkbox"] {
-  display: none;
-}
-.tree input[type="checkbox"]:checked~ul {
-  display: none;
-}
-.tree input[type="checkbox"]:checked+label:before{
-  content: '↘';
-}
-.tree input[type="checkbox"]:checked+label:hover:before{
-  content: '↘';
-}
-
-.tree input[type="checkbox"]:checked+label.lastTree:before{
-  content: 'o';
-}
-.tree input[type="checkbox"]:checked+label.lastTree:hover:before{
-  content: 'o';
-}
-</style>
 <div id="main">
   <form class="" id="write_form" name="write_form" action="" method="post">
     <input type="hidden" id="self_write" name="self_write" value="">
@@ -94,14 +40,14 @@
           첨&nbsp부
         </div>
       </div>
-      <form name="boxform" id="boxform" class="" action="" method="get">
+      <!-- <form name="boxform" id="boxform" class="" action="" method="get">
         <input type="hidden" name="curpage" id="curpage" value="">
         <input type="hidden" name="searchbox" id="searchbox" value="">
         <input type="hidden" name="boxname" id="boxname" value="">
         <div id="sidetree">
 
         </div>
-      </form>
+      </form> -->
 
       <div class="">
         <div class="" align="right" style="margin-right:5px;">
@@ -122,7 +68,7 @@
 
       <div class="">
         <!-- tree형 메뉴 -->
-        <!-- <ul class="tree">
+        <ul class="tree">
           <li>
             <input type="checkbox" id="root">
             <label for="root">받은메일함</label>
@@ -138,54 +84,101 @@
               </li>
             </ul>
           </li>
-        </ul> -->
+        </ul>
 
-        <ul class="tree">
         <?php
         $folder_root = array();
-        $folders_sub = array();
         for($i=0; $i<count($boxname_full_arr); $i++) {
           $folder = $boxname_full_arr[$i];
           if(substr_count($folder, '.') == 0) {
             array_push($folder_root, $folder);
-          }else {
-            array_push($folders_sub, $folder);
           }
         }
-        // $folders = array();
-        // for($i=0; $i<count($folder_root); $i++) {
-        //   $folders[$i]['root'] = $folder_root[$i];
-        // }
+        $folders = array();
+        for($i=0; $i<count($folder_root); $i++) {
+          $folders[$i]['root'] = $folder_root[$i];
+        }
 
         for($i=0; $i<count($folder_root); $i++) {
         ?>
-          <li id="<?php echo $folder_root[$i].'_li'; ?>">
-            <input type="checkbox" id="<?php echo $folder_root[$i]; ?>">
-            <label for="<?php echo $folder_root[$i]; ?>" class="lastTree"><?php echo $folder_root[$i]; ?></label>
-
+        <ul class="tree">
+          <li>
+            <input type="checkbox" id="root2">
+            <label for="root2" class="lastTree"><?php echo $folder_root[$i]; ?></label>
           </li>
+        </ul>
         <?php
         }
+
          ?>
-         </ul>
       </div>
 
-      <!-- <pre>
+      <pre>
       <?php
-        // var_dump($folders);
-        // var_dump($folders_sub);
+        var_dump($folders);
+        // var_dump($boxname_full_arr);
        ?>
-     </pre> -->
-
+     </pre>
 
     </div>
     <div id="sideMini">
 
     </div>
-    <div id="dragbar" class="resize-handle-x" data-target="aside">
 
-    </div>
+    <style media="screen">
+    .tree{
+      margin-top: 5px;
+    }
+    .tree, .tree ul{
+      list-style: none; /* 기본 리스트 스타일 제거 */
+      padding-left:10px;
+    }
+    .tree *:before{
+      width:15px;
+      height:15px;
+      display:inline-block;
+    }
+    .tree label{
+      cursor: pointer;
+      font-family: NotoSansKrMedium, sans-serif !important;
+      font-size: 14px;
+      color: #0055CC;
+    }
+    .tree label:hover{
+      color: #00AACC;
+    }
+    .tree label:before{
+      content: '+'
+    }
+    .tree label:hover:before{
+      content: '+'
+    }
+    .tree label.lastTree:before{
+      content:'o';
+    }
+    .tree label.lastTree:hover:before{
+      content:'o';
+    }
+    .tree input[type="checkbox"] {
+      display: none;
+    }
+    .tree input[type="checkbox"]:checked~ul {
+      display: none;
+    }
+    .tree input[type="checkbox"]:checked+label:before{
+      content: '↘';
+    }
+    .tree input[type="checkbox"]:checked+label:hover:before{
+      content: '↘';
+    }
 
+    .tree input[type="checkbox"]:checked+label.lastTree:before{
+      content: 'o';
+    }
+    .tree input[type="checkbox"]:checked+label.lastTree:hover:before{
+      content: 'o';
+    }
+    </style>
 
 <script type="text/javascript">
 
@@ -193,50 +186,21 @@
 //   $("#sideBar, #sideMini").toggle();
 // })
 
+// 새로운 메일함 출력
 $(function (){
-
-  <?php
-  foreach($folders_sub as $sub) {
-    $dot_cnt = substr_count($sub, '.');
-    if($dot_cnt > 1) {
-      $folders = explode('.', $sub);
-      $parent = implode(".", explode(".", $sub, -1));
-      $child = $folders[count($folders)-1];
-    }else {
-      $parent = substr($sub, 0, strpos($sub, '.'));
-      $child = substr($sub, strpos($sub, '.')+1);
+  $.ajax({
+    url: "<?php echo site_url(); ?>/mailbox/decode_mailbox2",
+    type: 'POST',
+    dataType: 'json',
+    // cache: false,
+    async:true,
+    success: function (result) {
+      console.log(result);
     }
-  ?>
-  console.log('sub: '+'<?php echo $sub ?>')
-  console.log('parent: '+'<?php echo $parent ?>')
-  console.log('child: '+'<?php echo $child ?>')
-  var ul_tree = $('#<?php echo $parent; ?>_li');
-  ul_tree.append('<ul><li id="<?php echo $sub; ?>_li"><input type="checkbox" id="<?php echo $sub; ?>"><label for="<?php echo $sub; ?>" class="lastTree"><?php echo $child; ?></label></li></ul>'  );
+  });
+})
 
-  <?php } ?>
-  var ul_tree = $('#test메일함_li');
-  ul_tree.append('<ul><li>test</li></ul>');
-  // ul_tree.append('<ul><li id="11.222.3_li"><input type="checkbox" id="11.222.3"><label for="11.222.3" class="lastTree">3</label></li></ul>'  );
-
-  // $.ajax({
-  //   url: "<?php echo site_url(); ?>/mailbox/decode_mailbox2",
-  //   type: 'POST',
-  //   dataType: 'json',
-  //   // cache: false,
-  //   async:true,
-  //   success: function (result) {
-  //     let folders = [];
-  //     folders = result;
-  //     $.each(result, function(index, el){
-  //       let dot_cnt = '<?php echo $folder_root[0] ?>';
-  //       console.log(dot_cnt);
-  //       console.log(el);
-  //     })
-  //     // console.log(folders);
-  //
-  //   }
-  // });
-
+$(function (){
   $.ajax({
     url: "<?php echo site_url(); ?>/mailbox/decode_mailbox",
     type: 'POST',
@@ -278,26 +242,6 @@ $(function (){
     //     });
     // }
   });
-
-
-  $.ajax({
-    url: "<?php echo site_url(); ?>/home/get_side",
-    // type: 'POST',
-    dataType: 'json',
-    async:true,
-    success: function (result) {
-      console.log(result);
-      if(result == 'defalt'){
-        $("#sideBar").css("width", 250);
-
-      }else{
-        var width = result;
-        $("#sideBar").css("width", result);
-      }
-
-    }
-  });
-
 })
 
 $('#sidetree').on("select_node.jstree", function (e, data) {
@@ -320,54 +264,6 @@ function self_write(){
   $("#write_form").attr("action", "<?php echo site_url(); ?>/mail_write/page");
   $("#write_form").submit();
 }
-
-
-// var i = 0;
-// $('#dragbar').mousedown(function(e) {
-
-$(document).on('mousedown', '#dragbar', function(e){
-  e.preventDefault();
-  var x = e.pageX;
-  var side_width = $("#sideBar").width();
-  var diff = x - side_width;
-  // var side_width = side_width + diff;
-  console.log(diff);
-  console.log(side_width);
-  // console.log(x);
-
-  $(document).mousemove(function(e) {
-    var x2 = e.pageX;
-    console.log(x2);
-    var gap = (x) - (x2);
-    gap = gap * -2;
-    console.log(gap);
-    // $("#dragbar").css('left', e.pageX + 2);
-    c_width = side_width + gap;
-    // console.log(gap);
-    // console.log(c_width);
-
-    $('#sideBar').css("width", e.pageX + 2);
-
-  })
-  // console.log("leaving mouseDown");
-  $(document).mouseup(function(e) {
-    // $('#clickevent').html('in another mouseUp event' + i++);
-      $(document).unbind('mousemove');
-      var side_width = $("#sideBar").width();
-      $.ajax({
-        url: "<?php echo site_url(); ?>/home/side_width_update",
-        type: 'POST',
-        dataType: 'json',
-        data:{ side_width : side_width },
-        async:true,
-        success: function (result) {
-
-        }
-      });
-
-
-  });
-});
 
 
 

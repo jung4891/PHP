@@ -60,14 +60,12 @@ a{
 }
 
 #sideBar{
-  /* width:250px; */
+  width:250px;
   height: 100%;
-  /* border-right: 3px solid #dedede; */
+  border-right: 3px solid #dedede;
   display: flex;
   flex-direction: column;
   overflow-y: scroll;
-  overflow: auto;
-  /* resize:horizontal; */
 }
 #sideBar {
     -ms-overflow-style: none; /* IE and Edge */
@@ -108,12 +106,4 @@ a{
 .contents_tbl td{
   height: 40px;
   border-top: solid 1px #DFDFDF;
-}
-
-#dragbar {
-  background-color: #dedede;
-  height: 100%;
-  float: right;
-  width: 5px;
-  cursor: col-resize;
 }
