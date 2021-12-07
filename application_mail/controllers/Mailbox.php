@@ -122,19 +122,6 @@ class Mailbox extends CI_Controller {
     return $folders_sorted;
   }
 
-  function decode_mailbox2(){
-    $folders = $this->get_folders();
-    for ($i=0; $i < count($folders); $i++) {
-      $folders[$i] = mb_convert_encoding($folders[$i], 'UTF-8', 'UTF7-IMAP');
-      $folders[$i] = str_replace("INBOX", "받은메일함", $folders[$i]);
-      $folders[$i] = str_replace("보낸 편지함", "보낸메일함", $folders[$i]);
-      $folders[$i] = str_replace("임시 보관함", "임시보관함", $folders[$i]);
-      $folders[$i] = str_replace("정크 메일", "스팸메일함", $folders[$i]);
-      $folders[$i] = str_replace("지운 편지함", "휴지통", $folders[$i]);
-    }
-    echo json_encode($folders);
-  }
-
   function decode_mailbox(){
     $folders = $this->get_folders();
     $mailbox_tree = array();
@@ -181,6 +168,94 @@ class Mailbox extends CI_Controller {
   }
 
 
+  public function get_folders2(){
+    $mails= $this->connect_mailserver();
+    $mailserver = $this->mailserver;
+    $folders = imap_list($mails, "{" . $mailserver . "}", '*');
+    $folders = str_replace("{" . $mailserver . "}", "", $folders);
+    sort($folders);
+
+    for ($i=0; $i < count($folders); $i++) {
+      $folders[$i] = mb_convert_encoding($folders[$i], 'UTF-8', 'UTF7-IMAP');
+      $folders[$i] = str_replace("INBOX", "받은메일함", $folders[$i]);
+      $folders[$i] = str_replace("보낸 편지함", "보낸메일함", $folders[$i]);
+      $folders[$i] = str_replace("임시 보관함", "임시보관함", $folders[$i]);
+      $folders[$i] = str_replace("정크 메일", "스팸메일함", $folders[$i]);
+      $folders[$i] = str_replace("지운 편지함", "휴지통", $folders[$i]);
+    }
+
+    // 인덱스 초기화
+    $folders_root = array();
+    $folders_sub = array();
+    $folders_root[0] = "받은메일함";
+    $folders_root[1] = "보낸메일함";
+    $folders_root[2] = "임시보관함";
+    $folders_root[3] = "스팸메일함";
+    $folders_root[4] = "휴지통";
+    foreach($folders as $f) {
+      if(substr_count($f, '.') == 0) {
+        if($f == "받은메일함") continue;
+        elseif($f == "보낸메일함") continue;
+        elseif($f == "임시보관함") continue;
+        elseif($f == "스팸메일함") continue;
+        elseif($f == "휴지통") continue;
+        array_push($folders_root, $f);
+      } else {
+        array_push($folders_sub, $f);
+      }
+    }
+    $folders_sorted = array();
+    foreach($folders_root as $root) {
+      array_push($folders_sorted, $root);
+      foreach($folders_sub as $sub) {
+        $pos_dot = strpos($sub, '.');
+        $sub_root = substr($sub, 0, $pos_dot);
+        if($sub_root == $root) {
+          array_push($folders_sorted, $sub);
+        }
+      }
+    }
+    return $folders_sorted;
+    // return $folders_sorted;
+  }
+
+  public function get_lists_html($folders) {
+    $tree = '<ul class="tree">';
+    for($i=0; $i<count($folders); $i++) {
+      if(substr_count($folders[$i]) == 0) {
+        if(substr_count($folders[($i+1<count($folders))? $i+1 : count($folders)-1], '.'))
+      }
+
+      // if(substr_count($folders[$i], '.') >= substr_count($folders[($i+1<count($folders))? $i+1 : count($folders)-1], '.') )
+      //   $tree .= "<li><input type='checkbox' id='$folders[$i]'><label for='$folders[$i]' class='lastTree'>$folders[$i]</label></li>";
+      // else {
+      //   if(substr_count($folders[$i], '.') == 0)
+      //     $tree .= "<li><input type='checkbox' id='$folders[$i]'><label for='$folders[$i]'>$folders[$i]</label>";
+      //   else {
+      //     $tree .= $this->get_sub_html("$folders[$i]");
+      //     $tree .= "</li>";
+      //   }
+      // }
+    }
+    $tree .= '</ul>';
+    return $tree;
+  }
+
+  public function get_sub_html2() {
+
+  }
+
+  public function get_sub_html($folder) {
+    $sub_html = '';
+    if(substr_count($folder, '.') == 1) {
+      $sub = substr($folder, strpos($folder, '.')+1);
+      $sub_html .= "<ul><li><input type='checkbox' id='$folder'><label for='$folder' class='lastTree'>$sub</label></li></ul>";
+    } else {
+
+    }
+    return $sub_html;
+  }
+
   // 전체메일 출력: 메일함에 있는 메일들의 헤더정보(제목, 날짜, 보낸이 등등)를 뷰로 넘김
   // imap_check() : 메일박스의 정보(driver(imap), Mailbox(~~INBOX), Nmsgs)를 객체(object)로 돌려줌
   public function mail_list(){
@@ -210,15 +285,10 @@ class Mailbox extends CI_Controller {
     $data['boxname_arr'] = $boxname_arr;
 
     // 사이드바 메일함 목록 출력 테스트용
-    for ($i=0; $i < count($folders); $i++) {
-      $folders[$i] = mb_convert_encoding($folders[$i], 'UTF-8', 'UTF7-IMAP');
-      $folders[$i] = str_replace("INBOX", "받은메일함", $folders[$i]);
-      $folders[$i] = str_replace("보낸 편지함", "보낸메일함", $folders[$i]);
-      $folders[$i] = str_replace("임시 보관함", "임시보관함", $folders[$i]);
-      $folders[$i] = str_replace("정크 메일", "스팸메일함", $folders[$i]);
-      $folders[$i] = str_replace("지운 편지함", "휴지통", $folders[$i]);
-    }
-    $data['boxname_full_arr'] = $folders;
+    $folders2 = $this->get_folders2();
+    $mbox_list_html = $this->get_lists_html($folders2);
+    // $data['boxname_full_arr'] = $folders2;
+    $data['mbox_list_html'] = $mbox_list_html;
 
     // 메일 리스트 가져오기
     $mbox = $this->input->get("boxname");

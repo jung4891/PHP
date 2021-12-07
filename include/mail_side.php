@@ -119,63 +119,12 @@
           <label for="node21" class="lastTree">node22</label>
         </li>
       </ul> -->
-
       <div class="">
-        <!-- tree형 메뉴 -->
-        <!-- <ul class="tree">
-          <li>
-            <input type="checkbox" id="root">
-            <label for="root">받은메일함</label>
-            <ul>
-              <li>
-                <input type="checkbox" id="node1">
-                <label for="node1" class="lastTree">node1</label>
-              </li>
-              <li>
-                <input type="checkbox" id="node2">
-                <label for="node2">node2</label>
-
-              </li>
-            </ul>
-          </li>
-        </ul> -->
-
-        <ul class="tree">
         <?php
-        $folder_root = array();
-        $folders_sub = array();
-        for($i=0; $i<count($boxname_full_arr); $i++) {
-          $folder = $boxname_full_arr[$i];
-          if(substr_count($folder, '.') == 0) {
-            array_push($folder_root, $folder);
-          }else {
-            array_push($folders_sub, $folder);
-          }
-        }
-        // $folders = array();
-        // for($i=0; $i<count($folder_root); $i++) {
-        //   $folders[$i]['root'] = $folder_root[$i];
-        // }
-
-        for($i=0; $i<count($folder_root); $i++) {
-        ?>
-          <li id="<?php echo $folder_root[$i].'_li'; ?>">
-            <input type="checkbox" id="<?php echo $folder_root[$i]; ?>">
-            <label for="<?php echo $folder_root[$i]; ?>" class="lastTree"><?php echo $folder_root[$i]; ?></label>
-
-          </li>
-        <?php
-        }
+          // var_dump($boxname_full_arr);
+          echo $mbox_list_html;
          ?>
-         </ul>
       </div>
-
-      <!-- <pre>
-      <?php
-        // var_dump($folders);
-        // var_dump($folders_sub);
-       ?>
-     </pre> -->
 
 
     </div>
@@ -194,48 +143,6 @@
 // })
 
 $(function (){
-
-  <?php
-  foreach($folders_sub as $sub) {
-    $dot_cnt = substr_count($sub, '.');
-    if($dot_cnt > 1) {
-      $folders = explode('.', $sub);
-      $parent = implode(".", explode(".", $sub, -1));
-      $child = $folders[count($folders)-1];
-    }else {
-      $parent = substr($sub, 0, strpos($sub, '.'));
-      $child = substr($sub, strpos($sub, '.')+1);
-    }
-  ?>
-  console.log('sub: '+'<?php echo $sub ?>')
-  console.log('parent: '+'<?php echo $parent ?>')
-  console.log('child: '+'<?php echo $child ?>')
-  var ul_tree = $('#<?php echo $parent; ?>_li');
-  ul_tree.append('<ul><li id="<?php echo $sub; ?>_li"><input type="checkbox" id="<?php echo $sub; ?>"><label for="<?php echo $sub; ?>" class="lastTree"><?php echo $child; ?></label></li></ul>'  );
-
-  <?php } ?>
-  var ul_tree = $('#test메일함_li');
-  ul_tree.append('<ul><li>test</li></ul>');
-  // ul_tree.append('<ul><li id="11.222.3_li"><input type="checkbox" id="11.222.3"><label for="11.222.3" class="lastTree">3</label></li></ul>'  );
-
-  // $.ajax({
-  //   url: "<?php echo site_url(); ?>/mailbox/decode_mailbox2",
-  //   type: 'POST',
-  //   dataType: 'json',
-  //   // cache: false,
-  //   async:true,
-  //   success: function (result) {
-  //     let folders = [];
-  //     folders = result;
-  //     $.each(result, function(index, el){
-  //       let dot_cnt = '<?php echo $folder_root[0] ?>';
-  //       console.log(dot_cnt);
-  //       console.log(el);
-  //     })
-  //     // console.log(folders);
-  //
-  //   }
-  // });
 
   $.ajax({
     url: "<?php echo site_url(); ?>/mailbox/decode_mailbox",
