@@ -76,6 +76,14 @@ class Mailbox extends CI_Controller {
       $this->mailserver = "192.168.0.50";
       $this->user_id = $_SESSION["userid"];
       $this->user_pwd = $decrypted;
+
+      $this->defalt_folder = array(
+        "INBOX",
+        "&vPSwuA- &07jJwNVo-",
+        "&x4TC3A- &vPStANVo-",
+        "&yBXQbA- &ulTHfA-",
+        "&ycDGtA- &07jJwNVo-"
+      );
   }
 
   public function index(){
@@ -102,6 +110,11 @@ class Mailbox extends CI_Controller {
     $mailserver = $this->mailserver;
     $folders = imap_list($mails, "{" . $mailserver . "}", '*');
     $folders = str_replace("{" . $mailserver . "}", "", $folders);
+    for ($i=0; $i < count($folders); $i++) {
+      $folders[$i] = mb_convert_encoding($folders[$i], 'UTF-8', 'UTF7-IMAP');
+    }
+    // var_dump($folders);
+    // exit;
     sort($folders);
 
     // 인덱스 초기화
@@ -119,6 +132,7 @@ class Mailbox extends CI_Controller {
       elseif($f == "&ycDGtA- &07jJwNVo-") continue;
       array_push($folders_sorted, $f);
     }
+
     return $folders_sorted;
   }
 
@@ -215,45 +229,10 @@ class Mailbox extends CI_Controller {
         }
       }
     }
+    // var_dump($folders_sorted);
+    // exit;
     return $folders_sorted;
     // return $folders_sorted;
-  }
-
-  public function get_lists_html($folders) {
-    $tree = '<ul class="tree">';
-    for($i=0; $i<count($folders); $i++) {
-      if(substr_count($folders[$i]) == 0) {
-        if(substr_count($folders[($i+1<count($folders))? $i+1 : count($folders)-1], '.'))
-      }
-
-      // if(substr_count($folders[$i], '.') >= substr_count($folders[($i+1<count($folders))? $i+1 : count($folders)-1], '.') )
-      //   $tree .= "<li><input type='checkbox' id='$folders[$i]'><label for='$folders[$i]' class='lastTree'>$folders[$i]</label></li>";
-      // else {
-      //   if(substr_count($folders[$i], '.') == 0)
-      //     $tree .= "<li><input type='checkbox' id='$folders[$i]'><label for='$folders[$i]'>$folders[$i]</label>";
-      //   else {
-      //     $tree .= $this->get_sub_html("$folders[$i]");
-      //     $tree .= "</li>";
-      //   }
-      // }
-    }
-    $tree .= '</ul>';
-    return $tree;
-  }
-
-  public function get_sub_html2() {
-
-  }
-
-  public function get_sub_html($folder) {
-    $sub_html = '';
-    if(substr_count($folder, '.') == 1) {
-      $sub = substr($folder, strpos($folder, '.')+1);
-      $sub_html .= "<ul><li><input type='checkbox' id='$folder'><label for='$folder' class='lastTree'>$sub</label></li></ul>";
-    } else {
-
-    }
-    return $sub_html;
   }
 
   // 전체메일 출력: 메일함에 있는 메일들의 헤더정보(제목, 날짜, 보낸이 등등)를 뷰로 넘김
@@ -286,9 +265,9 @@ class Mailbox extends CI_Controller {
 
     // 사이드바 메일함 목록 출력 테스트용
     $folders2 = $this->get_folders2();
-    $mbox_list_html = $this->get_lists_html($folders2);
-    // $data['boxname_full_arr'] = $folders2;
-    $data['mbox_list_html'] = $mbox_list_html;
+    // $mbox_list_html = $this->get_lists_html($folders2);
+    $data['boxname_full_arr'] = $folders2;
+    // $data['mbox_list_html'] = $mbox_list_html;
 
     // 메일 리스트 가져오기
     $mbox = $this->input->get("boxname");

@@ -3,6 +3,8 @@
 
 to do
 모든메일함 sidebar에 출력
+misc/img/icon/allow_down.png
+misc/img/icon/allow_up.png
 
 메일함 추가시 만든대로 고정
 
