@@ -12,10 +12,6 @@
     <script src="/misc/js/jquery-ui.min.js"></script>
     <script src="/misc/js/jquery.bpopup-0.1.1.min.js"></script>
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.9.2/jquery.contextMenu.css" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.9.2/jquery.contextMenu.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.9.2/jquery.ui.position.js"></script>
-
   </head>
   <body>
       <div id="header">
@@ -36,8 +32,9 @@
                 <span onclick="myinfo();">
                   <?php echo $_SESSION["userid"]; ?>
                 </span>
+
             <!-- <button type="button" class="btn_basic btn_gray" id="logoutBtn" name="button">로그아웃</button> -->
-            <input type="button" class="btn_basic btn_gray" id="logoutBtn" name="button" value="로그아웃">
+            <input type="button" class="btn_basic btn_gray" id="logoutBtn" name="button>" value="로그아웃">
           </div>
       </div>
 

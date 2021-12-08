@@ -5,24 +5,13 @@
     width:30%;
     cursor: pointer;
   }
-
-
-  .select_side{
-    color:#0575E6;
-    font-weight: bold;
-  }
-
-  .box_tr:hover{
-    background-color: #c7f1ff;
-  }
-
-  .box_tr td img{
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
-
-}
 </style>
+
+<!-- jquery-contextmenu -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.9.2/jquery.contextMenu.css" integrity="sha512-EF5k2tHv4ShZB7zESroCVlbLaZq2n8t1i8mr32tgX0cyoHc3GfxuP7IoT8w/pD+vyoq7ye//qkFEqQao7Ofrag==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.9.2/jquery.contextMenu.js" integrity="sha512-2ABKLSEpFs5+UK1Ol+CgAVuqwBCHBA0Im0w4oRCflK/n8PUVbSv5IY7WrKIxMynss9EKLVOn1HZ8U/H2ckimWg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.9.2/jquery.ui.position.js" integrity="sha512-vBR2rismjmjzdH54bB2Gx+xSe/17U0iHpJ1gkyucuqlTeq+Q8zwL8aJDIfhQtnWMVbEKMzF00pmFjc9IPjzR7w==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
 
 <?php
 $encryp_password = $this->M_account->mbox_conf($_SESSION['userid']);
@@ -33,30 +22,21 @@ $decrypted = openssl_decrypt(base64_decode($encryp_password), 'aes-256-cbc', $ke
 $mailserver = "192.168.0.50";
 $user_id = $_SESSION["userid"];
 $user_pwd = $decrypted;
-$default_folder = array(
+$defalt_folder = array(
   "INBOX",
   "&vPSwuA- &07jJwNVo-",
   "&x4TC3A- &vPStANVo-",
   "&yBXQbA- &ulTHfA-",
   "&ycDGtA- &07jJwNVo-"
 );
-// $defalt_fkey = array(
-//   "inbox",
-//   "sent",
-//   "draft",
-//   "spam",
-//   "trash"
-// );
-
-
-// $mbox="";
-$host = "{" . $mailserver . ":143/imap/novalidate-cert}";
+$mbox="";
+$host = "{" . $mailserver . ":143/imap/novalidate-cert}$mbox";
 $mails = @imap_open($host, $user_id, $user_pwd);
 $folders = imap_list($mails, "{" . $mailserver . "}", '*');
 $folders = str_replace("{" . $mailserver . "}", "", $folders);
 sort($folders);
 
-$folders_root = $default_folder;
+$folders_root = $defalt_folder;
 $folders_sub = array();
 
 foreach($folders as $f) {
@@ -89,13 +69,12 @@ for ($i=0; $i < count($folders); $i++) {
   $exp_folder = explode(".", $folders[$i]);
   $length = count($exp_folder);
   $text = mb_convert_encoding($exp_folder[$length-1], 'UTF-8', 'UTF7-IMAP');
-  $folderkey = "custom";
   switch($text) {
-    case "INBOX":  $text="받은메일함"; $folderkey="inbox";  break;
-    case "보낸 편지함": $folderkey="sent"; break;
-    case "임시 보관함": $folderkey="draft";  break;
-    case "정크 메일":   $folderkey="spam";  break;
-    case "지운 편지함": $folderkey="trash";  break;
+    case "INBOX":  $text="받은메일함";  break;
+    // case "보낸 편지함":  $text="보낸메일함";  break;
+    // case "임시 보관함":  $text="임시보관함";  break;
+    // case "정크 메일":  $text="스팸메일함";  break;
+    // case "지운 편지함":  $text="휴지통";  break;
   }
 
   $substr_count = substr_count($folders[$i], ".");
@@ -113,7 +92,6 @@ for ($i=0; $i < count($folders); $i++) {
     "text" => $text,
     "child_num" => $substr_count,
     "unseen" => $mbox_status->unseen,
-    "folderkey" => $folderkey,
     "state" => array("opened" => true)
   );
   array_push($mailbox_tree, $tree);
@@ -133,13 +111,20 @@ for ($i=0; $i < count($folders); $i++) {
   }
   ?>
     <div id="sideBar" width="<?php echo $side_w; ?>">
+      <?php
+      // echo '<pre>';
+      // var_dump($mailbox_tree);
+      // echo '</pre>';
+
+      ?>
+
       <div class="" align="center" style="margin-top:20px;margin-bottom:20px;">
 
         <button class="btn_basic btn_blue" type="button" name="button" onclick = "location.href='<?php echo site_url(); ?>/mail_write/page'" style="width:40%;">메일쓰기</button>
         <!-- <button type="button" name="button">메일쓰기</button> -->
         <button class="btn_basic btn_sky" type="button" name="button" onclick = "self_write();" style="width:40%">내게쓰기</button>
       </div>
-      <?php // echo $mbox ?>
+
       <?php
       if(isset($mbox)) {
         $mbox = str_replace('&', '%26', $mbox);
@@ -154,14 +139,53 @@ for ($i=0; $i < count($folders); $i++) {
           <img src="<?php echo $misc;?>img/icon/schedule.svg" width="25"><br>
           안읽음
         </div>
-        <div class="side_top2" align="center" onclick="location.href='<?php echo site_url(); ?>/mailbox/mail_list?boxname=<?php echo $mbox; ?>&type=important'">
-          <img src="<?php echo $misc;?>img/icon/side_important.svg" width="25"><br>
+        <div class="side_top2" align="center">
+          <img src="<?php echo $misc;?>img/icon/side_important.svg" width="25" onclick="location.href='<?php echo site_url(); ?>/mailbox/mail_list?boxname=<?php echo $mbox; ?>&type=important'"><br>
           중&nbsp요
         </div>
         <div class="side_top2" align="center" onclick="location.href='<?php echo site_url(); ?>/mailbox/mail_list?boxname=<?php echo $mbox; ?>&type=attachments'">
           <img src="<?php echo $misc;?>img/icon/side_attach.svg" width="25"><br>
           첨&nbsp부
         </div>
+      </div>
+      <div class="">
+        <table>
+        <?php foreach ($mailbox_tree as $b) {
+          $dept = $b['child_num'];
+          $padding = $dept * 20;
+          $parent = mb_convert_encoding($b['parent'], 'UTF-8', 'UTF7-IMAP');
+          $parent = str_replace('#', '', $parent);
+          $parent = str_replace('.', '_', $parent);
+          $child = ($b["text"] == "받은메일함")? "INBOX" : $b["text"] ;
+          $name_full = ($parent == '')? $child : $parent.'_'.$child;
+        ?>
+        <tr class="box_tr context-menu-one2" id="<?php echo $b["id"]; ?>">
+          <td style="padding-left:<?php echo $padding.'px'; ?>;" dept="<?php echo $dept; ?>">
+            <!-- <img src="<?php echo $misc;?>img/icon/아래3.svg" class="down_btn" style="cursor:pointer;" onclick="updown(this, 'down');">
+            <img src="<?php echo $misc;?>img/icon/오른쪽.svg" class="up_btn" style="display:none;cursor:pointer;" onclick="updown(this, 'up');"> -->
+            <?php if($dept != 0) {echo 'ㄴ';} ?>
+            <?php
+              echo $b['text'];
+            ?>
+          </td>
+          <td>
+            <?php echo ($b['unseen'] == 0)?"":$b['unseen']; ?>
+          </td>
+        </tr>
+        <tr style="display: none">
+            <?php
+            // $box_name = $b["text"];
+            // $box_name = str_replace('.', '_', $box_name);
+             ?>
+            <td style="padding-left:<?php echo $padding.'px'; ?>;" id="<?php echo $b["id"].'_add'; ?>">
+              <input type="text" style="width: 100px;" id="<?php echo $b["id"].'_text'; ?>" name="" value="">
+              <input type="button" name="" value="추가" onclick="add_mbox(this);">
+            </td>
+          </tr>
+          <?php
+        }
+          ?>
+        </table>
       </div>
       <form name="boxform" id="boxform" class="" action="" method="get">
         <input type="hidden" name="curpage" id="curpage" value="">
@@ -171,61 +195,13 @@ for ($i=0; $i < count($folders); $i++) {
 
         </div>
       </form>
-      <div class="mailbox_div">
-        <table>
-        <?php foreach ($mailbox_tree as $b) {
-          $i = 0;
-          $box_len = count($mailbox_tree);
-          $dept = $b['child_num'];
-          $padding = $dept * 10;
-          if($b["parent"] == "#"){
-            ?>
-          </table>
-          <table class="mbox_tbl" id="<?php echo $b["id"]; ?>_tbl" border="0" cellspacing="0" cellpadding="0">
-            <?php
-          }
-            ?>
-        <tr class="box_tr context-menu-one2" id="<?php echo $b["id"]; ?>">
-          <td height=30>
-            <?php if($b["parent"] == "#" && $b["folderkey"] != "custom"){ ?>
-            <img src="<?php echo $misc;?>img/sideicon/<?php echo $b["folderkey"]; ?>.svg" class="up_btn" style="cursor:pointer;">
-          <?php } ?>
-          </td>
-          <td style="padding-left:<?php echo $padding.'px'; ?>;" dept="<?php echo $dept; ?>">
-            <!-- <img src="<?php echo $misc;?>img/icon/아래3.svg" class="down_btn" style="cursor:pointer;" onclick="updown(this, 'down');">
-            <img src="<?php echo $misc;?>img/icon/오른쪽.svg" class="up_btn" style="display:none;cursor:pointer;" onclick="updown(this, 'up');"> -->
-            <?php if($dept != 0) {echo 'ㄴ';} ?>
-            <?php
-              echo $b['text'];
-            ?>
-          </td>
-          <td style="color:#0575E6;">
-            <?php echo ($b['unseen'] == 0)?"":$b['unseen']; ?>
-          </td>
-        </tr>
-        <tr style="display: none">
-            <td></td>
-            <td style="padding-left:<?php echo $padding.'px'; ?>;" id="<?php echo $b["id"].'_add'; ?>">
-              <input type="text" style="width: 100px;" id="<?php echo $b["id"].'_text'; ?>" name="" value="">
-              <input type="button" name="" value="추가" onclick="add_mbox(this);">
-            </td>
-            <td></td>
-          </tr>
-          <?php
-          if($i == $box_len){
-            echo "</table>";
-          }
-          $i++;
-        }
-          ?>
-        </table>
-      </div>
 
       <div class="">
 
         <div class="" align="right" style="margin-right:5px;">
           <a href="<?php echo site_url(); ?>/option/mailbox">설정</a>
         </div>
+
       </div>
 
 
@@ -244,24 +220,33 @@ for ($i=0; $i < count($folders); $i++) {
 //   $("#sideBar, #sideMini").toggle();
 // })
 
-$(function (){
-  <?php
-  if(strpos($_SERVER['REQUEST_URI'],'mailbox/') !== false){
-    if(isset($_GET["boxname"])){
-
-        $select_box = $_GET["boxname"];
-        if($select_box == ""){
-          $select_box = "INBOX";
-        }
-    } else {
-      $select_box = "INBOX";
+function add_mbox(ths) {
+  let text = $(ths).closest('td').find("input").eq(0).val();
+  console.log(text);
+  let id = $(ths).closest('td').find("input").eq(0).attr('id');
+  console.log(id);
+  id = id.replace(/_/gi, '.');
+  id = id.replace('.text', '');
+  let new_mbox = id + '.' + text;
+  console.log(new_mbox);
+  $.ajax({
+    url: "<?php echo site_url(); ?>/option/add_mailbox2",
+    type : "post",
+    data : {mbox: new_mbox},
+    success: function (res) {
+      if(res=='o')  alert("메일함 [" + new_mbox + "] 생성완료");
+      else {
+        console.log(res);
+        alert("메일함 생성 실패");
+      }
+      location.reload();
     }
-    ?>
-    $("[id='<?php echo $select_box; ?>']").addClass("select_side");
-    <?php
-  }
-  ?>
+  });
+}
 
+$(function (){
+
+  $(`#aa`).show();
 
   $.ajax({
     url: "<?php echo site_url(); ?>/mailbox/decode_mailbox",
@@ -278,8 +263,32 @@ $(function (){
         });
     }
 
+    // success: function (result) {
+    //   // console.log(result);
+    //   $('#sidetree').jstree({
+    //     'core' :{
+    //       'data' : result,
+    //       'check_callback' : true
+    //       },
+    //       "plugins" : [ "wholerow", "contextmenu", "dnd"],
+    //       'contextmenu' : {
+    //         "items" : {
+    //           "create" : {
+    //             "separator_before" : false,
+    //             "separator_after" : true,
+    //             "label" : "하위폴더 생성",
+    //             "action" : function(obj){
+    //               // alert('하위폴더 생성')
+    //               // console.log('aaa');
+    //               var parentId = $('#sidetree').jstree('get_selected').attr('id');
+    //               console.log(parentId);
+    //             }
+    //           }
+    //         }
+    //       },
+    //     });
+    // }
   });
-
 
   $.contextMenu({
     selector: '.context-menu-one2',
@@ -294,8 +303,9 @@ $(function (){
                // console.log(opt.$trigger[0].id);
                // let id = opt.$trigger[0].id;
                // let id = opt.$trigger[0].next();
-               $(this).next()[0].style.display = "contents";
-               // $(this).next()[0].show();
+               $(this).next()[0].style.display = "block";
+               // console.log($(this).next()[0].style.display);
+
                // $(this).next()[0].show();
                // console.log(id);
 
@@ -337,7 +347,7 @@ $(function (){
     dataType: 'json',
     async:true,
     success: function (result) {
-      // console.log(result);
+      console.log(result);
       if(result == 'defalt'){
         $("#sideBar").css("width", 250);
 
@@ -351,13 +361,37 @@ $(function (){
 
 })
 
+$('#sidetree').on("select_node.jstree", function (e, data) {
 
-$(".mailbox_div").on("click", ".box_tr", function(){
-  var trid = $(this).attr("id");
-  $("#boxname").val(trid);
+  // 우클릭시 이벤트 방지
+  // var evt =  window.event || event;
+  // var button = evt.which || evt.button;
+  // if( button != 1 && ( typeof button != "undefined")) return false;
+
+  var box_name = data.node.id;
+  $("#boxname").val(box_name);
   var action = "<?php echo site_url(); ?>/mailbox/mail_list";
   $("#boxform").attr("action", action);
   $("#boxform").submit();
+});
+
+$('#sidetree').bind('loaded.jstree', function(e, data) {
+  var box_name = '<?php echo urldecode($mbox); ?>';
+
+  if(box_name == 'inbox') {
+    box_name = 'INBOX';
+  }
+
+  $('.jstree-anchor').each(function() {
+    var node_id = $(this).attr('id');
+    if(node_id.indexOf(box_name) != -1) {
+      $(this).css('font-weight', 'bold');
+      return false;
+    }
+    // if (box_name.indexOf('INBOX') || box_name == 'INBOX') {
+    //   $('#INBOX_anchor').css('font-weight', 'bold');
+    // }
+  })
 })
 
 function self_write(){
@@ -416,30 +450,6 @@ $('#dragbar').mousedown(function(e) {
 
 });
 
-
-function add_mbox(ths) {
-  let text = $(ths).closest('td').find("input").eq(0).val();
-  let id = $(ths).closest('td').find("input").eq(0).attr('id');
-  id = id.replace(/_/gi, '.');
-  id = id.replace('.text', '');
-  console.log(id);
-  console.log(text);
-  // let new_mbox = id + '.' + text;
-  // console.log(new_mbox);
-  $.ajax({
-    url: "<?php echo site_url(); ?>/option/add_mailbox2",
-    type : "post",
-    data : {parent: id, child_input: text},
-    success: function (res) {
-      if(res=='o')  alert("메일함 [" + text + "] 생성완료");
-      else {
-        console.log(res);
-        alert("메일함 생성 실패");
-      }
-      location.reload();
-    }
-  });
-}
 
 
 </script>

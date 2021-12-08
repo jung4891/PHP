@@ -1,7 +1,9 @@
 
 =====================
 
-to do
+패치1차
+mail_side  52    /  $mbox 주석  /   안읽음/중요/첨부시 해당 메일함 적용.
+mailbox    441   /  %26 -> &   /    받은메일함말고 다른 메일함에서 중요지정하면 적용안되는 문제
 
 
 
@@ -17,8 +19,48 @@ to do
 
 
 
-=====================
 
-패치예정
 
-mailbox 417 /  %26 -> &   /    받은메일함말고 다른 메일함에서 중요지정하면 적용안되는 문제
+
+  <div id="main_contents" align="center">
+    <form name="mform" action="" method="post">
+      <div class="" align="left" width=100% style="border-bottom:1px solid #1A8DFF;margin:-10px 40px 10px 40px;">
+        <button type="button" name="button" class="nav_btn" style="margin-left:10px;"onclick="location.href='<?php echo site_url(); ?>/option/account'">계정설정</button>
+        <button type="button" name="button" class="nav_btn select_btn" onclick="location.href='<?php echo site_url(); ?>/option/mailbox'">메일함설정</button>
+        <button type="button" name="button" class="nav_btn" onclick="location.href='<?php echo site_url(); ?>/option/address_book'">주소록관리</button>
+        <button type="button" name="button" class="nav_btn" onclick="location.href='<?php echo site_url(); ?>/option/singnature'">서명관리</button>
+      </div>
+    </form>
+
+    <div class="main_div" align="left" style="margin-left: 45px;">
+      <select class="top_button" id="selected_box" style="background-color: #F0F0F0; height: 25px;">
+        <option value="">메일함 추가</option>
+        <?php
+          $my_mbox_cnt = count($mbox_info)-5;
+          for($i=0; $i<5+$my_mbox_cnt; $i++) {
+        ?>
+            <option value= "<?php echo $mbox_info[$i]['boxname_kor']?>"><?php echo $mbox_info[$i]['boxname_kor']?></option>";
+        <?php
+          }
+         ?>
+      </select>
+      <input type="text" id="new_mbox" style="width: 70px; height: 19px"> &nbsp;
+      <button type="button" name="button" onclick="add_mailbox()">추가</button>
+
+
+    <br><br>
+    <table style="width: 95%; line-height: 30px" >
+      <colgroup>
+        <col width="11%">
+        <col width="24%">
+        <col width="17%">
+        <col width="28%">
+      </colgroup>
+      <tr style="background-color: lightgray; height: 30px;">
+        <th>구분</th>
+        <th>메일함명</th>
+        <th>읽지않음/총메일</th>
+        <th>관리</th>
+      </tr>
+      <tr align="center">
+        <td rowspan="9">기본메일함</td>

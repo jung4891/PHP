@@ -437,6 +437,13 @@ class Mailbox extends CI_Controller {
   // flag 지정 (중요메일)
   public function set_flag() {
     $mbox = $this->input->get("boxname");
+
+    if(isset($mbox)) {
+      $mbox = str_replace('%26', '&', $mbox);
+      $mbox = str_replace('+', ' ',  $mbox);
+    } else {
+      $mbox = "inbox";
+    }
     $mailno = $this->input->get("mailno");
     $state = $this->input->get("state");
     $mails= $this->connect_mailserver($mbox);

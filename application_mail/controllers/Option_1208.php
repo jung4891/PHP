@@ -162,6 +162,16 @@ class Option extends CI_Controller {
 
 		}
 
+		function add_mailbox2() {
+			$new_mbox = $this->input->post('mbox');
+			$mails= $this->connect_mailserver();
+			$mailserver = $this->mailserver;
+			$host = "{" . $mailserver . ":143/imap/novalidate-cert}";
+			$create = imap_createmailbox($mails, $host.$new_mbox);
+			if($create) echo "o"; else echo "x";
+			imap_close($mails);
+		}
+
 		function add_mailbox() {
 			$new_mbox = $this->input->post('mbox');
 			$mails= $this->connect_mailserver();
@@ -305,20 +315,6 @@ class Option extends CI_Controller {
 			$seq = $this->input->post("seq");
 			$result = $this->M_option->sign_del($seq);
 			echo json_encode($result);
-		}
-
-		function add_mailbox2() {
-		   $parent = $this->input->post('parent');
-		   $child = $this->input->post('child_input');
-			 $child = mb_convert_encoding($child, 'UTF7-IMAP', 'UTF-8');
-			 $new_mbox = $parent.'.'.$child;
-
-		   $mails= $this->connect_mailserver();
-		   $mailserver = $this->mailserver;
-		   $host = "{" . $mailserver . ":143/imap/novalidate-cert}";
-		   $create = imap_createmailbox($mails, $host.$new_mbox);
-		   if($create) echo "o"; else echo "x";
-		   imap_close($mails);
 		}
 
 }
