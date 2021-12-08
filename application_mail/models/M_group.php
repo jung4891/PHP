@@ -13,6 +13,7 @@ class M_group extends CI_Model {
 		// var_dump($data2);
 		$result = $this->db->insert('address_book', $data); // 3. insert할 데이터 true false
 		return $result;
+
 	}
 
 
@@ -77,6 +78,16 @@ class M_group extends CI_Model {
 				}
 			}
 			return true;
+		}
+
+
+		function address_modify_action($update_data, $seq){
+			$address_update = $this->db->update('address_book', $update_data, array('seq' => $seq));
+			if($address_update){
+				return true;
+			}else{
+				return false;
+			}
 		}
 
 }

@@ -76,6 +76,7 @@ class Mailbox extends CI_Controller {
       $this->mailserver = "192.168.0.50";
       $this->user_id = $_SESSION["userid"];
       $this->user_pwd = $decrypted;
+
       $this->defalt_folder = array(
         "INBOX",
         "&vPSwuA- &07jJwNVo-",
@@ -109,7 +110,11 @@ class Mailbox extends CI_Controller {
     $mailserver = $this->mailserver;
     $folders = imap_list($mails, "{" . $mailserver . "}", '*');
     $folders = str_replace("{" . $mailserver . "}", "", $folders);
-
+    // var_dump($folders);
+    // exit;
+    for ($i=0; $i < count($folders); $i++) {
+      $folders[$i] = mb_convert_encoding($folders[$i], 'UTF-8', 'UTF7-IMAP');
+    }
     sort($folders);
 
     // 인덱스 초기화
@@ -131,24 +136,20 @@ class Mailbox extends CI_Controller {
     return $folders_sorted;
   }
 
-
   function decode_mailbox(){
-    $folders = $this->get_folders2();
-    $mailserver = $this->mailserver;
+    $folders = $this->get_folders();
     $mailbox_tree = array();
     for ($i=0; $i < count($folders); $i++) {
       $id = $folders[$i];
-      $mails = $this->connect_mailserver($id);
-      $mbox_status = imap_status($mails, "{" . $mailserver . "}".$id, SA_UNSEEN);
       $exp_folder = explode(".", $folders[$i]);
       $length = count($exp_folder);
       $text = mb_convert_encoding($exp_folder[$length-1], 'UTF-8', 'UTF7-IMAP');
       switch($text) {
         case "INBOX":  $text="받은메일함";  break;
-        // case "보낸 편지함":  $text="보낸메일함";  break;
-        // case "임시 보관함":  $text="임시보관함";  break;
-        // case "정크 메일":  $text="스팸메일함";  break;
-        // case "지운 편지함":  $text="휴지통";  break;
+        case "보낸 편지함":  $text="보낸메일함";  break;
+        case "임시 보관함":  $text="임시보관함";  break;
+        case "정크 메일":  $text="스팸메일함";  break;
+        case "지운 편지함":  $text="휴지통";  break;
       }
 
       $substr_count = substr_count($folders[$i], ".");
@@ -159,21 +160,24 @@ class Mailbox extends CI_Controller {
       }else{
         $parent_folder = "#";
       }
+
+      // 기본메일함의 하위폴더 출력(parent와 상위id 같게하기)
+      switch($parent_folder) {
+        case "&vBvHQLpUx3zVaA-":  $parent_folder="INBOX";  break;
+        case "&vPSwuLpUx3zVaA-":  $parent_folder="&vPSwuA- &07jJwNVo-";  break;
+        case "&x4TC3Lz0rQDVaA-":  $parent_folder="&x4TC3A- &vPStANVo-";  break;
+        case "&wqTTOLpUx3zVaA-":  $parent_folder="&yBXQbA- &ulTHfA-";  break;
+        case "&1zTJwNG1-":  $parent_folder="&ycDGtA- &07jJwNVo-";  break;
+      }
       $tree = array(
         // "name" => $folders[$i],
         "id" => $id,
         "parent" => $parent_folder,
         "text" => $text,
-        "child_num" => $substr_count,
-        "unseen" => $mbox_status->unseen,
         "state" => array("opened" => true)
       );
       array_push($mailbox_tree, $tree);
     }
-    // var_dump($mailbox_tree);
-    // exit;
-    // array_multisort($marks, SORT_DESC, $mailbox_tree);
-    // print_r($result);
     echo json_encode($mailbox_tree);
   }
 
@@ -185,33 +189,30 @@ class Mailbox extends CI_Controller {
     $folders = str_replace("{" . $mailserver . "}", "", $folders);
     sort($folders);
 
-    // for ($i=0; $i < count($folders); $i++) {
-    //   $folders[$i] = mb_convert_encoding($folders[$i], 'UTF-8', 'UTF7-IMAP');
-    //   $folders[$i] = str_replace("INBOX", "받은메일함", $folders[$i]);
-    //   $folders[$i] = str_replace("보낸 편지함", "보낸메일함", $folders[$i]);
-    //   $folders[$i] = str_replace("임시 보관함", "임시보관함", $folders[$i]);
-    //   $folders[$i] = str_replace("정크 메일", "스팸메일함", $folders[$i]);
-    //   $folders[$i] = str_replace("지운 편지함", "휴지통", $folders[$i]);
-    // }
+    for ($i=0; $i < count($folders); $i++) {
+      $folders[$i] = mb_convert_encoding($folders[$i], 'UTF-8', 'UTF7-IMAP');
+      $folders[$i] = str_replace("INBOX", "받은메일함", $folders[$i]);
+      $folders[$i] = str_replace("보낸 편지함", "보낸메일함", $folders[$i]);
+      $folders[$i] = str_replace("임시 보관함", "임시보관함", $folders[$i]);
+      $folders[$i] = str_replace("정크 메일", "스팸메일함", $folders[$i]);
+      $folders[$i] = str_replace("지운 편지함", "휴지통", $folders[$i]);
+    }
 
     // 인덱스 초기화
-    $folders_root = $this->defalt_folder;
+    $folders_root = array();
     $folders_sub = array();
-    // $folders_root[0] = "받은메일함";
-    // $folders_root[1] = "보낸메일함";
-    // $folders_root[2] = "임시보관함";
-    // $folders_root[3] = "스팸메일함";
-    // $folders_root[4] = "휴지통";
+    $folders_root[0] = "받은메일함";
+    $folders_root[1] = "보낸메일함";
+    $folders_root[2] = "임시보관함";
+    $folders_root[3] = "스팸메일함";
+    $folders_root[4] = "휴지통";
     foreach($folders as $f) {
       if(substr_count($f, '.') == 0) {
-        if(in_array($f,$folders_root )){
-            continue;
-        }
-        // if($f == "받은메일함") continue;
-        // elseif($f == "보낸메일함") continue;
-        // elseif($f == "임시보관함") continue;
-        // elseif($f == "스팸메일함") continue;
-        // elseif($f == "휴지통") continue;
+        if($f == "받은메일함") continue;
+        elseif($f == "보낸메일함") continue;
+        elseif($f == "임시보관함") continue;
+        elseif($f == "스팸메일함") continue;
+        elseif($f == "휴지통") continue;
         array_push($folders_root, $f);
       } else {
         array_push($folders_sub, $f);
@@ -234,40 +235,9 @@ class Mailbox extends CI_Controller {
     // return $folders_sorted;
   }
 
-  public function get_lists_html($folders) {
-    $tree = '<ul class="tree">';
-    for($i=0; $i<count($folders); $i++) {
-      $dot_cnt = substr_count($folders[$i], '.');
-      $dot_cnt_prev = substr_count($folders[($i-1 < 0)? 0 : $i], '.');
-      // if($dot_cnt == 0) {
-        $tree .= "<li><input type='checkbox' id='$folders[$i]'><label for='$folders[$i]' class='lastTree'>$folders[$i]</label></li>";
-      // } else {
-      //   if($dot_cnt > $dot_cnt_prev) {
-      //     $parent = implode(".", explode(".", $folders[$i], -1));
-      //     $exp_folder = explode(".", $folders[$i]);
-      //     $child = $exp_folder[count($exp_folder)-1];
-      //     $parent_child = (substr_count($parent, '.') == 0)? $parent : explode(".", $parent)[count(explode(".", $parent))-1];
-      //     $from = "<li><input type='checkbox' id='$parent'><label for='$parent' class='lastTree'>$parent_child</label>";
-      //     $to = "<li><input type='checkbox' id='$parent'><label for='$parent' class='lastTree'>$parent_child</label><ul><li><input type='checkbox' id='$folders[$i]'><label for='$folders[$i]' class='lastTree'>$child</label>";
-      //     $tree = str_replace($from, $to, $tree);
-      //   } else {
-      //     $parent = implode(".", explode(".", $folders[$i], -1));
-      //     $exp_folder = explode(".", $folders[$i]);
-      //     $child = $exp_folder[count($exp_folder)-1];
-      //     $tree .= "<ul><li><input type='checkbox' id='$folders[$i]'><label for='$folders[$i]' class='lastTree'>$folders[$i]</label>";
-      //   }
-      // }
-    }
-    $tree .= '</ul>';
-    return $tree;
-  }
-
   // 전체메일 출력: 메일함에 있는 메일들의 헤더정보(제목, 날짜, 보낸이 등등)를 뷰로 넘김
   // imap_check() : 메일박스의 정보(driver(imap), Mailbox(~~INBOX), Nmsgs)를 객체(object)로 돌려줌
   public function mail_list(){
-    if(!isset($_SESSION['userid']) && ($_SESSION['userid'] == "")){
-      redirect("");
-    }
 
     // echo imap_base64("송혁중");
     // echo iconv('utf-8', 'euc-kr', "테스트");
@@ -283,7 +253,7 @@ class Mailbox extends CI_Controller {
       $length = count($exp_folder);
       $text = mb_convert_encoding($exp_folder[$length-1], 'UTF-8', 'UTF7-IMAP');
       switch($text) {
-        case "INBOX":  $text="전체메일";  break;
+        case "INBOX":  $text="받은메일함";  break;
         case "보낸 편지함":  $text="보낸메일함";  break;
         case "임시 보관함":  $text="임시보관함";  break;
         case "정크 메일":  $text="스팸메일함";  break;
@@ -292,6 +262,12 @@ class Mailbox extends CI_Controller {
       $boxname_arr[$text] = $folders[$i];
     }
     $data['boxname_arr'] = $boxname_arr;
+
+    // 사이드바 메일함 목록 출력 테스트용
+    $folders2 = $this->get_folders2();
+    // $mbox_list_html = $this->get_lists_html($folders2);
+    $data['boxname_full_arr'] = $folders2;
+    // $data['mbox_list_html'] = $mbox_list_html;
 
     // 메일 리스트 가져오기
     $mbox = $this->input->get("boxname");
@@ -385,12 +361,12 @@ class Mailbox extends CI_Controller {
 
       $paging = '';
       if ($curpage == 1) {
-        $paging .= '<a href="" class="link" style="color: silver"> << </a>';
+        $paging .= '<a class="link" style="color: silver"> << </a>';
       } else {
         $paging .= "<a href='javascript:go_page(1);' class='link' style='font-weight: 700'> << </a>";
       }
       if ($paging_block == 1) {
-        $paging .= '<a href="" class="link" style="color: silver"> &nbsp; < &nbsp;</a>';
+        $paging .= '<a class="link" style="color: silver"> &nbsp; < &nbsp;</a>';
       } else {
         $p = (($paging_block-2)*$pagingNum_cnt) + 1;
         $paging .= "<a href='javascript:go_page($p);' class='link' style='font-weight: 700'> &nbsp; < &nbsp;</a>";
@@ -402,14 +378,14 @@ class Mailbox extends CI_Controller {
           $paging .= "<a href='javascript:go_page($i);' class='link' style=''> &nbsp;[$i] </a>";
         }
       }
-      if ($paging_block == $total_blocks) {
-        $paging .= '<a href="" class="link" style="color: silver"> &nbsp;&nbsp; > </a>';
+      if ($paging_block == $total_blocks || count($mailno_arr) == 0 ) {       // 메일 없는경우 페이지링크 비활성화
+        $paging .= '<a class="link" style="color: silver"> &nbsp;&nbsp; > </a>';
       } else {
         $p = ($paging_block*$pagingNum_cnt) + 1;
         $paging .= "<a href='javascript:go_page($p);' class='link' style='font-weight: 700'> &nbsp;&nbsp; > </a>";
       }
-      if ($curpage == $total_pages) {
-        $paging .= '<a href="" class="link" style="color: silver"> &nbsp; >> </a>';
+      if ($curpage == $total_pages || count($mailno_arr) == 0 ) {
+        $paging .= '<a class="link" style="color: silver"> &nbsp; >> </a>';
       } else {
         $paging .= "<a href='javascript:go_page($total_pages);' class='link' style='font-weight: 700;'> &nbsp; >> </a>";
       }
@@ -437,6 +413,14 @@ class Mailbox extends CI_Controller {
   // flag 지정 (중요메일)
   public function set_flag() {
     $mbox = $this->input->get("boxname");
+
+    // get방식으로는 inbox 말고 다른 메일박스명이 &가 %26으로 되어있어서 적용안됨
+    if(isset($mbox)) {
+      $mbox = str_replace('%26', '&', $mbox);
+      $mbox = str_replace('+', ' ',  $mbox);
+    } else {
+      $mbox = "inbox";
+    }
     $mailno = $this->input->get("mailno");
     $state = $this->input->get("state");
     $mails= $this->connect_mailserver($mbox);
@@ -446,6 +430,8 @@ class Mailbox extends CI_Controller {
     } else {
       imap_clearflag_full($mails, $mailno, "\\Flagged");
     }
+
+    echo 'aa';
   }
 
 

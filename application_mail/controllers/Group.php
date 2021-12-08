@@ -49,16 +49,9 @@ class Group extends CI_Controller {
 				'group' => $user_group,
 				'id' => $user_id,
 				'comment' => $user_comment,
-
+				'insert_date' => date('Y-m-d H:i:s')
 			);
-			if(입력) {
-				$data['insert_date'] = date('Y-m-d H:i:s');
-			} else if(수정){
-				$data['modify_date'] = date('Y-m-d H:i:s');
-			}
 
-			// $data['name'] =$this->input->post("name");
-			// $keyword = $this->input->post('data');
 	  	$result = $this->M_group->address_insert_action($data);
 	  	echo json_encode($result);
 		}
@@ -127,6 +120,29 @@ class Group extends CI_Controller {
 			$data = $this->input->post('checkboxArr');
 			$result = $this->M_group->address_delete($data);
 			echo json_encode($result);
+		}
+
+		function detail_address_save(){
+			$seq = $this->input->post("seq");
+			$user_name=$this->input->post("name"); // 뷰에서 ajax의 보낸 데이터의 value담긴 key값 가져온다!!!
+			$user_email=$this->input->post("email");
+			$user_department=$this->input->post("department");
+			$user_group=$this->input->post("group");
+			$user_id=$_SESSION['userid']; // session값 가져온다
+			$user_comment=$this->input->post("comment");
+			$user_date=$this->input->post("date");
+			// $_SESSION['userid']
+			$update_data = array(
+				'name' => $user_name,
+				'email' => $user_email,
+				'department' => $user_department,
+				'group' => $user_group,
+				'id' => $user_id,
+				'comment' => $user_comment,
+				'insert_date' => date('Y-m-d H:i:s')
+			);
+			$result = $this->M_group->address_modify_action($update_data, $seq);
+	  	echo json_encode($result);
 		}
 
 }

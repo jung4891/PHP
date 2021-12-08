@@ -32,17 +32,34 @@ class M_addressbook extends CI_Model {
 	}
 
 	function group_button($keyword){
+		$id = $_SESSION["userid"];
 		if($keyword == 'all'){
-			$where = " WHERE parentGroupName != '기술본부' and parentGroupName != '영업본부'";
+			// $where = " WHERE parentGroupName != '기술본부' and parentGroupName != '영업본부'";
+			$sql = "SELECT name as user_name, email as user_email, department as parentGroupName FROM address_book WHERE id = '{$id}'";
+			$query = $this->db->query($sql);
+			$result = $query->result_array();
+			return $result;
 		}	else if($keyword == 'tech'){
-			$where = " WHERE parentGroupName = '기술본부'";
+			// $where = " WHERE parentGroupName = '기술본부'";
+			$sql = "SELECT alias.address,
+	    alias.goto as user_email,
+	    alias.domain,
+	    alias.modified,
+	    alias.active,
+	    mailbox.name as user_name
+	    FROM alias LEFT JOIN mailbox ON alias.address=mailbox.username
+	    WHERE mailbox.maildir IS NOT NULL
+	    AND alias.active = 1";
+			$query = $this->db->query($sql);
+			$result = $query->result_array();
+			return $result;
 		} else{
 				$where = " WHERE parentGroupName = '영업본부'";
 		}
-		$sql = "SELECT a.seq, a.user_name, a.user_email, a.user_duty, b.parentGroupName FROM user a JOIN user_group b ON a.user_group = b.groupName {$where}";
-		$query = $this->db->query($sql);
-		$result = $query->result_array();
-		return $result;
+		// $sql = "SELECT a.seq, a.user_name, a.user_email, a.user_duty, b.parentGroupName FROM user a JOIN user_group b ON a.user_group = b.groupName {$where}";
+		// $query = $this->db->query($sql);
+		// $result = $query->result_array();
+		// return $result;
 	}
 
 

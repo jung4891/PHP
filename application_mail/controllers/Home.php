@@ -38,7 +38,7 @@ class Home extends CI_Controller {
 				// 	'side_width' => $width
 				// );
 				$result = $this->M_account->change_side($width, $user_id);
-
+				$_SESSION['s_width'] = $width;
 				echo json_encode($result);
 		}
 

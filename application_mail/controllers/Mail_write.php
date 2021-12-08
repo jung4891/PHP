@@ -184,6 +184,19 @@ class Mail_write extends CI_Controller {
               // echo json_encode($err_msg);
               echo $err_msg;
            }else{
+             $mailserver = "192.168.0.50";
+             $host = "{" . $mailserver . ":143/imap/novalidate-cert}&vPSwuA- &07jJwNVo-";
+             $imap = @imap_open($host, $_SESSION["userid"], $this->decrypted);
+             $append = imap_append($imap, $host
+                   , "From: {$_SESSION["userid"]}\r\n"
+                   . "To: {$to_address}\r\n"
+                   . "cc: {$to_cc}\r\n"
+                   . "bcc: {$to_bcc}\r\n"
+                   . "Subject: {$title}\r\n"
+                   . "\r\n"
+                   . "{$contents}\r\n"
+                   );
+
               echo json_encode("success");
            }
 

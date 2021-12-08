@@ -20,8 +20,8 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
     <colgroup>
       <col width="1%" >
       <col width="1%" >
-      <col width="1%" >
-      <col width="32%" >
+      <col width="6%" >
+      <col width="28%" >
       <col width="*" >
       <col width="5%" >
       <col width="5%" >
@@ -176,7 +176,7 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
         $unseen = $head[$mailno_arr[$i]]->Unseen;
         $unseen = ($unseen == "U")? "unseen":"seen";
         ?>
-        <td style="padding-left: 15px"><a class= <?php echo $unseen ?> onclick="change_href(event, '<?php echo $from_addr; ?>')"
+        <td><a class= <?php echo $unseen ?> onclick="change_href(event, '<?php echo $from_addr; ?>')"
             href="<?php echo site_url(); ?>/mailbox/mail_detail?boxname=<?php echo $mbox2 ?>&mailno=<?php echo $mailno_arr[$i] ?>">
             <?php echo (isset($from_name))? imap_utf8($from_name) : '(이름 없음)' ?></a></td>
         <td><a class=<?php echo $unseen ?> href="<?php echo site_url(); ?>/mailbox/mail_detail?boxname=<?php echo $mbox2 ?>&mailno=<?php echo $mailno_arr[$i] ?>">
@@ -349,14 +349,10 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_footer.php";
 
    let parent_tr = ths.parentNode.parentNode;
    let mailno = parent_tr.childNodes[5].innerText;
-   console.log('<?php echo $mbox; ?>');
    $.ajax({
      url : "<?php echo site_url(); ?>/mailbox/set_flag",
      type : "get",
      data : {boxname: '<?php echo $mbox ?>', mailno: mailno, state: className},
-     success : function(res) {
-       console.log(res);
-     }
    });
  }
 

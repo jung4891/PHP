@@ -11,6 +11,7 @@ class Account extends CI_Controller {
 			$this->load->helper('url');
 			$this->load->Model('M_account');
 			$this->load->library('email');
+			
 	}
 
     // public function index(){
@@ -82,6 +83,7 @@ class Account extends CI_Controller {
 									$_SESSION['userid'] = $check_id['username'];
 									$_SESSION['roles'] = "user";
 									$_SESSION['name'] =  $check_id['name'];
+									$_SESSION['s_width'] = $check_id['side_width'];
 
 									echo "<script>location.href='".site_url()."/mailbox/mail_list'</script>";
 									// echo "<script>location.href='".site_url()."/mail/main'</script>";
@@ -105,6 +107,43 @@ class Account extends CI_Controller {
 			session_unset();
 			session_destroy();
 			redirect('');
+		}
+
+		function password_change(){
+			if(isset($_SESSION['userid']) && ($_SESSION['userid'] != "")){
+				redirect("");
+			}
+
+			// if(!isset($_POST['username'])){
+			// 	echo "<script>history.back();</script>";
+			// }
+
+			$user_id = $this->input->post('username');
+			$password = $this->input->post('password');
+			$check_pass = $this->input->post('chk_pass');
+			$rand = $this->getRandStr();
+			$hash_salt = "$1$".$rand."$";
+			$hashed_password = crypt($password, $hash_salt);
+
+			$modify_array = array(
+				'password' => $hashed_password
+			);
+			var_dump($modify_array);
+			exit;
+			$result = $this->M_account->change_password($modify_array, $user_id);
+			if($result){
+				var_dump($result);
+			}
+
+		}
+
+		function getRandStr($length = 8) {
+			$characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'; $charactersLength = strlen($characters);
+			$randomString = '';
+			for ($i = 0; $i < $length; $i++) {
+				$randomString .= $characters[rand(0, $charactersLength - 1)];
+			}
+			return $randomString;
 		}
 
 

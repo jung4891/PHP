@@ -349,14 +349,10 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_footer.php";
 
    let parent_tr = ths.parentNode.parentNode;
    let mailno = parent_tr.childNodes[5].innerText;
-   console.log('<?php echo $mbox; ?>');
    $.ajax({
      url : "<?php echo site_url(); ?>/mailbox/set_flag",
      type : "get",
      data : {boxname: '<?php echo $mbox ?>', mailno: mailno, state: className},
-     success : function(res) {
-       console.log(res);
-     }
    });
  }
 

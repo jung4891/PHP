@@ -11,6 +11,7 @@ class Option extends CI_Controller {
 			$this->load->helper('url');
 			$this->load->Model('M_option');
 			$this->load->Model('M_account');
+			$this->load->Model('M_group');
 
 			$encryp_password = $this->M_account->mbox_conf($_SESSION['userid']);
 			$iv = chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0);
@@ -24,13 +25,67 @@ class Option extends CI_Controller {
 	}
 
 
-		public function index(){
-			if(isset($_SESSION['userid']) && ($_SESSION['userid'] != "")){
-        $this->account();
-			}else{
-				$this->load->view('login');
-			}
+	function account() {
+		if(isset($_SESSION['userid']) && ($_SESSION['userid'] != "")){
+			$this->load->view('account_info');
+		}else{
+			$this->load->view('login');
 		}
+
+	}
+
+
+	function address_book() {
+
+
+		if(isset($_SESSION['userid']) && ($_SESSION['userid'] != "")){
+			$address_data = $_SESSION['userid'];
+			if(isset($_GET['cur_page'])) {
+				$cur_page = $_GET['cur_page'];
+			} else {
+				$cur_page = 0;
+			}														//	현재 페이지
+			$no_page_list = 10;										//	한페이지에 나타나는 목록 개수
+
+			if  ( $cur_page <= 0 ){
+				$cur_page = 1;
+			}
+
+			$data['cur_page'] = $cur_page;
+			$data['count'] = $this->M_group->address_book_count($address_data)->totalCount;
+
+			$data['group_list'] = $this->M_group->address_book_view($address_data ,( $cur_page - 1 ) * $no_page_list, $no_page_list); // 값을 보내는  것, 아규먼트
+
+			$total_page = 1;
+			if  ( $data['count'] % $no_page_list == 0 )
+				$total_page = floor( ( $data['count'] / $no_page_list ) );
+			else
+				$total_page = floor( ( $data['count'] / $no_page_list + 1 ) );			//	전체 페이지 개수
+
+			$start_page =  floor(($cur_page - 1 ) / 10) * 10  + 1 ;
+			$end_page = 0;
+			if  ( floor( ( $cur_page - 1 ) / 10 ) < floor( ( $total_page - 1 ) / 10 ) )
+				$end_page = ( floor( ( $cur_page - 1 ) / 10 ) + 1 ) * 10;
+			else
+				$end_page = $total_page;
+
+			$data['no_page_list'] = $no_page_list;
+			$data['total_page'] = $total_page;
+			$data['start_page'] = $start_page;
+			$data['end_page'] = $end_page;
+
+			$this->load->view('address_book_view', $data);
+		}else{
+			$this->load->view('login');
+		}
+	}
+		// public function index(){
+		// 	if(isset($_SESSION['userid']) && ($_SESSION['userid'] != "")){
+		// 		echo "<script>location.href='".site_url()."/option/account'</script>";
+		// 	}else{
+		// 		$this->load->view('login');
+		// 	}
+		// }
 
 	  public function connect_mailserver($mbox="") {
 	    $mailserver = $this->mailserver;
@@ -67,13 +122,13 @@ class Option extends CI_Controller {
 				$folder = $folders[$i];
 				$folder_kor = mb_convert_encoding($folder, 'UTF-8', 'UTF7-IMAP');
 				switch($folder_kor) {
-					case "INBOX":  $folder_kor="받은메일함";  break;
+					case "INBOX":  $folder_kor="전체메일";  break;
 					case "보낸 편지함":  $folder_kor="보낸메일함";  break;
 					case "임시 보관함":  $folder_kor="임시보관함";  break;
 					case "정크 메일":  $folder_kor="스팸메일함";  break;
 					case "지운 편지함":  $folder_kor="휴지통";  break;
 				}
-				$mails = $this->connect_mailserver();
+				$mails = $this->connect_mailserver($folder);
 				$mbox_status = imap_status($mails, "{" . $mailserver . "}".$folder, SA_ALL);
 				$mails_cnt = 0;
 				$unseen_cnt = 0;
@@ -86,9 +141,9 @@ class Option extends CI_Controller {
 				$mbox_info[$i]['boxname_kor'] = $folder_kor;
 				$mbox_info[$i]['mails_cnt'] = $mails_cnt;
 				$mbox_info[$i]['unseen_cnt'] = $unseen_cnt;
-				// $quota = imap_get_quotaroot ($mails, '&yBXQbA- &ulTHfA-');				// 현재 사용자의 메일사용량/총할당량 (KB)
-				// $quota = imap_get_quota($mails, "user.inbox");		   	// imap메일 관리자만 가능
-				// $mbox_info[$i]["quota"] = $quota;
+				// $quota = imap_get_quotaroot($mails, "inbox");				// 현재 사용자의 메일사용량/총할당량 (KB)
+				// $quota = imap_get_quota($mails, "user.inbox");		   	// imap메일 관리자 가능
+				// $mbox_info["quota"] = $quota;
 			}
 			imap_close($mails);
 			return $mbox_info;
@@ -251,66 +306,6 @@ class Option extends CI_Controller {
 			$result = $this->M_option->sign_del($seq);
 			echo json_encode($result);
 		}
-
-
-		function account() {
-			if(isset($_SESSION['userid']) && ($_SESSION['userid'] != "")){
-				$this->load->view('account_info');
-			}else{
-				$this->load->view('login');
-			}
-
-		}
-
-		function change_password(){
-			if(isset($_SESSION['userid']) && ($_SESSION['userid'] != "")){
-				redirect("");
-			}
-
-			if(!isset($_POST['username'])){
-				echo "<script>history.back();</script>";
-			}
-
-			$user_id = $this->input->post('username');
-			$password = $this->input->post('password');
-			$check_pass = $this->input->post('chk_pass');
-			$rand = $this->getRandStr();
-			$hash_salt = "$1$".$rand."$";
-			$hashed_password = crypt($password, $hash_salt);
-
-			$modify_array = array(
-				'password' => $hashed_password
-			);
-
-			var_dump($modify_array);
-			exit;
-
-			$result = $this->M_account->change_password($modify_array, $user_id);
-			if($result){
-				echo json_encode($result);
-			}
-
-			function getRandStr($length = 8) {
-				$characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'; $charactersLength = strlen($characters);
-				$randomString = '';
-				for ($i = 0; $i < $length; $i++) {
-					$randomString .= $characters[rand(0, $charactersLength - 1)];
-				}
-				return $randomString;
-			}
-
-		}
-
-		function address_book() {
-			if(isset($_SESSION['userid']) && ($_SESSION['userid'] != "")){
-				$this->load->view('address_book_view');
-			}else{
-				$this->load->view('login');
-			}
-
-		}
-
-
 
 }
 

@@ -35,7 +35,10 @@ class M_account extends CI_Model {
 
 	function user_check($uid){
 
-		$sql = "SELECT username, password, name FROM mailbox WHERE username = '{$uid}' AND active = 1";
+		$sql = "SELECT a.username, password, name, b.side_width FROM mailbox AS a
+LEFT JOIN user_setting AS b
+ON a.username = b.user_name
+WHERE a.username = '{$uid}' AND a.active = 1";
 		// echo $sql;
 		// exit;
 		$query = $this->db->query($sql);
