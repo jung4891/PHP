@@ -120,6 +120,7 @@
     echo '<br>';
     $tmpArr3 = explode(',', $str, -1);  // 5개가 아닌 4개인 배열생성(제일뒤의 bhkim은 빠짐)
     print_r($tmpArr3);
+    print_r(explode('.', 'test'));      // Array ( [0] => test )
     echo '<br>';
 
     // implode() : 반대로 배열에 구분자를 넣어 문자열 생성

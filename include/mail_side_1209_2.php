@@ -399,6 +399,7 @@ $(function (){
     }
   });
 
+
   $.ajax({
     url: "<?php echo site_url(); ?>/home/get_side",
     // type: 'POST',
@@ -511,51 +512,44 @@ $('#dragbar').mousedown(function(e) {
 
 
 function add_mbox(ths) {
-  let text = $(ths).closest('td').find("input").eq(0).val();
-  var pattern = /[,\.]/;
-  if(pattern.test(text)) {
-    alert('메일함 이름에 ,와 .는 포함할 수 없습니다.');
-    $(ths).closest('td').find("input").eq(0).focus();
+  let mode = $(ths).closest('td').find("input").eq(1).val();
+  if(mode === "추가") {
+    let id = $(ths).closest('td').find("input").eq(0).attr('id');
+    id = id.replace(/_/gi, '.');
+    id = id.replace('.text', '');
+    let text = $(ths).closest('td').find("input").eq(0).val();
+    $.ajax({
+      url: "<?php echo site_url(); ?>/option/add_mailbox2",
+      type : "post",
+      data : {parent: id, child_input: text},
+      success: function (res) {
+        // if(res=='o')  alert("메일함 [" + text + "] 생성완료");
+        // else {
+        //   console.log(res);
+        //   alert("메일함 생성 실패");
+        // }
+        location.reload();
+      }
+    });
   } else {
-    let mode = $(ths).closest('td').find("input").eq(1).val();
-    if(mode === "추가") {
-      let id = $(ths).closest('td').find("input").eq(0).attr('id');
-      id = id.replace(/_/gi, '.');
-      id = id.replace('.text', '');
-      $.ajax({
-        url: "<?php echo site_url(); ?>/option/add_mailbox2",
-        type : "post",
-        data : {parent: id, child_input: text},
-        success: function (res) {
-          // if(res=='o')  alert("메일함 [" + text + "] 생성완료");
-          // else {
-          //   console.log(res);
-          //   alert("메일함 생성 실패");
-          // }
-          location.reload();
-        }
-      });
-    } else {
-      let parent = $(ths).next().next().attr('id');
-      parent = (parent === "#")? '' : parent;
-      let target = $(ths).closest('tr').prev().find("td")[2].innerText;
-      target = target.replace('ㄴ', '');
-      target = $.trim(target);
-      // console.log(target);
-      // console.log(text);
-      $.ajax({
-        url: "<?php echo site_url(); ?>/option/rename_mailbox2",
-        type : "post",
-        data : {parent: parent, old_mbox: target, new_mbox: text},
-        success: function (res) {
-          // console.log(res);
-          location.reload();
-        }
-      });
-    }
+    let parent = $(ths).next().next().attr('id');
+    parent = (parent === "#")? '' : parent;
+    let target = $(ths).closest('tr').prev().find("td")[2].innerText;
+    target = target.replace('ㄴ', '');
+    target = $.trim(target);
+    let text = $(ths).closest('td').find("input").eq(0).val();
+    // console.log(target);
+    // console.log(text);
+    $.ajax({
+      url: "<?php echo site_url(); ?>/option/rename_mailbox2",
+      type : "post",
+      data : {parent: parent, old_mbox: target, new_mbox: text},
+      success: function (res) {
+        // console.log(res);
+        location.reload();
+      }
+    });
   }
-
-
 
 }
 
