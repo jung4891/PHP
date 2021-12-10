@@ -734,6 +734,7 @@ class Mailbox extends CI_Controller {
     $data = array();
     $data['mbox'] = $mbox;
     $head = imap_headerinfo($mails, $mailno);
+    $data['head'] = $head;
     $msg_no = trim($head->Msgno);
 
       // if (isset($head->subject) && strlen($head->subject) > 0){

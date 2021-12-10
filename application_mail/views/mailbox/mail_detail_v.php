@@ -103,6 +103,9 @@ $reply_cc_input = address_text($mail_info["cc"]);
          <?php echo $contents; ?>
        </td>
      </tr>
+     <!-- <pre>
+       <?php // var_dump($head); ?>
+     </pre> -->
    </table>
  </div>
 </div>
