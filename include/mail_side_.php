@@ -730,9 +730,10 @@ function cancel(ths) {
 }
 
 $('html').on('mousedown', function(e){
-  if(!$(e.target).hasClass('right_click_event')) {
-    $('.right_click_event').hide();
+  if(!$(e.target).hasClass('right_click_event')){
+    console.log('레이어팝업 외의 영역입니다')
   }
+  $('.right_click_event').hide();
 });
 
 </script>

@@ -60,16 +60,19 @@ a{
 }
 
 #sideBar{
-  width:250px;
+  /* width:250px; */
   height: 100%;
   /* border-right: 3px solid #dedede; */
   display: flex;
   flex-direction: column;
-  /* overflow-y: scroll;
-  overflow: auto; */
+  overflow-y: scroll;
+  overflow: auto;
   /* resize:horizontal; */
 }
-
+#sideBar {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+}
 #sideBar::-webkit-scrollbar {
     display: none; /* Chrome, Safari, Opera*/
 }
@@ -80,29 +83,6 @@ a{
   height: 100%;
   display: none;
   border-right: 3px solid #dedede;
-}
-
-#minitbl{
-  width: 100%;
-  font-size: 12px;
-  font-weight: bold;
-  border-collapse: separate;
-  border-spacing: 0 10px;
-}
-#minitbl tr{
- cursor:pointer;
-}
-#minitbl td{
-
-  text-align: center;
-}
-
-#side_mbox{
-  max-height: 60%;
-  width:100%;
-  overflow-y: scroll;
-  border-top:2px solid #dedede;
-  padding: 10px 0px;
 }
 
 #main_contents{

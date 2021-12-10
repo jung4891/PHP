@@ -2,6 +2,8 @@
 include $this->input->server('DOCUMENT_ROOT')."/include/base.php";
 include $this->input->server('DOCUMENT_ROOT')."/include/mail_header.php";
 include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
+
+$mbox = urldecode($mbox);
  ?>
 
  <style media="screen">
@@ -418,13 +420,13 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_footer.php";
         type : "post",
         data : {mbox: '<?php echo $mbox ?>', mail_arr: arr},
         success : function(data){
-          (data == 1)? alert("영구삭제 되었습니다.") : alert("애러발생");
+          (data == 1)? alert("영구삭제 되었습니다.") : console.log(data) //alert("애러발생");
         },
         error : function(request, status, error){
           console.log("AJAX_ERROR");
         },
         complete : function() {
-          location.reload();
+          // location.reload();
         }
       });
     } else {
