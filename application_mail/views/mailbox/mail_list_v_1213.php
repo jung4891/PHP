@@ -4,100 +4,113 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_header.php";
 include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
 
 $mbox = urldecode($mbox);
-
  ?>
 
-
- <link rel="stylesheet" href="<?php echo $misc; ?>/css/style.css" type="text/css" charset="utf-8"/>
  <style media="screen">
-  .mlist_tbl{
-    width:90%;
-  }
-  .mlist_tbl td{
-    height: 40px;
-    border-top: solid 1px #DFDFDF;
-  }
-
-   a.unseen {
-     color: #0575E6;
-   }
+   a.unseen {color: blue;}
    a.seen {color: black;}
    a.visit:visited {color: black}
    /* 위 2개 다 black해줘야 읽은 페이지 링크 보라색으로 안뜸 */
    a.unseen:hover {text-decoration: underline;};
    a.seen:hover {text-decoration: underline;};
-
  </style>
 
-<div id="main_contents" align="center">
-  <form name="mform" action="" method="post">
-    <div id="" align="left" style="width:100%;padding-bottom:10px;">
-      <table style="width:90%">
-        <colgroup>
-          <col width="3%" >
-          <col width="3%" >
-          <col width="3%" >
-          <col width="25%" >
-          <col width="*" >
-          <col width="10%" >
-          <col width="10%" >
-        </colgroup>
-          <tr>
-            <td></td>
-            <td>
-            <input type="checkbox" id="total" onClick="check_all(this);">
-            </td>
-            <td colspan="2">
-            <?php if($mbox == "&ycDGtA- &07jJwNVo-") {  // 휴지통 ?>
-            <button type="button" class="top_button" onclick="del_ever();" disabled="disabled">영구삭제</button>
-            <?php }else {?>
-            <button type="button" class="top_button" onclick="del_trash();" disabled="disabled" style="height: 25px;">삭제</button>
-            <?php } ?>
-            &nbsp;&nbsp;
-            <select class="top_button" id="selected_box" style="background-color: #F0F0F0; height: 25px;" disabled="disabled" >
-              <option value="">이동할 메일함</option>
-              <?php
-                foreach($mailbox_tree as $b) {
-                  echo "<option value='{$b["id"]}'>{$b['text']}</option>";
-                }
-              ?>
-            </select>
-            <button type="button" class="top_button" onclick="move();" disabled="disabled" style="height: 25px;">이동</button>
-            </td>
-            <td colspan="2">
-              <div style="display: inline-block; width: 180px; height: 25px;  border: solid 1px lightgray;">
-                <input type="text" id="search" style="outline: none; margin: 3px; margin-left: 6px; width: 77%; height: 20px; border: none; color: green; font-weight: bold; font-size:1em" >
-                <a href="javascript:void(0)" onclick="search_mail(this);">
-                <img style="width: 17px; position: relative; top:3px " src="<?php echo $misc; ?>/img/icon/search.png" alt="">
-                </a>
-              </div>
-
-
-            </td>
-            <td>
-            <select id="show_cnt" onchange="mails_cnt(this);" style="background-color: #F0F0F0; height: 25px" >
-              <option value="">보기설정</option>
-              <option value="10">10개</option>
-              <option value="20">20개</option>
-              <option value="30">30개</option>
-            </select>
-            </td>
-          </tr>
-      </table>
-    </div>
-  </form>
-  <div class="main_div" style="height:90%;">
+<div id="main_contents" style="margin:unset;">
+  <div class="main_div" >
   <!-- <?php // echo $test_msg; ?> <br><br> -->
-  <table class="mlist_tbl" border="0" cellspacing="0" cellpadding="0">
+  <table border="0" width="98%" style="border-spacing: 6px;">
     <colgroup>
-      <col width="3%" >
-      <col width="3%" >
-      <col width="3%" >
-      <col width="25%" >
+      <col width="1%" >
+      <col width="1%" >
+      <col width="1%" >
+      <col width="32%" >
       <col width="*" >
-      <col width="10%" >
-      <col width="10%" >
+      <col width="5%" >
+      <col width="5%" >
     </colgroup>
+    <thead>
+      <br>
+      <tr>
+        <td></td>
+        <td>
+        <input type="checkbox" id="total" onClick="check_all(this);">
+        </td>
+        <td colspan="2">
+        <?php if($mbox == "&ycDGtA- &07jJwNVo-") {  // 휴지통 ?>
+        <button type="button" class="top_button" onclick="del_ever();" disabled="disabled">영구삭제</button>
+        <?php }else {?>
+        <button type="button" class="top_button" onclick="del_trash();" disabled="disabled" style="height: 25px;">삭제</button>
+        <?php } ?>
+        &nbsp;&nbsp;
+        <select class="top_button" id="selected_box" style="background-color: #F0F0F0; height: 25px;" disabled="disabled" >
+          <option value="">이동할 메일함</option>
+          <?php
+            foreach($boxname_arr as $name => $encoded) {
+              echo "<option value=\"$encoded\">$name</option>";
+            }
+          ?>
+        </select>
+        <button type="button" class="top_button" onclick="move();" disabled="disabled" style="height: 25px;">이동</button>
+        </td>
+        <td colspan="2">
+          <div style="display: inline-block; width: 180px; height: 25px;  border: solid 1px lightgray;">
+            <input type="text" id="search" style="outline: none; margin: 3px; margin-left: 6px; width: 77%; height: 20px; border: none; color: green; font-weight: bold; font-size:1em" >
+            <a href="javascript:void(0)" onclick="search_mail(this);">
+            <img style="width: 17px; position: relative; top:3px " src="/misc/img/icon/search.png" alt="">
+            </a>
+          </div>
+
+          <!-- <div class="" style="display: inline-block; cursor: pointer; width: 65px; height: 35px; position: relative; top: 5px; left: 9px; border: solid 1px lightgray; background-color: rgb(220,220,220); text-align: center">
+            <a onclick="search_detail();" style="position: relative; top: 5px; font-weight: 300; color: grey">
+              상세 <img style="width: 11px; position: relative; top:2px " src="/misc/img/icon/detail.png" alt="">
+            </a>
+          </div>
+          <div class="modal">
+            <div class="modal_content" title="">
+              <div class="" style="margin-left: 300px">
+                <button type="button" name="button" id="modal_form_close"
+                style=" border: none; background-color: inherit; font-size: 1em;" >X</button>
+              </div>
+              <form class="" name="modal_form" action="<?php echo site_url(); ?>/mailbox/mail_list" method="get">
+                <input type="hidden" name="boxname" value="<?php echo $mbox ?>" >
+                <input type="hidden" name="type" value="search" >
+                <div class="">
+                  <div class="" style="float: left; width: 13%; margin-left: 30px">
+                    제목
+                  </div>
+                  <div class="" style="width: 90%">
+                    <input type="text" name="subject" value="" style="height: 1.5em">
+                  </div>
+                </div>
+                <br>
+                <div class="">
+                  <div class="" style="float: left; width: 13%; margin-left: 30px">
+                    내용
+                  </div>
+                  <div class="" style="width: 90%">
+                    <input type="text" name="contents" value="" style="height: 1.5em">
+                  </div>
+                </div>
+                <br><br>
+                <button type="submit" id="modal_form_submit" style="width: 70px; font-size: 1.1em">검색</button>
+              </form>
+              <br><br>
+            </div>
+          </div>-->
+        </td>
+        <td>
+        <select id="show_cnt" onchange="mails_cnt(this);" style="background-color: #F0F0F0; height: 25px" >
+          <option value="">보기설정</option>
+          <option value="10">10개</option>
+          <option value="20">20개</option>
+          <option value="30">30개</option>
+        </select>
+        </td>
+      </tr>
+      <tr>
+        <td colspan="7" style="border-bottom: 2px solid lightgray; "></td>
+      </tr>
+    </thead>
     <tbody>
 
       <form name="frm" method="post">
@@ -132,11 +145,18 @@ $mbox = urldecode($mbox);
         $msg_no = trim($head[$mailno_arr[$i]]->Msgno);            // 메일번호
         ?>
 
-        <tr>
+        <tr style="border-spacing: 1px">
 
         <!-- 메일목록 출력 -->
         <!-- <td><?php // echo $head[$mailno_arr[$i]]->Unseen ?></td> -->
-        <td name="msg_no_td" style="display:none;"><?php echo $msg_no?></td>
+        <td style="display:none;"><?php echo $msg_no?></td>
+        <td>
+          <!-- 메일크기로 첨부파일 유무 파악 -->
+          <?php if($head[$mailno_arr[$i]]->Size > 30000) { ?>
+          <img src="/misc/img/icon/attachment.png" alt="ss" style="margin-bottom: -6px; ">
+          <?php }else { ?>
+          <?php } ?>
+        </td>
         <td>
           <input type="checkbox" name="chk" value=<?php echo $msg_no;?>>
         </td>
@@ -149,13 +169,6 @@ $mbox = urldecode($mbox);
             <?php   } ?>
           </a>
         </td>
-        <td>
-          <!-- 메일크기로 첨부파일 유무 파악 -->
-          <?php if($head[$mailno_arr[$i]]->Size > 30000) { ?>
-          <img src="/misc/img/icon/attachment.png" alt="ss">
-          <?php }else { ?>
-          <?php } ?>
-        </td>
         <?php
         // get방식으로 데이터를 직접 url에 적으면 &가 데이터 구별기호로 인식되서 바꿔줘야함
         $mbox2 = str_replace('&', '%26', $mbox);
@@ -165,7 +178,7 @@ $mbox = urldecode($mbox);
         $unseen = $head[$mailno_arr[$i]]->Unseen;
         $unseen = ($unseen == "U")? "unseen":"seen";
         ?>
-        <td><a class= <?php echo $unseen ?> onclick="change_href(event, '<?php echo $from_addr; ?>')"
+        <td style="padding-left: 15px"><a class= <?php echo $unseen ?> onclick="change_href(event, '<?php echo $from_addr; ?>')"
             href="<?php echo site_url(); ?>/mailbox/mail_detail?boxname=<?php echo $mbox2 ?>&mailno=<?php echo $mailno_arr[$i] ?>">
             <?php echo (isset($from_name))? imap_utf8($from_name) : '(이름 없음)' ?></a></td>
         <td><a class=<?php echo $unseen ?> href="<?php echo site_url(); ?>/mailbox/mail_detail?boxname=<?php echo $mbox2 ?>&mailno=<?php echo $mailno_arr[$i] ?>">
@@ -181,7 +194,10 @@ $mbox = urldecode($mbox);
             $size = '';
           }
          ?>
-        <td><?php echo $size ?></td>
+        <td style="color: darkgray; font-weight: 400; padding-left: 20px"><?php echo $size ?></td>
+      </tr>
+      <tr>
+        <td colspan="7" style="border-bottom: 2px solid lightgray; "></td>
       </tr>
       <?php
         }
@@ -191,16 +207,13 @@ $mbox = urldecode($mbox);
        </form>
     </tbody>
   </table>
+  <div class="" style="text-align: center">
+    <?php echo $links.'<br><br>' ?>
+  </div>
+  <!-- <p style="text-align: center; letter-spacing: 7px"><?php echo $links.'<br>' ?></p> -->
+</div>
+</div>
 
-</div>
-<div class="" style="text-align: center">
-  <?php echo $links; ?>
-</div>
-
-</div>
-<div id="move_mbox" style="display:none;position: absolute; background: #000; width: 30px; height: 30px; opacity: 0.4; border-radius: 100%;font-size: 20px;color: white; text-align:center;">
-<span id="movebox_len"></span>
-</div>
 <?php
 include $this->input->server('DOCUMENT_ROOT')."/include/mail_footer.php";
  ?>
@@ -222,94 +235,21 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_footer.php";
 
  <script type="text/javascript">
 
-
- function mboxmove(x) {
-   var positionLeft = x.clientX;
-   var positionTop = x.clientY;
-   document.getElementById('move_mbox').style.left = positionLeft + 5 + "px";
-   document.getElementById('move_mbox').style.top = positionTop - 65 +"px";
- }
-
-$(".mlist_tbl tr").click(function(){
-  // alert("이건클릭");
-})
-
-$(".mlist_tbl tr").on("mousedown", function(){
-   // var chk_len = $('input[name="chk"]:checked').length;
-
-     // $(document).unbind('click');
-     event.preventDefault();
-     // var mail_arr = [];
-     // var msg_id = $(this).find("td[name='msg_no_td']").text();
-     // mail_arr.push(msg_id);
-     // console.log(mail_arr);
-     // $(this).mouseleave(function(){
-     //   console.log("asfaf");
-     // })
-     var tr_checkbox = $(this).find("input[name='chk']");
-     console.log(tr_checkbox);
-     var chk_yn = tr_checkbox.is(":checked");
-     console.log(chk_yn);
-
-
-   $(document).on("mousemove",function(e){
-     if (!chk_yn) {
-       $('input[type="checkbox"]').prop('checked', false);
-       tr_checkbox.prop('checked', true);
-       $('.top_button').prop('disabled', false);
-
-     }
-
-     var chk_lenth = $('input[name="chk"]:checked').length;
-     $("#movebox_len").html(chk_lenth);
-     $("#move_mbox").show();
-     $(document).unbind('click');
-     mboxmove(e);
-
-
-   })
-
-    $(document).mouseup(function(e) {
-      $("#move_mbox").hide();
-      var target_div = $(event.target).closest("div").attr("id");
-
-
-      if(target_div == "side_mbox"){
-        var mail_arr = [];
-        $('input[name="chk"]:checked').each(function(){
-          var msg_id = $(this).val();
-          mail_arr.push(msg_id);
-        })
-
-        // mail_arr.push(msg_id);
-        var tobox = $(event.target).closest("tr").attr("id");
-        var frombox = "<?php echo $mbox ?>";
-        $.ajax({
-          url : "<?php echo site_url(); ?>/mailbox/mail_move",
-          type : "post",
-          data : {
-            mbox: frombox,
-            to_box: tobox,
-            mail_arr: mail_arr
-        },
-          success : function(data){
-            (data == 1)? alert("이동되었습니다.") : alert("애러발생");
-          },
-          error : function(request, status, error){
-              console.log("AJAX_ERROR");
-          },
-          complete : function() {
-            location.reload();
-          }
-        });
-      }
-      $(document).unbind('mousemove');
-      $(document).unbind('mouseup');
-  });
-
-
- });
-
+ // 테스트
+ // $(function() {
+ //   let arr = [];
+ //   $.ajax({
+ //     url: "<?php // echo site_url(); ?>/mailbox/decode_mailbox",
+ //     type: 'POST',
+ //     dataType: 'json',
+ //     success: function (result) {
+ //       for(let i=0; i<result.length; i++) {
+ //         arr.push(result[i].text);
+ //       }
+ //     }
+ //   });
+ //   console.log(arr);
+ // })
 
  $(function() {
    // 검색창에 검색어 입력후 엔터키로 검색
@@ -411,10 +351,14 @@ $(".mlist_tbl tr").on("mousedown", function(){
 
    let parent_tr = ths.parentNode.parentNode;
    let mailno = parent_tr.childNodes[5].innerText;
+   console.log('<?php echo $mbox; ?>');
    $.ajax({
      url : "<?php echo site_url(); ?>/mailbox/set_flag",
      type : "get",
      data : {boxname: '<?php echo $mbox ?>', mailno: mailno, state: className},
+     success : function(res) {
+       console.log(res);
+     }
    });
  }
 
@@ -476,13 +420,13 @@ $(".mlist_tbl tr").on("mousedown", function(){
         type : "post",
         data : {mbox: '<?php echo $mbox ?>', mail_arr: arr},
         success : function(data){
-          (data == 1)? alert("영구삭제 되었습니다.") : alert("애러발생");
+          (data == 1)? alert("영구삭제 되었습니다.") : console.log(data) //alert("애러발생");
         },
         error : function(request, status, error){
           console.log("AJAX_ERROR");
         },
         complete : function() {
-          location.reload();
+          // location.reload();
         }
       });
     } else {

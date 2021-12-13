@@ -156,153 +156,152 @@ for ($i=0; $i < count($folders); $i++) {
     $side_w =$_SESSION['s_width'];
   }
   ?>
-    <div id="sideBar" width="<?php echo $side_w; ?>">
-      <div class="" align="center" style="margin-top:20px;margin-bottom:20px;">
+  <div id="sideBar" width="<?php echo $side_w; ?>">
+    <div class="" align="center" style="margin-top:20px;margin-bottom:20px;">
 
-        <button class="btn_basic btn_blue" type="button" name="button" onclick = "location.href='<?php echo site_url(); ?>/mail_write/page'" style="width:40%;height:40px;">메일쓰기</button>
-        <!-- <button type="button" name="button">메일쓰기</button> -->
-        <button class="btn_basic btn_sky" type="button" name="button" onclick = "self_write();" style="width:40%;height:40px;">내게쓰기</button>
+      <button class="btn_basic btn_blue" type="button" name="button" onclick = "location.href='<?php echo site_url(); ?>/mail_write/page'" style="width:40%;height:40px;">메일쓰기</button>
+      <!-- <button type="button" name="button">메일쓰기</button> -->
+      <button class="btn_basic btn_sky" type="button" name="button" onclick = "self_write();" style="width:40%;height:40px;">내게쓰기</button>
+    </div>
+
+    <?php
+    if(isset($mbox)) {
+      $mbox = str_replace('&', '%26', $mbox);
+      $mbox = str_replace(' ', '+', $mbox);
+    } else {
+      $mbox = "inbox";
+    }
+     ?>
+
+    <div class="" style="display:flex;justify-content: center;">
+      <div class="side_top2" align="center" onclick="location.href='<?php echo site_url(); ?>/mailbox/mail_list?boxname=<?php echo $mbox; ?>&type=unseen'">
+        <img src="<?php echo $misc;?>img/icon/schedule.svg" width="25"><br>
+        안읽음
       </div>
-
+      <div class="side_top2" align="center" onclick="location.href='<?php echo site_url(); ?>/mailbox/mail_list?boxname=<?php echo $mbox; ?>&type=important'">
+        <img src="<?php echo $misc;?>img/icon/side_important.svg" width="25"><br>
+        중&nbsp;요
+      </div>
+      <div class="side_top2" align="center" onclick="location.href='<?php echo site_url(); ?>/mailbox/mail_list?boxname=<?php echo $mbox; ?>&type=attachments'">
+        <img src="<?php echo $misc;?>img/icon/side_attach.svg" width="25"><br>
+        첨&nbsp;부
+      </div>
+    </div>
+    <form name="boxform" id="boxform" class="" action="" method="get">
+      <input type="hidden" name="curpage" id="curpage" value="">
+      <input type="hidden" name="searchbox" id="searchbox" value="">
+      <input type="hidden" name="boxname" id="boxname" value="">
+    </form>
+    <div class="mailbox_div" id="side_mbox" align="center">
       <?php
-      if(isset($mbox)) {
-        $mbox = str_replace('&', '%26', $mbox);
-        $mbox = str_replace(' ', '+', $mbox);
-      } else {
-        $mbox = "inbox";
-      }
-       ?>
+      $i = 0;
+      if(strpos($_SERVER['REQUEST_URI'],'mailbox/') !== false){
+        if(isset($_GET["boxname"])){
 
-      <div class="" style="display:flex;justify-content: center;">
-        <div class="side_top2" align="center" onclick="location.href='<?php echo site_url(); ?>/mailbox/mail_list?boxname=<?php echo $mbox; ?>&type=unseen'">
-          <img src="<?php echo $misc;?>img/icon/schedule.svg" width="25"><br>
-          안읽음
-        </div>
-        <div class="side_top2" align="center" onclick="location.href='<?php echo site_url(); ?>/mailbox/mail_list?boxname=<?php echo $mbox; ?>&type=important'">
-          <img src="<?php echo $misc;?>img/icon/side_important.svg" width="25"><br>
-          중&nbsp;요
-        </div>
-        <div class="side_top2" align="center" onclick="location.href='<?php echo site_url(); ?>/mailbox/mail_list?boxname=<?php echo $mbox; ?>&type=attachments'">
-          <img src="<?php echo $misc;?>img/icon/side_attach.svg" width="25"><br>
-          첨&nbsp;부
-        </div>
-      </div>
-      <form name="boxform" id="boxform" class="" action="" method="get">
-        <input type="hidden" name="curpage" id="curpage" value="">
-        <input type="hidden" name="searchbox" id="searchbox" value="">
-        <input type="hidden" name="boxname" id="boxname" value="">
-      </form>
-      <div class="mailbox_div" id="side_mbox" align="center">
-        <table>
-        <?php
-        $i = 0;
-        if(strpos($_SERVER['REQUEST_URI'],'mailbox/') !== false){
-          if(isset($_GET["boxname"])){
-
-              $sel_box = $_GET["boxname"];
-              if($sel_box == ""){
-                $sel_box = "INBOX";
-              }
-          } else {
-            $sel_box = "INBOX";
-          }
+            $sel_box = $_GET["boxname"];
+            if($sel_box == ""){
+              $sel_box = "INBOX";
+            }
+        } else {
+          $sel_box = "INBOX";
         }
-        foreach ($mailbox_tree as $b) {
-          if(isset($sel_box)){
-            $sel_img = ($sel_box == $b["id"])?"2":"";
-          }else{
-            $sel_img = "";
-          }
-          $box_len = count($mailbox_tree);
-          $dept = $b['child_num'];
-          $padding = $dept * 20;
-          if($b["parent"] == "#"){
+      }
+      foreach ($mailbox_tree as $b) {
+        if(isset($sel_box)){
+          $sel_img = ($sel_box == $b["id"])?"2":"";
+        }else{
+          $sel_img = "";
+        }
+        $box_len = count($mailbox_tree);
+        $dept = $b['child_num'];
+        $padding = $dept * 10;
+        if($b["parent"] == "#"){
+          ?>
+        <table class="mbox_tbl" id="<?php echo $b["id"]; ?>_tbl" border="0" cellspacing="0" cellpadding="0">
+          <col width="12%">
+          <col width="78%">
+          <!-- <col width="7%"> -->
+          <col width="15%">
+
+          <?php
+        }
+          ?>
+      <tr class="box_tr <?php if($b["folderkey"] == "custom") echo 'context-menu-one2'; else  echo 'context-menu-default'; ?>" id="<?php echo $b["id"]; ?>" child_num="<?php echo $b["child_num"]; ?>">
+        <td height=30 align="left">
+          <?php if($b["parent"] == "#" && $b["folderkey"] != "custom"){ ?>
+          <img src="<?php echo $misc;?>img/sideicon/<?php echo $b["folderkey"].$sel_img; ?>.svg" style="cursor:pointer;">
+        <?php } ?>
+        </td>
+        <?php
+          $arr = explode('.', $b["id"]);
+          $id_me = $arr[count($arr)-1];
+         ?>
+        <td id="<?php echo $b['text'] ?>" align="left" style="padding-left:<?php echo $padding.'px'; ?>;" dept="<?php echo $dept; ?>">
+          <?php
+            echo $b['text'];
+          ?>
+          <?php echo ($b['unseen'] == 0)?"":"(".$b['unseen'].")"; ?>
+        </td>
+        <!-- <td align="right" style="color:#0575E6;">
+        </td> -->
+        <td height=30 align="center" onclick="event.cancelBubble=true">
+          <?php
+          if ($i+1 < $box_len) {
+
+            if ($b["id"] == $mailbox_tree[$i+1]["parent"]) {
             ?>
-          </table>
-          <table class="mbox_tbl" id="<?php echo $b["id"]; ?>_tbl" border="0" cellspacing="0" cellpadding="0">
+              <img src="<?php echo $misc;?>img/icon/아래3.svg" class="down_btn" style="cursor:pointer;" onclick="updown(this, 'down');">
+              <img src="<?php echo $misc;?>img/icon/오른쪽.svg" class="up_btn" style="display:none;cursor:pointer;" onclick="updown(this, 'up');">
+          <?php
+            }
+          }
+          ?>
+        </td>
+      </tr>
+      <tr style="display: none" class="right_click_event">
+        <td></td>
+        <td colspan="2" style="padding-left:<?php echo $padding.'px'; ?>;" >
+          <input type="text" style="width: 70px" class="except_event" id="<?php echo $b["id"].'_text'; ?>"  name="" value="">
+          <input type="button"  value="추가" class="except_event" onclick="add_mbox(this);">
+          <input type="button" name="" value="취소" class="except_event" onclick="cancel(this);">
+          <span style="display: none" id="<?php echo $b["parent"] ?>"></span>
+        </td>
+      </tr>
+      <?php
+      if($i == $box_len){
+        echo "</table>";
+      }
+      $i++;
+    }
+      ?>
+      </table>
+    </div>
+
+    <div class="">
+
+      <div class="" style="border-top:2px solid #dedede;padding-top:10px;" align="center">
+        <table class="mbox_tbl" border="0" cellspacing="0" cellpadding="0">
+          <colgroup>
             <col width="7%">
             <col width="7%">
             <col width="71%">
             <col width="15%">
-
-            <?php
-          }
-            ?>
-        <tr class="box_tr <?php if($b["folderkey"] == "custom") echo 'context-menu-one2'; else  echo 'context-menu-default'; ?>" id="<?php echo $b["id"]; ?>" child_num="<?php echo $b["child_num"]; ?>">
-          <td height=30 align="center" onclick="event.cancelBubble=true">
-            <?php
-            if ($i+1 < $box_len) {
-
-              if ($b["id"] == $mailbox_tree[$i+1]["parent"]) {
-              ?>
-                <img src="<?php echo $misc;?>img/icon/아래3.svg" class="down_btn" style="cursor:pointer;" onclick="updown(this, 'down');">
-                <img src="<?php echo $misc;?>img/icon/오른쪽.svg" class="up_btn" style="display:none;cursor:pointer;" onclick="updown(this, 'up');">
-            <?php
-              }
-            }
-            ?>
-          </td>
-          <td height=30 align="center">
-            <?php if($b["parent"] == "#" && $b["folderkey"] != "custom"){ ?>
-            <img src="<?php echo $misc;?>img/sideicon/<?php echo $b["folderkey"].$sel_img; ?>.svg" style="cursor:pointer;">
-          <?php } ?>
-          </td>
-          <td align="left" style="padding-left:<?php echo $padding.'px'; ?>;" dept="<?php echo $dept; ?>">
-            <?php if($dept != 0) {echo 'ㄴ';} ?>
-            <?php
-              echo $b['text'];
-            ?>
-          </td>
-          <td align="right" style="color:#0575E6;">
-            <?php echo ($b['unseen'] == 0)?"":$b['unseen']; ?>
-          </td>
-        </tr>
-        <tr style="display: none" class="right_click_event">
+          </colgroup>
+          <tr class="box_tr" onclick="document.location='<?php echo site_url(); ?>/option/mailbox'" id="option_tr">
+            <td>
+            </td>
             <td></td>
-            <td></td>
-            <td style="padding-left:<?php echo $padding.'px'; ?>;" id="<?php echo $b["id"].'_add'; ?>">
-              <input type="text" style="width: 100px;" class="except_event" id="<?php echo $b["id"].'_text'; ?>"  name="" value="">
-              <input type="button" name="" value="추가" class="except_event" onclick="add_mbox(this);">
-              <input type="button" name="" value="취소" class="except_event" onclick="cancel(this);">
-              <span style="display: none" id="<?php echo $b["parent"] ?>"></span>
+            <td>
+              설정
             </td>
             <td></td>
           </tr>
-          <?php
-          if($i == $box_len){
-            echo "</table>";
-          }
-          $i++;
-        }
-          ?>
         </table>
       </div>
-
-      <div class="">
-
-        <div class="" style="border-top:2px solid #dedede;padding-top:10px;" align="center">
-          <table class="mbox_tbl" border="0" cellspacing="0" cellpadding="0">
-            <colgroup>
-              <col width="7%">
-              <col width="71%">
-              <col width="7%">
-              <col width="15%">
-            </colgroup>
-            <tr class="box_tr" onclick="document.location='<?php echo site_url(); ?>/option/mailbox'" id="option_tr">
-              <td>
-              </td>
-              <td>
-                설정
-              </td>
-              <td></td>
-              <td></td>
-            </tr>
-          </table>
-        </div>
-      </div>
-
-
     </div>
+
+
+  </div>
     <div id="sideMini" align="center">
       <table id="minitbl" align="center">
         <tr onclick = "location.href='<?php echo site_url(); ?>/mail_write/page'">
@@ -423,8 +422,8 @@ $(function (){
            callback: function(key, opt){
 
             this.next()[0].style.cssText = "display: contents";
-             // console.log($(this).next()[0].childNodes[5]);
-            $(this).next()[0].childNodes[5].childNodes[1].focus();
+            $(this).next()[0].childNodes[3].childNodes[1].value = '';   // 수정버튼뒤 추가버튼 누를때 공백으로
+            $(this).next()[0].childNodes[3].childNodes[1].focus();
            }
        },
        modify: {
@@ -432,13 +431,14 @@ $(function (){
            callback: function(key, opt){
 
             this.next()[0].style.cssText = "display: contents";
-            let target = $(this)[0].childNodes[5].childNodes[0].nodeValue;
-            target = target.replace('ㄴ', '');
+            // let target = $(this)[0].childNodes[3].childNodes[0].nodeValue;
+            let target = $(this)[0].childNodes[3].id;
+            // target = target.replace('ㄴ', '');
             target = $.trim(target);
-            $(this).next()[0].childNodes[5].childNodes[1].value = target;
-            $(this).next()[0].childNodes[5].childNodes[3].value = "수정";
+            $(this).next()[0].childNodes[3].childNodes[1].value = target;
+            $(this).next()[0].childNodes[3].childNodes[3].value = "수정";
             // $(this).next()[0].childNodes[5].childNodes[1].val;
-            $(this).next()[0].childNodes[5].childNodes[1].focus();
+            $(this).next()[0].childNodes[3].childNodes[1].focus();
            }
        },
        delete: {
@@ -474,8 +474,6 @@ $(function (){
                  type : "post",
                  data : {folders: folders},
                  success: function (res) {
-                   // if(res=="o")  alert("메일함이 삭제되었습니다.");
-                   // else  console.log(res);
                    location.reload();
                  },
                  error : function(request, status, error){
@@ -497,12 +495,9 @@ $(function (){
        add: {
            name: "메일함 추가",
            callback: function(key, opt){
-
-             this.next()[0].style.cssText = "display: contents";
-             // console.log($(this).next()[0].childNodes[5]);
-            $(this).next()[0].childNodes[5].childNodes[1].focus();
-
-
+            this.next()[0].style.cssText = "display: contents";
+            $(this).next()[0].childNodes[3].childNodes[1].value = '';
+            $(this).next()[0].childNodes[3].childNodes[1].focus();
            }
        },
 
@@ -691,6 +686,7 @@ function add_mbox(ths) {
       });
     }
   }else {
+    // mode == 수정
     let parent = $(ths).next().next()[0].id;
     let mbox_tree = '<?php echo json_encode($mailbox_tree) ?>';
     mbox_tree = JSON.parse(mbox_tree);
@@ -707,11 +703,8 @@ function add_mbox(ths) {
     }else {
       let parent = $(ths).next().next().attr('id');
       parent = (parent === "#")? '' : parent;
-      let target = $(ths).closest('tr').prev().find("td")[2].innerText;
-      target = target.replace('ㄴ', '');
+      let target = $(ths).closest('tr').prev()[0].childNodes[3].id;
       target = $.trim(target);
-      // console.log(target);
-      // console.log(text);
       $.ajax({
         url: "<?php echo site_url(); ?>/option/rename_mailbox2",
         type : "post",

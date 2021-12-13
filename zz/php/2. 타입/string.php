@@ -39,13 +39,37 @@
     var_dump($n === '');    // true
     var_dump($n == null);   // true
     var_dump($n === null);  // true
-    echo '<br>';
+    echo '<br><br><br>';
      ?>
 
     <!-- 함수 -->
     <?php
 
+    // htmlspecialchars() : html의 특수 문자들을 그대로 보이게 변환함.
+    echo '<h3>htmlspecialchars()</h3>';
+    $test = '<p><b>p태그</b></p>';
+    echo $test;                   // p태그
+    echo htmlspecialchars($test); // "<p><b>p태그</b></p>"
+    echo '<br><br><br>';
+    
+
+    // nl2br() : 개행 문자 \n을 <br>태그로 변환해 주어 실제로 페이지 상에서 줄 바꿈이 일어나도록 합니다.
+    echo '<h3>nl2br()</h3>';
+    $test = "개행문자 \n을 &lt;br태그&gt;로 변환해준다.";
+    echo $test.'<br>';                     // 개행문자 을 <br태그>로 변환해준다.
+    echo htmlspecialchars($test).'<br>';   // 개행문자 을 &lt;br태그&gt;로 변환해준다.
+    echo nl2br($test);                     // 개행문자
+    echo '<br><br>';                       // 을 <br태그>로 변환해준다.
+
+    $test = '개행문자 \n을 &lt;br태그&gt;로 변환해준다.';
+    echo $test.'<br>';                     // 개행문자 \n을 <br태그>로 변환해준다.
+    echo htmlspecialchars($test).'<br>';   // 개행문자 \n을 &lt;br태그&gt;로 변환해준다.
+    echo nl2br($test);                     // 개행문자 \n을 <br태그>로 변환해준다.
+    echo '<br><br><br>';
+
+
     // strpos(전체 문자열, 찾을 문자) : 특정 문자의 인덱스 반환
+    echo '<h3>strpos()</h3>';
     $str = "web developer";
     $findStr = 'e';              // 'develop'은 'd'랑 결과가 같다.
     $pos = strpos($str, $findStr);

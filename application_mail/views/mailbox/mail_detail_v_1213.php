@@ -103,6 +103,9 @@ $reply_cc_input = address_text($mail_info["cc"]);
          <?php echo $contents; ?>
        </td>
      </tr>
+     <!-- <pre>
+       <?php // var_dump($head); ?>
+     </pre> -->
    </table>
  </div>
 </div>
@@ -146,6 +149,8 @@ $reply_cc_input = address_text($mail_info["cc"]);
 
     var contents = $("#mail_contents").html();
     plus_content += contents;
+    // console.log("From mail_detail_v =========================")
+    // console.log(plus_content);
     $("#reply_content").val(plus_content);
     var from = $("#reply_from").val();
     var to = $("#reply_to").val();
