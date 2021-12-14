@@ -193,7 +193,7 @@ $mbox = urldecode($mbox);
   </table>
 
 </div>
-<div class="" style="text-align: center">
+<div class="" style="text-align: center;  margin-top: -60px">
   <?php echo $links; ?>
 </div>
 

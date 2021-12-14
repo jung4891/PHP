@@ -340,7 +340,7 @@ class Mailbox extends CI_Controller {
       $curpage = ($curpage == "")? 1:$curpage;  // 1페이지라 가정
       $total_rows = $mails_cnt;      // 총 16개 데이터라 가정.
       $per_page = ($mail_cnt_show == "")? 15:$mail_cnt_show; // 한 페이지에 보여줄 데이터 갯수
-      $pagingNum_cnt = 5;            // 페이징 블록에서의 페이징 번호 갯수
+      $pagingNum_cnt = 10;            // 페이징 블록에서의 페이징 번호 갯수
 
       $paging_block = ceil($curpage/$pagingNum_cnt);   // 1/5 -> 1번째 페이징 블록
       $block_start = (($paging_block - 1) * $pagingNum_cnt) + 1;   // (1-1)*5 + 1 -> 1
@@ -356,36 +356,42 @@ class Mailbox extends CI_Controller {
       $data['curpage'] = $curpage;
 
       $paging = '';
-      if ($curpage == 1) {
-        $paging .= '<a class="link" style="color: silver"> << </a>';
-      } else {
-        $paging .= "<a href='javascript:go_page(1);' class='link' style='font-weight: 700'> << </a>";
-      }
-      if ($paging_block == 1) {
-        $paging .= '<a class="link" style="color: silver"> &nbsp; < &nbsp;</a>';
-      } else {
-        $p = (($paging_block-2)*$pagingNum_cnt) + 1;
-        $paging .= "<a href='javascript:go_page($p);' class='link' style='font-weight: 700'> &nbsp; < &nbsp;</a>";
-      }
-      for ($i=$block_start; $i<=$block_end; $i++) {
-        if ($curpage == $i) {
-          $paging .= "<a href='' style='color:red'> &nbsp;[$i] </a>";
+      if($mails_cnt != 0) {
+        // if ($curpage == 1) {
+        //   $paging .= '<a class="link" style="color: silver"> << </a>';
+        // } else {
+        //   $paging .= "<a href='javascript:go_page(1);' class='link' style='font-weight: 700'> << </a>";
+        // }
+        if ($paging_block == 1) {
+          // $paging .= '<a class="link" style="color: silver"> &nbsp; < &nbsp;</a>';
+          $paging .= "<img src='/misc/img/icon/왼쪽.svg' style='position: relative; top: 4px;'>";
         } else {
-          $paging .= "<a href='javascript:go_page($i);' class='link' style=''> &nbsp;[$i] </a>";
+          $p = (($paging_block-2)*$pagingNum_cnt) + 1;
+          // $paging .= "<a href='javascript:go_page($p);' class='link' style='font-weight: 700'> &nbsp; < &nbsp;</a>";
+          $paging .= "<a href='javascript:go_page($p);'><img src='/misc/img/icon/왼쪽.svg' style='position: relative; top: 4px; cursor: pointer; '></a>";
         }
+        for ($i=$block_start; $i<=$block_end; $i++) {
+          if ($curpage == $i) {
+            $paging .= "<a href='' style='color:#3399FF; font-weight: bold; padding-left:13px'>$i</a>";
+          } else {
+            $paging .= "<a href='javascript:go_page($i);' class='link' style='padding-left:13px'>$i</a>";
+          }
+        }
+        if ($paging_block == $total_blocks || count($mailno_arr) == 0 ) {       // 메일 없는경우 페이지링크 비활성화
+          // $paging .= '<a class="link" style="color: silver"> &nbsp;&nbsp; > </a>';
+          $paging .= "<img src='/misc/img/icon/오른쪽.svg' style='position: relative; top: 4px; margin-left: 12px;'>";
+        } else {
+          $p = ($paging_block*$pagingNum_cnt) + 1;
+          // $paging .= "<a href='javascript:go_page($p);' class='link' style='font-weight: 700'> &nbsp;&nbsp; > </a>";
+          $paging .= "<a href='javascript:go_page($p);'><img src='/misc/img/icon/오른쪽.svg' style='position: relative; top: 4px; cursor: pointer; margin-left: 12px; '></a>";
+        }
+        // if ($curpage == $total_pages || count($mailno_arr) == 0 ) {
+        //   $paging .= '<a class="link" style="color: silver"> &nbsp; >> </a>';
+        // } else {
+        //   $paging .= "<a href='javascript:go_page($total_pages);' class='link' style='font-weight: 700;'> &nbsp; >> </a>";
+        // }
+        $paging .= "<style> .link {color:black; } </style>";
       }
-      if ($paging_block == $total_blocks || count($mailno_arr) == 0 ) {       // 메일 없는경우 페이지링크 비활성화
-        $paging .= '<a class="link" style="color: silver"> &nbsp;&nbsp; > </a>';
-      } else {
-        $p = ($paging_block*$pagingNum_cnt) + 1;
-        $paging .= "<a href='javascript:go_page($p);' class='link' style='font-weight: 700'> &nbsp;&nbsp; > </a>";
-      }
-      if ($curpage == $total_pages || count($mailno_arr) == 0 ) {
-        $paging .= '<a class="link" style="color: silver"> &nbsp; >> </a>';
-      } else {
-        $paging .= "<a href='javascript:go_page($total_pages);' class='link' style='font-weight: 700;'> &nbsp; >> </a>";
-      }
-      $paging .= "<style> .link {color:black; } </style>";
       $data['links'] = $paging;
 
       // 메일박스 head 정보를 배열에 담아 뷰에 보낼 data에 세팅

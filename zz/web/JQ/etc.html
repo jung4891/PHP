@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+  </head>
+  <body>
+
+    <h4>select()</h4>
+    <input type="text" id="select_test" value=""> <br><br>
+    <textarea name="select_test2" id="select_test2" idd="idd_test" rows="4" cols="50"></textarea>
+
+    <script type="text/javascript">
+      $(function(){
+        $("#select_test").val("select 테스트");
+        $("#select_test").on("click", function(){
+          $(this).select();
+        })
+
+        $("textarea").val("이것도 되나?");
+        $("textarea[name=select_test2]").val("이렇게도?");
+        $("textarea[idd=idd_test]").val("이건 안되겠지?");    // 된다..
+        $("#select_test2").focus().select();
+        console.log($("#select_test2"));
+        console.log($("#select_test2")[0]);
+      })
+    </script>
+
+
+  </body>
+</html>
