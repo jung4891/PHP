@@ -104,6 +104,7 @@ $reply_cc_input = address_text($mail_info["cc"]);
        </td>
      </tr>
    </table>
+
  </div>
 </div>
 

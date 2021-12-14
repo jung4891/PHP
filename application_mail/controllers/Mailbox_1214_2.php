@@ -330,19 +330,7 @@ class Mailbox extends CI_Controller {
         $data['type'] = "search";
         $data['subject'] = $subject_target;
       }else {
-        $mailno_arr = array();
-        $mailno_arr_tmp = imap_sort($mails, SORTDATE, 1);
-        for($i=0; $i<15; $i++) {
-          $body = imap_body($mails, $mailno_arr_tmp[$i]);
-          $res = (strpos($body, 'Content-Disposition: attachment')!=null)?  "1" : "0";
-          $arr = array(
-            "no" => $mailno_arr_tmp[$i],
-            "attachments" => $res
-          );
-          array_push($mailno_arr, $arr);
-        }
-        // echo var_dump($mailno_arr);
-        // exit;
+        $mailno_arr = imap_sort($mails, SORTDATE, 1);
       }
       $data['mailno_arr'] = $mailno_arr;
 
@@ -416,8 +404,8 @@ class Mailbox extends CI_Controller {
       if($mails_cnt >= 1) {
         // $data['test_msg'] = "총 메일수: {$mails_cnt}건<br> 새편지: {$recent}건";
         for($i=$start_row; $i<$start_row+$per_page; $i++) {
-          if (isset($mailno_arr[$i]["no"]))         // 마지막 페이지에서 15개가 안될경우 오류처리
-            $data['head'][$mailno_arr[$i]["no"]] = imap_headerinfo($mails, $mailno_arr[$i]["no"]);
+          if (isset($mailno_arr[$i]))         // 마지막 페이지에서 15개가 안될경우 오류처리
+            $data['head'][$mailno_arr[$i]] = imap_headerinfo($mails, $mailno_arr[$i]);
         }
       } else {
         $data['test_msg'] = "메일이 없습니다.";
@@ -428,15 +416,6 @@ class Mailbox extends CI_Controller {
     }
     $this->load->view('mailbox/mail_list_v', $data);
   } // function(mail_list)
-
-
-  public function check_attachments($mbox, $mailno){
-    $mails= $this->connect_mailserver($mbox);
-    $body = imap_body($mails, $mailno);
-    $res = (strpos($body, 'Content-Disposition: attachment')!=null)?  "1" : "0";
-    imap_close($mails);
-    return $res;
-  }
 
   // flag 지정 (중요메일)
   public function set_flag() {

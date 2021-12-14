@@ -4,7 +4,6 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_header.php";
 include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
 
 $mbox = urldecode($mbox);
-
  ?>
 
 
@@ -111,7 +110,7 @@ $mbox = urldecode($mbox);
       <?php
 
         for($i=$start_row; $i<$start_row+$per_page; $i++) {
-          if (isset($mailno_arr[$i])) {
+          if (isset($mailno_arr[$i]["no"])) {
 
         // 발신자 이름 or 메일주소 가져오기
         /*
@@ -120,8 +119,8 @@ $mbox = urldecode($mbox);
           - mb_decode_mimeheader() : MIME 인코드(암호화)되어있는 메일의 제목을 디코드(복호화)함
           - htmlspecialchars() : 제목에 포함된 HTML태그를 무효로 처리함
         */
-        if (isset($head[$mailno_arr[$i]]->from[0])) {
-          $from_obj = $head[$mailno_arr[$i]]->from[0];              // 보낸 사람의 이름 또는 메일주소를 얻기위함
+        if (isset($head[$mailno_arr[$i]["no"]]->from[0])) {
+          $from_obj = $head[$mailno_arr[$i]["no"]]->from[0];              // 보낸 사람의 이름 또는 메일주소를 얻기위함
           $from_addr = imap_utf8($from_obj->mailbox).'@'.imap_utf8($from_obj->host);      // hjsong@durianit.co.kr
           if (isset($from_obj->personal)) {
             $from_name = imap_utf8($from_obj->personal);            // 송혁중 (이름이 명시되어 있는 메일)
@@ -129,7 +128,7 @@ $mbox = urldecode($mbox);
             $from_name = $from_addr;          // 이름이 명시되어 있지 않은 메일은 메일주소 그대로 출력
           }
         }
-        $msg_no = trim($head[$mailno_arr[$i]]->Msgno);            // 메일번호
+        $msg_no = trim($head[$mailno_arr[$i]["no"]]->Msgno);            // 메일번호
         ?>
 
         <tr>
@@ -142,7 +141,7 @@ $mbox = urldecode($mbox);
         </td>
         <td>
           <a href="javascript:void(0);" onclick="starClick(this); " >
-            <?php if($head[$mailno_arr[$i]]->Flagged == "F") {?>
+            <?php if($head[$mailno_arr[$i]["no"]]->Flagged == "F") {?>
               <img class="fullStar" src="/misc/img/icon/star2.png" alt="" width="15px">
             <?php   }else {?>
               <img class="emptyStar" src="/misc/img/icon/star1.png" alt="" width="15px">
@@ -151,7 +150,7 @@ $mbox = urldecode($mbox);
         </td>
         <td>
           <!-- 메일크기로 첨부파일 유무 파악 -->
-          <?php if($head[$mailno_arr[$i]]->Size > 30000) { ?>
+          <?php if($mailno_arr[$i]["attachments"] == "1") { ?>
           <img src="/misc/img/icon/attachment.png" alt="ss">
           <?php }else { ?>
           <?php } ?>
@@ -162,20 +161,19 @@ $mbox = urldecode($mbox);
         $mbox2 = str_replace(' ', '+', $mbox2);
 
         // 메일 읽은경우/읽지 않은경우 class명 지정하여 색 변경 (메일 읽으면 "U" -> ""로 바뀜)
-        $unseen = $head[$mailno_arr[$i]]->Unseen;
+        $unseen = $head[$mailno_arr[$i]["no"]]->Unseen;
         $unseen = ($unseen == "U")? "unseen":"seen";
         ?>
         <td><a class= <?php echo $unseen ?> onclick="change_href(event, '<?php echo $from_addr; ?>')"
-            href="<?php echo site_url(); ?>/mailbox/mail_detail?boxname=<?php echo $mbox2 ?>&mailno=<?php echo $mailno_arr[$i] ?>">
+            href="<?php echo site_url(); ?>/mailbox/mail_detail?boxname=<?php echo $mbox2 ?>&mailno=<?php echo $mailno_arr[$i]["no"] ?>">
             <?php echo (isset($from_name))? imap_utf8($from_name) : '(이름 없음)' ?></a></td>
-        <td><a class=<?php echo $unseen ?> href="<?php echo site_url(); ?>/mailbox/mail_detail?boxname=<?php echo $mbox2 ?>&mailno=<?php echo $mailno_arr[$i] ?>">
-            <!-- <?php // echo '<pre>'; var_dump($head[$mailno_arr[$i]]); echo '</pre>';?></a></td> -->
-            <?php echo (isset($head[$mailno_arr[$i]]->subject) && $head[$mailno_arr[$i]]->subject != "")? imap_utf8($head[$mailno_arr[$i]]->subject) : '(제목 없음)' ?></a></td>
-        <td style="color: darkgray; font-weight: 400;"><?php echo isset($head[$mailno_arr[$i]]->udate)? date("y.m.d", $head[$mailno_arr[$i]]->udate) : '' ?></td>
+        <td><a class=<?php echo $unseen ?> href="<?php echo site_url(); ?>/mailbox/mail_detail?boxname=<?php echo $mbox2 ?>&mailno=<?php echo $mailno_arr[$i]["no"] ?>">
+            <?php echo (isset($head[$mailno_arr[$i]["no"]]->subject) && $head[$mailno_arr[$i]["no"]]->subject != "")? imap_utf8($head[$mailno_arr[$i]["no"]]->subject) : '(제목 없음)' ?></a></td>
+        <td style="color: darkgray; font-weight: 400;"><?php echo isset($head[$mailno_arr[$i]["no"]]->udate)? date("y.m.d", $head[$mailno_arr[$i]["no"]]->udate) : '' ?></td>
         <!-- 시, 분은 H:i -->
         <?php
-          if(isset($head[$mailno_arr[$i]]->Size)) {
-            $size = round(($head[$mailno_arr[$i]]->Size)/1024, 1);
+          if(isset($head[$mailno_arr[$i]["no"]]->Size)) {
+            $size = round(($head[$mailno_arr[$i]["no"]]->Size)/1024, 1);
             ($size < 1000)? $size .= 'KB' : $size = round($size/1000, 1).'MB';
           } else {
             $size = '';
@@ -183,17 +181,19 @@ $mbox = urldecode($mbox);
          ?>
         <td><?php echo $size ?></td>
       </tr>
+      <!-- <pre align="left">
+        <?php // var_dump($head[$mailno_arr[$i]]); ?>
+      </pre> -->
       <?php
         }
       }
       ?>
-     </pre>
        </form>
     </tbody>
   </table>
 
 </div>
-<div class="" style="text-align: center;  margin-top: -60px">
+<div class="" style="text-align: center;  margin-top: 20px">
   <?php echo $links; ?>
 </div>
 
