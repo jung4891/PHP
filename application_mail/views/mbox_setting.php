@@ -46,7 +46,7 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
   <div id="main_contents" align="center">
     <form name="mform" action="" method="post">
       <div class="" align="left" width=100% style="border-bottom:1px solid #1A8DFF;margin:-10px 40px 10px 40px;">
-        <button type="button" name="button" class="nav_btn" style="margin-left:10px;"onclick="location.href='<?php echo site_url(); ?>/option/account'">계정설정</button>
+        <!-- <button type="button" name="button" class="nav_btn" style="margin-left:10px;"onclick="location.href='<?php echo site_url(); ?>/option/account'">계정설정</button> -->
         <button type="button" name="button" class="nav_btn select_btn" onclick="location.href='<?php echo site_url(); ?>/option/mailbox'">메일함설정</button>
         <button type="button" name="button" class="nav_btn" onclick="location.href='<?php echo site_url(); ?>/option/address_book'">주소록관리</button>
         <button type="button" name="button" class="nav_btn" onclick="location.href='<?php echo site_url(); ?>/option/singnature'">서명관리</button>
@@ -58,7 +58,7 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
         <option value="">메일함 추가</option>
         <?php
           $my_mbox_cnt = count($mbox_info)-5;
-          for($i=0; $i<5+$my_mbox_cnt; $i++) {
+          for($i=5; $i<5+$my_mbox_cnt; $i++) {
         ?>
             <option value= "<?php echo $mbox_info[$i]['boxname_kor']?>"><?php echo $mbox_info[$i]['boxname_kor']?></option>";
         <?php
@@ -67,7 +67,6 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
       </select>
       <input type="text" id="new_mbox" style="width: 70px; height: 19px"> &nbsp;
       <button type="button" name="button" onclick="add_mailbox()">추가</button>
-
 
     <br><br>
     <table style="width: 95%; line-height: 30px" >

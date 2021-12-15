@@ -63,13 +63,13 @@ include $this->input->server('DOCUMENT_ROOT')."/include/admin_side.php";
           <span id="password_span"></span>
         </td>
       </tr>
-      <tr>
+      <!-- <tr>
         <td align="right">이름</td>
         <td align="center">
           <input type="text" class="input_basic input_search" name="user_name" value="" style="width:90%">
         </td>
         <td></td>
-      </tr>
+      </tr> -->
       <!-- <tr>
         <td align="right">도메인</td>
         <td>
@@ -136,30 +136,7 @@ function dupl_mailcheck(){
 }
 }
 
-function selectAll(selectAll){
-  var name = selectAll.name
-  const checkboxes
-       = document.getElementsByName(name);
 
-  checkboxes.forEach((checkbox) => {
-    checkbox.checked = selectAll.checked;
-  })
-}
-
-function getCheckboxValue(name){
-  // 선택된 목록 가져오기
-  const query = "input[name='"+name+"']:checked";
-  const selectedEls =
-      document.querySelectorAll(query);
-
-  // 선택된 목록에서 value 찾기
-  let result = '';
-  selectedEls.forEach((el) => {
-    result += el.value + ' ';
-  });
-
-  return result;
-}
 
 $("#mail_id").blur(function(){
   dupl_mailcheck();

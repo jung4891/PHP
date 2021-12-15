@@ -103,12 +103,16 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
               <td>
                 <input type="text" class="input_basic" id="recipient" name="recipient" value="<?php echo $reply_to; ?>" placeholder="받는 사람" style="width:100%">
               </td>
-              <td align="right" style="overflow:hidden;"><button class="btn_basic btn_white" type="button" id="address_button" name="address_button">주소록</button></td>
+              <td align="right" style="overflow:hidden;">
+                <!-- <button class="btn_basic btn_white" type="button" id="address_button" name="address_button">주소록</button> -->
+                <input class="btn_basic btn_white" type="button" id="address_button" name="address_button" value="주소록">
+              </td>
           </tr>
 
 
           <tr class="mail_cc">
               <td>참조
+
                 <!-- <span style="font-size:8px;float:right;padding-right:10px;">아래</span> -->
               </td>
               <td>

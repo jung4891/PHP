@@ -5,6 +5,8 @@ include $this->input->server('DOCUMENT_ROOT')."/include/admin_side.php";
  ?>
  <link rel="stylesheet" href="<?php echo $misc; ?>css/style.css" type="text/css" charset="utf-8"/>
  <link rel="stylesheet" href="<?php echo $misc; ?>css/admin.css" type="text/css" charset="utf-8"/>
+
+
 <div id="main_contents" align="center">
   <div class="main_div">
   <table class="contents_tbl" style="width:70%;" border="0" cellspacing="0" cellpadding="0">
@@ -44,7 +46,7 @@ include $this->input->server('DOCUMENT_ROOT')."/include/admin_side.php";
 			?>
 
         <tr onMouseOver="this.style.backgroundColor='#FAFAFA'" onMouseOut="this.style.backgroundColor='#fff'" style="">
-          <td height="40" align="center"><?php echo $i;?></a></td>
+          <td height="40" align="center"><?php echo $i;?></td>
           <td style="padding-left:10px;" align="center"><?php echo $item->username;?></td>
           <td align="center"><?php echo $domain;?></td>
           <td align="center"><?php echo $active;?></td>
@@ -91,7 +93,22 @@ include $this->input->server('DOCUMENT_ROOT')."/include/admin_side.php";
 function manager_add(){
   location.href = "<?php echo site_url(); ?>/admin/manager/add_admin";
 }
-
+function admin_modify(id, mode){
+  if(mode == "del"){
+    var con_test = confirm("정말 삭제하시겠습니까?");
+    if(con_test == true){
+      location.href="<?php echo site_url(); ?>/admin/manager/del_admin?id="+id;
+    }
+  }else{
+    // $("#modify_id").html(id);
+    // $("#modify_user").val(id);
+    // $("#modify_admin").bPopup();
+    $("#modi_id").val(id);
+    var act = "<?php echo site_url(); ?>/admin/manager/modify_admin";
+    $("#modify_form").attr('action', act);
+    $("#modify_form").submit();
+  }
+}
 
 $("#add_id").keyup(function(){
   var inputVal = $(this).val();
@@ -161,50 +178,31 @@ $("#add_pass, #check_pass").blur(function(){
 //   }
 // })
 
-function selectAll(selectAll){
-  var name = selectAll.name
-  const checkboxes
-       = document.getElementsByName(name);
+// function selectAll(selectAll){
+//   var name = selectAll.name
+//   const checkboxes
+//        = document.getElementsByName(name);
+//
+//   checkboxes.forEach((checkbox) => {
+//     checkbox.checked = selectAll.checked;
+//   })
+// }
+//
+// function getCheckboxValue(name){
+//   // 선택된 목록 가져오기
+//   const query = "input[name='"+name+"']:checked";
+//   const selectedEls =
+//       document.querySelectorAll(query);
+//
+//   // 선택된 목록에서 value 찾기
+//   let result = '';
+//   selectedEls.forEach((el) => {
+//     result += el.value + ' ';
+//   });
+//
+//   return result;
+// }
 
-  checkboxes.forEach((checkbox) => {
-    checkbox.checked = selectAll.checked;
-  })
-}
-
-function getCheckboxValue(name){
-  // 선택된 목록 가져오기
-  const query = "input[name='"+name+"']:checked";
-  const selectedEls =
-      document.querySelectorAll(query);
-
-  // 선택된 목록에서 value 찾기
-  let result = '';
-  selectedEls.forEach((el) => {
-    result += el.value + ' ';
-  });
-
-  return result;
-}
-
-
-
-
-function admin_modify(id, mode){
-  if(mode == "del"){
-    var con_test = confirm("정말 삭제하시겠습니까?");
-    if(con_test == true){
-      location.href="<?php echo site_url(); ?>/admin/manager/del_admin?id="+id;
-    }
-  }else{
-    // $("#modify_id").html(id);
-    // $("#modify_user").val(id);
-    // $("#modify_admin").bPopup();
-    $("#modi_id").val(id);
-    var act = "<?php echo site_url(); ?>/admin/manager/modify_admin"
-    $("#modify_form").attr('action', act);
-    $("#modify_form").submit();
-  }
-}
 
 
 

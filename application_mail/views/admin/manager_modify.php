@@ -159,30 +159,30 @@ input:checked + .slider:before {
 
 
 
-function selectAll(selectAll){
-  var name = selectAll.name
-  const checkboxes
-       = document.getElementsByName(name);
-
-  checkboxes.forEach((checkbox) => {
-    checkbox.checked = selectAll.checked;
-  })
-}
-
-function getCheckboxValue(name){
-  // 선택된 목록 가져오기
-  const query = "input[name='"+name+"']:checked";
-  const selectedEls =
-      document.querySelectorAll(query);
-
-  // 선택된 목록에서 value 찾기
-  let result = '';
-  selectedEls.forEach((el) => {
-    result += el.value + ' ';
-  });
-
-  return result;
-}
+// function selectAll(selectAll){
+//   var name = selectAll.name
+//   const checkboxes
+//        = document.getElementsByName(name);
+//
+//   checkboxes.forEach((checkbox) => {
+//     checkbox.checked = selectAll.checked;
+//   })
+// }
+//
+// function getCheckboxValue(name){
+//   // 선택된 목록 가져오기
+//   const query = "input[name='"+name+"']:checked";
+//   const selectedEls =
+//       document.querySelectorAll(query);
+//
+//   // 선택된 목록에서 value 찾기
+//   let result = '';
+//   selectedEls.forEach((el) => {
+//     result += el.value + ' ';
+//   });
+//
+//   return result;
+// }
 
 
 

@@ -59,7 +59,7 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
   <div id="main_contents" align="center">
     <form name="mform" action="" method="post">
       <div class="" align="left" width=100% style="border-bottom:1px solid #1A8DFF;margin:-10px 40px 10px 40px;">
-        <button type="button" name="button" class="nav_btn select_btn" style="margin-left:10px;"onclick="location.href='<?php echo site_url(); ?>/option/account'">계정설정</button>
+        <!-- <button type="button" name="button" class="nav_btn select_btn" style="margin-left:10px;"onclick="location.href='<?php echo site_url(); ?>/option/account'">계정설정</button> -->
         <button type="button" name="button" class="nav_btn" onclick="location.href='<?php echo site_url(); ?>/option/mailbox'">메일함설정</button>
         <button type="button" name="button" class="nav_btn" onclick="location.href='<?php echo site_url(); ?>/option/address_book'">주소록관리</button>
         <button type="button" name="button" class="nav_btn" onclick="location.href='<?php echo site_url(); ?>/option/singnature'">서명관리</button>
@@ -96,6 +96,7 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
       </div>
 
       <div id="pass_div" align="center" style="display:none;background-color:white;width:25vw;">
+        <form class="" id="password_change_form" action="" method="post">
         <table class="contents_tbl"  border="0" cellspacing="0" cellpadding="0" style="width:80%;align:center;">
           <tr>
             <th colspan="3" align="center">
@@ -124,11 +125,12 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
           </tr>
           <tr>
             <td colspan="3" align="center">
-              <button type="button" name="button" class="btn_basic btn_blue"  style="width:60px;height:30px;" onclick="change_pass();">확인</button>
+              <button type="button" name="button" class="btn_basic btn_blue"  style="width:60px;height:30px;" onclick="password_change();">확인</button>
               <button type="button" name="button" class="btn_basic btn_sky"  style="width:60px;height:30px;" onclick="close_div();">취소</button>
             </td>
           </tr>
         </table>
+      </form>
       </div>
 
   </div>
@@ -139,6 +141,41 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
 // $(function (){
 //
 // })
+function password_change(){
+  var id = $("#modify_id").val();
+  var password = $("#mail_password").val();
+  var chk_pass = $("#chk_password").val();
+  if($("#cert_pass").val() == "false"){
+    alert("비밀번호를 확인하세요.");
+    return false;
+  }else{
+    if(password != chk_pass){
+      alert("비밀번호를 확인하세요.");
+      $("#cert_pass").val("false");
+      return false;
+    }else{
+      $("#password_change_form").attr("action","<?php echo site_url(); ?>/account/password_change");
+      $("#password_change_form").submit();
+        // $.ajax({
+        //     url: "<?php echo site_url(); ?>/account/password_change",
+        //     type: "POST",
+        //     dataType : "json",
+        //     data: {
+        //       username: id,
+        //       password: password,
+        //       chk_pass: chk_pass
+        //     },
+        //     success: function(result){
+        //       console.log(result);
+        //       if(result){
+        //         alert("변경되었습니다.");
+        //         close_div();
+        //       }
+        //     }
+        //   })
+    }
+  }
+}
 
 function password_popup(){
   $("#pass_div").bPopup({
@@ -185,40 +222,6 @@ $("#mail_password, #chk_password").blur(function(){
   }
 })
 
-function change_pass(){
-  var id = $("#modify_id").val();
-  var password = $("#mail_password").val();
-  var chk_pass = $("#chk_password").val();
-  if($("#cert_pass").val() == "false"){
-    alert("비밀번호를 확인하세요.");
-    return false;
-  }else{
-    if(password != chk_pass){
-      alert("비밀번호를 확인하세요.");
-      $("#cert_pass").val("false");
-      return false;
-    }else{
-        $.ajax({
-            type: "POST",
-            dataType : "json",
-            url: "<?php echo site_url();?>/option/change_password",
-            data: {
-              username: id,
-              password: password,
-              chk_pass: chk_pass
-            },
-            success: function(result){
-              console.log(result);
-              if(result){
-                alert("변경되었습니다.");
-                close_div();
-              }
-            }
-          })
-    }
-  }
-
-}
 
 </script>
 
