@@ -247,23 +247,23 @@ class Mailbox extends CI_Controller {
     $data = array();
 
     // 메일함 이동 selectbox 내용
-    $boxname_arr = array();
-    $folders = $this->get_folders();
-
-    for ($i=0; $i < count($folders); $i++) {
-      $exp_folder = explode(".", $folders[$i]);
-      $length = count($exp_folder);
-      $text = mb_convert_encoding($exp_folder[$length-1], 'UTF-8', 'UTF7-IMAP');
-      switch($text) {
-        case "INBOX":  $text="전체메일";  break;
-        case "보낸 편지함":  $text="보낸메일함";  break;
-        case "임시 보관함":  $text="임시보관함";  break;
-        case "정크 메일":  $text="스팸메일함";  break;
-        case "지운 편지함":  $text="휴지통";  break;
-      }
-      $boxname_arr[$text] = $folders[$i];
-    }
-    $data['boxname_arr'] = $boxname_arr;
+    // $boxname_arr = array();
+    // $folders = $this->get_folders();
+    //
+    // for ($i=0; $i < count($folders); $i++) {
+    //   $exp_folder = explode(".", $folders[$i]);
+    //   $length = count($exp_folder);
+    //   $text = mb_convert_encoding($exp_folder[$length-1], 'UTF-8', 'UTF7-IMAP');
+    //   switch($text) {
+    //     case "INBOX":  $text="전체메일";  break;
+    //     case "보낸 편지함":  $text="보낸메일함";  break;
+    //     case "임시 보관함":  $text="임시보관함";  break;
+    //     case "정크 메일":  $text="스팸메일함";  break;
+    //     case "지운 편지함":  $text="휴지통";  break;
+    //   }
+    //   $boxname_arr[$text] = $folders[$i];
+    // }
+    // $data['boxname_arr'] = $boxname_arr;
 
     // 메일 리스트 가져오기
     $mbox = $this->input->get("boxname");
@@ -308,30 +308,72 @@ class Mailbox extends CI_Controller {
         $mailno_arr = $mailno_unseen_arr;
         $mails_cnt = count($mailno_arr);
         $data['type'] = "important";
-      }else if($this->input->get('type') == "search") {
+      } else if($this->input->get('type') == "search") {
         $subject_target = $this->input->get("subject");
+        $contents_target = $this->input->get("contents");
         $subject_target = strtolower($subject_target);
+        $contents_target = trim(strtolower($contents_target));
         $mailno_arr = imap_sort($mails, SORTDATE, 1);
         $mailno_arr_target = array();
 
-        foreach($mailno_arr as $index => $no) {
-          $subject = imap_utf8(imap_headerinfo($mails, $no)->subject);
-          $subject = strtolower($subject);
-          if(strpos($subject, $subject_target) !== false)  {
-            array_push($mailno_arr_target, $no);
+          if($subject_target != "") {
+            foreach($mailno_arr as $index => $no) {
+              $subject = imap_utf8(imap_headerinfo($mails, $no)->subject);
+              $subject = strtolower($subject);
+              if(strpos($subject, $subject_target) !== false)  {
+                array_push($mailno_arr_target, $no);
+              }
+            }
+            $mailno_arr = $mailno_arr_target;
           }
+          if($contents_target != "") {
+            foreach($mailno_arr as $index => $no) {
+              $struct = imap_fetchstructure($mails, $no);
+              $contents = '';
+              if (isset($struct->parts)) {
+                $flattenedParts = $this->flattenParts($struct->parts);
+                foreach($flattenedParts as $partNumber => $part) {
+                  switch($part->type) {
+                    case 0:
+                      if($part->subtype == "PLAIN") break;
+                      if($part->ifparameters) {
+                        foreach($part->parameters as $object) {
+                          if(strtolower($object->attribute) == 'charset') {
+                            $charset = $object->value;
+                          }
+                        }
+                      }
+                      $message = $this->getPart($mails, $no, $partNumber, $part->encoding, $charset);
+                      $contents .= $message;
+                      break;
+                  }
+                }
+
+              }else {
+                  $message = $this->getPart($mails, $no, 1, $struct->encoding, $struct->parameters[0]->value);
+                  $contents .= $message;
+              }
+              // $contents = strtolower($contents);
+              echo 'content_target: '.$contents_target.'<br>';
+              var_dump($contents);
+              echo "================================<br><br>";
+              var_dump(strpos(strip_tags($contents), $contents_target));
+              // echo '<br>'
+              var_dump(substr_count(strip_tags($contents), $contents_target));
+              echo "<br><br>================================<br><br>";
+              if(strpos($contents, $contents_target) !== false)  {
+                var_dump($contents);
+                array_push($mailno_arr_target, $no);
+              }
+            }
+            exit;
+            $mailno_arr = $mailno_arr_target;
+            $mails_cnt = count($mailno_arr);
+          } // 내용 검색
+        // type이 search인 경우
+        } else {
+          $mailno_arr = imap_sort($mails, SORTDATE, 1);
         }
-        // 내용으로 검색하는것 역시 반복문으로 돌려야할듯.. 일단 이건 추후에.
-        // 할때 mail_list 상세검색부분 div > table로 바꾸기
-        // 그리고 상세 옆에 대표 검색은 그냥 다 검색되야함. 내용이나 보낸사람 등등.
-        $mailno_arr = $mailno_arr_target;
-        if($mailno_arr)
-          $mails_cnt = count($mailno_arr);
-        $data['type'] = "search";
-        $data['subject'] = $subject_target;
-      }else {
-        $mailno_arr = imap_sort($mails, SORTDATE, 1);
-      }
       $data['mailno_arr'] = $mailno_arr;
 
       // php 페이징
@@ -358,44 +400,44 @@ class Mailbox extends CI_Controller {
 
       $paging = '';
       if($mails_cnt != 0) {
-      if ($curpage == 1) {
-          // $paging .= '<a class="link" style="color: silver"> << </a>';
-          $paging .= "<img src='/misc/img/icon/처음.svg' style='position: relative; top: 4px;'>";
-      } else {
-          // $paging .= "<a href='javascript:go_page(1);' class='link' style='font-weight: 700'> << </a>";
-          $paging .= "<a href='javascript:go_page(1);'><img src='/misc/img/icon/처음.svg' style='position: relative; top: 4px; cursor: pointer; '></a>";
-      }
-      if ($paging_block == 1) {
-          // $paging .= '<a class="link" style="color: silver"> &nbsp; < &nbsp;</a>';
-          $paging .= "<img src='/misc/img/icon/왼쪽.svg' style='position: relative; top: 4px; padding-left:8px; padding-right: 5px'>";
-      } else {
-        $p = (($paging_block-2)*$pagingNum_cnt) + 1;
-          // $paging .= "<a href='javascript:go_page($p);' class='link' style='font-weight: 700'> &nbsp; < &nbsp;</a>";
-          $paging .= "<a href='javascript:go_page($p);'><img src='/misc/img/icon/왼쪽.svg' style='position: relative; top: 4px; padding-left:8px; padding-right: 5px; cursor: pointer; '></a>";
-      }
-      for ($i=$block_start; $i<=$block_end; $i++) {
-        if ($curpage == $i) {
-            $paging .= "<a href='' style='color:#3399FF; font-weight: bold; padding-left:13px'>$i</a>";
+        if ($curpage == 1) {
+            // $paging .= '<a class="link" style="color: silver"> << </a>';
+            $paging .= "<img src='/misc/img/icon/처음.svg' style='position: relative; top: 4px;'>";
         } else {
-            $paging .= "<a href='javascript:go_page($i);' class='link' style='padding-left:13px'>$i</a>";
+            // $paging .= "<a href='javascript:go_page(1);' class='link' style='font-weight: 700'> << </a>";
+            $paging .= "<a href='javascript:go_page(1);'><img src='/misc/img/icon/처음.svg' style='position: relative; top: 4px; cursor: pointer; '></a>";
         }
-      }
-      if ($paging_block == $total_blocks || count($mailno_arr) == 0 ) {       // 메일 없는경우 페이지링크 비활성화
-          // $paging .= '<a class="link" style="color: silver"> &nbsp;&nbsp; > </a>';
-          $paging .= "<img src='/misc/img/icon/오른쪽.svg' style='position: relative; top: 4px; padding-left: 20px; padding-right:8px'>";
-      } else {
-        $p = ($paging_block*$pagingNum_cnt) + 1;
-          // $paging .= "<a href='javascript:go_page($p);' class='link' style='font-weight: 700'> &nbsp;&nbsp; > </a>";
-          $paging .= "<a href='javascript:go_page($p);'><img src='/misc/img/icon/오른쪽.svg' style='position: relative; top: 4px; cursor: pointer; padding-left: 20px; padding-right:8px'></a>";
-      }
-      if ($curpage == $total_pages || count($mailno_arr) == 0 ) {
-          // $paging .= '<a class="link" style="color: silver"> &nbsp; >> </a>';
-          $paging .= "<img src='/misc/img/icon/끝.svg' style='position: relative; top: 4px;'>";
-      } else {
-          // $paging .= "<a href='javascript:go_page($total_pages);' class='link' style='font-weight: 700;'> &nbsp; >> </a>";
-          $paging .= "<a href='javascript:go_page($total_pages);'><img src='/misc/img/icon/끝.svg' style='position: relative; top: 4px; cursor: pointer; '></a>";
-      }
-      $paging .= "<style> .link {color:black; } </style>";
+        if ($paging_block == 1) {
+            // $paging .= '<a class="link" style="color: silver"> &nbsp; < &nbsp;</a>';
+            $paging .= "<img src='/misc/img/icon/왼쪽.svg' style='position: relative; top: 4px; padding-left:8px; padding-right: 5px'>";
+        } else {
+          $p = (($paging_block-2)*$pagingNum_cnt) + 1;
+            // $paging .= "<a href='javascript:go_page($p);' class='link' style='font-weight: 700'> &nbsp; < &nbsp;</a>";
+            $paging .= "<a href='javascript:go_page($p);'><img src='/misc/img/icon/왼쪽.svg' style='position: relative; top: 4px; padding-left:8px; padding-right: 5px; cursor: pointer; '></a>";
+        }
+        for ($i=$block_start; $i<=$block_end; $i++) {
+          if ($curpage == $i) {
+              $paging .= "<a href='' style='color:#3399FF; font-weight: bold; padding-left:13px'>$i</a>";
+          } else {
+              $paging .= "<a href='javascript:go_page($i);' class='link' style='padding-left:13px'>$i</a>";
+          }
+        }
+        if ($paging_block == $total_blocks || count($mailno_arr) == 0 ) {       // 메일 없는경우 페이지링크 비활성화
+            // $paging .= '<a class="link" style="color: silver"> &nbsp;&nbsp; > </a>';
+            $paging .= "<img src='/misc/img/icon/오른쪽.svg' style='position: relative; top: 4px; padding-left: 20px; padding-right:8px'>";
+        } else {
+          $p = ($paging_block*$pagingNum_cnt) + 1;
+            // $paging .= "<a href='javascript:go_page($p);' class='link' style='font-weight: 700'> &nbsp;&nbsp; > </a>";
+            $paging .= "<a href='javascript:go_page($p);'><img src='/misc/img/icon/오른쪽.svg' style='position: relative; top: 4px; cursor: pointer; padding-left: 20px; padding-right:8px'></a>";
+        }
+        if ($curpage == $total_pages || count($mailno_arr) == 0 ) {
+            // $paging .= '<a class="link" style="color: silver"> &nbsp; >> </a>';
+            $paging .= "<img src='/misc/img/icon/끝.svg' style='position: relative; top: 4px;'>";
+        } else {
+            // $paging .= "<a href='javascript:go_page($total_pages);' class='link' style='font-weight: 700;'> &nbsp; >> </a>";
+            $paging .= "<a href='javascript:go_page($total_pages);'><img src='/misc/img/icon/끝.svg' style='position: relative; top: 4px; cursor: pointer; '></a>";
+        }
+        $paging .= "<style> .link {color:black; } </style>";
       }
       $data['links'] = $paging;
 
@@ -411,7 +453,7 @@ class Mailbox extends CI_Controller {
         $data['test_msg'] = "메일이 없습니다.";
       }
       imap_close($mails);			              	// IMAP 스트림을 닫음
-    } else {
+    }else {
       $data['test_msg'] = '사용자명 또는 패스워드가 틀립니다.';
     }
     $this->load->view('mailbox/mail_list_v', $data);

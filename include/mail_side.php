@@ -214,14 +214,14 @@ for ($i=0; $i < count($folders); $i++) {
           }
           $box_len = count($mailbox_tree);
           $dept = $b['child_num'];
-        $padding = $dept * 15;
+          $padding = $dept * 15;
           if($b["parent"] == "#"){
             ?>
           <table class="mbox_tbl" id="<?php echo $b["id"]; ?>_tbl" border="0" cellspacing="0" cellpadding="0">
           <col width="12%">
           <col width="78%">
           <!-- <col width="7%"> -->
-            <col width="15%">
+          <col width="15%">
 
             <?php
           }

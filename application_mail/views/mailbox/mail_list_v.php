@@ -73,8 +73,7 @@ $mbox = urldecode($mbox);
 
 <div id="main_contents" align="center">
   <form name="mform" action="" method="post">
-    <div id="" align="left" style="width:100%;padding-bottom:10px;">
-      <table style="width:90%">
+      <table style="width:90%; padding-bottom:10px; " border="0" cellspacing="0" cellpadding="0">
         <colgroup>
           <col width="3%" >
           <col width="3%" >
@@ -85,10 +84,7 @@ $mbox = urldecode($mbox);
           <col width="10%" >
         </colgroup>
           <tr>
-            <td></td>
-            <td>
-            <input type="checkbox" id="total" onClick="check_all(this);">
-            </td>
+            <td><input type="checkbox" id="total" onClick="check_all(this);"></td>
             <td colspan="3">
             <?php if($mbox == "&ycDGtA- &07jJwNVo-") {  // 휴지통 ?>
             <button type="button" class="top_button" onclick="del_ever();" disabled="disabled">영구삭제</button>
@@ -107,15 +103,105 @@ $mbox = urldecode($mbox);
             <button type="button" class="top_button" onclick="move();" disabled="disabled" style="height: 25px;">이동</button>
             </td>
             <td>
-              <div style="display: inline-block; width: 180px; height: 25px;  border: solid 1px lightgray;">
+              <div style="display: inline-block; width: 160px; height: 25px;  border: solid 1px lightgray;">
                 <input type="text" id="search" style="outline: none; margin: 3px; margin-left: 6px; width: 77%; height: 20px; border: none; color: green; font-weight: bold; font-size:1em" >
                 <a href="javascript:void(0)" onclick="search_mail(this);">
-                <img style="width: 17px; position: relative; top:3px " src="<?php echo $misc; ?>/img/icon/search.png" alt="">
+                  <img style="width: 17px; position: relative; top:3px " src="<?php echo $misc; ?>/img/icon/search.png" alt="">
+                </a>
+              </div>
+              <div style="display: inline-block; cursor: pointer; width: 40px; height: 27px; position: relative; top: -1px; left: 5px; border: solid 1px lightgray; background-color: rgb(220,220,220); text-align: center">
+                <a onclick="search_detail();" style="position: relative; top: 0px; font-weight: 300; color: grey; font-size: 14px">
+                  상세
                 </a>
               </div>
 
+<style media="screen">
+            /* 상세 검색 */
+            .modal{ position:absolute; width:100%; height:100%; background: rgba(0,0,0,0.1); top:0; left:0;
+                    display:none; }
+            .modal_content{
+              width:350px; height:300px;
+              background:white; border-radius:10px;
+              border: 3px solid black;
+              position:relative; top:18%; left:58%;
+              margin-top:-100px; margin-left:-200px;
+              text-align:center;
+              box-sizing:border-box; padding:20px 0;
+              line-height:30px;
+            }
+</style>
+              <div class="modal">
+                <div class="modal_content" title="">
+                  <div class="" style="margin-left: 300px; margin-bottom:30px">
+                    <button type="button" name="button" id="modal_form_close"
+                    style=" border: none; background-color: inherit; font-size: 15px; cursor: pointer" >X</button>
+                  </div>
+                  <form class="" action="index.html" method="post">
+                    <!-- 이유는 모르겠는데 form 이걸 해줘야 아래꺼가 출력이됨 -->
+                  </form>
+                  <form name="modal_form" action="<?php echo site_url(); ?>/mailbox/mail_list" method="get">
+                    <input type="hidden" name="boxname" value="<?php echo $mbox ?>" >
+                    <input type="hidden" name="type" value="search" >
+                    <div class="" style="margin-bottom: 20px">
+                      <div class="" style="float: left; width: 13%; margin-left: 30px">
+                        제목
+                      </div>
+                      <div class="" style="width: 90%">
+                        <input type="text" name="subject" value="" style="">
+                      </div>
+                    </div>
+                    <div class="">
+                      <div class="" style="float: left; width: 13%; margin-left: 30px">
+                        내용
+                      </div>
+                      <div class="" style="width: 90%">
+                        <input type="text" name="contents" value="" style="">
+                      </div>
+                    </div>
+                    <br><br>
+                    <button type="submit" style="width: 70px; font-size: 1.1em">검색</button>
+                  </form>
+                  <br><br>
+                </div>
+            </div>
 
+<script type="text/javascript">
+
+            // 상세검색
+            function search_detail() {
+              $(".modal").fadeIn();
+            }
+            $('#modal_form_submit').click(function() {
+              // console.log($('[name=contents]').val());
+            })
+            $('#modal_form_close').click(function() {
+              $(".modal").fadeOut();
+            })
+            // 검색
+            function search_mail(ths) {
+              let search_word = $('#search').val();
+              if(search_word == "") {
+                alert('검색어를 입력하세요');
+                $('#search').focus();
+              }else {
+                let parent_tr = ths.parentNode;
+                let subject = parent_tr.childNodes[1].value;
+                var newForm = $('<form></form>');
+                newForm.attr("method","get");
+                newForm.attr("action", "<?php echo site_url(); ?>/mailbox/mail_list");
+                newForm.append($('<input>', {type: 'hidden', name: 'boxname', value: '<?php echo $mbox ?>'}));
+                newForm.append($('<input>', {type: 'hidden', name: 'type', value: 'search' }));
+                newForm.append($('<input>', {type: 'hidden', name: 'subject', value: subject }));
+                newForm.appendTo('body');
+                newForm.submit();
+              }
+            }
+
+
+
+</script>
             </td>
+            <td></td>
             <td>
             <select id="show_cnt" onchange="mails_cnt(this);" style="background-color: #F0F0F0; height: 25px" >
               <option value="">보기설정</option>
@@ -126,7 +212,6 @@ $mbox = urldecode($mbox);
             </td>
           </tr>
       </table>
-    </div>
   </form>
   <div class="main_div" style="height:90%;">
   <!-- <?php // echo $test_msg; ?> <br><br> -->
@@ -189,7 +274,7 @@ $mbox = urldecode($mbox);
           $msg_no = trim($head[$mailno_arr[$i]]->Msgno);            // 메일번호
         ?>
 
-        <tr onclick="detail_mailview(<?php echo $msg_no?>);">
+      <tr onclick="detail_mailview(<?php echo $msg_no?>);">
 
         <!-- 메일목록 출력 -->
         <!-- <td><?php // echo $head[$mailno_arr[$i]]->Unseen ?></td> -->
@@ -275,7 +360,7 @@ $mbox = urldecode($mbox);
   </table>
 
 </div>
-<div class="" style="text-align: center">
+<div class="" style="text-align: center; margin-top: 20px">
   <?php echo $links; ?>
 </div>
 
@@ -309,20 +394,7 @@ $mbox = urldecode($mbox);
 include $this->input->server('DOCUMENT_ROOT')."/include/mail_footer.php";
  ?>
 
-<!-- 상세검색 -->
-<style media="screen">
-.modal{ position:absolute; width:100%; height:100%; background: rgba(0,0,0,0.1); top:0; left:0;
-        display:none; }
-.modal_content{
-  width:350px; height:300px;
-  background:#fff; border-radius:10px;
-  position:relative; top:18%; left:58%;
-  margin-top:-100px; margin-left:-200px;
-  text-align:center;
-  box-sizing:border-box; padding:20px 0;
-  line-height:30px; cursor:pointer;
-}
-</style>
+
 
  <script type="text/javascript">
 // function detail_mailview(){
@@ -449,61 +521,33 @@ $(".mlist_tbl tr").on("mousedown", function(){
 
  $(function() {
 
-   // 검색창에 검색어 입력후 엔터키로 검색
-   const input = document.querySelector('#search');
-   input.addEventListener('keyup', function(e){
-     if(e.key === 'Enter') {
-       let search_word = $('#search').val();
-       if(search_word == "") {
-         alert('검색어를 입력하세요');
-         $('#search').focus();
-       }else {
-         var newForm = $('<form></form>');
-         newForm.attr("method","get");
-         newForm.attr("action", "<?php echo site_url(); ?>/mailbox/mail_list");
-         newForm.append($('<input>', {type: 'hidden', name: 'boxname', value: '<?php echo $mbox ?>'}));
-         newForm.append($('<input>', {type: 'hidden', name: 'type', value: 'search' }));
-         newForm.append($('<input>', {type: 'hidden', name: 'subject', value: search_word }));
-         newForm.appendTo('body');
-         newForm.submit();
-       }
-     }
-   })
-
   // 보기설정 개수 선택시 새로고침된 페이지에서 옵션 selected 설정
   var per_page = '<?php echo $per_page; ?>';
   $('#show_cnt option[value='+per_page+']').attr('selected', true);
  })
 
- // 검색
- function search_mail(ths) {
-   let search_word = $('#search').val();
-   if(search_word == "") {
-     alert('검색어를 입력하세요');
-     $('#search').focus();
-   }else {
-     let parent_tr = ths.parentNode;
-     let subject = parent_tr.childNodes[1].value;
-     var newForm = $('<form></form>');
-     newForm.attr("method","get");
-     newForm.attr("action", "<?php echo site_url(); ?>/mailbox/mail_list");
-     newForm.append($('<input>', {type: 'hidden', name: 'boxname', value: '<?php echo $mbox ?>'}));
-     newForm.append($('<input>', {type: 'hidden', name: 'type', value: 'search' }));
-     newForm.append($('<input>', {type: 'hidden', name: 'subject', value: subject }));
-     newForm.appendTo('body');
-     newForm.submit();
-   }
- }
 
- // 상세검색
- function search_detail() {
-   $(".modal").fadeIn();
- }
- $('#modal_form_submit').click(function() {
-   // console.log($('[name=contents]').val());
- })
- $('#modal_form_close').click(function() {
-   $(".modal").fadeOut();
+
+
+ // 검색창에 검색어 입력후 엔터키로 검색
+ const input = document.querySelector('#search');
+ input.addEventListener('keyup', function(e){
+   if(e.key === 'Enter') {
+     let search_word = $('#search').val();
+     if(search_word == "") {
+       alert('검색어를 입력하세요');
+       $('#search').focus();
+     }else {
+       var newForm = $('<form></form>');
+       newForm.attr("method","get");
+       newForm.attr("action", "<?php echo site_url(); ?>/mailbox/mail_list");
+       newForm.append($('<input>', {type: 'hidden', name: 'boxname', value: '<?php echo $mbox ?>'}));
+       newForm.append($('<input>', {type: 'hidden', name: 'type', value: 'search' }));
+       newForm.append($('<input>', {type: 'hidden', name: 'subject', value: search_word }));
+       newForm.appendTo('body');
+       newForm.submit();
+     }
+   }
  })
 
  // 상단 체크박스 클릭시 전체선택/해제 설정
