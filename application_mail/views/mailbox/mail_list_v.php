@@ -120,7 +120,7 @@ $mbox = urldecode($mbox);
             .modal{ position:absolute; width:100%; height:100%; background: rgba(0,0,0,0.1); top:0; left:0;
                     display:none; }
             .modal_content{
-              width:350px; height:300px;
+              width:420px; height:350px;
               background:white; border-radius:10px;
               border: 3px solid black;
               position:relative; top:18%; left:58%;
@@ -132,34 +132,37 @@ $mbox = urldecode($mbox);
 </style>
               <div class="modal">
                 <div class="modal_content" title="">
-                  <div class="" style="margin-left: 300px; margin-bottom:30px">
-                    <button type="button" name="button" id="modal_form_close"
-                    style=" border: none; background-color: inherit; font-size: 15px; cursor: pointer" >X</button>
-                  </div>
                   <form class="" action="index.html" method="post">
                     <!-- 이유는 모르겠는데 form 이걸 해줘야 아래꺼가 출력이됨 -->
                   </form>
-                  <form name="modal_form" action="<?php echo site_url(); ?>/mailbox/mail_list" method="get">
+                  <form id="modal_form" action="<?php echo site_url(); ?>/mailbox/mail_list" method="get">
                     <input type="hidden" name="boxname" value="<?php echo $mbox ?>" >
                     <input type="hidden" name="type" value="search" >
-                    <div class="" style="margin-bottom: 20px">
-                      <div class="" style="float: left; width: 13%; margin-left: 30px">
-                        제목
-                      </div>
-                      <div class="" style="width: 90%">
-                        <input type="text" name="subject" value="" style="">
-                      </div>
-                    </div>
-                    <div class="">
-                      <div class="" style="float: left; width: 13%; margin-left: 30px">
-                        내용
-                      </div>
-                      <div class="" style="width: 90%">
-                        <input type="text" name="contents" value="" style="">
-                      </div>
-                    </div>
+                    <table width="90%" style="margin-top: 10px;  padding-left: 50px; border-spacing: 10px">
+                      <tr>
+                        <td width="25%"></td>
+                        <td width="75%"></td>
+                      </tr>
+                      <tr>
+                        <td>보낸사람</td>
+                        <td><input type="text" id="from" name="from" value="" style=""></td>
+                      </tr>
+                      <tr>
+                        <td>받는사람</td>
+                        <td><input type="text" id="to" name="to" value="" style=""></td>
+                      </tr>
+                      <tr>
+                        <td>제목</td>
+                        <td><input type="text" id="subject" name="subject" value="" style=""></td>
+                      </tr>
+                      <tr>
+                        <td>내용</td>
+                        <td><input type="text" id="contents" name="contents" value="" style=""></td>
+                      </tr>
+                    </table>
                     <br><br>
-                    <button type="submit" style="width: 70px; font-size: 1.1em">검색</button>
+                    <button type="button" id="modal_form_submit" style="width: 70px; font-size: 1.1em">검색</button> &nbsp;
+                    <button type="button" id="modal_form_close" style="width: 70px; font-size: 1.1em">취소</button>
                   </form>
                   <br><br>
                 </div>
@@ -172,11 +175,17 @@ $mbox = urldecode($mbox);
               $(".modal").fadeIn();
             }
             $('#modal_form_submit').click(function() {
-              // console.log($('[name=contents]').val());
+              if($('#from').val() == "" && $('#to').val() == "" && $('#subject').val() == "" && $('#contents').val() == "") {
+                alert('검색어를 입력하세요');
+                $('#from').focus();
+                return;
+              }
+              $("#modal_form").submit();
             })
             $('#modal_form_close').click(function() {
               $(".modal").fadeOut();
             })
+
             // 검색
             function search_mail(ths) {
               let search_word = $('#search').val();
@@ -239,6 +248,10 @@ $mbox = urldecode($mbox);
 
         for($i=$start_row; $i<$start_row+$per_page; $i++) {
           if (isset($mailno_arr[$i])) {
+            // echo "<pre align='left'>";
+            // var_dump($head[$mailno_arr[$i]] -> subject);
+            // echo '<br>';
+            // echo "</pre>";
 
         // 발신자 이름 or 메일주소 가져오기
         /*
@@ -333,9 +346,6 @@ $mbox = urldecode($mbox);
           <a class=<?php echo $unseen ?> href="<?php echo site_url(); ?>/mailbox/mail_detail?boxname=<?php echo $mbox2 ?>&mailno=<?php echo $mailno_arr[$i] ?>">
 
             <?php echo (isset($head[$mailno_arr[$i]]->subject) && $head[$mailno_arr[$i]]->subject != "")? imap_utf8($head[$mailno_arr[$i]]->subject) : '(제목 없음)' ?>
-            <!-- <pre>
-            <?php var_dump($head[$mailno_arr[$i]]); ?>
-            </pre> -->
           </a>
         </td>
         <td style="color: darkgray; font-weight: 400;"><?php echo isset($head[$mailno_arr[$i]]->udate)? date("y.m.d", $head[$mailno_arr[$i]]->udate) : '' ?></td>
@@ -354,7 +364,6 @@ $mbox = urldecode($mbox);
         }
       }
       ?>
-     </pre>
        </form>
     </tbody>
   </table>
@@ -520,10 +529,14 @@ $(".mlist_tbl tr").on("mousedown", function(){
  });
 
  $(function() {
+   // 검색 input창 초기화
+   $('#search').val('');
+   $('input[name=subject]').val('');
+   $('input[name=contents]').val('');
 
-  // 보기설정 개수 선택시 새로고침된 페이지에서 옵션 selected 설정
-  var per_page = '<?php echo $per_page; ?>';
-  $('#show_cnt option[value='+per_page+']').attr('selected', true);
+   // 보기설정 개수 선택시 새로고침된 페이지에서 옵션 selected 설정
+   var per_page = '<?php echo $per_page; ?>';
+   $('#show_cnt option[value='+per_page+']').attr('selected', true);
  })
 
 
