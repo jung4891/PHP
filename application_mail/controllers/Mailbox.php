@@ -334,32 +334,46 @@ class Mailbox extends CI_Controller {
 
         $subject_target = trim(strtolower($this->input->get("subject")));
         if($subject_target != "") {
-          echo '음...<br>';
+          echo '검색어: '.$subject_target.' / ';
+          $subject_target = iconv('utf-8', 'euc-kr', $subject_target);
+          $subject_target = iconv('euc-kr', 'cp949', $subject_target);
           echo '검색어: '.$subject_target.'<br><br> 결과: <br>';
-          // $subject_target = iconv('utf-8', 'euc-kr', $subject_target);
           // imap_search는 headerinfo에서 subject가 ks_c_5601-1987로 인코딩된건 못가져옴. 내용부분도 안됨.
-          $mailno_arr_target = imap_sort($mails, SORTDATE, 1, 0, "SUBJECT $subject_target");
+          $mailno_arr_target = imap_sort($mails, SORTDATE, 1, 0, "SUBJECT $subject_target", "euc-kr");
           var_dump($mailno_arr_target);
-          exit;
-          $mailno_arr = ($mailno_arr_target!==false)? $mailno_arr_target : array();
+          echo '<br><br>';
+          // exit;
 
           $mailno_arr = imap_sort($mails, SORTDATE, 1);
-          if(count($mailno_arr_target) == 0) {
             foreach($mailno_arr as $index => $no) {
-              $subject = imap_utf8(imap_headerinfo($mails, $no)->subject);
-              $subject = strtolower($subject);
-              if(strpos($subject, $subject_target) !== false)  {
-                array_push($mailno_arr_target, $no);
-              }
+              // $subject = imap_utf8(imap_headerinfo($mails, $no)->subject);
+              echo imap_headerinfo($mails, $no)->toaddress;
+              echo '<pre>';
+              var_dump(imap_headerinfo($mails, $no));
+              echo '</pre>';
+              // echo imap_headerinfo($mails, $no)->subject;
+              echo '<br>';
             }
-          }else {
-            foreach($mailno_arr_target as $index => $no) {
-              $subject = strtolower(imap_utf8(imap_headerinfo($mails, $no)->subject));
-              if(strpos($subject, $subject_target) === false)  {
-                unset($mailno_arr_target[$index]);
-              }
-            }
-          }
+          exit;
+          $mailno_arr = ($mailno_arr_target !== false)? $mailno_arr_target : array();
+
+          // $mailno_arr = imap_sort($mails, SORTDATE, 1);
+          // if(count($mailno_arr_target) == 0) {
+          //   foreach($mailno_arr as $index => $no) {
+          //     $subject = imap_utf8(imap_headerinfo($mails, $no)->subject);
+          //     $subject = strtolower($subject);
+          //     if(strpos($subject, $subject_target) !== false)  {
+          //       array_push($mailno_arr_target, $no);
+          //     }
+          //   }
+          // }else {
+          //   foreach($mailno_arr_target as $index => $no) {
+          //     $subject = strtolower(imap_utf8(imap_headerinfo($mails, $no)->subject));
+          //     if(strpos($subject, $subject_target) === false)  {
+          //       unset($mailno_arr_target[$index]);
+          //     }
+          //   }
+          // }
           $data['subject'] = $subject_target;
         }
 
