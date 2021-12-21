@@ -308,8 +308,6 @@ class Mailbox extends CI_Controller {
         // }
         // $mailno_arr = $mailno_important_arr;
 
-        // $mailno_arr = imap_sort($mails, SORTDATE, 1, 0, "SINCE 21-12-07");
-
         // $mailno_arr = imap_sort($mails, SORTDATE, 1, 0, "CC lab@durianit.co.kr");   // 참조
         // $mailno_arr = imap_sort($mails, SORTDATE, 1, 0, "TO lab@durianit.co.kr SINCE 21-12-01");
         $mailno_arr = imap_sort($mails, SORTDATE, 1, 0, "FLAGGED");
@@ -322,6 +320,7 @@ class Mailbox extends CI_Controller {
         if($from_target != "") {
           $mailno_arr_target = imap_sort($mails, SORTDATE, 1, 0, "FROM $from_target");
         }
+        $data['from'] = $from_target;
 
         $to_target = trim(strtolower($this->input->get("to")));
         if($to_target != "") {
@@ -331,9 +330,19 @@ class Mailbox extends CI_Controller {
             $mailno_arr_target = array_intersect($mailno_arr_target, imap_sort($mails, SORTDATE, 1, 0, "TO $to_target"));
           }
         }
+        $data['to'] = $to_target;
 
         $subject_target = trim(strtolower($this->input->get("subject")));
         if($subject_target != "") {
+          echo '음...<br>';
+          echo '검색어: '.$subject_target.'<br><br> 결과: <br>';
+          // $subject_target = iconv('utf-8', 'euc-kr', $subject_target);
+          // imap_search는 headerinfo에서 subject가 ks_c_5601-1987로 인코딩된건 못가져옴. 내용부분도 안됨.
+          $mailno_arr_target = imap_sort($mails, SORTDATE, 1, 0, "SUBJECT $subject_target");
+          var_dump($mailno_arr_target);
+          exit;
+          $mailno_arr = ($mailno_arr_target!==false)? $mailno_arr_target : array();
+
           $mailno_arr = imap_sort($mails, SORTDATE, 1);
           if(count($mailno_arr_target) == 0) {
             foreach($mailno_arr as $index => $no) {
@@ -351,13 +360,7 @@ class Mailbox extends CI_Controller {
               }
             }
           }
-          // var_dump($mailno_arr_target);
-          // echo '음...<br>';
-          // echo '검색어: '.$subject_target.'<br><br> 결과: <br>';
-          // $subject_target = iconv('utf-8', 'euc-kr', $subject_target);
-          // imap_search는 headerinfo에서 subject가 ks_c_5601-1987로 인코딩된건 못가져옴. 내용부분도 안됨.
-          // $mailno_arr_target = imap_search($mails, "SUBJECT $subject_target", SE_FREE);
-          // $mailno_arr = ($mailno_arr_target!==false)? $mailno_arr_target : array();
+          $data['subject'] = $subject_target;
         }
 
         $contents_target = trim(strtolower($this->input->get("contents")));
@@ -389,13 +392,13 @@ class Mailbox extends CI_Controller {
                 $message = $this->getPart($mails, $no, 1, $struct->encoding, $struct->parameters[0]->value);
                 $contents .= $message;
               }
-              $contents = strtolower($contents);
+              $contents = strtolower(strip_tags($contents));
               if(strpos($contents, $contents_target) !== false)  {
                 array_push($mailno_arr_target, $no);
               }
             }
           }else {
-            foreach($mailno_arr as $index => $no) {
+            foreach($mailno_arr_target as $index => $no) {
               $struct = imap_fetchstructure($mails, $no);
               $contents = '';
               if (isset($struct->parts)) {
@@ -420,13 +423,36 @@ class Mailbox extends CI_Controller {
                 $message = $this->getPart($mails, $no, 1, $struct->encoding, $struct->parameters[0]->value);
                 $contents .= $message;
               }
-              $contents = strtolower($contents);
+              $contents = strtolower(strip_tags($contents));
               if(strpos($contents, $contents_target) === false)  {
                 unset($mailno_arr_target[$index]);
               }
             }
+            $mailno_arr_target = array_values($mailno_arr_target);    // 인덱싱 초기화 (안하면 리스트뷰에서 제대로 출력 안됨)
           }
+          $data['contents'] = $contents_target;
       } // contents 검색 끝
+
+      $start_date = trim(strtolower($this->input->get("start_date")));
+      if($start_date != "") {
+        if(count($mailno_arr_target) == 0) {
+          $mailno_arr_target = imap_sort($mails, SORTDATE, 1, 0, "SINCE $start_date");
+        }else {
+          $mailno_arr_target = array_intersect($mailno_arr_target, imap_sort($mails, SORTDATE, 1, 0, "SINCE $start_date"));
+        }
+      }
+      $data['start_date'] = $start_date;
+
+      $end_date = trim(strtolower($this->input->get("end_date")));
+      if($end_date != "") {
+        if(count($mailno_arr_target) == 0) {
+          $mailno_arr_target = imap_sort($mails, SORTDATE, 1, 0, "BEFORE $end_date");
+        }else {
+          $mailno_arr_target = array_intersect($mailno_arr_target, imap_sort($mails, SORTDATE, 1, 0, "BEFORE $end_date"));
+        }
+      }
+      $data['end_date'] = $end_date;
+
       $mailno_arr = $mailno_arr_target;
       $mails_cnt = count($mailno_arr);
       $data['type'] = "search";

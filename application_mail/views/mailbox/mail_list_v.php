@@ -7,6 +7,12 @@ $mbox = urldecode($mbox);
 
  ?>
 
+ <!-- IE에서 input date 입력가능하게 설정 (jQuery에서 제공하는 datepicker 기능) -->
+ <!-- jQuery에서 제공하는 css 와 js 파일 -->
+ <link rel="stylesheet" href="http://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css"/>
+ <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+ <script src="http://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
+ <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/i18n/jquery-ui-i18n.min.js"></script>
 
  <link rel="stylesheet" href="<?php echo $misc; ?>/css/style.css" type="text/css" charset="utf-8"/>
  <style media="screen">
@@ -69,6 +75,20 @@ $mbox = urldecode($mbox);
     border-top:1px solid #dedede;
   }
 
+  /* 상세 검색 */
+  .modal{ position:absolute; width:100%; height:100%; background: rgba(0,0,0,0.1); top:0; left:0;
+          display:none; }
+  .modal_content{
+    width:420px; height:350px;
+    background:white; border-radius:10px;
+    border: 3px solid black;
+    position:relative; top:18%; left:58%;
+    margin-top:-100px; margin-left:-200px;
+    text-align:center;
+    box-sizing:border-box; padding:20px 0;
+    line-height:30px;
+  }
+
  </style>
 
 <div id="main_contents" align="center">
@@ -115,21 +135,6 @@ $mbox = urldecode($mbox);
                 </a>
               </div>
 
-<style media="screen">
-            /* 상세 검색 */
-            .modal{ position:absolute; width:100%; height:100%; background: rgba(0,0,0,0.1); top:0; left:0;
-                    display:none; }
-            .modal_content{
-              width:420px; height:350px;
-              background:white; border-radius:10px;
-              border: 3px solid black;
-              position:relative; top:18%; left:58%;
-              margin-top:-100px; margin-left:-200px;
-              text-align:center;
-              box-sizing:border-box; padding:20px 0;
-              line-height:30px;
-            }
-</style>
               <div class="modal">
                 <div class="modal_content" title="">
                   <form class="" action="index.html" method="post">
@@ -159,8 +164,12 @@ $mbox = urldecode($mbox);
                         <td>내용</td>
                         <td><input type="text" id="contents" name="contents" value="" style=""></td>
                       </tr>
+                      <tr>
+                        <td>기간</td>
+                        <td><input type="text" id="start_date" size="8" /> ~ <input type="text" id="end_date" size="8" /></td>
+                      </tr>
                     </table>
-                    <br><br>
+                    <br>
                     <button type="button" id="modal_form_submit" style="width: 70px; font-size: 1.1em">검색</button> &nbsp;
                     <button type="button" id="modal_form_close" style="width: 70px; font-size: 1.1em">취소</button>
                   </form>
@@ -170,44 +179,80 @@ $mbox = urldecode($mbox);
 
 <script type="text/javascript">
 
-            // 상세검색
-            function search_detail() {
-              $(".modal").fadeIn();
-            }
-            $('#modal_form_submit').click(function() {
-              if($('#from').val() == "" && $('#to').val() == "" && $('#subject').val() == "" && $('#contents').val() == "") {
-                alert('검색어를 입력하세요');
-                $('#from').focus();
-                return;
-              }
-              $("#modal_form").submit();
-            })
-            $('#modal_form_close').click(function() {
-              $(".modal").fadeOut();
-            })
+// jquery datepicker 설정
+$.datepicker.setDefaults($.datepicker.regional['ko']); //한국어 설정
+$(function() {
+   $('#start_date').datepicker({    // #input 태그 아이디와 동일해야 함. 여러개 구분사용 가능
+     showOtherMonths: true,
+     selectOtherMonths: true,
+     dateFormat:"yy-mm-dd",    // 날짜 출력폼 설정
+   });
+   $('#end_date').datepicker({
+     showOtherMonths: true,
+     selectOtherMonths: true,
+     dateFormat:"yy-mm-dd",
+     // onSelect:function(selectedDate){    // 날짜가 선택되었을때 실행하는 함수
+     // }
+   });
+});
 
-            // 검색
-            function search_mail(ths) {
-              let search_word = $('#search').val();
-              if(search_word == "") {
-                alert('검색어를 입력하세요');
-                $('#search').focus();
-              }else {
-                let parent_tr = ths.parentNode;
-                let subject = parent_tr.childNodes[1].value;
-                var newForm = $('<form></form>');
-                newForm.attr("method","get");
-                newForm.attr("action", "<?php echo site_url(); ?>/mailbox/mail_list");
-                newForm.append($('<input>', {type: 'hidden', name: 'boxname', value: '<?php echo $mbox ?>'}));
-                newForm.append($('<input>', {type: 'hidden', name: 'type', value: 'search' }));
-                newForm.append($('<input>', {type: 'hidden', name: 'subject', value: subject }));
-                newForm.appendTo('body');
-                newForm.submit();
-              }
-            }
+// 상세검색
+function search_detail() {
+  $(".modal").fadeIn();
+}
+$('#modal_form_submit').click(function() {
+  if($('#from').val() == "" && $('#to').val() == "" && $('#subject').val() == "" && $('#contents').val() == "" && $('#start_date').val() == "" && $('#end_date').val() == "") {
+    alert('검색어를 입력하세요');
+    $('#from').focus();
+    return;
+  }
+  // get방식이므로 주소창에 검색하는 애들만 출력되게끔
+  var mbox = '<?php echo $mbox; ?>';
+  var type = 'search';
+  var newForm = $('<form></form>');
+  newForm.attr("method","get");
+  newForm.attr("action", "<?php echo site_url(); ?>/mailbox/mail_list");
+  newForm.append($('<input>', {type: 'hidden', name: 'boxname', value: mbox }));
+  newForm.append($('<input>', {type: 'hidden', name: 'type', value: type }));
+  if($('#from').val() != "") newForm.append($('<input>', {type: 'hidden', name: 'from', value: $('#from').val() }));
+  if($('#to').val() != "")   newForm.append($('<input>', {type: 'hidden', name: 'to', value: $('#to').val() }));
+  if($('#subject').val() != "")  newForm.append($('<input>', {type: 'hidden', name: 'subject', value: $('#subject').val() }));
+  if($('#contents').val() != "")   newForm.append($('<input>', {type: 'hidden', name: 'contents', value: $('#contents').val() }));
+  if($('#start_date').val() != "")   newForm.append($('<input>', {type: 'hidden', name: 'start_date', value: $('#start_date').val() }));
 
+  if($('#end_date').val() != "") {
+    var selectedDate = new Date($('#end_date').val());   // 미만으로 검색되어 하루 더하기
+    selectedDate.setDate(selectedDate.getDate() + 1);
+    selectedDate = selectedDate.getFullYear() + "-" + (selectedDate.getMonth() + 1) + "-" + selectedDate.getDate();
+    newForm.append($('<input>', {type: 'hidden', name: 'end_date', value: selectedDate }));
+  }
+  newForm.appendTo('body');
+  newForm.submit();
+  // $("#modal_form").submit();
+})
+$('#modal_form_close').click(function() {
+  $(".modal").fadeOut();
+})
 
-
+// 검색
+function search_mail(ths) {
+  let search_word = $('#search').val();
+  if(search_word == "") {
+    alert('검색어를 입력하세요');
+    $('#search').focus();
+  }else {
+    let parent_tr = ths.parentNode;
+    let subject = parent_tr.childNodes[1].value;
+    var newForm = $('<form></form>');
+    newForm.attr("method","get");
+    newForm.attr("action", "<?php echo site_url(); ?>/mailbox/mail_list");
+    newForm.append($('<input>', {type: 'hidden', name: 'boxname', value: '<?php echo $mbox ?>'}));
+    newForm.append($('<input>', {type: 'hidden', name: 'type', value: 'search' }));
+    newForm.append($('<input>', {type: 'hidden', name: 'subject', value: subject }));
+    newForm.appendTo('body');
+    newForm.submit();
+  }
+}
 </script>
             </td>
             <td></td>
@@ -531,6 +576,8 @@ $(".mlist_tbl tr").on("mousedown", function(){
  $(function() {
    // 검색 input창 초기화
    $('#search').val('');
+   $('input[name=from]').val('');
+   $('input[name=to]').val('');
    $('input[name=subject]').val('');
    $('input[name=contents]').val('');
 
@@ -617,15 +664,21 @@ $(".mlist_tbl tr").on("mousedown", function(){
   var mbox = '<?php echo $mbox; ?>';
   var per_page = '<?php echo $per_page; ?>';
   var type = '<?php if(isset($type)) echo $type; else echo "original"; ?>';
+  var from = '<?php if(isset($from)) echo $from; else echo ""; ?>';
+  var to = '<?php if(isset($to)) echo $to; else echo ""; ?>';
   var subject = '<?php if(isset($subject)) echo $subject; else echo ""; ?>';
+  var contents = '<?php if(isset($contents)) echo $contents; else echo ""; ?>';
   var newForm = $('<form></form>');
   newForm.attr("method","get");
   newForm.attr("action", "<?php echo site_url(); ?>/mailbox/mail_list");
   newForm.append($('<input>', {type: 'hidden', name: 'boxname', value: mbox }));
   newForm.append($('<input>', {type: 'hidden', name: 'type', value: type }));
-  newForm.append($('<input>', {type: 'hidden', name: 'subject', value: subject }));
   newForm.append($('<input>', {type: 'hidden', name: 'curpage', value: page }));
   newForm.append($('<input>', {type: 'hidden', name: 'mail_cnt_show', value: per_page }));
+  if(from != "") newForm.append($('<input>', {type: 'hidden', name: 'from', value: from }));
+  if(to != "")   newForm.append($('<input>', {type: 'hidden', name: 'to', value: to }));
+  if(subject != "")  newForm.append($('<input>', {type: 'hidden', name: 'subject', value: subject }));
+  if(contents != "")  newForm.append($('<input>', {type: 'hidden', name: 'contents', value: contents }));
   newForm.appendTo('body');
   newForm.submit();
 }
@@ -718,6 +771,10 @@ $(".mlist_tbl tr").on("mousedown", function(){
     var mbox = '<?php echo $mbox; ?>';
     var curpage = '<?php echo $curpage; ?>';
     var type = '<?php if(isset($type)) echo $type; else echo "original"; ?>';
+    var from = '<?php if(isset($from)) echo $from; else echo ""; ?>';
+    var to = '<?php if(isset($to)) echo $to; else echo ""; ?>';
+    var subject = '<?php if(isset($subject)) echo $subject; else echo ""; ?>';
+    var contents = '<?php if(isset($contents)) echo $contents; else echo ""; ?>';
     var newForm = $('<form></form>');
     newForm.attr("method","get");
     newForm.attr("action", "<?php echo site_url(); ?>/mailbox/mail_list");
@@ -725,6 +782,10 @@ $(".mlist_tbl tr").on("mousedown", function(){
     newForm.append($('<input>', {type: 'hidden', name: 'type', value: type }));
     newForm.append($('<input>', {type: 'hidden', name: 'curpage', value: curpage }));
     newForm.append($('<input>', {type: 'hidden', name: 'mail_cnt_show', value: cnt }));
+    if(from != "") newForm.append($('<input>', {type: 'hidden', name: 'from', value: from }));
+    if(to != "")   newForm.append($('<input>', {type: 'hidden', name: 'to', value: to }));
+    if(subject != "")  newForm.append($('<input>', {type: 'hidden', name: 'subject', value: subject }));
+    if(contents != "")  newForm.append($('<input>', {type: 'hidden', name: 'contents', value: contents }));
     newForm.appendTo('body');
     newForm.submit();
   }
