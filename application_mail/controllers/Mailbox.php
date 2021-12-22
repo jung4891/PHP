@@ -314,6 +314,12 @@ class Mailbox extends CI_Controller {
         $mails_cnt = count($mailno_arr);
         $data['type'] = "important";
       } else if($this->input->get('type') == "search") {
+
+        $test = imap_sort($mails, SORTDATE, 1, SE_UID);
+        echo '<pre>';
+        var_dump($test);
+        echo '</pre>';
+        exit;
         $mailno_arr_target = array();
 
         $from_target = trim(strtolower($this->input->get("from")));
