@@ -87,6 +87,7 @@ $mbox = urldecode($mbox);
     text-align:center;
     box-sizing:border-box; padding:20px 0;
     line-height:30px;
+    z-index: 1;
   }
 
  </style>
