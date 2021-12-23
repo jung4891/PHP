@@ -929,6 +929,8 @@ class Mailbox extends CI_Controller {
     $attachments = '';    // 첨부파일 부분 담을 변수
     if (isset($struct->parts)) {
       $flattenedParts = $this->flattenParts($struct->parts);  // 메일구조 평면화
+      // 테스트용
+      $data['flattenedParts'] = $flattenedParts;
 
       foreach($flattenedParts as $partNumber => $part) {
        switch($part->type) {
@@ -946,6 +948,8 @@ class Mailbox extends CI_Controller {
            }
            $message = $this->getPart($mails, $msg_no, $partNumber, $part->encoding, $charset);
            $contents .= $message;
+           // echo $contents;
+           // exit;
            break;
          case 1:  // multi-part headers, can ignore  (MIXED, ALTERNATIVE, RELATED)
            break;

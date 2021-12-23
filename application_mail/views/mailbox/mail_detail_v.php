@@ -52,7 +52,23 @@ $reply_cc_input = address_text($mail_info["cc"]);
      <button type="button" class="btn_basic btn_white" style="width:80px" onclick="reply_mail(3)">전달</button>
      <table width="100%" border="0" cellpadding="0" cellspacing="0">
        <tr align="left">
-         <th><?php echo $mail_info["subject"];?></th>
+         <th>
+           <?php
+           // 여전히 디코딩 안된 제목처리 (=?utf-8?B?~~)
+           $subject = $mail_info["subject"];
+           if(strpos($subject, '=?utf-8?B?') != "" || strpos($subject, '=?utf-8?B?') === 0)  {
+             $error_cnt = substr_count($subject, '=?utf-8?B?');
+             for($k=0; $k<$error_cnt; $k++) {
+               $start = strpos($subject, '=?utf-8?B?');
+               $end = strpos($subject, '?=');
+               $target = substr($subject, $start+10, $end-10);
+               $rest = substr($subject, $end+2);
+               $subject = imap_base64($target).$rest;
+             }
+           }
+           echo $subject;
+           ?>
+         </th>
        </tr>
        <tr>
          <td><?php echo date("Y-m-d H:i", $mail_info["udate"]); ?></td>
@@ -104,9 +120,11 @@ $reply_cc_input = address_text($mail_info["cc"]);
        </td>
      </tr>
      <pre>
-       <!-- <?php //var_dump($struct); ?>
-       <?php //echo "<br>=================<br>"; ?>
-       <?php //var_dump($body); ?> -->
+       <?php var_dump($struct); ?>
+       <?php echo "<br>=================<br>"; ?>
+       <?php var_dump($flattenedParts); ?>
+       <?php echo "<br>=================<br>"; ?>
+       <?php var_dump($body); ?>
      </pre>
    </table>
  </div>

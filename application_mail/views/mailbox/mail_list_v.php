@@ -390,8 +390,22 @@ function search_mail(ths) {
         </td>
         <td>
           <a class=<?php echo $unseen ?> href="<?php echo site_url(); ?>/mailbox/mail_detail?boxname=<?php echo $mbox2 ?>&mailno=<?php echo $mailno_arr[$i] ?>">
+            <?php
+            $subject = (isset($head[$mailno_arr[$i]]->subject) && $head[$mailno_arr[$i]]->subject != "")? imap_utf8($head[$mailno_arr[$i]]->subject) : '(제목 없음)';
 
-            <?php echo (isset($head[$mailno_arr[$i]]->subject) && $head[$mailno_arr[$i]]->subject != "")? imap_utf8($head[$mailno_arr[$i]]->subject) : '(제목 없음)' ?>
+            // 여전히 디코딩 안된 제목처리 (=?utf-8?B?~~)
+            if(strpos($subject, '=?utf-8?B?') != "" || strpos($subject, '=?utf-8?B?') === 0)  {
+              $error_cnt = substr_count($subject, '=?utf-8?B?');
+              for($k=0; $k<$error_cnt; $k++) {
+                $start = strpos($subject, '=?utf-8?B?');
+                $end = strpos($subject, '?=');
+                $target = substr($subject, $start+10, $end-10);
+                $rest = substr($subject, $end+2);
+                $subject = imap_base64($target).$rest;
+              }
+            }
+             ?>
+            <?php echo $subject?>
           </a>
         </td>
         <td style="color: darkgray; font-weight: 400;"><?php echo isset($head[$mailno_arr[$i]]->udate)? date("y.m.d", $head[$mailno_arr[$i]]->udate) : '' ?></td>
