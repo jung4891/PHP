@@ -6,6 +6,114 @@
   </head>
   <body>
     <?php
+
+    /*
+      # foreach문
+      foreach(배열 변수 as 배열의 값을 대입할 변수) {
+        실행코드;
+    }
+    */
+
+    // foreach문 기본
+    $arr = ['a', 'b', 'c'];
+    foreach($arr as $i => $z) {
+      echo $i.' '.$z.'<br>';
+    }
+    // ->
+    // 0 a
+    // 1 b
+    // 2 c
+
+    // 이미 있는 배열에 이렇게 해서 배열을 넣을 수도 있군.
+    // $arr[0] = ['name'=>'하나', 'id'=>'one'];
+    // echo '<pre>';
+    // print_r($arr);
+    // echo '</pre>';
+    // ->
+    // Array
+    // (
+    //     [0] => Array
+    //         (
+    //             [name] => 하나
+    //             [id] => one
+    //         )
+    //
+    //     [1] => b
+    //     [2] => c
+    // )
+    echo '<br>';
+
+    // foreach에서 요소들의 키만 출력하기
+    $array = array("key1"=>"val1", "key2"=>"val2");
+    foreach($array as $key => $value) {
+      echo $key.' ';    // key1 key2
+    }
+    echo '<br><br>';
+
+    // 배열의 요소가 인덱스(key)가 문자인 배열일 경우 특정 key의 value만 출력하기
+    $arr2[0] = ['kor'=>'하나', 'eng'=>'one'];
+    $arr2[1] = ['kor'=>'둘', 'eng'=>'two', 'chn'=>'er']; // chn은 아래에서 불러오지 않아도 선언은 가능.
+    // $arr2[2] = ['kor2'=>'둘', 'eng2'=>'two'];         // 다만 이처럼 가져올 키가 없으면 아래 loop에서 애러남.
+    foreach($arr2 as $element) {
+      echo "한글: ".$element['kor'].'<br>';
+      echo "영어: ".$element['eng'].'<br>';
+    }
+    // ->
+    // 한글: 하나
+    // 영어: one
+    // 한글: 둘
+    // 영어: two
+    echo "<br>";
+
+    // foreach 이중으로 사용하여 해당 key와 value 모두 가져오기
+    foreach($arr2 as $key1 => $val1) {
+      echo "외부인덱스: $key1 / 값: ";
+      print_r($val1);
+      echo '<br>';
+      foreach($val1 as $key2 => $val2) {
+        echo "내부인덱스: $key2 / 값: $val2 <br>";
+      }
+      if($key1 !== array_key_last($arr2)) echo '----<br>';
+    }
+    echo '<br>';
+    // ->
+    // kor: 하나
+    // eng: one
+    // kor: 둘
+    // eng: two
+    // chn: er
+
+    // foreach에서 카운터 사용하여 처음과 끝 항목 얻기
+    $array = array("cat", "rabbit", "horse", "dog");
+    $x = 1;
+    $length = count($array);
+    foreach($array as $animal) {
+      if($x === 1) {
+        echo '처음: '.$animal.'<br>';
+      }else if($x === $length) {
+        echo '마지막: '.$animal.'<br>';
+      }else {
+        echo '중간: '.$animal.'<br>';
+      }
+      $x++;
+    }
+    echo '<br>';
+
+    // 내장함수 사용하여 처음과 끝 항목 얻기 (PHP Version 7.3 이상)
+    echo PHP_VERSION.'<br>';  // 7.4.23
+    foreach($array as $index => $animal) {
+      if($index === array_key_first($array)) {
+        echo '처음: '.$animal.'<br>';
+      }else if($index === array_key_last($array)) {
+        echo '마지막: '.$animal.'<br>';
+      }else {
+        echo '중간: '.$animal.'<br>';
+      }
+      $x++;
+    }
+    echo '<br>';
+
+
     /*
       # for문
       for(초기값; 조건식; 증감식){
@@ -26,54 +134,7 @@
     //     echo "<br>";
     //   }
     // }
-    // echo '<br><br>';
 
-    /*
-      # foreach문
-      foreach(배열 변수 as 배열의 값을 대입할 변수) {
-        실행코드;
-    }
-    */
-
-    // foreach문 기본
-    $arr = ['a', 'b', 'c'];
-    foreach($arr as $z) {
-      echo $z.'.';        // a.b.c.
-    }
-    echo '<br><br>';
-
-    // 배열의 요소가 인덱스가 문자인 배열일 경우 값 출력하기
-    $memberList2[0] = ['name'=>'하나', 'id'=>'one'];
-    $memberList2[1] = ['name'=>'둘', 'id'=>'two'];
-
-    foreach($memberList2 as $ml) {
-      echo "이름: ".$ml['name'].'<br>';
-      echo "아이디: ".$ml['id'].'<br>';
-    }
-    echo '<br>';
-
-    // 인덱스가 문자인 배열의 인덱스와 값 출력하기
-    $memberList = ['name'=>'하나', 'id'=>'one'];
-    foreach($memberList as $idx => $val) {
-      echo "인덱스: {$idx} / 값: {$val} <br>";
-    }
-    echo '<br>';
-
-    // 배열의 요소가 인덱스가 문자인 배열일 경우 인덱스와 값 출력하기
-    $memberList3[0] = ['name'=>'하나', 'id'=>'one'];
-    $memberList3[1] = ['name'=>'둘', 'id'=>'two'];
-
-    foreach($memberList3 as $index => $value) {
-      // $index : 0, $value : ['name'=>'하나', 'id'=>'one']
-      echo "외부인덱스: {$index} / 값: ";
-      echo print_r($value).'<br>';
-      foreach($value as $index2 => $value2) {
-        // $index2 : 'name', $value2 : '하나'
-        // $index2 : 'id', $value2 : 'one'
-        echo "내부인덱스: {$index2} / 값: {$value2} <br>";
-      }
-      echo '<br>';
-    }
 
 
     /*
@@ -113,6 +174,7 @@
 
   </body>
 </html>
+
 
 <!--
 

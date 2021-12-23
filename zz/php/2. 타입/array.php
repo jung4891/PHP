@@ -49,7 +49,7 @@
     $arr = array();
     $arr = ['aa', 'bb', 'cc'];
 
-    // 1) var_dump()  (pre태그와 함꼐 사용하면 보기 좋게 표시됨)
+    // 1) var_dump()  (pre태그와 함께 사용하면 보기 좋게 표시됨)
     echo '<pre>';
     var_dump($arr);  // 자료형까지 함께 출력
     echo '</pre>';

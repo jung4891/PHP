@@ -391,21 +391,21 @@ function search_mail(ths) {
         <td>
           <a class=<?php echo $unseen ?> href="<?php echo site_url(); ?>/mailbox/mail_detail?boxname=<?php echo $mbox2 ?>&mailno=<?php echo $mailno_arr[$i] ?>">
             <?php
-            $subject = (isset($head[$mailno_arr[$i]]->subject) && $head[$mailno_arr[$i]]->subject != "")? imap_utf8($head[$mailno_arr[$i]]->subject) : '(제목 없음)';
+            $subject_mail = (isset($head[$mailno_arr[$i]]->subject) && $head[$mailno_arr[$i]]->subject != "")? imap_utf8($head[$mailno_arr[$i]]->subject) : '(제목 없음)';
 
             // 여전히 디코딩 안된 제목처리 (=?utf-8?B?~~)
-            if(strpos($subject, '=?utf-8?B?') != "" || strpos($subject, '=?utf-8?B?') === 0)  {
-              $error_cnt = substr_count($subject, '=?utf-8?B?');
+            if(strpos($subject_mail, '=?utf-8?B?') != "" || strpos($subject_mail, '=?utf-8?B?') === 0)  {
+              $error_cnt = substr_count($subject_mail, '=?utf-8?B?');
               for($k=0; $k<$error_cnt; $k++) {
-                $start = strpos($subject, '=?utf-8?B?');
-                $end = strpos($subject, '?=');
-                $target = substr($subject, $start+10, $end-10);
-                $rest = substr($subject, $end+2);
-                $subject = imap_base64($target).$rest;
+                $start = strpos($subject_mail, '=?utf-8?B?');
+                $end = strpos($subject_mail, '?=');
+                $target = substr($subject_mail, $start+10, $end-10);
+                $rest = substr($subject_mail, $end+2);
+                $subject_mail = imap_base64($target).$rest;
               }
             }
              ?>
-            <?php echo $subject?>
+            <?php echo $subject_mail?>
           </a>
         </td>
         <td style="color: darkgray; font-weight: 400;"><?php echo isset($head[$mailno_arr[$i]]->udate)? date("y.m.d", $head[$mailno_arr[$i]]->udate) : '' ?></td>
@@ -683,6 +683,8 @@ $(".mlist_tbl tr").on("mousedown", function(){
   var to = '<?php if(isset($to)) echo $to; else echo ""; ?>';
   var subject = '<?php if(isset($subject)) echo $subject; else echo ""; ?>';
   var contents = '<?php if(isset($contents)) echo $contents; else echo ""; ?>';
+  var start_date = '<?php if(isset($start_date)) echo $start_date; else echo ""; ?>';
+  var end_date = '<?php if(isset($end_date)) echo $end_date; else echo ""; ?>';
   var newForm = $('<form></form>');
   newForm.attr("method","get");
   newForm.attr("action", "<?php echo site_url(); ?>/mailbox/mail_list");
@@ -694,6 +696,8 @@ $(".mlist_tbl tr").on("mousedown", function(){
   if(to != "")   newForm.append($('<input>', {type: 'hidden', name: 'to', value: to }));
   if(subject != "")  newForm.append($('<input>', {type: 'hidden', name: 'subject', value: subject }));
   if(contents != "")  newForm.append($('<input>', {type: 'hidden', name: 'contents', value: contents }));
+  if(start_date != "")  newForm.append($('<input>', {type: 'hidden', name: 'start_date', value: start_date }));
+  if(end_date != "")  newForm.append($('<input>', {type: 'hidden', name: 'end_date', value: end_date }));
   newForm.appendTo('body');
   newForm.submit();
 }
@@ -790,6 +794,8 @@ $(".mlist_tbl tr").on("mousedown", function(){
     var to = '<?php if(isset($to)) echo $to; else echo ""; ?>';
     var subject = '<?php if(isset($subject)) echo $subject; else echo ""; ?>';
     var contents = '<?php if(isset($contents)) echo $contents; else echo ""; ?>';
+    var start_date = '<?php if(isset($start_date)) echo $start_date; else echo ""; ?>';
+    var end_date = '<?php if(isset($end_date)) echo $end_date; else echo ""; ?>';
     var newForm = $('<form></form>');
     newForm.attr("method","get");
     newForm.attr("action", "<?php echo site_url(); ?>/mailbox/mail_list");
@@ -801,6 +807,8 @@ $(".mlist_tbl tr").on("mousedown", function(){
     if(to != "")   newForm.append($('<input>', {type: 'hidden', name: 'to', value: to }));
     if(subject != "")  newForm.append($('<input>', {type: 'hidden', name: 'subject', value: subject }));
     if(contents != "")  newForm.append($('<input>', {type: 'hidden', name: 'contents', value: contents }));
+    if(start_date != "")  newForm.append($('<input>', {type: 'hidden', name: 'start_date', value: start_date }));
+    if(end_date != "")  newForm.append($('<input>', {type: 'hidden', name: 'end_date', value: end_date }));
     newForm.appendTo('body');
     newForm.submit();
   }

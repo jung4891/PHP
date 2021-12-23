@@ -454,7 +454,7 @@ class Mailbox extends CI_Controller {
                 unset($mailno_arr_target[$index]);
               }
             }
-            $mailno_arr_target = array_values($mailno_arr_target);    // 인덱싱 초기화 (안하면 리스트뷰에서 제대로 출력 안됨)
+            // $mailno_arr_target = array_values($mailno_arr_target);    // 인덱싱 초기화 (안하면 리스트뷰에서 제대로 출력 안됨)
           }
           $data['contents'] = $contents_target;
       } // contents 검색 끝
@@ -479,6 +479,7 @@ class Mailbox extends CI_Controller {
       }
       $data['end_date'] = $end_date;
 
+      $mailno_arr_target = array_values($mailno_arr_target);
       $mailno_arr = $mailno_arr_target;
       $mails_cnt = count($mailno_arr);
       $data['type'] = "search";
@@ -494,13 +495,14 @@ class Mailbox extends CI_Controller {
       $curpage = ($curpage == "")? 1:$curpage;  // 1페이지라 가정
       $total_rows = $mails_cnt;      // 총 16개 데이터라 가정.
       $per_page = ($mail_cnt_show == "")? 15:$mail_cnt_show; // 한 페이지에 보여줄 데이터 갯수
-      $pagingNum_cnt = 10;            // 페이징 블록에서의 페이징 번호 갯수
+      $pagingNum_cnt = 10;            // 페이징 블록에서의 페이징 번호 갯수 (5개로 가정하면)
 
       $paging_block = ceil($curpage/$pagingNum_cnt);   // 1/5 -> 1번째 페이징 블록
       $block_start = (($paging_block - 1) * $pagingNum_cnt) + 1;   // (1-1)*5 + 1 -> 1
       $block_end = $block_start + $pagingNum_cnt - 1;  // 1 + 5 -1 -> 5 (1~5)
 
       $total_pages = ceil($total_rows/$per_page);    // 16/15 -> 총 2페이지
+
       if ($block_end > $total_pages)  $block_end = $total_pages;   // 페이징 블록을 1~2로 수정
       $total_blocks = ceil($total_pages/$pagingNum_cnt);    // 2/5 -> 페이징 블록 총 1개
       $start_row = ($curpage-1) * $per_page;    // (1-1)*15 -> 0번째 데이터부터 출력.
@@ -953,11 +955,11 @@ class Mailbox extends CI_Controller {
            break;
          case 1:  // multi-part headers, can ignore  (MIXED, ALTERNATIVE, RELATED)
            break;
-         case 2:  // attached message headers, can ignore
+         case 2:  // attached message headers, can ignore (.eml 첨부파일이 2로 넘어와서 break 해제)
            break;
          case 3: // application	(attachment)
          case 4: // audio
-         case 5: // image		(PNG 인라인출력 or 첨부 모두 type아 5임. 여기서는 삽입된거만 처리 첨부는 아래로 내려감)
+         case 5: // image		(PNG 인라인출력 or 첨부 모두 type이 5임. 여기서는 삽입된거만 처리 첨부는 아래로 내려감)
            if ($part->ifdisposition == 0 || $part->disposition == "inline") {
 
              $img_data = imap_fetchbody($mails, $msg_no, $partNumber);

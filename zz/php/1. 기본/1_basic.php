@@ -9,13 +9,14 @@
 
 <!-- 문자열 출력하기 -->
 <?php
+
   // echo
   echo "문자열 출력시";   // 명령뒤엔 ;을 꼭 찍어야함\
   echo '<br>';
   echo '작은따옴표도 가능하다';
   echo '<br>';    // HTML의 줄바꿈 태크
   echo 123;       // 숫자만 출력할때는 따옴표를 사용하지 않는다.
-  echo '<br>';
+  echo '<br><br>';
 
   // print
   print "print도 echo와 사용방법은 같다.";
@@ -25,8 +26,17 @@
  ?>
 
 
-<!-- 기본연산자와 대입연산자 -->
+<!-- 연산자(Operator) -->
 <?php
+
+  // 삼항연산자
+  $grade = 69;
+  echo $grade > 70 ? 'Passed' : "Failed";
+  $res = $grade < 60 ? '그냥 탈락' : $grade < 65 ? '아쉽게 탈락' : $grade < 70 ? '아주 아쉽게 탈락' : '통과';
+  echo '<br>'."결과: $res";
+  echo '<br><br>';
+
+
   // 기본연산자
   // 연산 우선순위 : () > *, /, % > +, -
   echo 7+3;   // 10
