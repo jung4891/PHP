@@ -16,8 +16,7 @@
     position:absolute;
     left:43px;
     color:#ffffff;
-    background-color:#a1a1a1
-;
+    background-color:#a1a1a1;
     font:16px;
     width:17px;
     height: 17px;

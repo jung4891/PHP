@@ -126,7 +126,7 @@ $mbox = urldecode($mbox);
               <div style="display: inline-block; width: 160px; height: 25px;  border: solid 1px lightgray;">
                 <input type="text" id="search" style="outline: none; margin: 3px; margin-left: 6px; width: 77%; height: 20px; border: none; color: green; font-weight: bold; font-size:1em" >
                 <a href="javascript:void(0)" onclick="search_mail(this);">
-                <img style="width: 17px; position: relative; top:3px " src="<?php echo $misc; ?>/img/icon/search.png" alt="">
+                  <img style="width: 17px; position: relative; top:3px " src="<?php echo $misc; ?>/img/icon/search.png" alt="">
                 </a>
               </div>
               <div style="display: inline-block; cursor: pointer; width: 40px; height: 27px; position: relative; top: -1px; left: 5px; border: solid 1px lightgray; background-color: rgb(220,220,220); text-align: center">
@@ -255,7 +255,7 @@ $mbox = urldecode($mbox);
           $msg_no = trim($head[$mailno_arr[$i]]->Msgno);            // 메일번호
         ?>
 
-        <tr onclick="detail_mailview(<?php echo $msg_no?>);">
+      <tr onclick="detail_mailview(<?php echo $msg_no?>);">
 
         <!-- 메일목록 출력 -->
         <!-- <td><?php // echo $head[$mailno_arr[$i]]->Unseen ?></td> -->
@@ -400,12 +400,12 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_footer.php";
    document.getElementById('move_mbox').style.top = positionTop - 65 +"px";
  }
 
-$(".mlist_tbl tr").click(function(){
-  // alert("이건클릭");
-})
+  $(".mlist_tbl tr").click(function(){
+    // alert("이건클릭");
+  })
 
-$(".mlist_tbl tr").on("mousedown", function(){
-   // var chk_len = $('input[name="chk"]:checked').length;
+  $(".mlist_tbl tr").on("mousedown", function(){
+     // var chk_len = $('input[name="chk"]:checked').length;
 
      // $(document).unbind('click');
      event.preventDefault();
@@ -455,20 +455,20 @@ $(".mlist_tbl tr").on("mousedown", function(){
            mail_arr: mail_arr
        },
          success : function(data){
-           (data == 1)? alert("이동되었습니다.") :  alert("애러발생");
+           (data == 1)? alert("이동되었습니다.") :  console.log(data);// alert("애러발생");
          },
          error : function(request, status, error){
              console.log("AJAX_ERROR");
          },
          complete : function() {
-           location.reload();
+           // location.reload();
          }
        });
      }
      $(document).unbind('mousemove.mboxshift');
      $(document).unbind('mouseup.mboxsft');
      // $(document).bind('click');
- });
+   });
  });
 
  function send_context(ths){
@@ -503,9 +503,9 @@ $(".mlist_tbl tr").on("mousedown", function(){
    $('input[name=subject]').val('');
    $('input[name=contents]').val('');
 
-  // 보기설정 개수 선택시 새로고침된 페이지에서 옵션 selected 설정
-  var per_page = '<?php echo $per_page; ?>';
-  $('#show_cnt option[value='+per_page+']').attr('selected', true);
+   // 보기설정 개수 선택시 새로고침된 페이지에서 옵션 selected 설정
+   var per_page = '<?php echo $per_page; ?>';
+   $('#show_cnt option[value='+per_page+']').attr('selected', true);
  })
 
  // jquery datepicker 설정

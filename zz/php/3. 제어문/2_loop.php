@@ -15,13 +15,14 @@
     */
 
     // foreach문 기본
-    $arr = ['a', 'b', 'c'];
+    $arr = ['a', 'b', 'c', 'd'];
     foreach($arr as $i => $z) {
+      if($i === 1)  continue;
       echo $i.' '.$z.'<br>';
+      if($i === 2) break;
     }
     // ->
     // 0 a
-    // 1 b
     // 2 c
 
     // 이미 있는 배열에 이렇게 해서 배열을 넣을 수도 있군.
@@ -112,6 +113,7 @@
       $x++;
     }
     echo '<br>';
+    echo '============================ foreach <br><br>';
 
 
     /*
@@ -156,6 +158,17 @@
     }
     echo $sum.'<br>';   // 55
 
+    // 무한루프
+    $i = 1;
+    while(true) {
+      // if($i === 3) continue;      // continue는 for문에서만 작동하는듯. continue있으면 while 멈추질 않음.
+      echo $i.' ';
+      if($i === 5) break;
+      $i++;
+    }         // 1 2 3 4 5
+    echo '<br><br>';
+
+
     /*
       # do-while문 (조건식이 거짓이더라도 일단 최초1회는 실행할때)
 
@@ -170,6 +183,15 @@
       echo "do-while 테스트";    // 그대로 출력됨
     }
     while(false);
+    echo '<br>';
+
+    $i = 1;
+    do {
+      echo $i.' ';    // 1 2
+      $i++;
+    }while($i<3);
+    echo '<br><br>============================ while <br><br>';
+
      ?>
 
   </body>
