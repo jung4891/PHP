@@ -6,6 +6,20 @@
   </head>
   <body>
 
+    <!-- download 속성 활용하기 -->
+    <!-- download="저장할 파일명"으로 설정가능 -->
+    <a href="/img/coffee.jpg" download>이미지 다운로드</a><br>
+    <a href="/img/test.xlsx" download="엑셀테스트">엑셀 다운로드 다운로드</a> <br>
+    <!-- <a href="https://ifh.cc/g/pqO4Ec.jpg" download>사이트에서 다운로드</a> <br>  그냥 사이트로 이동해버림-->
+    <a href="#" download="example.html">현재 페이지 다운로드</a> <br>
+    <a href="#" download="example.txt">현재 페이지 txt파일로 다운로드</a> <br>
+    <a href='/img/coffee.jpg' download='coffee.png'>이미지 확장자 변경하여 다운로드</a> <br>
+    <a href='/img/coffee.jpg' download='coffee.txt'>이미지를 txt파일로 다운로드</a> <br>
+    <a href="abcdefg" download>잘못된 경로의 파일 다운로드</a> <br>
+    <a href='data:application/text;charset=utf-8,안녕 html' download="sample.txt">데이터url 다운로드</a> <br>
+    <!-- <a href='data:image/png;base64,iVBORw0KGgoAAAAN...' download="sample.png">데이터형식의 이미지 다운로드</a> -->
+
+
     <!-- 줄바꿈 -->
     <p>p태그</p>123
     <div>div태그</div>123
@@ -14,9 +28,11 @@
     <!-- p태그와 div태그는 줄바꿈 되고 p와 다르게 div는 상하여백 없다 -->
     <!-- span태그는 줄바꿈이 되지 않는다!  -->
 
+
     <!-- img태그의 alt속성 : 이미지 불러올 수 없을때 대신 보이는 문자열 -->
     <img src="quotes.jpg" alt="이미지가 없음!">
     <br><br>
+
 
     <!-- 링크걸기 -->
     <button onclick="location.href='test.html'">test.html 열기(현재창)</button> <br><br>
@@ -27,8 +43,8 @@
     <input type="button" onclick="window.open('http://www.google.com')" value="새창으로 구글열기(input)"> <br><br>
     <a href="http://www.google.com">현재창</a> <br>
     <a href="http://www.google.com" target="_blank">새창</a>
+    <br><br><br>
 
-    <!-- <a href="javascript:test();">'.$file_name.'</a><br>'; -->
 
     <!-- td의 속성 nowrap -->
     <table border="1">

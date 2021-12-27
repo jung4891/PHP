@@ -92,6 +92,7 @@ $mbox = urldecode($mbox);
  </style>
 
 <div id="main_contents" align="center">
+  <div class="main_div">
   <form name="mform" action="" method="post">
       <table style="width:90%; padding-bottom:10px; " border="0" cellspacing="0" cellpadding="0">
         <colgroup>
@@ -190,7 +191,7 @@ $mbox = urldecode($mbox);
           </tr>
       </table>
   </form>
-  <div class="main_div" style="height:90%;">
+
   <!-- <?php // echo $test_msg; ?> <br><br> -->
   <table class="mlist_tbl" border="0" cellspacing="0" cellpadding="0">
     <colgroup>
@@ -349,13 +350,15 @@ $mbox = urldecode($mbox);
        </form>
     </tbody>
   </table>
-
 </div>
+
 <div class="" style="text-align: center; margin-top: 20px">
   <?php echo $links; ?>
 </div>
 
 </div>
+
+
 <div id="move_mbox" style="display:none;position: absolute; background: #000; width: 30px; height: 30px; opacity: 0.4; border-radius: 100%;font-size: 20px;color: white; text-align:center;">
 <span id="movebox_len"></span>
 </div>

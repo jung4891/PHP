@@ -352,12 +352,12 @@ class Mailbox extends CI_Controller {
 
         $subject_target = trim(strtolower($this->input->get("subject")));
         if($subject_target != "") {
-          echo '검색어: '.$subject_target.' <br>';
-
-          echo '검색어: '.' <br>';
-          $mailno_arr_target = imap_search($mails, "BODY $subject_target", SE_FREE);
-          var_dump($mailno_arr_target);
-          exit;
+          // echo '검색어: '.$subject_target.' <br>';
+          //
+          // echo '검색어: '.' <br>';
+          // $mailno_arr_target = imap_search($mails, 'BODY "첨부"', SE_FREE, "euc-kr");
+          // var_dump($mailno_arr_target);
+          // exit;
 
           // imap_search 보류..
           // echo '검색어: '.$subject_target.' <br>';
@@ -389,13 +389,13 @@ class Mailbox extends CI_Controller {
 
           $mailno_arr = imap_sort($mails, SORTDATE, 1);
           if(count($mailno_arr_target) == 0) {
-        foreach($mailno_arr as $index => $no) {
-          $subject = imap_utf8(imap_headerinfo($mails, $no)->subject);
-          $subject = strtolower($subject);
-          if(strpos($subject, $subject_target) !== false)  {
-            array_push($mailno_arr_target, $no);
-          }
-        }
+            foreach($mailno_arr as $index => $no) {
+              $subject = imap_utf8(imap_headerinfo($mails, $no)->subject);
+              $subject = strtolower($subject);
+              if(strpos($subject, $subject_target) !== false)  {
+                array_push($mailno_arr_target, $no);
+              }
+            }
           }else {
             foreach($mailno_arr_target as $index => $no) {
               $subject = strtolower(imap_utf8(imap_headerinfo($mails, $no)->subject));
@@ -969,6 +969,7 @@ class Mailbox extends CI_Controller {
       // 테스트용
       $data['flattenedParts'] = $flattenedParts;
 
+      $html_cnt = 0;    // 발송실패 메일중 .eml파일은 뒤에 html이 또 나와 첨부파일이 출력되는 오류 처리.
       foreach($flattenedParts as $partNumber => $part) {
        switch($part->type) {
          case 0:    // the HTML or plain text part of the email
@@ -984,6 +985,7 @@ class Mailbox extends CI_Controller {
              }
              $attachments .= $down_link;
            }else if($part->subtype == "HTML") {
+             if($html_cnt >=  1) break;
              foreach($part->parameters as $object) {  // charset이 parameters 배열에 [0] or [1]에 있음
                if(strtolower($object->attribute) == 'charset') {
                  $charset = $object->value;
@@ -992,6 +994,7 @@ class Mailbox extends CI_Controller {
              }
              $message = $this->getPart($mails, $msg_no, $partNumber, $part->encoding, $charset);
              $contents .= $message;
+             $html_cnt++;
              // echo $contents;
              // exit;
            }
@@ -1145,8 +1148,18 @@ class Mailbox extends CI_Controller {
   function download() {
     $mails = $this->connect_mailserver($_POST['box']);
     $fileSource = imap_fetchbody($mails, $_POST['msg_no'], $_POST['part_no']);
-    $fileSource = imap_base64($fileSource);
-    force_download($_POST['f_name'], $fileSource);
+
+    // eml형식은 따로 제외하여 html로 파일 다운로드 (eml는 outlook에서만 열리는 듯함)
+    if(strpos($_POST['f_name'], '.eml')) {
+      $fileSource = substr($fileSource, strpos($fileSource, 'text/html'));
+      $fileSource = substr($fileSource, strpos($fileSource, 'base64')+7);
+      $fileSource = substr($fileSource, 0, strpos($fileSource, '-------Boundary'));
+      force_download($_POST['f_name'].'.html', imap_base64($fileSource));
+    }else {
+      // .svg파일의 경우 uoted_printable로 encode되어서 따로 잡아줘야 파일 다운후 정상적으로 열린다.
+      $fileSource = strpos($_POST['f_name'], '.svg')? quoted_printable_decode($fileSource) : imap_base64($fileSource);
+      force_download($_POST['f_name'], $fileSource);
+    }
     imap_close($mails);
   }
 

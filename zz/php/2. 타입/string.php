@@ -51,7 +51,7 @@
     echo $test;                   // p태그
     echo htmlspecialchars($test); // "<p><b>p태그</b></p>"
     echo '<br><br><br>';
-    
+
 
     // nl2br() : 개행 문자 \n을 <br>태그로 변환해 주어 실제로 페이지 상에서 줄 바꿈이 일어나도록 합니다.
     echo '<h3>nl2br()</h3>';

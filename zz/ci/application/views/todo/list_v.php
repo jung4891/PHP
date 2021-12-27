@@ -19,7 +19,7 @@
  ?>
     <tr>
       <td><?php echo $row->id; ?></td>
-      <td><a rel="external" href="/todo/view_row/<?php echo $row->id; ?>">
+      <td><a rel="external" href="/index.php/todo/view_row/<?php echo $row->id; ?>">
           <?php echo $row->content; ?></a></td>
       <td><?php echo $row->created_on; ?></td>
       <td><?php echo $row->due_date; ?></td>
