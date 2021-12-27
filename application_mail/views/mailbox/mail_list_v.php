@@ -274,10 +274,10 @@ $mbox = urldecode($mbox);
         </td>
         <td>
           <!-- 메일크기로 첨부파일 유무 파악 -->
-          <?php if($head[$mailno_arr[$i]]->Size > 30000) { ?>
+          <?php if($attached[$mailno_arr[$i]]) { ?>
           <img src="/misc/img/icon/attachment.png" alt="ss">
-          <?php }else { ?>
-          <?php } ?>
+          <?php }?>
+          <!-- <?php // if($head[$mailno_arr[$i]]->Size > 30000) { ?>      -->
         </td>
         <?php
         // get방식으로 데이터를 직접 url에 적으면 &가 데이터 구별기호로 인식되서 바꿔줘야함

@@ -286,11 +286,11 @@ class Mailbox extends CI_Controller {
           if(isset($struct->parts)) {
             foreach($struct->parts as $part) {
               // .txt 첨부파일의 type은 0, ifdisposition은 1, disposition은 attachment 들어가있음.
-              if($part->type === 0 && $part->ifdisposition === 1) {
+              // 엑셀, 파워포인트 첨부파일의 type은 3임.
+              // img파일은 type은 5이고 ifdisposition이 1인경우만 첨부파일. 0이면 inline이미지.
+              if($part->type === 0 && $part->ifdisposition === 1 || $part->type === 3 || $part->type === 5 && $part->ifdisposition === 1) {
                 array_push($mailno_attached_arr, $no);
-              }
-              if($part->type === 3) {         // 엑셀, 파워포인트 첨부파일의 type은 3임.
-                array_push($mailno_attached_arr, $no);
+                break;
               }
             }
           }
@@ -352,6 +352,12 @@ class Mailbox extends CI_Controller {
 
         $subject_target = trim(strtolower($this->input->get("subject")));
         if($subject_target != "") {
+          echo '검색어: '.$subject_target.' <br>';
+
+          echo '검색어: '.' <br>';
+          $mailno_arr_target = imap_search($mails, "BODY $subject_target", SE_FREE);
+          var_dump($mailno_arr_target);
+          exit;
 
           // imap_search 보류..
           // echo '검색어: '.$subject_target.' <br>';
@@ -574,8 +580,22 @@ class Mailbox extends CI_Controller {
       if($mails_cnt >= 1) {
         // $data['test_msg'] = "총 메일수: {$mails_cnt}건<br> 새편지: {$recent}건";
         for($i=$start_row; $i<$start_row+$per_page; $i++) {
-          if (isset($mailno_arr[$i]))         // 마지막 페이지에서 15개가 안될경우 오류처리
+          if (isset($mailno_arr[$i])) {   // 마지막 페이지에서 15개가 안될경우 오류처리
             $data['head'][$mailno_arr[$i]] = imap_headerinfo($mails, $mailno_arr[$i]);
+
+            // 첨부파일 유무 확인
+            $data['attached'][$mailno_arr[$i]] = false;
+            $struct = imap_fetchstructure($mails, $mailno_arr[$i]);
+            if(isset($struct->parts)) {
+              foreach($struct->parts as $part) {
+                if($part->type === 0 && $part->ifdisposition === 1 || $part->type === 3 || $part->type === 5 && $part->ifdisposition === 1) {
+                  $data['attached'][$mailno_arr[$i]] = true;
+                  break;
+                }
+              }
+            }
+
+          }
         }
       } else {
         $data['test_msg'] = "메일이 없습니다.";
@@ -956,26 +976,30 @@ class Mailbox extends CI_Controller {
              break;
            }else if($part->subtype == "PLAIN" && $part->ifdisposition == 1) {   // .txt 첨부파일은 여기 들어있음
              $filename = $this-> getFilenameFromPart($part);
-             if ($filename)
-             $down_link = "&nbsp;<a href=\"javascript:download('{$mbox}', '{$msg_no}',
-                     '{$partNumber}', '{$filename}');\">".$filename.'</a><br>';
+             if ($filename) {
+               $down_link = "&nbsp;<a href=\"javascript:download('{$mbox}', '{$msg_no}',
+               '{$partNumber}', '{$filename}');\">".$filename.'</a><br>';
+             } else {
+               $down_link = "(파일명 없음)";
+             }
              $attachments .= $down_link;
            }else if($part->subtype == "HTML") {
-             foreach($part->parameters as $object) {
+             foreach($part->parameters as $object) {  // charset이 parameters 배열에 [0] or [1]에 있음
                if(strtolower($object->attribute) == 'charset') {
-                 $charset = $object->value;    // charset이 parameters 배열에 [0] or [1]에 있음
+                 $charset = $object->value;
+                 break;
                }
              }
+             $message = $this->getPart($mails, $msg_no, $partNumber, $part->encoding, $charset);
+             $contents .= $message;
+             // echo $contents;
+             // exit;
            }
-           $message = $this->getPart($mails, $msg_no, $partNumber, $part->encoding, $charset);
-           $contents .= $message;
-           // echo $contents;
-           // exit;
            break;
          case 1:  // multi-part headers, can ignore  (MIXED, ALTERNATIVE, RELATED)
            break;
          case 2:  // attached message headers, can ignore (.eml 첨부파일은 2로 넘어와서 break 해제하면 되는데)
-           break;                                         // 그렇게되면 다른부분 또 애러 생겨서 우선 살려둠
+           //break;                                         // 그렇게되면 다른부분 또 애러 생겨서 우선 살려둠
          case 3: // application	(엑셀, 파워포인트등 첨부파일은 3임)
          case 4: // audio
          case 5: // image		(PNG 인라인출력 or 첨부 모두 type이 5임. 여기서는 삽입된거만 처리 첨부는 아래로 내려감)
@@ -989,15 +1013,19 @@ class Mailbox extends CI_Controller {
              // 삽입된 이미지의 경우 디코딩 안하고 fetchbody으로 추출한 내용을 src에 아래처럼 넣어줌
              $pattern = '/src="cid:[a-zA-Z0-9.@]+"/';
              preg_match_all($pattern, $contents, $matches);
-             $contents = str_replace($matches[0][0], "src='data:image/png;base64,$img_data'", $contents);
+             if(isset($matches[0][0]))
+              $contents = str_replace($matches[0][0], "src='data:image/png;base64,$img_data'", $contents);
              break;
            }
          case 6: // video
          case 7: // other (첨부파일)
            $filename = $this-> getFilenameFromPart($part);
-           if ($filename)
-           $down_link = "&nbsp;<a href=\"javascript:download('{$mbox}', '{$msg_no}',
-                   '{$partNumber}', '{$filename}');\">".$filename.'</a><br>';
+           if ($filename) {
+             $down_link = "&nbsp;<a href=\"javascript:download('{$mbox}', '{$msg_no}',
+             '{$partNumber}', '{$filename}');\">".$filename.'</a><br>';
+           } else {
+             $down_link = "(파일명 없음)";
+           }
            $attachments .= $down_link;
          break;
        } // switch (type)
