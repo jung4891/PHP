@@ -61,9 +61,10 @@ $reply_cc_input = address_text($mail_info["cc"]);
              for($k=0; $k<$error_cnt; $k++) {
                $start = strpos($subject, '=?utf-8?B?');
                $end = strpos($subject, '?=');
-               $target = substr($subject, $start+10, $end-10);
+               $target = substr($subject, $start+10, $end-10-$start);
+               $front = substr($subject, 0, $start);
                $rest = substr($subject, $end+2);
-               $subject = imap_base64($target).$rest;
+               $subject = $front.imap_base64($target).$rest;
              }
            }
            echo $subject;

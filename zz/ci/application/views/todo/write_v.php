@@ -17,7 +17,7 @@
       <input type="text" name="due_date" value=""><br>
       <br><br>
       <input type="submit" name="" value="작성">&nbsp
-      <input type="button" onclick="location.href='/todo/lists'" value="취소">
+      <input type="button" onclick="location.href='/index.php/todo'" value="취소">
     </form>
 
   </body>

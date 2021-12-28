@@ -30,7 +30,7 @@
     </tbody>
     <tfoot>
       <th>
-        <a href="/todo/index.php/main/write" class="btn blue">쓰기</a>
+        <a href="/index.php/todo/write" class="btn blue">쓰기</a>
       </th>
     </tfoot>
   </table>

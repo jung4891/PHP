@@ -353,9 +353,13 @@ class Mailbox extends CI_Controller {
         $subject_target = trim(strtolower($this->input->get("subject")));
         if($subject_target != "") {
           // echo '검색어: '.$subject_target.' <br>';
-          //
-          // echo '검색어: '.' <br>';
-          // $mailno_arr_target = imap_search($mails, 'BODY "첨부"', SE_FREE, "euc-kr");
+          // echo '검색어: '.$subject_target.' <br>';
+          // $subject_target = iconv('utf-8', 'euc-kr', $subject_target);
+          // $mailno_arr_target = imap_sort($mails, SORTDATE, 1, 0, "SUBJECT $subject_target", 'KS_C_5601-1987');
+
+          // $mailno_arr_target = imap_sort($mails, SORTDATE, 1, 0, "BODY $subject_target");
+          // $mailno_arr_target = imap_search($mails, "SUBJECT $subject_target", SE_FREE, 'KS_C_5601-1987');
+          // $mailno_arr_target = imap_search($mails, "SUBJECT $subject_target", SE_FREE);
           // var_dump($mailno_arr_target);
           // exit;
 
@@ -386,6 +390,9 @@ class Mailbox extends CI_Controller {
           //   }
           // exit;
           // $mailno_arr = ($mailno_arr_target !== false)? $mailno_arr_target : array();
+
+
+
 
           $mailno_arr = imap_sort($mails, SORTDATE, 1);
           if(count($mailno_arr_target) == 0) {
@@ -1114,6 +1121,7 @@ class Mailbox extends CI_Controller {
     imap_close($mails);
     echo $res;
   }
+  
   // 주로 HTML 부분 가져오되 인코딩 여부에 따라 디코딩후 내용 가져옴
   function getPart($connection, $messageNumber, $partNumber, $encoding, $charset) {
     $data = imap_fetchbody($connection, $messageNumber, $partNumber);

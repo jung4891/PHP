@@ -27,6 +27,12 @@ class Todo_m extends CI_Model {
     $this->db->query($sql);
   }
 
+  function insert_test($contents) {
+    $sql = "INSERT INTO test (contents) VALUES
+            ('{$contents}')";
+    $this->db->query($sql);
+  }
+
   // todo 수정
   function update_todo($id, $content, $created_on, $due_date) {
     $sql = "UPDATE items SET content='{$content}', created_on='{$created_on}', due_date='{$due_date}'
@@ -39,7 +45,6 @@ class Todo_m extends CI_Model {
     $sql = "DELETE FROM items where id={$id}";
     $this->db->query($sql);
   }
-
 
 
 }

@@ -319,15 +319,20 @@ $mbox = urldecode($mbox);
             // 여전히 디코딩 안된 제목처리 (=?utf-8?B?~~)
             if(strpos($subject_mail, '=?utf-8?B?') != "" || strpos($subject_mail, '=?utf-8?B?') === 0)  {
               $error_cnt = substr_count($subject_mail, '=?utf-8?B?');
+              // echo 'subject_mail_origin: '.$subject_mail.'<br><br>';
               for($k=0; $k<$error_cnt; $k++) {
                 $start = strpos($subject_mail, '=?utf-8?B?');
                 $end = strpos($subject_mail, '?=');
-                $target = substr($subject_mail, $start+10, $end-10);
+                $target = substr($subject_mail, $start+10, $end-10-$start);
+                $front = substr($subject_mail, 0, $start);
                 $rest = substr($subject_mail, $end+2);
-                $subject_mail = imap_base64($target).$rest;
+                $subject_mail = $front.imap_base64($target).$rest;
               }
             }
+
              ?>
+             <!-- 테스트용 -->
+             <!-- <?php // echo $head[$mailno_arr[$i]]->subject.'<br>'?> -->
             <?php echo $subject_mail?>
           </a>
         </td>

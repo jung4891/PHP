@@ -38,25 +38,76 @@ class Todo extends CI_Controller {
 
   // 쓰기
   function write() {
-
       if ($_POST) {
         // 글쓰기로 POST 보내서 받는경우
         // $content = $_POST['content'];
-        // TRUE는 XXS공격을 막을 수 있게 자동처리함 (무조건 사용)
-        $content = $this->input->post('content', TRUE);
+        $content = $this->input->post('content', TRUE); // TRUE는 XXS공격을 막을 수 있게 자동처리함 (무조건 사용)
         $created_on = $this->input->post('created_on', TRUE);
         $due_date = $this->input->post('due_date', TRUE);
 
         $this->todo_m->insert_todo($content, $created_on, $due_date);
-        redirect('http://local/todo/index.php/main/lists');
+        redirect('/todo/lists');
+        // redirect('http://local/todo/index.php/main/lists');
         // redirect('/main/lists');   // 요렇게 할 경우 localhost/todo/index.php/main~ 요렇게 감
         // redirect는 CI의 url헬퍼의 함수. JS의 document.location.href와 같은 역할을 함.
-
         exit;
       } else {
         // POST 받는게 없는경우엔 쓰기 폼 호출됨
         $this->load->view('todo/write_v');
       }
+  }
+
+  function get_time() { $t=explode(' ',microtime()); return (float)$t[0]+(float)$t[1]; }
+
+  function test() {
+    $start = $this->get_time();
+    set_time_limit(0);
+
+    $mails= $this->connect_mailserver("INBOX");
+    $mailno_arr = imap_sort($mails, SORTDATE, 1);
+    // echo ini_get('max_execution_time');
+    // exit;
+
+    $cnt = 1;
+    foreach($mailno_arr as $index => $no) {
+      $struct = imap_fetchstructure($mails, $no);
+      $contents = '';
+      if (isset($struct->parts)) {
+        $flattenedParts = $this->flattenParts($struct->parts);
+        foreach($flattenedParts as $partNumber => $part) {
+          switch($part->type) {
+            case 0:
+              if($part->subtype == "PLAIN") break;
+              if($part->ifparameters) {
+                foreach($part->parameters as $object) {
+                  if(strtolower($object->attribute) == 'charset') {
+                    $charset = $object->value;
+                  }
+                }
+              }
+              $message = $this->getPart($mails, $no, $partNumber, $part->encoding, $charset);
+              $contents .= $message;
+              break;
+          }
+        }
+      }else {
+        $message = $this->getPart($mails, $no, 1, $struct->encoding, $struct->parameters[0]->value);
+        $contents .= $message;
+      }
+      $contents = strtolower(strip_tags($contents));
+      $contents = str_replace("'", "\'", $contents);
+      // echo $contents.'<br><br>';
+      // echo gettype($contents).'<br><br>';
+
+      // echo strlen($contents).'<br><br>';
+      $this->todo_m->insert_test($contents);
+      if($cnt == 1000)   break;
+      $cnt++;
+    }
+    $end = $this->get_time();
+    $time = $end - $start;
+    echo number_format($time,2) . " 초 걸림<br>";    // 1000개(45초), 3000개(150초)
+    echo '완료';
   }
 
   // 수정
@@ -83,5 +134,51 @@ class Todo extends CI_Controller {
     redirect('http://local/todo/index.php/main/lists');
   }
 
+
+  public function connect_mailserver($mbox="INBOX") {
+    $mailserver = "192.168.0.50";
+    $host = "{" . $mailserver . ":143/imap/novalidate-cert}$mbox";
+    $user_id = "test4@durianict.co.kr";
+    $user_pwd = "durian12#";
+    return @imap_open($host, $user_id, $user_pwd);
+  }
+
+  function getPart($connection, $messageNumber, $partNumber, $encoding, $charset) {
+    $data = imap_fetchbody($connection, $messageNumber, $partNumber);
+    $body = imap_body($connection, $messageNumber);
+
+    switch($encoding) {
+      case 0: return $data; // 7BIT
+      case 1: return $data; // 8BIT
+      case 2: return $data; // BINARY
+      case 3: return base64_decode($data); // BASE64
+      case 4:
+        $data = quoted_printable_decode($data);    // QUOTED_PRINTABLE (업무일지 서식)
+        if ($charset == 'ks_c_5601-1987')          // else는 charset이 utf-8로 iconv 불필요
+          $data = iconv('euc-kr', 'utf-8', $data);  // charset 변경
+        return $data;
+      case 5: return $data; // OTHER
+    }
+  }
+
+  public function flattenParts($messageParts, $flattenedParts = array(), $prefix = '', $index = 1, $fullPrefix = true) {
+    foreach($messageParts as $part) {
+      $flattenedParts[$prefix.$index] = $part;
+      if(isset($part->parts)) {
+        if($part->type == 2) {
+          $flattenedParts = $this->flattenParts($part->parts, $flattenedParts, $prefix.$index.'.', 0, false);
+        }
+        elseif($fullPrefix) {
+          $flattenedParts = $this->flattenParts($part->parts, $flattenedParts, $prefix.$index.'.');
+        }
+        else {
+          $flattenedParts = $this->flattenParts($part->parts, $flattenedParts, $prefix);
+        }
+        unset($flattenedParts[$prefix.$index]->parts);
+      }
+      $index++;
+    }
+    return $flattenedParts;
+  }
 
 }
