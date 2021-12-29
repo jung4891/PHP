@@ -92,11 +92,11 @@
     $arr = array('a', 'b', 'c');
     array_splice($arr, 1, 2, array('d', 'e'));  // 1번 인덱스부터 2개 요소 삭제 후 배열 추가됨
     print_r($arr);          // [0] => a [1] => d [2] => e
-    echo '<br>';
+    echo '<br><br>============================ array_splice( ) <br><br>';
 
     // 4) array_diff(arr1, arr2...) : arr1에서 뒤에 나오는 배열들의 값들과 다른 값들만 배열에 담아 반환함
     $arr = array('a', 'b', 'c', 'd', 'e');
-    $arr1 = ['a', 'b'];
+    $arr1 = ['a', 'b', 'f'];
     $arr = array_diff($arr, $arr1, array('d'), ['e']);
     print_r($arr);    // [2] => c  (역시나 인덱스는 변하지 않음)
     echo '<br>';
@@ -106,8 +106,7 @@
     $arr['test'] = array();
     var_dump(isset($arr['test']));    // true
     echo gettype($arr['test']);       // array
-    echo '<br><br><hr>';
-
+    echo '<br><br>============================ array_diff( ) <br><br>';
 
     echo "<h4>< 배열 ↔ 문자열 ></h4>";
     $str = 'jwjung,sylim,hbhwang,kipark,bhkim';

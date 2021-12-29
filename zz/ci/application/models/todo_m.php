@@ -27,11 +27,39 @@ class Todo_m extends CI_Model {
     $this->db->query($sql);
   }
 
-  function insert_test($contents) {
-    $sql = "INSERT INTO test (contents) VALUES
-            ('{$contents}')";
+  function get_mailID($mbox) {
+    // $sql = "SELECT mail_id FROM test2 WHERE mbox = '$mbox' ";
+    $sql = "SELECT mail_id FROM test2 WHERE mbox = '$mbox'";
+    $result = $this->db->query($sql)->result_array();
+    return $result;
+  }
+
+  function get_mail_id_arr($mbox, $contents_target) {
+    // $sql = "SELECT mail_id FROM test2 WHERE mbox = '$mbox' ";
+    $sql = "SELECT mail_id FROM test2 WHERE mbox = '$mbox' AND contents LIKE '%$contents_target%'";
+    $result = $this->db->query($sql)->result_array();
+    return $result;
+  }
+
+  function insert_test($mbox, $mail_id, $contents) {
+    $sql = "INSERT IGNORE INTO test2 (mbox, mail_id, contents) VALUES
+    ('{$mbox}', '{$mail_id}', '{$contents}')";
     $this->db->query($sql);
   }
+
+  // function insert_test($mbox, $mail_id_arr, $contents_arr) {
+  //   $sql = " INSERT INTO test2 (mbox, mail_id, contents) VALUES ";
+  //   $mails_cnt = count($mail_id_arr);
+  //   for($i=0; $i<$mails_cnt; $i++) {
+  //     if($i !== $mails_cnt-1) {
+  //       $sql .= " ('$mbox', '$mail_id_arr[$i]', '$contents_arr[$i]'), ";
+  //     }else {
+  //       $sql .= " ('$mbox', '$mail_id_arr[$i]', '$contents_arr[$i]') ";
+  //     }
+  //   }
+  //   $this->db->query($sql);
+  // }
+
 
   // todo 수정
   function update_todo($id, $content, $created_on, $due_date) {

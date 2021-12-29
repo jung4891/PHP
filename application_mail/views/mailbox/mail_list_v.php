@@ -332,7 +332,7 @@ $mbox = urldecode($mbox);
 
              ?>
              <!-- 테스트용 -->
-             <!-- <?php // echo $head[$mailno_arr[$i]]->subject.'<br>'?> -->
+             <!-- <?php // echo htmlspecialchars($head[$mailno_arr[$i]]->message_id).'<br>'?> -->
             <?php echo $subject_mail?>
           </a>
         </td>

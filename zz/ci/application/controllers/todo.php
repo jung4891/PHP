@@ -57,19 +57,67 @@ class Todo extends CI_Controller {
       }
   }
 
-  function get_time() { $t=explode(' ',microtime()); return (float)$t[0]+(float)$t[1]; }
+  public function connect_mailserver($mbox="INBOX") {
+    $mailserver = "192.168.0.50";
+    $host = "{" . $mailserver . ":143/imap/novalidate-cert}$mbox";
+    $user_id = "test2@durianict.co.kr";
+    $user_pwd = "durian12#";
+    return @imap_open($host, $user_id, $user_pwd);
+  }
 
-  function test() {
+  function select_test() {
+    $mbox = "INBOX";
+    $mails = $this->connect_mailserver($mbox);
+    $mailno_arr = imap_sort($mails, SORTDATE, 1);
+
+    $mailID_arr_server = array();
+    // var_dump($mailno_arr);
+    foreach($mailno_arr as $no) {
+      $header = imap_headerinfo($mails, $no);
+      $mail_id = htmlspecialchars($header->message_id);
+      array_push($mailID_arr_server, $mail_id);
+    }
+    $mailID_arr_db = array();
+    $mailID_arr_tmp = $this->todo_m->get_mailID($mbox);
+    foreach($mailID_arr_tmp as $arr) {
+      array_push($mailID_arr_db, htmlspecialchars($arr["mail_id"]));
+    }
+
+    $mailID_arr_add = array_diff($mailID_arr_server, $mailID_arr_db);
+    $mailID_arr_del = array_diff($mailID_arr_db, $mailID_arr_server);
+    echo '서버 메일개수: '.count($mailID_arr_server).'<br>';
+    echo 'DB 메일개수: '.count($mailID_arr_db).'<br>';
+    echo '새로운 메일 개수(서버-db): '.count($mailID_arr_add).'<br>';
+    echo '삭제된 메일 개수(db-서버): '.count($mailID_arr_del);
+
+    // db에서 검색
+    // $mailno_arr_res = array();
+    // foreach($mailno_arr as $no) {
+    //   $header = imap_headerinfo($mails, $no);
+    //   $mail_id = htmlspecialchars($header->message_id);
+    //   if(in_array($mail_id, $mail_id_arr)) {
+    //     array_push($mailno_arr_res, $no);
+    //   }
+    // }
+    // var_dump($mailno_arr_res);
+  }
+
+  function insert_test() {
     $start = $this->get_time();
     set_time_limit(0);
 
-    $mails= $this->connect_mailserver("INBOX");
+    $mbox = "INBOX";
+    $mails = $this->connect_mailserver($mbox);
     $mailno_arr = imap_sort($mails, SORTDATE, 1);
     // echo ini_get('max_execution_time');
     // exit;
-
-    $cnt = 1;
+    $cnt = 0;
+    // $mail_id_arr = array();
+    // $contents_arr = array();
     foreach($mailno_arr as $index => $no) {
+      $header = imap_headerinfo($mails, $no);
+      $mail_id = $header->message_id;
+      // array_push($mail_id_arr, $mail_id);
       $struct = imap_fetchstructure($mails, $no);
       $contents = '';
       if (isset($struct->parts)) {
@@ -96,19 +144,22 @@ class Todo extends CI_Controller {
       }
       $contents = strtolower(strip_tags($contents));
       $contents = str_replace("'", "\'", $contents);
-      // echo $contents.'<br><br>';
-      // echo gettype($contents).'<br><br>';
-
-      // echo strlen($contents).'<br><br>';
-      $this->todo_m->insert_test($contents);
-      if($cnt == 1000)   break;
+      // array_push($contents_arr, $contents);
+      $this->todo_m->insert_test($mbox, $mail_id, $contents);
+      // if($cnt == 1000)   break;
       $cnt++;
     }
+    // $this->todo_m->insert_test($mbox, $mail_id_arr, $contents_arr);
     $end = $this->get_time();
     $time = $end - $start;
-    echo number_format($time,2) . " 초 걸림<br>";    // 1000개(45초), 3000개(150초)
+    echo "INSERT : ".$mbox." -> ".$cnt."개<br>";
+    echo "소요시간 : ".number_format($time,2) . "초<br>";
     echo '완료';
+    // 1000개(45초), 3000개(150초)
+    // 배열로 보내 insert 한번만 해도 1000개 44초 걸림. (max_allowed_packet=1M -> 16M로 변경해야함)
   }
+
+  function get_time() { $t=explode(' ',microtime()); return (float)$t[0]+(float)$t[1]; }
 
   // 수정
   function update($id) {
@@ -132,15 +183,6 @@ class Todo extends CI_Controller {
     $id = $this->uri->segment(3);
     $this->todo_m->delete_todo($id);
     redirect('http://local/todo/index.php/main/lists');
-  }
-
-
-  public function connect_mailserver($mbox="INBOX") {
-    $mailserver = "192.168.0.50";
-    $host = "{" . $mailserver . ":143/imap/novalidate-cert}$mbox";
-    $user_id = "test4@durianict.co.kr";
-    $user_pwd = "durian12#";
-    return @imap_open($host, $user_id, $user_pwd);
   }
 
   function getPart($connection, $messageNumber, $partNumber, $encoding, $charset) {

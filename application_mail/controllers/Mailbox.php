@@ -596,7 +596,7 @@ class Mailbox extends CI_Controller {
             if(isset($struct->parts)) {
               foreach($struct->parts as $part) {
                 if($part->type === 0 && $part->ifdisposition === 1 || $part->type === 3 || $part->type === 5 && $part->ifdisposition === 1) {
-                  $data['attached'][$mailno_arr[$i]] = true;
+                  $data['attached'][$mailno_arr[$i]] = true; 
                   break;
                 }
               }
@@ -1121,7 +1121,7 @@ class Mailbox extends CI_Controller {
     imap_close($mails);
     echo $res;
   }
-  
+
   // 주로 HTML 부분 가져오되 인코딩 여부에 따라 디코딩후 내용 가져옴
   function getPart($connection, $messageNumber, $partNumber, $encoding, $charset) {
     $data = imap_fetchbody($connection, $messageNumber, $partNumber);
