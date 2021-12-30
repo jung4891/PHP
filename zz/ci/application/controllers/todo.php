@@ -57,68 +57,224 @@ class Todo extends CI_Controller {
       }
   }
 
-  public function connect_mailserver($mbox="INBOX") {
+
+
+  public function connect_mailserver($mbox="") {
     $mailserver = "192.168.0.50";
     $host = "{" . $mailserver . ":143/imap/novalidate-cert}$mbox";
-    $user_id = "test2@durianict.co.kr";
+    $user_id = "test4@durianict.co.kr";
     $user_pwd = "durian12#";
     return @imap_open($host, $user_id, $user_pwd);
   }
 
   function select_test() {
+    // php.ini > max_input_time=600 으로 수정(기본 60초는 넘 짧음)
     $mbox = "INBOX";
+    // $mbox = "&vPSwuA- &07jJwNVo-";
     $mails = $this->connect_mailserver($mbox);
     $mailno_arr = imap_sort($mails, SORTDATE, 1);
 
-    $mailID_arr_server = array();
-    // var_dump($mailno_arr);
+    // 1) 동기화
+
+    // 메일서버와 db에서 메일ID정보 가져오기
+    $mail_arr_server = array();
+    // $mailNO_arr_server = array();
     foreach($mailno_arr as $no) {
       $header = imap_headerinfo($mails, $no);
-      $mail_id = htmlspecialchars($header->message_id);
-      array_push($mailID_arr_server, $mail_id);
+      $mail_no = trim($header->Msgno);
+      if(isset($header->message_id)) {
+        $mail_id = $header->message_id;
+      }else {     // 보낸메일의 경우 message_id가 없어서 임의로 id 생성함.
+        $mail_id = $header->udate."_".$header->Size;
+      }
+      $mail_arr_server[$mail_no] = $mail_id;
+      // array_push($mailID_arr_server, $mail_id);
+      // array_push($mailNO_arr_server, $mail_no);
     }
+    echo '<pre>';
+    var_dump($mail_arr_server);
+    // var_dump($mailNO_arr_server);
+    echo '</pre>';
+    exit;
+    
     $mailID_arr_db = array();
-    $mailID_arr_tmp = $this->todo_m->get_mailID($mbox);
+    $mailID_arr_tmp = $this->todo_m->get_mailID_arr($mbox);
     foreach($mailID_arr_tmp as $arr) {
-      array_push($mailID_arr_db, htmlspecialchars($arr["mail_id"]));
+      array_push($mailID_arr_db, $arr["mail_id"]);
+    }
+    // echo '<pre>';
+    // var_dump($mailID_arr_db);
+    // echo '</pre>';
+
+    // 새로온 메일, 삭제된 메일 조회
+    $mail_arr_add = array_diff($mail_arr_server, $mailID_arr_db);
+    // $mailID_arr_add = array_diff($mailID_arr_server, $mailID_arr_db);
+    // $mailID_arr_del = array_diff($mailID_arr_db, $mailID_arr_server);
+    // echo '새로운 메일 개수(서버-db): '.count($mailID_arr_add).'<br>';
+    // 여기부터 하면됨
+    // echo '삭제된 메일 개수(db-서버): '.count($mailID_arr_del).'<br>';
+    // echo '<pre>';
+    // var_dump($mailID_arr_add);
+    // echo '</pre>';
+
+    // 새로온 메일의 경우 db에 insert.
+
+    if(count($mail_arr_add) > 0) {
+    //   $mail_arr_add = array();
+    //   foreach($mailID_arr_add as $id) {
+    //       $index = array_search($id, $mailID_arr_server);
+    //       $tree = array(
+    //         // "name" => $folders[$i],
+    //         "id" => $mailID_arr_server[$index],
+    //         "no" => $mailNO_arr_server[$index]
+    //       );
+    //       array_push($mail_arr_add, $tree);
+    //   }
+    //   echo '<pre>';
+    //   var_dump($mail_arr_add);
+    //   echo '</pre>';
+    // exit;
+
+      // for($i=3000; $i<3001; $i++) {
+      // for($i=0; $i<count($mail_no); $i++) {
+      $cnt = 1;
+      echo 'loop횟수 : '.count($mail_arr_add);
+      foreach($mail_arr_add as $mail_no => $mail_id) {
+        $struct = imap_fetchstructure($mails, $mail_no);
+        $contents = '';
+        if (isset($struct->parts)) {
+          $flattenedParts = $this->flattenParts($struct->parts);
+          foreach($flattenedParts as $partNumber => $part) {
+            switch($part->type) {
+              case 0:
+                if($part->subtype == "PLAIN") break;
+                if($part->ifparameters) {
+                  foreach($part->parameters as $object) {
+                    if(strtolower($object->attribute) == 'charset') {
+                      $charset = $object->value;
+                    }
+                  }
+                }
+                $message = $this->getPart($mails, $mail_no, $partNumber, $part->encoding, $charset);
+                $contents .= $message;
+                break;
+            }
+          }
+        }else {
+          $message = $this->getPart($mails, $mail_no, 1, $struct->encoding, $struct->parameters[0]->value);
+          $contents .= $message;
+        }
+        $contents = strtolower(strip_tags($contents));
+        $contents = str_replace("'", "\'", $contents);
+        $this->todo_m->insert_mail($mbox, $mail_id, $contents);
+        // if($i == 2000) {
+        //   // echo '일단 스톱';
+        //   // break;
+        // }
+        // echo $i.'<br>';
+        if($cnt == 2) break;
+        $cnt++;
+      }
+      imap_close($mails);
     }
 
-    $mailID_arr_add = array_diff($mailID_arr_server, $mailID_arr_db);
-    $mailID_arr_del = array_diff($mailID_arr_db, $mailID_arr_server);
-    echo '서버 메일개수: '.count($mailID_arr_server).'<br>';
-    echo 'DB 메일개수: '.count($mailID_arr_db).'<br>';
-    echo '새로운 메일 개수(서버-db): '.count($mailID_arr_add).'<br>';
-    echo '삭제된 메일 개수(db-서버): '.count($mailID_arr_del);
-
-    // db에서 검색
-    // $mailno_arr_res = array();
-    // foreach($mailno_arr as $no) {
-    //   $header = imap_headerinfo($mails, $no);
-    //   $mail_id = htmlspecialchars($header->message_id);
-    //   if(in_array($mail_id, $mail_id_arr)) {
-    //     array_push($mailno_arr_res, $no);
+    // 삭제된 메일의 경우 db에서 delete.
+    // if(count($mailID_arr_del) > 0) {
+    //   foreach($mailID_arr_del as $id) {
+    //     $this->todo_m->delete_mail($mbox, $id);
     //   }
+    //   echo '삭제된 메일 db delete 완료<br>';
     // }
-    // var_dump($mailno_arr_res);
+
+    // 2) db에서 검색후 server에서 msgno 가져오기
+    $search_word = '송혁중';
+    $mailID_arr_tmp = $this->todo_m->get_mailID_arr_search($mbox, $search_word);
+    $mailID_arr = array();
+    foreach($mailID_arr_tmp as $arr) {
+      array_push($mailID_arr, $arr["mail_id"]);
+      // array_push($mailID_arr, htmlspecialchars($arr["mail_id"]));
+    }
+    $mailNO_arr_res = array();
+    foreach($mailID_arr as $id) {
+      $index = array_search($id, $mail_arr_server);
+      array_push($mailNO_arr_res, $index);
+    }
+    var_dump($mailNO_arr_res);
+    echo '<br>여기는 오는거지?<br>';
   }
 
-  function insert_test() {
+  function insert_all() {
     $start = $this->get_time();
-    set_time_limit(0);
+    set_time_limit(0);  // 2분이상 되어도 멈추지 않게함
 
-    $mbox = "INBOX";
+    $mailserver = "192.168.0.50";
+    $mails= $this->connect_mailserver();
+    $folders = imap_list($mails, "{" . $mailserver . "}", '*');
+    $folders = str_replace("{" . $mailserver . "}", "", $folders);
+    imap_close($mails);
+
+    foreach($folders as $f) {
+      $mbox = $f;
+      $mails = $this->connect_mailserver($mbox);
+      $mailno_arr = imap_sort($mails, SORTDATE, 1);
+      $cnt = 0;
+      foreach($mailno_arr as $index => $no) {
+        $header = imap_headerinfo($mails, $no);
+        // echo '<pre>';
+        // var_dump($header);
+        // echo '</pre>';
+        // exit;
+        if(isset($header->message_id)) {
+          $mail_id = $header->message_id;
+        }else {     // 보낸메일의 경우 message_id가 없음
+          $mail_id = $header->udate."_".$header->Size;
+        }
+        $struct = imap_fetchstructure($mails, $no);
+        $contents = '';
+        if (isset($struct->parts)) {
+          $flattenedParts = $this->flattenParts($struct->parts);
+          foreach($flattenedParts as $partNumber => $part) {
+            switch($part->type) {
+              case 0:
+              if($part->subtype == "PLAIN") break;
+              if($part->ifparameters) {
+                foreach($part->parameters as $object) {
+                  if(strtolower($object->attribute) == 'charset') {
+                    $charset = $object->value;
+                  }
+                }
+              }
+              $message = $this->getPart($mails, $no, $partNumber, $part->encoding, $charset);
+              $contents .= $message;
+              break;
+            }
+          }
+        }else {
+          $message = $this->getPart($mails, $no, 1, $struct->encoding, $struct->parameters[0]->value);
+          $contents .= $message;
+        }
+        $contents = strtolower(strip_tags($contents));
+        $contents = str_replace("'", "\'", $contents);
+        $this->todo_m->insert_mail($mbox, $mail_id, $contents);
+        // if($cnt == 1000)   break;
+        $cnt++;
+      }
+      $end = $this->get_time();
+      $time = $end - $start;
+      echo "모든메일 INSERT : ".$mbox." -> ".$cnt."개<br>";
+      echo "소요시간 : ".number_format($time,2) . "초<br>";
+      echo '완료';
+      // 1000개(45초), 3000개(150초)
+      // 배열로 보내 insert 한번만 해도 1000개 44초 걸림. (max_allowed_packet=1M -> 16M로 변경해야함)
+    }
+  }
+
+  function insert_each($mbox, $mail_arr) {
     $mails = $this->connect_mailserver($mbox);
-    $mailno_arr = imap_sort($mails, SORTDATE, 1);
-    // echo ini_get('max_execution_time');
-    // exit;
-    $cnt = 0;
-    // $mail_id_arr = array();
-    // $contents_arr = array();
-    foreach($mailno_arr as $index => $no) {
-      $header = imap_headerinfo($mails, $no);
-      $mail_id = $header->message_id;
-      // array_push($mail_id_arr, $mail_id);
-      $struct = imap_fetchstructure($mails, $no);
+    foreach($mail_arr as $mail) {
+      $mail_id = $mail['id'];
+      $mail_no = $mail['no'];
+      $struct = imap_fetchstructure($mails, $mail_no);
       $contents = '';
       if (isset($struct->parts)) {
         $flattenedParts = $this->flattenParts($struct->parts);
@@ -133,33 +289,30 @@ class Todo extends CI_Controller {
                   }
                 }
               }
-              $message = $this->getPart($mails, $no, $partNumber, $part->encoding, $charset);
+              $message = $this->getPart($mails, $mail_no, $partNumber, $part->encoding, $charset);
               $contents .= $message;
               break;
           }
         }
       }else {
-        $message = $this->getPart($mails, $no, 1, $struct->encoding, $struct->parameters[0]->value);
+        $message = $this->getPart($mails, $mail_no, 1, $struct->encoding, $struct->parameters[0]->value);
         $contents .= $message;
       }
       $contents = strtolower(strip_tags($contents));
       $contents = str_replace("'", "\'", $contents);
-      // array_push($contents_arr, $contents);
-      $this->todo_m->insert_test($mbox, $mail_id, $contents);
-      // if($cnt == 1000)   break;
-      $cnt++;
+      $this->todo_m->insert_mail($mbox, $mail_id, $contents);
     }
-    // $this->todo_m->insert_test($mbox, $mail_id_arr, $contents_arr);
-    $end = $this->get_time();
-    $time = $end - $start;
-    echo "INSERT : ".$mbox." -> ".$cnt."개<br>";
-    echo "소요시간 : ".number_format($time,2) . "초<br>";
-    echo '완료';
-    // 1000개(45초), 3000개(150초)
-    // 배열로 보내 insert 한번만 해도 1000개 44초 걸림. (max_allowed_packet=1M -> 16M로 변경해야함)
+    // echo '새로온 메일 db insert 완료<br>';
   }
 
+  // function delete_each($mbox, $id_arr){
+  //
+  // }
+
   function get_time() { $t=explode(' ',microtime()); return (float)$t[0]+(float)$t[1]; }
+
+
+
 
   // 수정
   function update($id) {

@@ -260,7 +260,7 @@ $mbox = urldecode($mbox);
 
         <!-- 메일목록 출력 -->
         <!-- <td><?php // echo $head[$mailno_arr[$i]]->Unseen ?></td> -->
-        <td name="msg_no_td" style="display:none;"><?php echo $msg_no?></td>
+        <td name="msg_no_td" style="display:;"><?php echo $msg_no?></td>
         <td onclick="event.cancelBubble=true">
           <input type="checkbox" name="chk" value=<?php echo $msg_no;?>>
         </td>
@@ -299,6 +299,9 @@ $mbox = urldecode($mbox);
             }else {
               echo (isset($from_name))? imap_utf8($from_name) : '(이름 없음)' ;
             }
+            // echo '<pre>';
+            // var_dump($head[$mailno_arr[$i]]);
+            // echo '</pre>';
             ?>
           </a>
           <span style="display: none">
