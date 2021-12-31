@@ -1145,9 +1145,9 @@ class Mailbox extends CI_Controller {
       case 4:
         $data = quoted_printable_decode($data);    // QUOTED_PRINTABLE (업무일지 서식)
         if ($charset == 'ks_c_5601-1987')          // else는 charset이 utf-8로 iconv 불필요
-          // $data = iconv('cp949', 'utf-8', $data);  // 아래로 디코딩 안되는 메일 가끔 있어서 이걸로 해야함 (대표님 메일중 발견)
+          $data = iconv('cp949', 'utf-8', $data);  // 아래로 디코딩 안되는 메일 가끔 있어서 이걸로 해야함 (대표님 메일중 발견)
                                                    // (보낸메일함 - 02 솔루션 - 01 모두스윈 - 03 지니안 - 02 내PC지킴이 - 울산과기대)
-          $data = iconv('euc-kr', 'utf-8', $data);  // charset 변경
+          // $data = iconv('euc-kr', 'utf-8', $data);  // charset 변경
         return $data;
       case 5: return $data; // OTHER
     }

@@ -295,7 +295,7 @@ class Todo extends CI_Controller {
     $time = $end - $start;
     echo "모든메일 INSERT : ".$cnt_all."개<br>";
     echo "소요시간 : ".number_format($time,2) . "초<br>";
-    // 1000개(60초), 3800개(417초. 7분)
+    // 3800개(417초. 7분)
     // 배열로 보내 insert 한번만 해도 1000개 44초 걸림. (max_allowed_packet=1M -> 16M로 변경해야함)
   }
 
