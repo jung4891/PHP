@@ -121,8 +121,8 @@ $reply_cc_input = address_text($mail_info["cc"]);
        </td>
      </tr>
      <pre>
-       <?php  var_dump($struct); ?>
-       <?php  echo "<br>=================<br>"; ?>
+       <?php // var_dump($struct); ?>
+       <?php // echo "<br>=================<br>"; ?>
        <?php // var_dump($flattenedParts); ?>
        <?php // echo "<br>=================<br>"; ?>
        <?php // var_dump($body); ?>

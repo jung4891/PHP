@@ -73,7 +73,8 @@ class Mailbox extends CI_Controller {
       $key = $this->db->password;
       $key = substr(hash('sha256', $key, true), 0, 32);
 			$decrypted = openssl_decrypt(base64_decode($encryp_password), 'aes-256-cbc', $key, 1, $iv);
-      $this->mailserver = "192.168.0.50";
+      $this->mailserver = "192.168.0.100";
+      // $this->mailserver = "192.168.0.50";
       $this->user_id = $_SESSION["userid"];
       $this->user_pwd = $decrypted;
       $this->defalt_folder = array(
@@ -509,11 +510,12 @@ class Mailbox extends CI_Controller {
 
       $mailno_arr_target = array_values($mailno_arr_target);
         $mailno_arr = $mailno_arr_target;
-          $mails_cnt = count($mailno_arr);
         $data['type'] = "search";
       } else {
         $mailno_arr = imap_sort($mails, SORTDATE, 1);
       }
+      // $mailno_arr = array(3068, 3069, 3070, 3071);
+      $mails_cnt = count($mailno_arr);
       $data['mailno_arr'] = $mailno_arr;
 
       // php 페이징
@@ -596,7 +598,7 @@ class Mailbox extends CI_Controller {
             if(isset($struct->parts)) {
               foreach($struct->parts as $part) {
                 if($part->type === 0 && $part->ifdisposition === 1 || $part->type === 3 || $part->type === 5 && $part->ifdisposition === 1) {
-                  $data['attached'][$mailno_arr[$i]] = true; 
+                  $data['attached'][$mailno_arr[$i]] = true;
                   break;
                 }
               }
@@ -1127,6 +1129,14 @@ class Mailbox extends CI_Controller {
     $data = imap_fetchbody($connection, $messageNumber, $partNumber);
     $body = imap_body($connection, $messageNumber);
 
+    /*
+    connection: Resource id #43
+    messageNumber: 9
+    partNumber: 1.2
+    encoding: 4
+    charset: ks_c_5601-1987
+    */
+
     switch($encoding) {
       case 0: return $data; // 7BIT
       case 1: return $data; // 8BIT
@@ -1135,6 +1145,8 @@ class Mailbox extends CI_Controller {
       case 4:
         $data = quoted_printable_decode($data);    // QUOTED_PRINTABLE (업무일지 서식)
         if ($charset == 'ks_c_5601-1987')          // else는 charset이 utf-8로 iconv 불필요
+          // $data = iconv('cp949', 'utf-8', $data);  // 아래로 디코딩 안되는 메일 가끔 있어서 이걸로 해야함 (대표님 메일중 발견)
+                                                   // (보낸메일함 - 02 솔루션 - 01 모두스윈 - 03 지니안 - 02 내PC지킴이 - 울산과기대)
           $data = iconv('euc-kr', 'utf-8', $data);  // charset 변경
         return $data;
       case 5: return $data; // OTHER

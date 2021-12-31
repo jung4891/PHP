@@ -29,27 +29,31 @@ class Todo_m extends CI_Model {
 
 
 
-  function get_mailID_arr($mbox) {
-    $sql = " SELECT mail_id FROM test2 WHERE mbox = '$mbox' ";
+  function get_mailID_arr($user_id, $mbox) {
+    $sql = " SELECT mail_id FROM test2 WHERE user_id = '$user_id' AND mbox = '$mbox' ";
     $result = $this->db->query($sql)->result_array();
     return $result;
   }
 
-  function get_mailID_arr_search($mbox, $search_word) {
-    $sql = " SELECT mail_id FROM test2 WHERE mbox = '$mbox' AND contents LIKE '%$search_word%' ";
+  function get_mailID_arr_search($user_id, $mbox, $search_word) {
+    $sql = " SELECT mail_id FROM test2 WHERE user_id = '$user_id' AND mbox = '$mbox' AND contents LIKE '%$search_word%' ";
     $result = $this->db->query($sql)->result_array();
     return $result;
   }
 
-  function insert_mail($mbox, $mail_id, $contents) {
-    $sql = " INSERT IGNORE INTO test2 (mbox, mail_id, contents) VALUES
-    ('{$mbox}', '{$mail_id}', '{$contents}') ";
+  function insert_mail_all($sql) {
     $this->db->query($sql);
   }
 
-  function delete_mail($mbox, $mail_id) {
+  function insert_mail($user_id, $mbox, $mail_id, $contents) {
+    $sql = " INSERT IGNORE INTO test2 (user_id, mbox, mail_id, contents) VALUES
+    ('{$user_id}', '{$mbox}', '{$mail_id}', '{$contents}') ";
+    $this->db->query($sql);
+  }
+
+  function delete_mail($user_id, $mbox, $mail_id) {
     // $mail_id = htmlspecialchars_decode($mail_id);
-    $sql = " DELETE FROM test2 where mbox = '$mbox' AND mail_id = '$mail_id' ";
+    $sql = " DELETE FROM test2 where user_id = '$user_id' AND mbox = '$mbox' AND mail_id = '$mail_id' ";
     // echo $sql;
     // exit;
     $this->db->query("$sql");
