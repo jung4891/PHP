@@ -246,6 +246,10 @@ class Mailbox extends CI_Controller {
     $mailserver = $this->mailserver;
     $folders = imap_list($mails, "{" . $mailserver . "}", '*');
     $folders = str_replace("{" . $mailserver . "}", "", $folders);
+    echo '<pre>';
+    var_dump($folders);
+    echo '</pre>';
+    exit;
     imap_close($mails);
 
     $cnt_all = 0;
@@ -1365,7 +1369,7 @@ class Mailbox extends CI_Controller {
         $data_decoded = base64_decode($data);
         if($charset == "euc-kr")
           $data_decoded = iconv('cp949', 'utf-8', $data_decoded);
-        $res = 'encodig: '.$encoding.'<br><br>charset: '.$charset.'<br><br>rawData: <br>'.$data.'<br>decoded: <br>'.$data_decoded;
+        $res = 'encoding: '.$encoding.'<br><br>charset: '.$charset.'<br><br>rawData: <br>'.$data.'<br>decoded: <br>'.$data_decoded;
         return $res;
       case 4:
         $data_decoded = quoted_printable_decode($data);    // QUOTED_PRINTABLE (업무일지 서식)
@@ -1373,7 +1377,7 @@ class Mailbox extends CI_Controller {
           $data_decoded = iconv('cp949', 'utf-8', $data_decoded);  // 아래로 디코딩 안되는 메일 가끔 있어서 이걸로 해야함 (대표님 메일중 발견)
                                                    // (보낸메일함 - 02솔루션 - 01모두스윈 - 03 지니안 - 02 내PC지킴이 - 울산과기대)
           // $data = iconv('euc-kr', 'utf-8', $data);  // charset 변경
-        $res = 'encodig: '.$encoding.'<br><br>charset: '.$charset.'<br><br>rawData: <br>'.$data.'<br>decoded: <br>'.$data_decoded;
+        $res = 'encoding: '.$encoding.'<br><br>charset: '.$charset.'<br><br>rawData: <br>'.$data.'<br>decoded: <br>'.$data_decoded;
         return $res;
       case 5: return $data; // OTHER
     }

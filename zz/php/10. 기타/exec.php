@@ -19,16 +19,14 @@
   }
   echo '<br> $return_var: '.$return_var;
 
-  // 리눅스상에서 리눅스 명령어 실행결과 가져오기 (서버에서 실행되야함)
-  $oldfile = '/test/test//text1.txt';
-  $newfile ='/home/user/data2/text1.txt'
-  exec("mv $oldfile $newfile", $output, $error);
-  //text1.txt 파일을 $newfile의 경로로 이동시키는 리눅스 명령어 실행.
-  echo '<pre>';
-  var_dump($output);
-  echo '</pre>';
-
-
+  // 리눅스상에서 리눅스 명령어 실행결과 가져오기 완료 (서버에서 실행되야함)
+  // exec("cd /home && ls -al", $output, $error);
+  // exec("cd /home && sudo mkdir test1", $output, $error);
+  // exec("sudo cd /home/vmail && ls -al", $output, $error);
+  // echo '<pre>';
+  // var_dump($output);
+  // echo '</pre>';
+  // echo $error;
 
 
   // 애러코드
