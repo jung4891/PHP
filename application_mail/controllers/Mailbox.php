@@ -67,14 +67,15 @@ class Mailbox extends CI_Controller {
       $this->load->helper(array('url', 'download'));
       $this->load->library('pagination', 'email');
       $this->load->Model('M_account');
+      // $this->load->Model('M_contents');
 
       $encryp_password = $this->M_account->mbox_conf($_SESSION['userid']);
 			$iv = chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0);
       $key = $this->db->password;
       $key = substr(hash('sha256', $key, true), 0, 32);
 			$decrypted = openssl_decrypt(base64_decode($encryp_password), 'aes-256-cbc', $key, 1, $iv);
-      $this->mailserver = "192.168.0.100";
-      // $this->mailserver = "192.168.0.50";
+      // $this->mailserver = "192.168.0.100";
+      $this->mailserver = "192.168.0.50";
       $this->user_id = $_SESSION["userid"];
       $this->user_pwd = $decrypted;
       $this->defalt_folder = array(
@@ -235,6 +236,91 @@ class Mailbox extends CI_Controller {
     // return $folders_sorted;
   }
 
+  function get_time() { $t=explode(' ',microtime()); return (float)$t[0]+(float)$t[1]; }
+
+  public function insert_all($user_id) {
+    $start = $this->get_time();
+    set_time_limit(0);  // 2분이상 되어도 멈추지 않게함
+
+    $mails= $this->connect_mailserver();
+    $mailserver = $this->mailserver;
+    $folders = imap_list($mails, "{" . $mailserver . "}", '*');
+    $folders = str_replace("{" . $mailserver . "}", "", $folders);
+    imap_close($mails);
+
+    $cnt_all = 0;
+    foreach($folders as $f) {
+      $mbox = $f;
+      $mails = $this->connect_mailserver($mbox);
+      $mailno_arr = imap_sort($mails, SORTDATE, 1);
+      $mails_cnt = count($mailno_arr);
+      $sql = " INSERT IGNORE INTO contents (user_id, mbox, mail_id, contents) VALUES ";
+      $cnt_each = 0;
+      if($mails_cnt > 0) {
+        foreach($mailno_arr as $index => $no) {
+          $header = imap_headerinfo($mails, $no);
+          if(!$header)  continue;     // 간혹 아웃룩이랑 총 메일개수 다를때가 있음. 버그인듯.
+          if(isset($header->message_id)) {
+            $mail_id = $header->message_id;
+          }else {     // 보낸메일의 경우 message_id가 없음
+            $mail_id = $header->udate."_".$header->Size;
+          }
+          $struct = imap_fetchstructure($mails, $no);
+          $contents = '';
+          if (isset($struct->parts)) {
+            $flattenedParts = $this->flattenParts($struct->parts);
+            foreach($flattenedParts as $partNumber => $part) {
+              switch($part->type) {
+                case 0:
+                if($part->subtype == "PLAIN") break;
+                if($part->ifparameters) {
+                  foreach($part->parameters as $object) {
+                    if(strtolower($object->attribute) == 'charset') {
+                      $charset = $object->value;
+                    }
+                  }
+                }
+                $message = $this->getPart($mails, $no, $partNumber, $part->encoding, $charset);
+                $contents .= $message;
+                break;
+              }
+            }
+          }else {
+            $message = $this->getPart($mails, $no, 1, $struct->encoding, $struct->parameters[0]->value);
+            $contents .= $message;
+          }
+          $contents = strtolower(strip_tags($contents));
+          $contents = str_replace("'", "\'", $contents);
+
+          $contents = str_replace("&nbsp;", "", $contents);
+          $contents = str_replace(" ", "", $contents);
+          $contents = str_replace("-", "", $contents);
+
+          $cnt_each++;
+          $mbox_decoded = mb_convert_encoding($f, 'UTF-8', 'UTF7-IMAP');
+          if($cnt_each != $mails_cnt) {
+            $sql .= " ('$user_id', '$mbox_decoded', '$mail_id', '$contents'), ";
+          }else {
+            $sql .= " ('$user_id', '$mbox_decoded', '$mail_id', '$contents')";
+          }
+          $cnt_all++;
+        }
+        // echo $sql.'<br><br>';
+        // echo htmlspecialchars($sql);
+        // echo '<br>================================<br><br><br>';
+        $this->M_contents->insert_mail_all($sql);
+      }
+    }
+    $end = $this->get_time();
+    $time = $end - $start;
+    echo "모든메일 INSERT : ".$cnt_all."개<br>";
+    echo "소요시간 : ".number_format($time,2) . "초<br>";
+
+    // 3841/3756(실제 insert)(445초)
+    // 배열로 보내 insert 한번만 해도 1000개 44초 걸림. (max_allowed_packet=1M -> 16M로 변경해야함)
+  }
+
+
   // 전체메일 출력: 메일함에 있는 메일들의 헤더정보(제목, 날짜, 보낸이 등등)를 뷰로 넘김
   // imap_check() : 메일박스의 정보(driver(imap), Mailbox(~~INBOX), Nmsgs)를 객체(object)로 돌려줌
   public function mail_list(){
@@ -242,8 +328,11 @@ class Mailbox extends CI_Controller {
       redirect("");
     }
 
-    // echo imap_base64("송혁중");
-    // echo iconv('utf-8', 'euc-kr', "테스트");
+    // $user_id = $_SESSION['userid'];
+    // $user_id = substr($user_id, 0, strpos($user_id, '@'));
+    //
+    // $db_mails_cnt = $this->M_contents->count_mails($user_id);
+    // if($db_mails_cnt == 0)    $this->insert_all($user_id);    // db에 메일정보가 없는상태 (첫로그인)
 
     $data = array();
 
@@ -393,25 +482,144 @@ class Mailbox extends CI_Controller {
           // $mailno_arr = ($mailno_arr_target !== false)? $mailno_arr_target : array();
 
 
+          // db로 내용검색으로 테스트
+          $start = $this->get_time();
+          set_time_limit(0);  // 2분이상 되어도 멈추지 않게함
 
-
+          $user_id = $_SESSION['userid'];
+          $user_id = substr($user_id, 0, strpos($user_id, '@'));
+          $mbox_decoded = mb_convert_encoding($mbox, 'UTF-8', 'UTF7-IMAP');
           $mailno_arr = imap_sort($mails, SORTDATE, 1);
-          if(count($mailno_arr_target) == 0) {
-            foreach($mailno_arr as $index => $no) {
-              $subject = imap_utf8(imap_headerinfo($mails, $no)->subject);
-              $subject = strtolower($subject);
-              if(strpos($subject, $subject_target) !== false)  {
-                array_push($mailno_arr_target, $no);
-              }
+
+
+          // 1) 동기화
+
+          // 메일서버와 db에서 메일ID정보 가져오기
+          $mail_arr_server = array();
+          foreach($mailno_arr as $no) {
+            $header = imap_headerinfo($mails, $no);
+            $mail_no = trim($header->Msgno);
+            if(isset($header->message_id)) {
+              $mail_id = $header->message_id;
+            }else {     // 보낸메일의 경우 message_id가 없어서 임의로 id 생성함.
+              $mail_id = $header->udate."_".$header->Size;
             }
-          }else {
-            foreach($mailno_arr_target as $index => $no) {
-              $subject = strtolower(imap_utf8(imap_headerinfo($mails, $no)->subject));
-              if(strpos($subject, $subject_target) === false)  {
-                unset($mailno_arr_target[$index]);
+            $mail_arr_server[$mail_no] = $mail_id;
+          }
+          // echo '<pre>';
+          // var_dump($mail_arr_server);
+          // echo '</pre>';
+          // exit;
+
+          $mailID_arr_db = array();
+          $mailID_arr_tmp = $this->M_contents->get_mailID_arr($user_id, $mbox_decoded);
+          foreach($mailID_arr_tmp as $arr) {
+            array_push($mailID_arr_db, $arr["mail_id"]);
+          }
+          // echo '<pre>';
+          // var_dump($mailID_arr_db);
+          // echo '</pre>';
+          // exit;
+
+          // 새로온 메일, 삭제된 메일 조회
+          $mail_arr_add = array_diff($mail_arr_server, $mailID_arr_db);
+          // $mailID_arr_add = array_diff($mailID_arr_server, $mailID_arr_db);
+          $mail_arr_del = array_diff($mailID_arr_db, $mail_arr_server);
+          // echo '새로운 메일 개수(서버-db): '.count($mail_arr_add).'<br>';
+          // echo '삭제된 메일 개수(db-서버): '.count($mail_arr_del).'<br>';
+          // echo '<pre>';
+          // var_dump($mail_arr_add);
+          // var_dump($mail_arr_del);
+          // echo '</pre>';
+          // exit;
+
+          // 새로온 메일의 경우 db에 insert.
+          if(count($mail_arr_add) > 0) {
+            foreach($mail_arr_add as $mail_no => $mail_id) {
+              $struct = imap_fetchstructure($mails, $mail_no);
+              $contents = '';
+              if (isset($struct->parts)) {
+                $flattenedParts = $this->flattenParts($struct->parts);
+                foreach($flattenedParts as $partNumber => $part) {
+                  switch($part->type) {
+                    case 0:
+                      if($part->subtype == "PLAIN") break;
+                      if($part->ifparameters) {
+                        foreach($part->parameters as $object) {
+                          if(strtolower($object->attribute) == 'charset') {
+                            $charset = $object->value;
+                          }
+                        }
+                      }
+                      $message = $this->getPart($mails, $mail_no, $partNumber, $part->encoding, $charset);
+                      $contents .= $message;
+                      break;
+                  }
+                }
+              }else {
+                $message = $this->getPart($mails, $mail_no, 1, $struct->encoding, $struct->parameters[0]->value);
+                $contents .= $message;
               }
+              $contents = strtolower(strip_tags($contents));
+              $contents = str_replace("'", "\'", $contents);
+
+              $contents = str_replace("&nbsp;", "", $contents);
+              $contents = str_replace(" ", "", $contents);
+              $contents = str_replace("-", "", $contents);
+              $this->M_contents->insert_mail($user_id, $mbox_decoded, $mail_id, $contents);
             }
           }
+
+          // 삭제된 메일의 경우 db에서 delete.
+          if(count($mail_arr_del) > 0) {
+            foreach($mail_arr_del as $mail_id) {
+              $this->M_contents->delete_mail($user_id, $mbox_decoded, $mail_id);
+            }
+          }
+
+          // 2) db에서 검색후 server에서 msgno 가져오기
+          $search_word = $subject_target;
+          $mailID_arr_tmp = $this->M_contents->get_mailID_arr_search($user_id, $mbox_decoded, $search_word);
+          $mailID_arr = array();
+          foreach($mailID_arr_tmp as $arr) {
+            array_push($mailID_arr, $arr["mail_id"]);
+          }
+          // $mailNO_arr_res = array();
+          foreach($mailID_arr as $id) {
+            $index = array_search($id, $mail_arr_server);
+            array_push($mailno_arr_target, $index);
+            // array_push($mailNO_arr_res, $index);
+          }
+          $end = $this->get_time();
+          $time = $end - $start;
+          echo "검색 소요시간 : ".number_format($time,2) . "초<br>";
+          // echo '<br>검색 결과<br>';
+          // var_dump($mailNO_arr_res);
+
+          // db 3800개(4초)
+          // 새로운메일 100개, 삭제된 메일 100개 -> 5.16초
+          // 새로운메일 10개, 삭제된 메일 10개 -> 0.72초
+
+
+
+          // 제목검색부분
+          // $mailno_arr = imap_sort($mails, SORTDATE, 1);
+          // if(count($mailno_arr_target) == 0) {
+          //   foreach($mailno_arr as $index => $no) {
+          //     $subject = imap_utf8(imap_headerinfo($mails, $no)->subject);
+          //     $subject = strtolower($subject);
+          //     if(strpos($subject, $subject_target) !== false)  {
+          //       array_push($mailno_arr_target, $no);
+          //     }
+          //   }
+          // }else {
+          //   foreach($mailno_arr_target as $index => $no) {
+          //     $subject = strtolower(imap_utf8(imap_headerinfo($mails, $no)->subject));
+          //     if(strpos($subject, $subject_target) === false)  {
+          //       unset($mailno_arr_target[$index]);
+          //     }
+          //   }
+          // }
           $data['subject'] = $subject_target;
         }
 
@@ -973,10 +1181,19 @@ class Mailbox extends CI_Controller {
     // 내용 가져오는 부분
     $contents = '';       // 내용 부분 담을 변수
     $attachments = '';    // 첨부파일 부분 담을 변수
+    // echo '<pre>';
+    // var_dump($struct);
+    // echo '</pre>';
+    // exit;
+
     if (isset($struct->parts)) {
       $flattenedParts = $this->flattenParts($struct->parts);  // 메일구조 평면화
       // 테스트용
       $data['flattenedParts'] = $flattenedParts;
+      // echo '<pre>';
+      // var_dump($flattenedParts);
+      // echo '</pre>';
+      // exit;
 
       $html_cnt = 0;    // 발송실패 메일중 .eml파일은 뒤에 html이 또 나와 첨부파일이 출력되는 오류 처리.
       foreach($flattenedParts as $partNumber => $part) {
@@ -1128,7 +1345,7 @@ class Mailbox extends CI_Controller {
   function getPart($connection, $messageNumber, $partNumber, $encoding, $charset) {
     $data = imap_fetchbody($connection, $messageNumber, $partNumber);
     $body = imap_body($connection, $messageNumber);
-
+    $charset = strtolower($charset);
     /*
     connection: Resource id #43
     messageNumber: 9
@@ -1136,19 +1353,28 @@ class Mailbox extends CI_Controller {
     encoding: 4
     charset: ks_c_5601-1987
     */
+    // echo 'encodig: '.$encoding.'<br>';
+    // echo 'charset: '.$charset.'<br>';
+    // exit;
 
     switch($encoding) {
       case 0: return $data; // 7BIT
       case 1: return $data; // 8BIT
       case 2: return $data; // BINARY
-      case 3: return base64_decode($data); // BASE64
+      case 3:
+        $data_decoded = base64_decode($data);
+        if($charset == "euc-kr")
+          $data_decoded = iconv('cp949', 'utf-8', $data_decoded);
+        $res = 'encodig: '.$encoding.'<br><br>charset: '.$charset.'<br><br>rawData: <br>'.$data.'<br>decoded: <br>'.$data_decoded;
+        return $res;
       case 4:
-        $data = quoted_printable_decode($data);    // QUOTED_PRINTABLE (업무일지 서식)
+        $data_decoded = quoted_printable_decode($data);    // QUOTED_PRINTABLE (업무일지 서식)
         if ($charset == 'ks_c_5601-1987')          // else는 charset이 utf-8로 iconv 불필요
-          $data = iconv('cp949', 'utf-8', $data);  // 아래로 디코딩 안되는 메일 가끔 있어서 이걸로 해야함 (대표님 메일중 발견)
-                                                   // (보낸메일함 - 02 솔루션 - 01 모두스윈 - 03 지니안 - 02 내PC지킴이 - 울산과기대)
+          $data_decoded = iconv('cp949', 'utf-8', $data_decoded);  // 아래로 디코딩 안되는 메일 가끔 있어서 이걸로 해야함 (대표님 메일중 발견)
+                                                   // (보낸메일함 - 02솔루션 - 01모두스윈 - 03 지니안 - 02 내PC지킴이 - 울산과기대)
           // $data = iconv('euc-kr', 'utf-8', $data);  // charset 변경
-        return $data;
+        $res = 'encodig: '.$encoding.'<br><br>charset: '.$charset.'<br><br>rawData: <br>'.$data.'<br>decoded: <br>'.$data_decoded;
+        return $res;
       case 5: return $data; // OTHER
     }
   }

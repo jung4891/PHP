@@ -57,19 +57,6 @@ class Todo extends CI_Controller {
       }
   }
 
-
-
-  public function connect_mailserver($mbox="") {
-    // $mailserver = "192.168.0.100";
-    // $user_id = "jwjung@durianit.co.kr";
-    // $user_pwd = "bogus2011";
-    $mailserver = "192.168.0.50";
-    $host = "{" . $mailserver . ":143/imap/novalidate-cert}$mbox";
-    $user_id = "test4@durianict.co.kr";
-    $user_pwd = "durian12#";
-    return @imap_open($host, $user_id, $user_pwd);
-  }
-
   function select_test() {
     // php.ini > max_input_time=600 으로 수정(기본 60초는 넘 짧음)
     $start = $this->get_time();
@@ -80,7 +67,7 @@ class Todo extends CI_Controller {
     $user_id = substr($user_id, 0, strpos($user_id, '@'));
 
     // $mbox = "&vPSwuA- &07jJwNVo-";
-    $mbox = "&x4TC3A- &vPStANVo-";
+    $mbox = "INBOX.test1";
     $mails = $this->connect_mailserver($mbox);
     $mailno_arr = imap_sort($mails, SORTDATE, 1);
 
@@ -194,7 +181,7 @@ class Todo extends CI_Controller {
     }
 
     // 2) db에서 검색후 server에서 msgno 가져오기
-    $search_word = '송혁중';
+    $search_word = '재택치료';
     $mailID_arr_tmp = $this->todo_m->get_mailID_arr_search($user_id, $mbox, $search_word);
     $mailID_arr = array();
     foreach($mailID_arr_tmp as $arr) {
@@ -216,16 +203,28 @@ class Todo extends CI_Controller {
     // 새로운메일 10개, 삭제된 메일 10개 -> 0.72초
   }
 
+  public function connect_mailserver($mbox="") {
+    $mailserver = "192.168.0.100";
+    $user_id = "jwjung@durianit.co.kr";
+    $user_pwd = "bogus2011";
+    // $mailserver = "192.168.0.50";
+    // $user_id = "test4@durianict.co.kr";
+    // $user_pwd = "durian12#";
+    $host = "{" . $mailserver . ":143/imap/novalidate-cert}$mbox";
+    return @imap_open($host, $user_id, $user_pwd);
+  }
+
   function insert_all() {
     $start = $this->get_time();
     set_time_limit(0);  // 2분이상 되어도 멈추지 않게함
 
     $user_id = "jwjung@durianit.co.kr";
+    $mailserver = "192.168.0.100";
     // $user_id = "test4@durianict.co.kr";
+    // $mailserver = "192.168.0.50";
+
     $user_id = substr($user_id, 0, strpos($user_id, '@'));
 
-    $mailserver = "192.168.0.100";
-    // $mailserver = "192.168.0.50";
     $mails= $this->connect_mailserver();
     $folders = imap_list($mails, "{" . $mailserver . "}", '*');
     $folders = str_replace("{" . $mailserver . "}", "", $folders);
@@ -237,17 +236,12 @@ class Todo extends CI_Controller {
       $mails = $this->connect_mailserver($mbox);
       $mailno_arr = imap_sort($mails, SORTDATE, 1);
       $mails_cnt = count($mailno_arr);
-      // echo "메일함 {$mbox}의 총 메일수: ".$mails_cnt.'<br>';
-      $sql = " INSERT IGNORE INTO test4 (user_id, mbox, mail_id, contents) VALUES ";
+      $sql = " INSERT IGNORE INTO contents (user_id, mbox, mail_id, contents) VALUES ";
       $cnt_each = 0;
       if($mails_cnt > 0) {
         foreach($mailno_arr as $index => $no) {
           $header = imap_headerinfo($mails, $no);
           if(!$header)  continue;     // 간혹 아웃룩이랑 총 메일개수 다를때가 있음. 버그인듯.
-          // echo '<pre>';
-          // var_dump($header);
-          // echo '</pre>';
-          // exit;
           if(isset($header->message_id)) {
             $mail_id = $header->message_id;
           }else {     // 보낸메일의 경우 message_id가 없음
@@ -280,7 +274,12 @@ class Todo extends CI_Controller {
           $contents = strtolower(strip_tags($contents));
           $contents = str_replace("'", "\'", $contents);
 
+          $contents = str_replace("&nbsp;", "", $contents);
+          $contents = str_replace(" ", "", $contents);
+          $contents = str_replace("-", "", $contents);
+
           $cnt_each++;
+          $mbox = mb_convert_encoding($f, 'UTF-8', 'UTF7-IMAP');
           if($cnt_each != $mails_cnt) {
             $sql .= " ('$user_id', '$mbox', '$mail_id', '$contents'), ";
           }else {
@@ -288,6 +287,9 @@ class Todo extends CI_Controller {
           }
           $cnt_all++;
         }
+        // echo $sql.'<br><br>';
+        // echo htmlspecialchars($sql);
+        // echo '<br>================================<br><br><br>';
         $this->todo_m->insert_mail_all($sql);
       }
     }
@@ -295,7 +297,8 @@ class Todo extends CI_Controller {
     $time = $end - $start;
     echo "모든메일 INSERT : ".$cnt_all."개<br>";
     echo "소요시간 : ".number_format($time,2) . "초<br>";
-    // 3800개(417초. 7분)
+    // 3800개(417초. 7분)  1200개 (68초)
+    // 3841/3756(실제 insert)(434초)
     // 배열로 보내 insert 한번만 해도 1000개 44초 걸림. (max_allowed_packet=1M -> 16M로 변경해야함)
   }
 
@@ -332,41 +335,8 @@ class Todo extends CI_Controller {
       $contents = str_replace("'", "\'", $contents);
       $this->todo_m->insert_mail($mbox, $mail_id, $contents);
     }
-    // echo '새로온 메일 db insert 완료<br>';
   }
 
-  // function delete_each($mbox, $id_arr){
-  //
-  // }
-
-  function get_time() { $t=explode(' ',microtime()); return (float)$t[0]+(float)$t[1]; }
-
-
-
-
-  // 수정
-  function update($id) {
-      if ($_POST) {
-        $id = $this->input->post('id', TRUE);
-        $content = $this->input->post('content', TRUE);
-        $created_on = $this->input->post('created_on', TRUE);
-        $due_date = $this->input->post('due_date', TRUE);
-
-        $this->todo_m->update_todo($id, $content, $created_on, $due_date);
-        redirect('http://local/todo/index.php/main/lists');
-        exit;
-      } else {
-        $data['row'] = $this->todo_m->get_row($id);
-        $this->load->view('todo/update_v', $data);
-      }
-  }
-
-  // 삭제
-  function delete() {
-    $id = $this->uri->segment(3);
-    $this->todo_m->delete_todo($id);
-    redirect('http://local/todo/index.php/main/lists');
-  }
 
   function getPart($connection, $messageNumber, $partNumber, $encoding, $charset) {
     $data = imap_fetchbody($connection, $messageNumber, $partNumber);
@@ -376,7 +346,11 @@ class Todo extends CI_Controller {
       case 0: return $data; // 7BIT
       case 1: return $data; // 8BIT
       case 2: return $data; // BINARY
-      case 3: return base64_decode($data); // BASE64
+      case 3:
+        $data = base64_decode($data);
+        if($charset == "EUC-KR")
+          $data = iconv('cp949', 'utf-8', $data);
+        return $data;
       case 4:
         $data = quoted_printable_decode($data);    // QUOTED_PRINTABLE (업무일지 서식)
         if ($charset == 'ks_c_5601-1987')          // else는 charset이 utf-8로 iconv 불필요
@@ -404,6 +378,34 @@ class Todo extends CI_Controller {
       $index++;
     }
     return $flattenedParts;
+  }
+
+  function get_time() { $t=explode(' ',microtime()); return (float)$t[0]+(float)$t[1]; }
+
+
+
+  // 수정
+  function update($id) {
+      if ($_POST) {
+        $id = $this->input->post('id', TRUE);
+        $content = $this->input->post('content', TRUE);
+        $created_on = $this->input->post('created_on', TRUE);
+        $due_date = $this->input->post('due_date', TRUE);
+
+        $this->todo_m->update_todo($id, $content, $created_on, $due_date);
+        redirect('http://local/todo/index.php/main/lists');
+        exit;
+      } else {
+        $data['row'] = $this->todo_m->get_row($id);
+        $this->load->view('todo/update_v', $data);
+      }
+  }
+
+  // 삭제
+  function delete() {
+    $id = $this->uri->segment(3);
+    $this->todo_m->delete_todo($id);
+    redirect('http://local/todo/index.php/main/lists');
   }
 
 }

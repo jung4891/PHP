@@ -349,7 +349,8 @@ $mbox = urldecode($mbox);
             $size = '';
           }
          ?>
-        <td><?php echo $size ?></td>
+        <td><?php // echo $size;
+                  echo $head[$mailno_arr[$i]]->Size;?></td>
       </tr>
       <?php
         }

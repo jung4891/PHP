@@ -18,8 +18,8 @@ class Option extends CI_Controller {
       $key = $this->db->password;
       $key = substr(hash('sha256', $key, true), 0, 32);
 			$decrypted = openssl_decrypt(base64_decode($encryp_password), 'aes-256-cbc', $key, 1, $iv);
-			$this->mailserver = "192.168.0.100";
-      // $this->mailserver = "192.168.0.50";
+			// $this->mailserver = "192.168.0.100";
+      $this->mailserver = "192.168.0.50";
       $this->user_id = $_SESSION["userid"];
       $this->user_pwd = $decrypted;
 	}

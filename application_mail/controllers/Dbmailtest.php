@@ -1,7 +1,7 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Dbmailtest2 extends CI_Controller {
+class Dbmailtest extends CI_Controller {
   function __construct() {
 
     if (isset($_SERVER['REQUEST_URI'])) {
@@ -22,6 +22,7 @@ class Dbmailtest2 extends CI_Controller {
       if(!isset($_SESSION)){
           session_start();
       }
+
       $this->load->helper(array('url', 'download'));
       $this->load->library('pagination', 'email');
       $this->load->Model('M_account');
@@ -30,7 +31,7 @@ class Dbmailtest2 extends CI_Controller {
       // $this->mail = $this->input->get("mail_address");
       // $this->password = $this->input->get("password");
       // $this->mailbox = $this->input->get("mailbox");
-      $this->mail = "test4@durianict.co.kr";
+      $this->mail = "bhkim@durianict.co.kr";
       $this->password = "durian12#";
       $this->mailbox = "INBOX";
       $this->mailserver = "192.168.0.50";
@@ -252,6 +253,7 @@ class Dbmailtest2 extends CI_Controller {
   public function connect_mailserver($mbox="") {
 
     // 접속정보 설정
+    // $mbox = "&vPSwuA- &07jJwNVo-";
     $mailserver = $this->mailserver;
     $host = "{" . $mailserver . ":143/imap/novalidate-cert}$mbox";
     $user_id = $this->mail;
@@ -262,35 +264,42 @@ class Dbmailtest2 extends CI_Controller {
     return @imap_open($host, $user_id, $user_pwd);
   }
 
-  function test() {
-    $subject_target = "업무";
-    $subject_target = iconv('utf-8', 'euc-kr', $subject_target);
-    // $mailno_arr_target = imap_sort($mails, SORTDATE, 1, 0, "SUBJECT $subject_target", 'KS_C_5601-1987');
-    $mailno_arr_target = imap_sort($this->connect_mailserver('INBOX'), SORTDATE, 1, 0, "BODY $subject_target");
-    // $mailno_arr_target = imap_search($mails, "SUBJECT $subject_target", SE_FREE, 'KS_C_5601-1987');
-    // $mailno_arr_target = imap_search($mails, "SUBJECT $subject_target", SE_FREE);
-    var_dump($mailno_arr_target);
-  }
-
-  function testtest(){
-    exec("cd /home && mkdir test1");
-
-    // $output = array();
-    // exec("sudo grep -r '=ED=85=8C=EC=8A=A4=ED=8A=B8' /home/vmail/durianict.co.kr/test4/cur",$output, $return_var);
-    // echo "<pre>";
-    // foreach($output as $i => $v) {
-    //   echo $i.' => '.htmlspecialchars($v).'<br>';
-    //   $v = substr($v, 0, strpos($v, ":"));
-    //   $v = htmlspecialchars(substr($v, strpos($v, "cur")+4));
-    //   echo $i.' => '.$v.'<br>';
-    // }
-    // echo "</pre>";
-  }
-
   function insert_test(){
-    // $mailno_arr = $this->imap_sort();
-    $uid = imap_uid($this->connect_mailserver(), 340);
-    echo $uid;
+    $mailno_arr = $this->imap_sort();
+    // foreach ($mailno_arr as $key) {
+    //   $head_overview = imap_fetch_overview($this->connect_mailserver(), $key);
+    //   // code...
+    //   var_dump($head_overview);
+    //   echo "<br>";
+    //   echo "=========================";
+    //   echo "<br>";
+    // }
+
+    for ($i=0; $i < 15; $i++) {
+      $msg_no = $mailno_arr[$i];
+      $uid = imap_uid($this->connect_mailserver(), $mailno_arr[$i]);
+      echo $msg_no."//";
+      echo $uid."/";
+      $ip = $this->get_senderip($uid);
+      var_dump($ip);
+      echo "<br>";
+    }
+
+
+
+    // $ftp_server = "192.168.0.50";
+    // $ftp_user = "root";
+    // $ftp_pass = "durian12#";
+    //
+    // // set up a connection or die
+    // $connection = ssh2_connect($ftp_server) or die("Couldn't connect to $ftp_server");
+    // ssh2_auth_password($connection, $ftp_user, $ftp_pass);
+    // $stream = ssh2_exec($connection, 'pwd');
+    // var_dump($stream);
+    // ssh2_disconnect();
+
+    // var_dump($ftp);
+    // echo $uid;
  //    $mail_head = array();
  //    if(count($mailno_arr) > 0){
  //      echo count($mailno_arr);
@@ -323,15 +332,11 @@ class Dbmailtest2 extends CI_Controller {
 	// 			// $insert_mailhead = $this->STC_mail->mailhead_insert($decode_head);
 	// 			array_push($mail_head, $decode_head);
  //      }
-      // $output = null;
-      // $return_var = null;
-      // exec("id", $output);
-      // echo '$output : ';
-      // print_r($output);
-      // var_dump($output);
+      // $file;
       // echo '<br>';
       // print_r($return_var);
       // var_dump($return_var);
+      // var_dump($apple);
 //       if($fp = fopen('/home/vmail/durianict.co.kr/bhkim/dovecot-uidlist', 'r')){
 //     // 바이너리로 읽기
 //     // 파일 포인터로 지정된 파일에서 최대 길이 1024*100 만큼 브라우저로 출력합니다.
@@ -349,6 +354,46 @@ class Dbmailtest2 extends CI_Controller {
     //
     // }
     // echo json_encode($mail);
+  }
+
+  function testtest(){
+    $output = array();
+    exec("sudo grep '=BE=F7=B9=AB' /home/vmail/durianict.co.kr/bhkim/cur/*",$output, $return_var);
+    echo "<pre>";print_r($output);echo "</pre>";
+  }
+
+  function get_senderip(){
+    $uid = "1408";
+    $mail = "bhkim@durianict.co.kr";
+    $domain = explode("@",$mail)[1];
+    $user = explode("@",$mail)[0];
+    $path = "/home/vmail/{$domain}/{$user}";
+    exec("sudo awk '$1=={$uid} && /:/ {print}' {$path}/dovecot-uidlist",$file);
+    // exec("cat /home/vmail/dovecot-deliver.log",$output);
+    // exec("cat /var/www/html/index.php",$output);
+    // echo '$output : ';
+    // print_r($output);;
+    // var_dump($output);
+    // echo $return_var;
+    if(count($file) > 0){
+      $file = substr($file[0],1);
+      $filename = explode(":", $file)[1];
+      // find /home/vmail/durianict.co.kr/bhkim/cur -name "*1638934312.M750010P166364.DEVMAIL,S=3713,W=3786*"
+      exec("sudo find {$path}/cur -name '*{$filename}*' -exec grep 'Received' {} \\;",$senderip);
+        echo "sudo find {$path}/cur -name '*{$filename}*' -exec grep 'Received' {} \\;";
+        var_dump($senderip);
+        exit;
+      if(count($senderip) > 0){
+        // $ip = $senderip[0];
+        // return explode(": ", $ip)[1];
+      } else {
+        return 0;
+      }
+      // exec("grep 'SENDERIP' {$path}/cur/1638934312.M750010P166364.DEVMAIL,S=3713,W=3786:2,S", $ip);
+      // var_dump($ip);
+    } else {
+      return 0;
+    }
   }
 
 
