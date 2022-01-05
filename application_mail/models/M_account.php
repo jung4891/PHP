@@ -78,10 +78,21 @@ WHERE a.username = '{$uid}' AND a.active = 1";
 	 }
  }
 
- function change_password($mailbox, $id){
+ function change_name($mailbox, $id){
+	 $change_pass = $this->db->update('mailbox', $mailbox, array('username' => $id));
+ 	 if($change_pass){
+ 		 return true;
+ 	 }else{
+ 		 return false;
+ 	 }
+  }
+
+ function change_password($mailbox, $id, $encrypted){
 
  	$change_pass = $this->db->update('mailbox', $mailbox, array('username' => $id));
 	 if($change_pass){
+		 $sql = "UPDATE aes_key SET pkey = '{$encrypted}' WHERE uid = '${id}'";
+		 $query = $this->db->query($sql);
 		 return true;
 	 }else{
 		 return false;
@@ -111,7 +122,7 @@ WHERE a.username = '{$uid}' AND a.active = 1";
 	 if($query->num_rows() > 0){
 		 return $query->row()->side_width;
 	 }else{
-		 return 'defalt';
+		 return 'default';
 	 }
  }
 

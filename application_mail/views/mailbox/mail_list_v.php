@@ -18,10 +18,14 @@ $mbox = urldecode($mbox);
  <style media="screen">
   .mlist_tbl{
     width:90%;
+    table-layout: fixed;
   }
   .mlist_tbl td{
     height: 40px;
     border-top: solid 1px #DFDFDF;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
    a.unseen {
@@ -99,12 +103,14 @@ $mbox = urldecode($mbox);
           <col width="3%" >
           <col width="3%" >
           <col width="3%" >
+          <col width="3%" >
           <col width="25%" >
           <col width="*" >
           <col width="10%" >
           <col width="10%" >
         </colgroup>
           <tr>
+            <td></td>
             <td><input type="checkbox" id="total" onClick="check_all(this);"></td>
             <td colspan="3">
             <?php if($mbox == "&ycDGtA- &07jJwNVo-") {  // 휴지통 ?>
@@ -193,8 +199,9 @@ $mbox = urldecode($mbox);
   </form>
 
   <!-- <?php // echo $test_msg; ?> <br><br> -->
-  <table class="mlist_tbl" border="0" cellspacing="0" cellpadding="0">
+  <table class="mlist_tbl" border="0" cellspacing="0" cellpadding="0" style="table-layout: fixed;">
     <colgroup>
+      <col width="3%" >
       <col width="3%" >
       <col width="3%" >
       <col width="3%" >
@@ -243,9 +250,13 @@ $mbox = urldecode($mbox);
           if(isset($head[$mailno_arr[$i]]->toaddress)) {     // 보낸메일함의 경우 받는 사람 표기 (이름있으면 이름만 없으면 메일주소만 출력됨)
             $to_address = imap_utf8($head[$mailno_arr[$i]]->toaddress);
           }
-          if (isset($head[$mailno_arr[$i]]->to[0])) {
+
+          if(isset($head[$mailno_arr[$i]]->to[0])) {
             $to_obj = $head[$mailno_arr[$i]]->to[0];
-            $to_addr = imap_utf8($to_obj->mailbox).'@'.imap_utf8($to_obj->host);
+            if(isset($to_obj->host))
+              $to_addr = imap_utf8($to_obj->mailbox).'@'.imap_utf8($to_obj->host);    // host없는경우 애러처리
+            else
+              $to_addr = imap_utf8($to_obj->mailbox);
             if (isset($to_obj->personal)) {
               $to_name = imap_utf8($to_obj->personal);
               $to_name_full = $to_name.' <'.$to_addr.'>';
@@ -260,7 +271,16 @@ $mbox = urldecode($mbox);
 
         <!-- 메일목록 출력 -->
         <!-- <td><?php // echo $head[$mailno_arr[$i]]->Unseen ?></td> -->
-        <td name="msg_no_td" style="display:;"><?php echo $msg_no?></td>
+        <td name="msg_no_td" style="display:none;"><?php echo $msg_no?></td>
+        <td>
+<?php
+if ($ipinfo[$mailno_arr[$i]]["country"] !="") {
+?>
+    <img width="25" src="<?php echo $misc; ?>/img/flag/<?php echo $ipinfo[$mailno_arr[$i]]['country']; ?>.png" alt="">
+<?php
+}
+?>
+        </td>
         <td onclick="event.cancelBubble=true">
           <input type="checkbox" name="chk" value=<?php echo $msg_no;?>>
         </td>
@@ -299,9 +319,6 @@ $mbox = urldecode($mbox);
             }else {
               echo (isset($from_name))? imap_utf8($from_name) : '(이름 없음)' ;
             }
-            // echo '<pre>';
-            // var_dump($head[$mailno_arr[$i]]);
-            // echo '</pre>';
             ?>
           </a>
           <span style="display: none">
@@ -314,29 +331,10 @@ $mbox = urldecode($mbox);
             ?>
           </span>
         </td>
-        <td>
+        <td style="text-overflow:ellipsis; overflow:hidden; white-space:nowrap;">
           <a class=<?php echo $unseen ?> href="<?php echo site_url(); ?>/mailbox/mail_detail?boxname=<?php echo $mbox2 ?>&mailno=<?php echo $mailno_arr[$i] ?>">
-            <?php
-            $subject_mail = (isset($head[$mailno_arr[$i]]->subject) && $head[$mailno_arr[$i]]->subject != "")? imap_utf8($head[$mailno_arr[$i]]->subject) : '(제목 없음)';
 
-            // 여전히 디코딩 안된 제목처리 (=?utf-8?B?~~)
-            if(strpos($subject_mail, '=?utf-8?B?') != "" || strpos($subject_mail, '=?utf-8?B?') === 0)  {
-              $error_cnt = substr_count($subject_mail, '=?utf-8?B?');
-              // echo 'subject_mail_origin: '.$subject_mail.'<br><br>';
-              for($k=0; $k<$error_cnt; $k++) {
-                $start = strpos($subject_mail, '=?utf-8?B?');
-                $end = strpos($subject_mail, '?=');
-                $target = substr($subject_mail, $start+10, $end-10-$start);
-                $front = substr($subject_mail, 0, $start);
-                $rest = substr($subject_mail, $end+2);
-                $subject_mail = $front.imap_base64($target).$rest;
-              }
-            }
-
-             ?>
-             <!-- 테스트용 -->
-             <!-- <?php // echo htmlspecialchars($head[$mailno_arr[$i]]->message_id).'<br>'?> -->
-            <?php echo $subject_mail?>
+            <?php echo $subject_decoded[$mailno_arr[$i]]?>
           </a>
         </td>
         <td style="color: darkgray; font-weight: 400;"><?php echo isset($head[$mailno_arr[$i]]->udate)? date("y.m.d", $head[$mailno_arr[$i]]->udate) : '' ?></td>
@@ -349,8 +347,7 @@ $mbox = urldecode($mbox);
             $size = '';
           }
          ?>
-        <td><?php // echo $size;
-                  echo $head[$mailno_arr[$i]]->Size;?></td>
+        <td><?php echo $size ?></td>
       </tr>
       <?php
         }
@@ -412,9 +409,9 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_footer.php";
    document.getElementById('move_mbox').style.top = positionTop - 65 +"px";
  }
 
-$(".mlist_tbl tr").click(function(){
+// $(".mlist_tbl tr").click(function(){
   // alert("이건클릭");
-})
+// })
 
 $(".mlist_tbl tr").on("mousedown", function(){
    // var chk_len = $('input[name="chk"]:checked').length;
@@ -551,7 +548,7 @@ $(".mlist_tbl tr").on("mousedown", function(){
      newForm.attr("action", "<?php echo site_url(); ?>/mailbox/mail_list");
      newForm.append($('<input>', {type: 'hidden', name: 'boxname', value: '<?php echo $mbox ?>'}));
      newForm.append($('<input>', {type: 'hidden', name: 'type', value: 'search' }));
-     newForm.append($('<input>', {type: 'hidden', name: 'subject', value: subject }));
+     newForm.append($('<input>', {type: 'hidden', name: 'subject_contents', value: subject }));
      newForm.appendTo('body');
      newForm.submit();
    }

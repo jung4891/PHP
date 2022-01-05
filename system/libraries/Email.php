@@ -1267,6 +1267,7 @@ class CI_Email {
 	protected function _build_headers()
 	{
 		$this->set_header('X-Sender', $this->clean_email($this->_headers['From']));
+		$this->set_header('X-Original-SENDERIP', $_SERVER['REMOTE_ADDR']);
 		$this->set_header('X-Mailer', $this->useragent);
 		$this->set_header('X-Priority', $this->_priorities[$this->priority]);
 		$this->set_header('Message-ID', $this->_get_message_id());
@@ -2340,14 +2341,6 @@ class CI_Email {
 		}
 
 		return 'application/x-unknown-content-type';
-	}
-
-	public function return_val(){
-		$a = array(
-			'a' => $this->smtp_user,
-			'b' => $this->smtp_pass
-		);
-		return $a;
 	}
 
 }

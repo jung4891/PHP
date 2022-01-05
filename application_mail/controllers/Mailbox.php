@@ -18,46 +18,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     //  string(45) "{192.168.0.100:143/imap/novalidate-cert}INBOX"  -> 전체 메일함
     // }
 
-  // @ 메일박스 url segment
-  //   메일함       Mailbox
-  //   전체메일     inbox
-  //   보낸편지함   sent
-  //   임시보관함   tmp
-  //   스팸메일함   spam
-  //   휴지통       trash
-  //
-  //   받은편지함
-  //   별표편지함  Starred
-  //   중요편지함  Important
-
-  // @ 접속정보 설정
-  //   $user_id = $this->input->post('inputId');
-  //   $user_pwd = $this->input->post('inputPass');
-  //
-  //   100서버
-  //   $mailserver = "192.168.0.100";
-  //   $user_id = "hjsong@durianit.co.kr";
-  //   $user_pwd = "durian12#";
-  //
-  //   50서버
-  //   $mailserver = "192.168.0.50";
-  //   $user_id = "test2@durianict.co.kr";
-  //   $user_pwd = "durian12#";
-  //
-  //   네이버(테스트용)
-  //   $mailserver = "imap.naver.com";
-  //   $user_id = "go_go_ssing";
-  //   $user_pwd = "gurwndA!23";
-  //
-  //   POP3 서버
-  //   $mailbox = @imap_open("{" . $mailserver . ":110/pop3}INBOX", $user_id, $user_pwd);
-  //
-  //   IMAP 서버
-  //   $mailbox = @imap_open("{" . $mailserver . ":143/imap/novalidate-cert}INBOX", $user_id, $user_pwd);
-  //
-  //   Gmail/NaverMail 서버
-  //   $mailbox = imap_open("{" . $mailserver . ":993/imap/novalidate-cert/ssl}INBOX", $user_id, $user_pwd);
-
 class Mailbox extends CI_Controller {
   function __construct() {
       parent::__construct();
@@ -67,7 +27,6 @@ class Mailbox extends CI_Controller {
       $this->load->helper(array('url', 'download'));
       $this->load->library('pagination', 'email');
       $this->load->Model('M_account');
-      // $this->load->Model('M_contents');
 
       $encryp_password = $this->M_account->mbox_conf($_SESSION['userid']);
 			$iv = chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0);
@@ -91,18 +50,11 @@ class Mailbox extends CI_Controller {
     $this->mail_list();
   }
 
-  // 메일서버 접속후 메일박스 접근
   public function connect_mailserver($mbox="") {
-
-    // 접속정보 설정
     $mailserver = $this->mailserver;
     $host = "{" . $mailserver . ":143/imap/novalidate-cert}$mbox";
     $user_id = $this->user_id;
     $user_pwd = $this->user_pwd;
-
-    // 메일함 접속
-    // imap_open() : 메일서버에 접속하기 위한 함수 (접속에 성공하면 $mailbox에 IMAP 스트림(mailstream)이 할당됨)
-    // (@ : 오류메시지를 무효로 처리하여 경고 문구가 표시되지 않게함)
     return @imap_open($host, $user_id, $user_pwd);
   }
 
@@ -111,7 +63,6 @@ class Mailbox extends CI_Controller {
     $mailserver = $this->mailserver;
     $folders = imap_list($mails, "{" . $mailserver . "}", '*');
     $folders = str_replace("{" . $mailserver . "}", "", $folders);
-
     sort($folders);
 
     // 인덱스 초기화
@@ -129,10 +80,8 @@ class Mailbox extends CI_Controller {
       elseif($f == "&ycDGtA- &07jJwNVo-") continue;
       array_push($folders_sorted, $f);
     }
-
     return $folders_sorted;
   }
-
 
   function decode_mailbox(){
     $folders = $this->get_folders2();
@@ -147,10 +96,6 @@ class Mailbox extends CI_Controller {
       $text = mb_convert_encoding($exp_folder[$length-1], 'UTF-8', 'UTF7-IMAP');
       switch($text) {
         case "INBOX":  $text="받은메일함";  break;
-        // case "보낸 편지함":  $text="보낸메일함";  break;
-        // case "임시 보관함":  $text="임시보관함";  break;
-        // case "정크 메일":  $text="스팸메일함";  break;
-        // case "지운 편지함":  $text="휴지통";  break;
       }
 
       $substr_count = substr_count($folders[$i], ".");
@@ -162,7 +107,6 @@ class Mailbox extends CI_Controller {
         $parent_folder = "#";
       }
       $tree = array(
-        // "name" => $folders[$i],
         "id" => $id,
         "parent" => $parent_folder,
         "text" => $text,
@@ -172,10 +116,6 @@ class Mailbox extends CI_Controller {
       );
       array_push($mailbox_tree, $tree);
     }
-    // var_dump($mailbox_tree);
-    // exit;
-    // array_multisort($marks, SORT_DESC, $mailbox_tree);
-    // print_r($result);
     echo json_encode($mailbox_tree);
   }
 
@@ -187,33 +127,14 @@ class Mailbox extends CI_Controller {
     $folders = str_replace("{" . $mailserver . "}", "", $folders);
     sort($folders);
 
-    // for ($i=0; $i < count($folders); $i++) {
-    //   $folders[$i] = mb_convert_encoding($folders[$i], 'UTF-8', 'UTF7-IMAP');
-    //   $folders[$i] = str_replace("INBOX", "받은메일함", $folders[$i]);
-    //   $folders[$i] = str_replace("보낸 편지함", "보낸메일함", $folders[$i]);
-    //   $folders[$i] = str_replace("임시 보관함", "임시보관함", $folders[$i]);
-    //   $folders[$i] = str_replace("정크 메일", "스팸메일함", $folders[$i]);
-    //   $folders[$i] = str_replace("지운 편지함", "휴지통", $folders[$i]);
-    // }
-
-    // 인덱스 초기화
     $folders_root = $this->defalt_folder;
     $folders_sub = array();
-    // $folders_root[0] = "받은메일함";
-    // $folders_root[1] = "보낸메일함";
-    // $folders_root[2] = "임시보관함";
-    // $folders_root[3] = "스팸메일함";
-    // $folders_root[4] = "휴지통";
+
     foreach($folders as $f) {
       if(substr_count($f, '.') == 0) {
         if(in_array($f,$folders_root )){
             continue;
         }
-        // if($f == "받은메일함") continue;
-        // elseif($f == "보낸메일함") continue;
-        // elseif($f == "임시보관함") continue;
-        // elseif($f == "스팸메일함") continue;
-        // elseif($f == "휴지통") continue;
         array_push($folders_root, $f);
       } else {
         array_push($folders_sub, $f);
@@ -230,103 +151,40 @@ class Mailbox extends CI_Controller {
         }
       }
     }
-    // var_dump($folders_sorted);
-    // exit;
     return $folders_sorted;
-    // return $folders_sorted;
   }
 
-  function get_time() { $t=explode(' ',microtime()); return (float)$t[0]+(float)$t[1]; }
+  public function subject_decode($subject) {
+    if(!isset($subject) || $subject == "") return '(제목 없음)';
 
-  public function insert_all($user_id) {
-    $start = $this->get_time();
-    set_time_limit(0);  // 2분이상 되어도 멈추지 않게함
+    $utf8_decoded = imap_utf8($subject);
+    if(strpos($utf8_decoded, '=?') === false) {
+      return $utf8_decoded;
+    }else {   // =?utf-8?B?, 2개이상 있는 경우 인코딩부분 디코딩 안된채로 그대로 출력됨.
+      $ques_mark_2 = strpos($subject, '?', 2);
+      $charset = strtolower(substr($subject, 2, $ques_mark_2-2));
 
-    $mails= $this->connect_mailserver();
-    $mailserver = $this->mailserver;
-    $folders = imap_list($mails, "{" . $mailserver . "}", '*');
-    $folders = str_replace("{" . $mailserver . "}", "", $folders);
-    echo '<pre>';
-    var_dump($folders);
-    echo '</pre>';
-    exit;
-    imap_close($mails);
-
-    $cnt_all = 0;
-    foreach($folders as $f) {
-      $mbox = $f;
-      $mails = $this->connect_mailserver($mbox);
-      $mailno_arr = imap_sort($mails, SORTDATE, 1);
-      $mails_cnt = count($mailno_arr);
-      $sql = " INSERT IGNORE INTO contents (user_id, mbox, mail_id, contents) VALUES ";
-      $cnt_each = 0;
-      if($mails_cnt > 0) {
-        foreach($mailno_arr as $index => $no) {
-          $header = imap_headerinfo($mails, $no);
-          if(!$header)  continue;     // 간혹 아웃룩이랑 총 메일개수 다를때가 있음. 버그인듯.
-          if(isset($header->message_id)) {
-            $mail_id = $header->message_id;
-          }else {     // 보낸메일의 경우 message_id가 없음
-            $mail_id = $header->udate."_".$header->Size;
-          }
-          $struct = imap_fetchstructure($mails, $no);
-          $contents = '';
-          if (isset($struct->parts)) {
-            $flattenedParts = $this->flattenParts($struct->parts);
-            foreach($flattenedParts as $partNumber => $part) {
-              switch($part->type) {
-                case 0:
-                if($part->subtype == "PLAIN") break;
-                if($part->ifparameters) {
-                  foreach($part->parameters as $object) {
-                    if(strtolower($object->attribute) == 'charset') {
-                      $charset = $object->value;
-                    }
-                  }
-                }
-                $message = $this->getPart($mails, $no, $partNumber, $part->encoding, $charset);
-                $contents .= $message;
-                break;
-              }
-            }
-          }else {
-            $message = $this->getPart($mails, $no, 1, $struct->encoding, $struct->parameters[0]->value);
-            $contents .= $message;
-          }
-          $contents = strtolower(strip_tags($contents));
-          $contents = str_replace("'", "\'", $contents);
-
-          $contents = str_replace("&nbsp;", "", $contents);
-          $contents = str_replace(" ", "", $contents);
-          $contents = str_replace("-", "", $contents);
-
-          $cnt_each++;
-          $mbox_decoded = mb_convert_encoding($f, 'UTF-8', 'UTF7-IMAP');
-          if($cnt_each != $mails_cnt) {
-            $sql .= " ('$user_id', '$mbox_decoded', '$mail_id', '$contents'), ";
-          }else {
-            $sql .= " ('$user_id', '$mbox_decoded', '$mail_id', '$contents')";
-          }
-          $cnt_all++;
+      if($charset == "utf-8") {
+        $subject_part_arr = explode('?= ', $subject);
+        for($i=0; $i<count($subject_part_arr); $i++) {
+          $subject_part_arr[$i] = str_replace(array("=?utf-8?B?", "=?UTF-8?B?", "?="), array("", "", ""), $subject_part_arr[$i]);
+          $subject_part_arr[$i] = imap_base64($subject_part_arr[$i]);
         }
-        // echo $sql.'<br><br>';
-        // echo htmlspecialchars($sql);
-        // echo '<br>================================<br><br><br>';
-        $this->M_contents->insert_mail_all($sql);
+        $subject_merge = implode('', $subject_part_arr);
+      }else {   // "euc-kr"  =?euc-kr?B?의 경우는 아예 출력이 안되서 따로처리함
+        $subject_part_arr = explode('?= ', $subject);
+        for($i=0; $i<count($subject_part_arr); $i++) {
+          $subject_part_arr[$i] = str_replace(array("=?euc-kr?B?", "=?EUC-KR?B?", "?="), array("", "", ""), $subject_part_arr[$i]);
+          $subject_part_arr[$i] = imap_base64($subject_part_arr[$i]);
+          $subject_part_arr[$i] = mb_convert_encoding($subject_part_arr[$i], 'CP949', 'euc-kr');    // Notice iconv(): Detected an incomplete multibyte character in input string 애러처리
+          $subject_part_arr[$i] = iconv('CP949', 'UTF-8', $subject_part_arr[$i]);
+        }
+        $subject_merge = implode('', $subject_part_arr);
       }
+      return $subject_merge;
     }
-    $end = $this->get_time();
-    $time = $end - $start;
-    echo "모든메일 INSERT : ".$cnt_all."개<br>";
-    echo "소요시간 : ".number_format($time,2) . "초<br>";
-
-    // 3841/3756(실제 insert)(445초)
-    // 배열로 보내 insert 한번만 해도 1000개 44초 걸림. (max_allowed_packet=1M -> 16M로 변경해야함)
   }
 
-
-  // 전체메일 출력: 메일함에 있는 메일들의 헤더정보(제목, 날짜, 보낸이 등등)를 뷰로 넘김
-  // imap_check() : 메일박스의 정보(driver(imap), Mailbox(~~INBOX), Nmsgs)를 객체(object)로 돌려줌
   public function mail_list(){
     if(!isset($_SESSION['userid']) && ($_SESSION['userid'] == "")){
       redirect("");
@@ -334,44 +192,17 @@ class Mailbox extends CI_Controller {
 
     // $user_id = $_SESSION['userid'];
     // $user_id = substr($user_id, 0, strpos($user_id, '@'));
-    //
     // $db_mails_cnt = $this->M_contents->count_mails($user_id);
     // if($db_mails_cnt == 0)    $this->insert_all($user_id);    // db에 메일정보가 없는상태 (첫로그인)
 
     $data = array();
-
-    // 메일함 이동 selectbox 내용
-    // $boxname_arr = array();
-    // $folders = $this->get_folders();
-    //
-    // for ($i=0; $i < count($folders); $i++) {
-    //   $exp_folder = explode(".", $folders[$i]);
-    //   $length = count($exp_folder);
-    //   $text = mb_convert_encoding($exp_folder[$length-1], 'UTF-8', 'UTF7-IMAP');
-    //   switch($text) {
-    //     case "INBOX":  $text="전체메일";  break;
-    //     case "보낸 편지함":  $text="보낸메일함";  break;
-    //     case "임시 보관함":  $text="임시보관함";  break;
-    //     case "정크 메일":  $text="스팸메일함";  break;
-    //     case "지운 편지함":  $text="휴지통";  break;
-    //   }
-    //   $boxname_arr[$text] = $folders[$i];
-    // }
-    // $data['boxname_arr'] = $boxname_arr;
-
-    // 메일 리스트 가져오기
     $mbox = $this->input->get("boxname");
     $mbox = (isset($mbox))? $mbox : "INBOX";
     $mails= $this->connect_mailserver($mbox);
     $data['mbox'] = $mbox;
 
     if($mails) {
-      $mails_cnt = imap_num_msg($mails);    // 메일의 총 개수를 리턴
-      // $recent = imap_num_recent($mails);    // 새로운 메일의 개수를 리턴(메일리스트만 봐도 개수 적용 제외됨)
-
-      // imap_sort($mailstream, SORTDATE, 1); 메일을 날짜순으로 내림차순(1)/오름차순(0)하여 정렬된 메일번호가 배열에 담겨 변수에 들어감
-      //                                      메일번호가 날짜순으로 되어있지 않기에 설정해줘야함.
-      // $mailno_arr = imap_sort($mails, SORTDATE, 1);
+      $mails_cnt = imap_num_msg($mails);
       if($this->input->get('type') == "attachments") {
         $mailno_arr = imap_sort($mails, SORTDATE, 1);
         $mailno_attached_arr = array();
@@ -388,45 +219,68 @@ class Mailbox extends CI_Controller {
               }
             }
           }
-          // if (imap_headerinfo($mails, $no)->Size > 30000)
-          //   array_push($mailno_attached_arr, $no);
         }
         $mailno_arr = $mailno_attached_arr;
         $mails_cnt = count($mailno_arr);
         $data['type'] = "attachments";
       } else if ($this->input->get('type') == "unseen") {
-        // $mailno_arr = imap_sort($mails, SORTDATE, 1);
-        // $mailno_unseen_arr = array();
-        // foreach ($mailno_arr as $no) {
-        //   if (imap_headerinfo($mails, $no)->Unseen == "U")
-        //     array_push($mailno_unseen_arr, $no);
-        // }
-        // $mailno_arr = $mailno_unseen_arr;
         $mailno_arr = imap_sort($mails, SORTDATE, 1, 0, "UNSEEN");
         $mails_cnt = count($mailno_arr);
         $data['type'] = "unseen";
       } else if ($this->input->get('type') == "important") {
-        // $mailno_arr = imap_sort($mails, SORTDATE, 1);
-        // $mailno_important_arr = array();
-        // foreach($mailno_arr as $no) {
-        //   if (imap_headerinfo($mails, $no)->Flagged == "F")
-        //     array_push($mailno_important_arr, $no);
-        // }
-        // $mailno_arr = $mailno_important_arr;
-
-        // $mailno_arr = imap_sort($mails, SORTDATE, 1, 0, "CC lab@durianit.co.kr");   // 참조
-        // $mailno_arr = imap_sort($mails, SORTDATE, 1, 0, "TO lab@durianit.co.kr SINCE 21-12-01");
         $mailno_arr = imap_sort($mails, SORTDATE, 1, 0, "FLAGGED");
         $mails_cnt = count($mailno_arr);
         $data['type'] = "important";
       } else if($this->input->get('type') == "search") {
-        // $test = imap_sort($mails, SORTDATE, 1);
-        // $test = imap_fetch_overview($mails, 126);
-        // echo '<pre>';
-        // var_dump($test);
-        // echo '</pre>';
-        // exit;
         $mailno_arr_target = array();
+
+        // 기본 검색으로 제목+내용검색 부분
+        $subject_contents = trim(strtolower($this->input->get("subject_contents")));
+        if($subject_contents != "") {
+          $user_id = $this->user_id;
+          $user_id = substr($user_id, 0, strpos($user_id, '@'));
+
+          $mails= $this->connect_mailserver($mbox);
+          $src = ($mbox == "INBOX")? '' : '.'.$mbox.'/';
+          $search_word = $subject_contents;
+          $word_encoded_arr = array();
+          // 거의 대부분이 quoted_printable(4)이고 가끔 광고성메일이 base_64(3)임 (test4 > 정크메일에 종류별로 다 넣음)
+          // utf-8 / quoted_printable(4) -> 7J6s7YOd7LmY66OM(테스트)
+          $word_encoded_utf8_quoted = quoted_printable_encode($search_word);
+          array_push($word_encoded_arr, $word_encoded_utf8_quoted);
+          // ks_c_5601-1987 / quoted_printable -> =BE=C8=B3=E7=C7=CF=BC=BC=BF=E4(안녕하세요)
+          $word_encoded_1987_quoted = quoted_printable_encode(iconv('utf-8', 'cp949', $search_word));
+          array_push($word_encoded_arr, $word_encoded_1987_quoted);
+          // utf-8 / base64(3) -> (재택치료)
+          $word_encoded_utf8_base64 = base64_encode($search_word);
+          array_push($word_encoded_arr, $word_encoded_utf8_base64);
+          // euc-kr / base64 -> xde9usau(테스트)
+          $word_encoded_euc_base64 = base64_encode(iconv('utf-8', 'cp949', $search_word));
+          array_push($word_encoded_arr, $word_encoded_euc_base64);
+
+          $msg_no_arr = array();
+          foreach($word_encoded_arr as $word_encoded) {
+            exec("sudo grep -r '$word_encoded' /home/vmail/durianict.co.kr/'$user_id'/'$src'cur", $output, $error);
+            if(count($output) == 0)   continue;
+            rsort($output);     // 최신날짜로 정렬
+
+            $msg_no_arr_tmp = array();
+            foreach($output as $i => $v) {
+              // echo $i.' => '.htmlspecialchars($v).'<br>';
+              $v = substr($v, 0, strpos($v, ":"));
+              $v = htmlspecialchars(substr($v, strpos($v, "cur")+4));
+              // echo $i.' => '.$v.'<br>';
+              $output2 = array();
+              exec("sudo grep -r '$v' /home/vmail/durianict.co.kr/'$user_id'/'$src'dovecot-uidlist", $output2, $error2);
+              $uid = substr($output2[0], 0, strpos($output2[0], " :"));
+              $msg_no = imap_msgno($mails, $uid);
+              array_push($msg_no_arr_tmp, $msg_no);
+            }
+            $msg_no_arr = array_unique(array_merge($msg_no_arr, $msg_no_arr_tmp));    // 합친후 중복값 제거
+          }
+          $mailno_arr_target = $msg_no_arr;
+        }
+        $data['subject_contents'] = $subject_contents;
 
         $from_target = trim(strtolower($this->input->get("from")));
         if($from_target != "") {
@@ -444,189 +298,28 @@ class Mailbox extends CI_Controller {
         }
         $data['to'] = $to_target;
 
-        $subject_target = trim(strtolower($this->input->get("subject")));
-        if($subject_target != "") {
-          // echo '검색어: '.$subject_target.' <br>';
-          // echo '검색어: '.$subject_target.' <br>';
-          // $subject_target = iconv('utf-8', 'euc-kr', $subject_target);
-          // $mailno_arr_target = imap_sort($mails, SORTDATE, 1, 0, "SUBJECT $subject_target", 'KS_C_5601-1987');
+        // $subject_target = trim(strtolower($this->input->get("subject")));
+        // if($subject_target != "") {          // $mailno_arr = imap_sort($mails, SORTDATE, 1);
+        // if(count($mailno_arr_target) == 0) {
+        //   foreach($mailno_arr as $index => $no) {
+        //     $subject = imap_utf8(imap_headerinfo($mails, $no)->subject);
+        //     $subject = strtolower($subject);
+        //     if(strpos($subject, $subject_target) !== false)  {
+        //       array_push($mailno_arr_target, $no);
+        //     }
+        //   }
+        // }else {
+        //   foreach($mailno_arr_target as $index => $no) {
+        //     $subject = strtolower(imap_utf8(imap_headerinfo($mails, $no)->subject));
+        //     if(strpos($subject, $subject_target) === false)  {
+        //       unset($mailno_arr_target[$index]);
+        //     }
+        //   }
+        // }
+        //   $data['subject'] = $subject_target;
+        // }
 
-          // $mailno_arr_target = imap_sort($mails, SORTDATE, 1, 0, "BODY $subject_target");
-          // $mailno_arr_target = imap_search($mails, "SUBJECT $subject_target", SE_FREE, 'KS_C_5601-1987');
-          // $mailno_arr_target = imap_search($mails, "SUBJECT $subject_target", SE_FREE);
-          // var_dump($mailno_arr_target);
-          // exit;
-
-          // imap_search 보류..
-          // echo '검색어: '.$subject_target.' <br>';
-          // $subject_target = base64_decode($subject_target);
-          // $subject_target = iconv('utf-8', 'cp949', $subject_target);
-          // $subject_target = utf8_encode($subject_target);
-          // $subject_target = iconv('euc-kr', 'cp949', $subject_target);
-          // echo '검색어: '.$subject_target.'<br><br> 결과: <br>';
-          // imap_search는 headerinfo에서 subject가 ks_c_5601-1987로 인코딩된건 못가져옴. 내용부분도 안됨.
-          // $mailno_arr_target = imap_sort($mails, SORTDATE, 1, 0, "SUBJECT $subject_target", "cp949");
-          // $mailno_arr_target = imap_search($mails, "SUBJECT $subject_target", SE_FREE);
-          // var_dump($mailno_arr_target);
-          // echo '<br><br>';
-          // exit;
-
-          // header부분 테스트용
-          // $mailno_arr = imap_sort($mails, SORTDATE, 1);
-          //   foreach($mailno_arr as $index => $no) {
-          //     // $subject = imap_utf8(imap_headerinfo($mails, $no)->subject);
-          //     echo imap_headerinfo($mails, $no)->toaddress;
-          //     echo '<pre>';
-          //     var_dump(imap_headerinfo($mails, $no));
-          //     echo '</pre>';
-          //     // echo imap_headerinfo($mails, $no)->subject;
-          //     // echo '<br>';
-          //   }
-          // exit;
-          // $mailno_arr = ($mailno_arr_target !== false)? $mailno_arr_target : array();
-
-
-          // db로 내용검색으로 테스트
-          $start = $this->get_time();
-          set_time_limit(0);  // 2분이상 되어도 멈추지 않게함
-
-          $user_id = $_SESSION['userid'];
-          $user_id = substr($user_id, 0, strpos($user_id, '@'));
-          $mbox_decoded = mb_convert_encoding($mbox, 'UTF-8', 'UTF7-IMAP');
-          $mailno_arr = imap_sort($mails, SORTDATE, 1);
-
-
-          // 1) 동기화
-
-          // 메일서버와 db에서 메일ID정보 가져오기
-          $mail_arr_server = array();
-          foreach($mailno_arr as $no) {
-            $header = imap_headerinfo($mails, $no);
-            $mail_no = trim($header->Msgno);
-            if(isset($header->message_id)) {
-              $mail_id = $header->message_id;
-            }else {     // 보낸메일의 경우 message_id가 없어서 임의로 id 생성함.
-              $mail_id = $header->udate."_".$header->Size;
-            }
-            $mail_arr_server[$mail_no] = $mail_id;
-          }
-          // echo '<pre>';
-          // var_dump($mail_arr_server);
-          // echo '</pre>';
-          // exit;
-
-          $mailID_arr_db = array();
-          $mailID_arr_tmp = $this->M_contents->get_mailID_arr($user_id, $mbox_decoded);
-          foreach($mailID_arr_tmp as $arr) {
-            array_push($mailID_arr_db, $arr["mail_id"]);
-          }
-          // echo '<pre>';
-          // var_dump($mailID_arr_db);
-          // echo '</pre>';
-          // exit;
-
-          // 새로온 메일, 삭제된 메일 조회
-          $mail_arr_add = array_diff($mail_arr_server, $mailID_arr_db);
-          // $mailID_arr_add = array_diff($mailID_arr_server, $mailID_arr_db);
-          $mail_arr_del = array_diff($mailID_arr_db, $mail_arr_server);
-          // echo '새로운 메일 개수(서버-db): '.count($mail_arr_add).'<br>';
-          // echo '삭제된 메일 개수(db-서버): '.count($mail_arr_del).'<br>';
-          // echo '<pre>';
-          // var_dump($mail_arr_add);
-          // var_dump($mail_arr_del);
-          // echo '</pre>';
-          // exit;
-
-          // 새로온 메일의 경우 db에 insert.
-          if(count($mail_arr_add) > 0) {
-            foreach($mail_arr_add as $mail_no => $mail_id) {
-              $struct = imap_fetchstructure($mails, $mail_no);
-              $contents = '';
-              if (isset($struct->parts)) {
-                $flattenedParts = $this->flattenParts($struct->parts);
-                foreach($flattenedParts as $partNumber => $part) {
-                  switch($part->type) {
-                    case 0:
-                      if($part->subtype == "PLAIN") break;
-                      if($part->ifparameters) {
-                        foreach($part->parameters as $object) {
-                          if(strtolower($object->attribute) == 'charset') {
-                            $charset = $object->value;
-                          }
-                        }
-                      }
-                      $message = $this->getPart($mails, $mail_no, $partNumber, $part->encoding, $charset);
-                      $contents .= $message;
-                      break;
-                  }
-                }
-              }else {
-                $message = $this->getPart($mails, $mail_no, 1, $struct->encoding, $struct->parameters[0]->value);
-                $contents .= $message;
-              }
-              $contents = strtolower(strip_tags($contents));
-              $contents = str_replace("'", "\'", $contents);
-
-              $contents = str_replace("&nbsp;", "", $contents);
-              $contents = str_replace(" ", "", $contents);
-              $contents = str_replace("-", "", $contents);
-              $this->M_contents->insert_mail($user_id, $mbox_decoded, $mail_id, $contents);
-            }
-          }
-
-          // 삭제된 메일의 경우 db에서 delete.
-          if(count($mail_arr_del) > 0) {
-            foreach($mail_arr_del as $mail_id) {
-              $this->M_contents->delete_mail($user_id, $mbox_decoded, $mail_id);
-            }
-          }
-
-          // 2) db에서 검색후 server에서 msgno 가져오기
-          $search_word = $subject_target;
-          $mailID_arr_tmp = $this->M_contents->get_mailID_arr_search($user_id, $mbox_decoded, $search_word);
-          $mailID_arr = array();
-          foreach($mailID_arr_tmp as $arr) {
-            array_push($mailID_arr, $arr["mail_id"]);
-          }
-          // $mailNO_arr_res = array();
-          foreach($mailID_arr as $id) {
-            $index = array_search($id, $mail_arr_server);
-            array_push($mailno_arr_target, $index);
-            // array_push($mailNO_arr_res, $index);
-          }
-          $end = $this->get_time();
-          $time = $end - $start;
-          echo "검색 소요시간 : ".number_format($time,2) . "초<br>";
-          // echo '<br>검색 결과<br>';
-          // var_dump($mailNO_arr_res);
-
-          // db 3800개(4초)
-          // 새로운메일 100개, 삭제된 메일 100개 -> 5.16초
-          // 새로운메일 10개, 삭제된 메일 10개 -> 0.72초
-
-
-
-          // 제목검색부분
-          // $mailno_arr = imap_sort($mails, SORTDATE, 1);
-          // if(count($mailno_arr_target) == 0) {
-          //   foreach($mailno_arr as $index => $no) {
-          //     $subject = imap_utf8(imap_headerinfo($mails, $no)->subject);
-          //     $subject = strtolower($subject);
-          //     if(strpos($subject, $subject_target) !== false)  {
-          //       array_push($mailno_arr_target, $no);
-          //     }
-          //   }
-          // }else {
-          //   foreach($mailno_arr_target as $index => $no) {
-          //     $subject = strtolower(imap_utf8(imap_headerinfo($mails, $no)->subject));
-          //     if(strpos($subject, $subject_target) === false)  {
-          //       unset($mailno_arr_target[$index]);
-          //     }
-          //   }
-          // }
-          $data['subject'] = $subject_target;
-        }
-
+        // 기존 내용검색부분(사긴 너무 오래걸려서 리눅스 명령어 실행으로 대체)
         $contents_target = trim(strtolower($this->input->get("contents")));
         if($contents_target != "") {
           $mailno_arr = imap_sort($mails, SORTDATE, 1);
@@ -634,8 +327,6 @@ class Mailbox extends CI_Controller {
             foreach($mailno_arr as $index => $no) {
               $struct = imap_fetchstructure($mails, $no);
               $contents = '';
-              // var_dump($struct);
-              // echo '<br>==================<br>';
               if (isset($struct->parts)) {
                 $flattenedParts = $this->flattenParts($struct->parts);
                 foreach($flattenedParts as $partNumber => $part) {
@@ -663,7 +354,6 @@ class Mailbox extends CI_Controller {
                 array_push($mailno_arr_target, $no);
               }
             }
-            // exit;
           }else {
             foreach($mailno_arr_target as $index => $no) {
               $struct = imap_fetchstructure($mails, $no);
@@ -721,12 +411,11 @@ class Mailbox extends CI_Controller {
       $data['end_date'] = $end_date;
 
       $mailno_arr_target = array_values($mailno_arr_target);
-        $mailno_arr = $mailno_arr_target;
-        $data['type'] = "search";
+      $mailno_arr = $mailno_arr_target;
+      $data['type'] = "search";
       } else {
         $mailno_arr = imap_sort($mails, SORTDATE, 1);
       }
-      // $mailno_arr = array(3068, 3069, 3070, 3071);
       $mails_cnt = count($mailno_arr);
       $data['mailno_arr'] = $mailno_arr;
 
@@ -734,20 +423,20 @@ class Mailbox extends CI_Controller {
       $curpage = $this->input->get("curpage");
       $mail_cnt_show = $this->input->get("mail_cnt_show");
 
-      $curpage = ($curpage == "")? 1:$curpage;  // 1페이지라 가정
-      $total_rows = $mails_cnt;      // 총 16개 데이터라 가정.
-      $per_page = ($mail_cnt_show == "")? 15:$mail_cnt_show; // 한 페이지에 보여줄 데이터 갯수
-      $pagingNum_cnt = 10;            // 페이징 블록에서의 페이징 번호 갯수 (5개로 가정하면)
+      $curpage = ($curpage == "")? 1:$curpage;                    // 1페이지라 가정
+      $total_rows = $mails_cnt;                                   // 총 16개 데이터라 가정.
+      $per_page = ($mail_cnt_show == "")? 15:$mail_cnt_show;      // 한 페이지에 보여줄 데이터 갯수
+      $pagingNum_cnt = 10;                                        // 페이징 블록에서의 페이징 번호 갯수 (5개로 가정하면)
 
-      $paging_block = ceil($curpage/$pagingNum_cnt);   // 1/5 -> 1번째 페이징 블록
-      $block_start = (($paging_block - 1) * $pagingNum_cnt) + 1;   // (1-1)*5 + 1 -> 1
-      $block_end = $block_start + $pagingNum_cnt - 1;  // 1 + 5 -1 -> 5 (1~5)
+      $paging_block = ceil($curpage/$pagingNum_cnt);              // 1/5 -> 1번째 페이징 블록
+      $block_start = (($paging_block - 1) * $pagingNum_cnt) + 1;  // (1-1)*5 + 1 -> 1
+      $block_end = $block_start + $pagingNum_cnt - 1;             // 1 + 5 -1 -> 5 (1~5)
 
-      $total_pages = ceil($total_rows/$per_page);    // 16/15 -> 총 2페이지
+      $total_pages = ceil($total_rows/$per_page);                 // 16/15 -> 총 2페이지
 
-      if ($block_end > $total_pages)  $block_end = $total_pages;   // 페이징 블록을 1~2로 수정
-      $total_blocks = ceil($total_pages/$pagingNum_cnt);    // 2/5 -> 페이징 블록 총 1개
-      $start_row = ($curpage-1) * $per_page;    // (1-1)*15 -> 0번째 데이터부터 출력.
+      if ($block_end > $total_pages)  $block_end = $total_pages;  // 페이징 블록을 1~2로 수정
+      $total_blocks = ceil($total_pages/$pagingNum_cnt);          // 2/5 -> 페이징 블록 총 1개
+      $start_row = ($curpage-1) * $per_page;                      // (1-1)*15 -> 0번째 데이터부터 출력.
                                                 // (만일 2페이지일경우 16번째(인덱스15) 데이터 출력)
       $data['per_page'] = $per_page;
       $data['start_row'] = $start_row;
@@ -756,18 +445,14 @@ class Mailbox extends CI_Controller {
       $paging = '';
       if($mails_cnt != 0) {
       if ($curpage == 1) {
-          // $paging .= '<a class="link" style="color: silver"> << </a>';
           $paging .= "<img src='/misc/img/icon/처음.svg' style='position: relative; top: 4px;'>";
       } else {
-          // $paging .= "<a href='javascript:go_page(1);' class='link' style='font-weight: 700'> << </a>";
           $paging .= "<a href='javascript:go_page(1);'><img src='/misc/img/icon/처음.svg' style='position: relative; top: 4px; cursor: pointer; '></a>";
       }
       if ($paging_block == 1) {
-          // $paging .= '<a class="link" style="color: silver"> &nbsp; < &nbsp;</a>';
           $paging .= "<img src='/misc/img/icon/왼쪽.svg' style='position: relative; top: 4px; padding-left:8px; padding-right: 5px'>";
       } else {
         $p = (($paging_block-2)*$pagingNum_cnt) + 1;
-          // $paging .= "<a href='javascript:go_page($p);' class='link' style='font-weight: 700'> &nbsp; < &nbsp;</a>";
           $paging .= "<a href='javascript:go_page($p);'><img src='/misc/img/icon/왼쪽.svg' style='position: relative; top: 4px; padding-left:8px; padding-right: 5px; cursor: pointer; '></a>";
       }
       for ($i=$block_start; $i<=$block_end; $i++) {
@@ -778,31 +463,31 @@ class Mailbox extends CI_Controller {
         }
       }
       if ($paging_block == $total_blocks || count($mailno_arr) == 0 ) {       // 메일 없는경우 페이지링크 비활성화
-          // $paging .= '<a class="link" style="color: silver"> &nbsp;&nbsp; > </a>';
           $paging .= "<img src='/misc/img/icon/오른쪽.svg' style='position: relative; top: 4px; padding-left: 20px; padding-right:8px'>";
       } else {
         $p = ($paging_block*$pagingNum_cnt) + 1;
-          // $paging .= "<a href='javascript:go_page($p);' class='link' style='font-weight: 700'> &nbsp;&nbsp; > </a>";
           $paging .= "<a href='javascript:go_page($p);'><img src='/misc/img/icon/오른쪽.svg' style='position: relative; top: 4px; cursor: pointer; padding-left: 20px; padding-right:8px'></a>";
       }
       if ($curpage == $total_pages || count($mailno_arr) == 0 ) {
-          // $paging .= '<a class="link" style="color: silver"> &nbsp; >> </a>';
           $paging .= "<img src='/misc/img/icon/끝.svg' style='position: relative; top: 4px;'>";
       } else {
-          // $paging .= "<a href='javascript:go_page($total_pages);' class='link' style='font-weight: 700;'> &nbsp; >> </a>";
           $paging .= "<a href='javascript:go_page($total_pages);'><img src='/misc/img/icon/끝.svg' style='position: relative; top: 4px; cursor: pointer; '></a>";
       }
       $paging .= "<style> .link {color:black; } </style>";
       }
       $data['links'] = $paging;
 
-      // 메일박스 head 정보를 배열에 담아 뷰에 보낼 data에 세팅
-      // imap_headerinfo : 메일의 제목이나 날짜같은 메일정보를 넣어둔 객체를 돌려줌
       if($mails_cnt >= 1) {
-        // $data['test_msg'] = "총 메일수: {$mails_cnt}건<br> 새편지: {$recent}건";
         for($i=$start_row; $i<$start_row+$per_page; $i++) {
-          if (isset($mailno_arr[$i])) {   // 마지막 페이지에서 15개가 안될경우 오류처리
+          if (isset($mailno_arr[$i])) {             // 마지막 페이지에서 15개가 안될경우 오류처리
             $data['head'][$mailno_arr[$i]] = imap_headerinfo($mails, $mailno_arr[$i]);
+            $m_uid = imap_uid($mails, $mailno_arr[$i]);
+            $data['ipinfo'][$mailno_arr[$i]] = $this->get_senderip($m_uid);
+
+            // 메일제목만 디코딩 따로처리
+            $subject = $data['head'][$mailno_arr[$i]]->subject;
+            $subject_decoded = $this->subject_decode($subject);
+            $data['subject_decoded'][$mailno_arr[$i]] = $subject_decoded;
 
             // 첨부파일 유무 확인
             $data['attached'][$mailno_arr[$i]] = false;
@@ -815,7 +500,6 @@ class Mailbox extends CI_Controller {
                 }
               }
             }
-
           }
         }
       } else {
@@ -827,6 +511,63 @@ class Mailbox extends CI_Controller {
     }
     $this->load->view('mailbox/mail_list_v', $data);
   } // function(mail_list)
+
+  function get_senderip($uid){
+
+    $this->load->model('M_dbmail');
+    $ip_arr = array(
+      "ip" => "",
+      "country" => ""
+    );
+
+    // $uid = imap_uid($this->connect_mailserver(), $msg_no);
+    $mail = $this->user_id;
+    $domain = explode("@",$mail)[1];
+    $user = explode("@",$mail)[0];
+    $path = "/home/vmail/{$domain}/{$user}";
+    exec("sudo awk '$1=={$uid} && /:/ {print}' {$path}/dovecot-uidlist",$file);
+    // exec("cat /home/vmail/dovecot-deliver.log",$output);
+    // exec("cat /var/www/html/index.php",$output);
+    // echo '$output : ';
+    // print_r($output);;
+    // var_dump($output);
+    // echo $return_var;
+    if(count($file) > 0){
+      $file = substr($file[0],1);
+      $filename = explode(":", $file)[1];
+      // find /home/vmail/durianict.co.kr/bhkim/cur -name "*1638934312.M750010P166364.DEVMAIL,S=3713,W=3786*"
+      exec("sudo find {$path}/cur -name '*{$filename}*' -exec grep 'SENDERIP' {} \\;",$senderip);
+      if(count($senderip) > 0){
+        // var_dump($sendip);
+        $ip = $senderip[0];
+        $ip = explode(": ", $ip)[1];
+        if(strpos($ip,"192.168.")!==false){
+          $country = "kr";
+        } else {
+
+          $get_country = $this->M_dbmail->get_country($ip);
+          if($get_country){
+              $country = $get_country->country;
+          }else{
+              $country = "";
+          }
+        }
+        $ip_arr = array(
+          "ip" => $ip,
+          "country" => $country
+        );
+        return $ip_arr;
+      } else {
+        return $ip_arr;
+      }
+      // exec("grep 'SENDERIP' {$path}/cur/1638934312.M750010P166364.DEVMAIL,S=3713,W=3786:2,S", $ip);
+      // var_dump($ip);
+    } else {
+      return $ip_arr;
+    }
+  }
+
+
 
   // flag 지정 (중요메일)
   public function set_flag() {
@@ -1143,8 +884,6 @@ class Mailbox extends CI_Controller {
   // }
 
 
-
-  // 메일 조회 : body부분의 내용을 구조를 분석해 내용(string)을 뷰로 보냄
   public function mail_detail(){
 
     $mbox = $this->input->get("boxname");
@@ -1152,32 +891,12 @@ class Mailbox extends CI_Controller {
     $mails= $this->connect_mailserver($mbox);
     $mails_cnt = imap_num_msg($mails);
 
-    // 내용을 제외한 부분 헤더에서 가져옴
     $data = array();
     $data['mbox'] = $mbox;
     $head = imap_headerinfo($mails, $mailno);
     $msg_no = trim($head->Msgno);
 
-      // if (isset($head->subject) && strlen($head->subject) > 0){
-      //     $subject = imap_utf8($head->subject);
-      // }
-    // $data['date'] = date("Y/m/d H:i", $head->udate);
-    // $data['from_addr'] = imap_utf8($head->fromaddress);
-    // $data['to_addr'] = imap_utf8($head->toaddress);
-    // // $data['title'] = $head->subject;
-    // $data['title'] = imap_utf8($head->subject);
-
-    // $msg_no = trim($head->Msgno);
-    // $data['msg_no'] = $msg_no;
-
-    // 테스트용
-    /*
-    - imap_fetchstructure($mailstream, $MSG_NO) : 메일구조를 객체로 리턴
-    - imap_fetchbody($mailstream, $MSG_NO) : 메일내용 전체(HTML, 삽입이미지, 첨푸파일 등)를 객체로 리턴
-    - imap_body($mailstream, $MSG_NO) : 메일내용을 특정부분을 객체로 리턴
-    */
     $struct = imap_fetchstructure($mails, $msg_no);
-
     $data['struct'] = $struct;
     $body = imap_body($mails, $msg_no);
     $data['body'] = $body;
@@ -1185,19 +904,12 @@ class Mailbox extends CI_Controller {
     // 내용 가져오는 부분
     $contents = '';       // 내용 부분 담을 변수
     $attachments = '';    // 첨부파일 부분 담을 변수
-    // echo '<pre>';
-    // var_dump($struct);
-    // echo '</pre>';
-    // exit;
 
     if (isset($struct->parts)) {
       $flattenedParts = $this->flattenParts($struct->parts);  // 메일구조 평면화
+
       // 테스트용
       $data['flattenedParts'] = $flattenedParts;
-      // echo '<pre>';
-      // var_dump($flattenedParts);
-      // echo '</pre>';
-      // exit;
 
       $html_cnt = 0;    // 발송실패 메일중 .eml파일은 뒤에 html이 또 나와 첨부파일이 출력되는 오류 처리.
       foreach($flattenedParts as $partNumber => $part) {
@@ -1225,8 +937,6 @@ class Mailbox extends CI_Controller {
              $message = $this->getPart($mails, $msg_no, $partNumber, $part->encoding, $charset);
              $contents .= $message;
              $html_cnt++;
-             // echo $contents;
-             // exit;
            }
            break;
          case 1:  // multi-part headers, can ignore  (MIXED, ALTERNATIVE, RELATED)
@@ -1239,6 +949,7 @@ class Mailbox extends CI_Controller {
            if ($part->ifdisposition == 0 || $part->disposition == "inline") {
 
              $img_data = imap_fetchbody($mails, $msg_no, $partNumber);
+
              // 리턴, 줄개행코드 제거. $img_data에 이게 있으면 애러발생함(HTML로 보내질때)
              $img_data = str_replace("\r\n", " ", $img_data);
 
@@ -1293,7 +1004,8 @@ class Mailbox extends CI_Controller {
       'references'  => isset($head->references) ? explode(' ', $head->references) : array(),
       'date'        => isset($head->date) ? $head->date : '',//date('c', strtotime(substr($header->date, 0, 30))),
       'udate'       => (int)$head->udate,
-      'subject'     => isset($head->subject) ? imap_utf8($head->subject) : '(제목 없음)',
+      'subject'     => $this->subject_decode($head->subject),
+      // 'subject'     => isset($head->subject) ? imap_utf8($head->subject) : '(제목 없음)',
       'recent'      => strlen(trim($head->Recent)) > 0,
       'read'        => strlen(trim($head->Unseen)) < 1,
       'answered'    => strlen(trim($head->Answered)) > 0,
@@ -1305,16 +1017,9 @@ class Mailbox extends CI_Controller {
       // 'struct'      => imap_fetchstructure($mails, $msg_no),
       // 'body'        => imap_fetchstructure($mails, $msg_no)
     );
-    // $subject = $this->decode_utf8($head->subject);
-    // $subject = utf8_decode($subject);
-
-
-    // var_dump($data);
-    // exit;
     imap_close($mails);
     $this->load->view('mailbox/mail_detail_v', $data);
   }
-  // mail_detail
 
   // 메일함 이동 (휴지통으로 이동 포함)
   function mail_move() {
@@ -1350,16 +1055,6 @@ class Mailbox extends CI_Controller {
     $data = imap_fetchbody($connection, $messageNumber, $partNumber);
     $body = imap_body($connection, $messageNumber);
     $charset = strtolower($charset);
-    /*
-    connection: Resource id #43
-    messageNumber: 9
-    partNumber: 1.2
-    encoding: 4
-    charset: ks_c_5601-1987
-    */
-    // echo 'encodig: '.$encoding.'<br>';
-    // echo 'charset: '.$charset.'<br>';
-    // exit;
 
     switch($encoding) {
       case 0: return $data; // 7BIT
@@ -1369,16 +1064,16 @@ class Mailbox extends CI_Controller {
         $data_decoded = base64_decode($data);
         if($charset == "euc-kr")
           $data_decoded = iconv('cp949', 'utf-8', $data_decoded);
-        $res = 'encoding: '.$encoding.'<br><br>charset: '.$charset.'<br><br>rawData: <br>'.$data.'<br>decoded: <br>'.$data_decoded;
-        return $res;
+        // $res = 'encoding: '.$encoding.'<br><br>charset: '.$charset.'<br><br>rawData: <br>'.$data.'<br>decoded: <br>'.$data_decoded;
+        return $data_decoded;
       case 4:
         $data_decoded = quoted_printable_decode($data);    // QUOTED_PRINTABLE (업무일지 서식)
-        if ($charset == 'ks_c_5601-1987')          // else는 charset이 utf-8로 iconv 불필요
-          $data_decoded = iconv('cp949', 'utf-8', $data_decoded);  // 아래로 디코딩 안되는 메일 가끔 있어서 이걸로 해야함 (대표님 메일중 발견)
-                                                   // (보낸메일함 - 02솔루션 - 01모두스윈 - 03 지니안 - 02 내PC지킴이 - 울산과기대)
+        if ($charset == 'ks_c_5601-1987')                  // else는 charset이 utf-8로 iconv 불필요
+          $data_decoded = iconv('cp949', 'utf-8', $data_decoded);
+          // 아래로 디코딩 안되는 메일 가끔 있어서 이걸로 해야함 (대표님 메일중 발견)
           // $data = iconv('euc-kr', 'utf-8', $data);  // charset 변경
-        $res = 'encoding: '.$encoding.'<br><br>charset: '.$charset.'<br><br>rawData: <br>'.$data.'<br>decoded: <br>'.$data_decoded;
-        return $res;
+        // $res = 'encoding: '.$encoding.'<br><br>charset: '.$charset.'<br><br>rawData: <br>'.$data.'<br>decoded: <br>'.$data_decoded;
+        return $data_decoded;
       case 5: return $data; // OTHER
     }
   }

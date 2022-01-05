@@ -35,7 +35,7 @@ $reply_cc_input = address_text($mail_info["cc"]);
 
   ?>
  <link rel="stylesheet" href="<?php echo $misc; ?>/css/style.css" type="text/css" charset="utf-8"/>
- <div id="main_contents" style=" padding-left: 20px; ">
+ <div id="" style="width:100%;max-height:100%;margin:50px 0px 80px 0px;padding-left: 20px; ">
      <input type="hidden" id="reply_from" name="reply_from" value="<?php echo $mail_info["from"]["email"]; ?>">
      <input type="hidden" id="reply_to" name="reply_to" value="<?php echo $reply_to_input["input"]; ?>">
      <input type="hidden" id="reply_cc" name="reply_cc" value="<?php echo $reply_cc_input["input"]; ?>">
@@ -54,20 +54,7 @@ $reply_cc_input = address_text($mail_info["cc"]);
        <tr align="left">
          <th>
            <?php
-           // 여전히 디코딩 안된 제목처리 (=?utf-8?B?~~)
-           $subject = $mail_info["subject"];
-           if(strpos($subject, '=?utf-8?B?') != "" || strpos($subject, '=?utf-8?B?') === 0)  {
-             $error_cnt = substr_count($subject, '=?utf-8?B?');
-             for($k=0; $k<$error_cnt; $k++) {
-               $start = strpos($subject, '=?utf-8?B?');
-               $end = strpos($subject, '?=');
-               $target = substr($subject, $start+10, $end-10-$start);
-               $front = substr($subject, 0, $start);
-               $rest = substr($subject, $end+2);
-               $subject = $front.imap_base64($target).$rest;
-             }
-           }
-           echo $subject;
+           echo $mail_info["subject"];
            ?>
          </th>
        </tr>
@@ -106,8 +93,8 @@ $reply_cc_input = address_text($mail_info["cc"]);
      <input type="hidden" id="mail_reply" name="" value="">
    </form> -->
 
-  <div class="main_div" style="max-height:70%;">
-   <table class="contents_tbl" width="100%" border="0" cellpadding="0" cellspacing="0">
+  <div class="" style="max-height:70%;width:100%;overflow-y:scroll;">
+   <table class="" width="100%" border="0" cellpadding="0" cellspacing="0">
      <tr>
        <?php if ($attachments != "") { ?>
        <td bgcolor="#F7F7F7">
@@ -120,13 +107,7 @@ $reply_cc_input = address_text($mail_info["cc"]);
          <?php echo $contents; ?>
        </td>
      </tr>
-     <pre>
-       <?php // var_dump($struct); ?>
-       <?php // echo "<br>=================<br>"; ?>
-       <?php // var_dump($flattenedParts); ?>
-       <?php // echo "<br>=================<br>"; ?>
-       <?php // var_dump($body); ?>
-     </pre>
+
    </table>
  </div>
 </div>
