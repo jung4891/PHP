@@ -159,6 +159,7 @@ class Mailbox extends CI_Controller {
 
     $utf8_decoded = imap_utf8($subject);
     if(strpos($utf8_decoded, '=?') === false) {
+      $utf8_decoded = ($utf8_decoded == "")? "(제목 없음)" : $utf8_decoded;
       return $utf8_decoded;
     }else {   // =?utf-8?B?, 2개이상 있는 경우 인코딩부분 디코딩 안된채로 그대로 출력됨.
       $ques_mark_2 = strpos($subject, '?', 2);
@@ -185,15 +186,54 @@ class Mailbox extends CI_Controller {
     }
   }
 
+  public function exec_search($mbox, $user_id, $search_word) {
+    $mails= $this->connect_mailserver($mbox);
+    $domain = substr($user_id, strpos($user_id, '@')+1);
+    $user_id = substr($user_id, 0, strpos($user_id, '@'));
+    $src = ($mbox == "INBOX")? '' : '.'.$mbox.'/';
+
+    $word_encoded_arr = array();
+    array_push($word_encoded_arr, $search_word);
+    // 거의 대부분이 quoted_printable(4)이고 가끔 광고성메일이 base_64(3)임 (test4 > 정크메일에 종류별로 다 넣음)
+    // utf-8 / quoted_printable(4) -> 7J6s7YOd7LmY66OM(테스트)
+    $word_encoded_utf8_quoted = quoted_printable_encode($search_word);
+    array_push($word_encoded_arr, $word_encoded_utf8_quoted);
+    // ks_c_5601-1987 / quoted_printable -> =BE=C8=B3=E7=C7=CF=BC=BC=BF=E4(안녕하세요)
+    $word_encoded_1987_quoted = quoted_printable_encode(iconv('utf-8', 'cp949', $search_word));
+    array_push($word_encoded_arr, $word_encoded_1987_quoted);
+    // utf-8 / base64(3) -> (재택치료)
+    $word_encoded_utf8_base64 = base64_encode($search_word);
+    array_push($word_encoded_arr, $word_encoded_utf8_base64);
+    // euc-kr / base64 -> xde9usau(테스트)
+    $word_encoded_euc_base64 = base64_encode(iconv('utf-8', 'cp949', $search_word));
+    array_push($word_encoded_arr, $word_encoded_euc_base64);
+    $word_encoded_arr = array_unique($word_encoded_arr);
+
+    $msg_no_arr = array();
+    foreach($word_encoded_arr as $word_encoded) {
+      exec("sudo grep -r '$word_encoded' /home/vmail/'$domain'/'$user_id'/'$src'cur", $output, $error);
+      if(count($output) == 0)   continue;
+      rsort($output);     // 최신날짜로 정렬
+
+      $msg_no_arr_tmp = array();
+      foreach($output as $i => $v) {
+        $v = substr($v, 0, strpos($v, ":"));
+        $v = htmlspecialchars(substr($v, strpos($v, "cur")+4));
+        $output2 = array();
+        exec("sudo grep -r '$v' /home/vmail/'$domain'/'$user_id'/'$src'dovecot-uidlist", $output2, $error2);
+        $uid = substr($output2[0], 0, strpos($output2[0], " :"));
+        $msg_no = imap_msgno($mails, (int)$uid);    // A non well formed numeric value encountered 애러처리
+        array_push($msg_no_arr_tmp, $msg_no);
+      }
+      $msg_no_arr = array_unique(array_merge($msg_no_arr, $msg_no_arr_tmp));    // 합친후 중복값 제거
+    }
+    return $msg_no_arr;
+  }
+
   public function mail_list(){
     if(!isset($_SESSION['userid']) && ($_SESSION['userid'] == "")){
       redirect("");
     }
-
-    // $user_id = $_SESSION['userid'];
-    // $user_id = substr($user_id, 0, strpos($user_id, '@'));
-    // $db_mails_cnt = $this->M_contents->count_mails($user_id);
-    // if($db_mails_cnt == 0)    $this->insert_all($user_id);    // db에 메일정보가 없는상태 (첫로그인)
 
     $data = array();
     $mbox = $this->input->get("boxname");
@@ -202,8 +242,10 @@ class Mailbox extends CI_Controller {
     $data['mbox'] = $mbox;
 
     if($mails) {
-      $mails_cnt = imap_num_msg($mails);
-      if($this->input->get('type') == "attachments") {
+      $type = $this->input->get('type');
+      if($type === NULL || $type === "") {
+        $mailno_arr = imap_sort($mails, SORTDATE, 1);
+      }else if($type == "attachments") {
         $mailno_arr = imap_sort($mails, SORTDATE, 1);
         $mailno_attached_arr = array();
         foreach ($mailno_arr as $no) {
@@ -221,180 +263,91 @@ class Mailbox extends CI_Controller {
           }
         }
         $mailno_arr = $mailno_attached_arr;
-        $mails_cnt = count($mailno_arr);
         $data['type'] = "attachments";
-      } else if ($this->input->get('type') == "unseen") {
+      }else if ($type == "unseen") {
         $mailno_arr = imap_sort($mails, SORTDATE, 1, 0, "UNSEEN");
-        $mails_cnt = count($mailno_arr);
         $data['type'] = "unseen";
-      } else if ($this->input->get('type') == "important") {
+      }else if ($type == "important") {
         $mailno_arr = imap_sort($mails, SORTDATE, 1, 0, "FLAGGED");
-        $mails_cnt = count($mailno_arr);
         $data['type'] = "important";
-      } else if($this->input->get('type') == "search") {
-        $mailno_arr_target = array();
+      }else if ($type == "search") {
+        // 대표검색으로 제목+내용+보낸사람+받는사람 검색
+        $search_word = trim(strtolower($this->input->get("search_word")));
+        $user_id = $this->user_id;
+        $mailno_arr = $this->exec_search($mbox, $user_id, $search_word);
+        $data['search_word'] = $search_word;
+        $data['type'] = "search";
+      }else if($type == "search_detail") {
 
-        // 기본 검색으로 제목+내용검색 부분
-        $subject_contents = trim(strtolower($this->input->get("subject_contents")));
-        if($subject_contents != "") {
-          $user_id = $this->user_id;
-          $user_id = substr($user_id, 0, strpos($user_id, '@'));
-
-          $mails= $this->connect_mailserver($mbox);
-          $src = ($mbox == "INBOX")? '' : '.'.$mbox.'/';
-          $search_word = $subject_contents;
-          $word_encoded_arr = array();
-          // 거의 대부분이 quoted_printable(4)이고 가끔 광고성메일이 base_64(3)임 (test4 > 정크메일에 종류별로 다 넣음)
-          // utf-8 / quoted_printable(4) -> 7J6s7YOd7LmY66OM(테스트)
-          $word_encoded_utf8_quoted = quoted_printable_encode($search_word);
-          array_push($word_encoded_arr, $word_encoded_utf8_quoted);
-          // ks_c_5601-1987 / quoted_printable -> =BE=C8=B3=E7=C7=CF=BC=BC=BF=E4(안녕하세요)
-          $word_encoded_1987_quoted = quoted_printable_encode(iconv('utf-8', 'cp949', $search_word));
-          array_push($word_encoded_arr, $word_encoded_1987_quoted);
-          // utf-8 / base64(3) -> (재택치료)
-          $word_encoded_utf8_base64 = base64_encode($search_word);
-          array_push($word_encoded_arr, $word_encoded_utf8_base64);
-          // euc-kr / base64 -> xde9usau(테스트)
-          $word_encoded_euc_base64 = base64_encode(iconv('utf-8', 'cp949', $search_word));
-          array_push($word_encoded_arr, $word_encoded_euc_base64);
-
-          $msg_no_arr = array();
-          foreach($word_encoded_arr as $word_encoded) {
-            exec("sudo grep -r '$word_encoded' /home/vmail/durianict.co.kr/'$user_id'/'$src'cur", $output, $error);
-            if(count($output) == 0)   continue;
-            rsort($output);     // 최신날짜로 정렬
-
-            $msg_no_arr_tmp = array();
-            foreach($output as $i => $v) {
-              // echo $i.' => '.htmlspecialchars($v).'<br>';
-              $v = substr($v, 0, strpos($v, ":"));
-              $v = htmlspecialchars(substr($v, strpos($v, "cur")+4));
-              // echo $i.' => '.$v.'<br>';
-              $output2 = array();
-              exec("sudo grep -r '$v' /home/vmail/durianict.co.kr/'$user_id'/'$src'dovecot-uidlist", $output2, $error2);
-              $uid = substr($output2[0], 0, strpos($output2[0], " :"));
-              $msg_no = imap_msgno($mails, $uid);
-              array_push($msg_no_arr_tmp, $msg_no);
-            }
-            $msg_no_arr = array_unique(array_merge($msg_no_arr, $msg_no_arr_tmp));    // 합친후 중복값 제거
-          }
-          $mailno_arr_target = $msg_no_arr;
-        }
-        $data['subject_contents'] = $subject_contents;
+        $mailno_arr_target = array(); // 상단조회해서 배열 나오는 경우 중복검색
+        $overlap_flag = false;        // 상단조회에서 배열 안나오는경우(count가 0인 경우) 중복검색
 
         $from_target = trim(strtolower($this->input->get("from")));
         if($from_target != "") {
           $mailno_arr_target = imap_sort($mails, SORTDATE, 1, 0, "FROM $from_target");
+          $overlap_flag = true;
         }
         $data['from'] = $from_target;
 
         $to_target = trim(strtolower($this->input->get("to")));
         if($to_target != "") {
-          if(count($mailno_arr_target) == 0) {
+          if(count($mailno_arr_target) == 0 && $overlap_flag == false) {    // 위에서 중복검색 안들른경우, to가 최초방문.
             $mailno_arr_target = imap_sort($mails, SORTDATE, 1, 0, "TO $to_target");
-          }else {
+            $overlap_flag = true;
+          }
+          if(count($mailno_arr_target) != 0 && $overlap_flag == true){      // 위에서 중복검색 이미 들러서 0이 아닌 결과가 나온경우
             $mailno_arr_target = array_intersect($mailno_arr_target, imap_sort($mails, SORTDATE, 1, 0, "TO $to_target"));
           }
+          // count가 0이고 flag가 true인 경우는 이미 결과가 0이므로 처리하지 않음
         }
         $data['to'] = $to_target;
 
-        // $subject_target = trim(strtolower($this->input->get("subject")));
-        // if($subject_target != "") {          // $mailno_arr = imap_sort($mails, SORTDATE, 1);
-        // if(count($mailno_arr_target) == 0) {
-        //   foreach($mailno_arr as $index => $no) {
-        //     $subject = imap_utf8(imap_headerinfo($mails, $no)->subject);
-        //     $subject = strtolower($subject);
-        //     if(strpos($subject, $subject_target) !== false)  {
-        //       array_push($mailno_arr_target, $no);
-        //     }
-        //   }
-        // }else {
-        //   foreach($mailno_arr_target as $index => $no) {
-        //     $subject = strtolower(imap_utf8(imap_headerinfo($mails, $no)->subject));
-        //     if(strpos($subject, $subject_target) === false)  {
-        //       unset($mailno_arr_target[$index]);
-        //     }
-        //   }
-        // }
-        //   $data['subject'] = $subject_target;
-        // }
-
-        // 기존 내용검색부분(사긴 너무 오래걸려서 리눅스 명령어 실행으로 대체)
-        $contents_target = trim(strtolower($this->input->get("contents")));
-        if($contents_target != "") {
+        $subject_target = trim(strtolower($this->input->get("subject")));
+        if($subject_target != "") {
           $mailno_arr = imap_sort($mails, SORTDATE, 1);
-          if(count($mailno_arr_target) == 0) {
+          if(count($mailno_arr_target) == 0 && $overlap_flag == false) {
             foreach($mailno_arr as $index => $no) {
-              $struct = imap_fetchstructure($mails, $no);
-              $contents = '';
-              if (isset($struct->parts)) {
-                $flattenedParts = $this->flattenParts($struct->parts);
-                foreach($flattenedParts as $partNumber => $part) {
-                  switch($part->type) {
-                    case 0:
-                      if($part->subtype == "PLAIN") break;
-                      if($part->ifparameters) {
-                        foreach($part->parameters as $object) {
-                          if(strtolower($object->attribute) == 'charset') {
-                            $charset = $object->value;
-                          }
-                        }
-                      }
-                      $message = $this->getPart($mails, $no, $partNumber, $part->encoding, $charset);
-                      $contents .= $message;
-                      break;
-                  }
-                }
-              }else {
-                $message = $this->getPart($mails, $no, 1, $struct->encoding, $struct->parameters[0]->value);
-                $contents .= $message;
-              }
-              $contents = strtolower(strip_tags($contents));
-              if(strpos($contents, $contents_target) !== false)  {
+              $subject = imap_headerinfo($mails, $no)->subject;
+              $subject_decoded = strtolower($this->subject_decode($subject));
+              if(strpos($subject_decoded, $subject_target) !== false)  {
                 array_push($mailno_arr_target, $no);
               }
             }
-          }else {
+            $overlap_flag = true;
+          }
+          if(count($mailno_arr_target) != 0 && $overlap_flag == true){
             foreach($mailno_arr_target as $index => $no) {
-              $struct = imap_fetchstructure($mails, $no);
-              $contents = '';
-              if (isset($struct->parts)) {
-                $flattenedParts = $this->flattenParts($struct->parts);
-                foreach($flattenedParts as $partNumber => $part) {
-                  switch($part->type) {
-                    case 0:
-                      if($part->subtype == "PLAIN") break;
-                      if($part->ifparameters) {
-                        foreach($part->parameters as $object) {
-                          if(strtolower($object->attribute) == 'charset') {
-                            $charset = $object->value;
-                          }
-                        }
-                      }
-                      $message = $this->getPart($mails, $no, $partNumber, $part->encoding, $charset);
-                      $contents .= $message;
-                      break;
-                  }
-                }
-              }else {
-                $message = $this->getPart($mails, $no, 1, $struct->encoding, $struct->parameters[0]->value);
-                $contents .= $message;
-              }
-              $contents = strtolower(strip_tags($contents));
-              if(strpos($contents, $contents_target) === false)  {
+              $subject = imap_headerinfo($mails, $no)->subject;
+              $subject_decoded = strtolower($this->subject_decode($subject));
+              if(strpos($subject_decoded, $subject_target) === false)  {
                 unset($mailno_arr_target[$index]);
               }
             }
-            // $mailno_arr_target = array_values($mailno_arr_target);    // 인덱싱 초기화 (안하면 리스트뷰에서 제대로 출력 안됨)
           }
-          $data['contents'] = $contents_target;
-      } // contents 검색 끝
+          $data['subject'] = $subject_target;
+        }
+
+      $contents_target = trim(strtolower($this->input->get("contents")));
+      $user_id = $this->user_id;
+      $mailno_arr_exec = $this->exec_search($mbox, $user_id, $contents_target);
+      if($contents_target != "") {
+        if(count($mailno_arr_target) == 0 && $overlap_flag == false) {
+          $mailno_arr_target = $mailno_arr_exec;
+          $overlap_flag = true;
+        }
+        if(count($mailno_arr_target) != 0 && $overlap_flag == true){
+          $mailno_arr_target = array_intersect($mailno_arr_target, $mailno_arr_exec);
+        }
+        $data['contents'] = $contents_target;
+      }
 
       $start_date = trim(strtolower($this->input->get("start_date")));
       if($start_date != "") {
-        if(count($mailno_arr_target) == 0) {
+        if(count($mailno_arr_target) == 0 && $overlap_flag == false) {
           $mailno_arr_target = imap_sort($mails, SORTDATE, 1, 0, "SINCE $start_date");
-        }else {
+          $overlap_flag = true;
+        }
+        if(count($mailno_arr_target) != 0 && $overlap_flag == true) {
           $mailno_arr_target = array_intersect($mailno_arr_target, imap_sort($mails, SORTDATE, 1, 0, "SINCE $start_date"));
         }
       }
@@ -402,9 +355,10 @@ class Mailbox extends CI_Controller {
 
       $end_date = trim(strtolower($this->input->get("end_date")));
       if($end_date != "") {
-        if(count($mailno_arr_target) == 0) {
+        if(count($mailno_arr_target) == 0 && $overlap_flag == false) {
           $mailno_arr_target = imap_sort($mails, SORTDATE, 1, 0, "BEFORE $end_date");
-        }else {
+        }
+        if(count($mailno_arr_target) != 0 && $overlap_flag == true) {
           $mailno_arr_target = array_intersect($mailno_arr_target, imap_sort($mails, SORTDATE, 1, 0, "BEFORE $end_date"));
         }
       }
@@ -412,8 +366,8 @@ class Mailbox extends CI_Controller {
 
       $mailno_arr_target = array_values($mailno_arr_target);
       $mailno_arr = $mailno_arr_target;
-      $data['type'] = "search";
-      } else {
+      $data['type'] = "search_detail";
+      }else {
         $mailno_arr = imap_sort($mails, SORTDATE, 1);
       }
       $mails_cnt = count($mailno_arr);

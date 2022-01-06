@@ -272,6 +272,71 @@ class Dbmailtest2 extends CI_Controller {
     var_dump($mailno_arr_target);
   }
 
+
+  public function exec_search() {
+    $mbox = "INBOX";
+    $user_id = "test4@durianict.co.kr";
+    $search_word = "업무";
+
+    $mails= $this->connect_mailserver($mbox);
+    $domain = substr($user_id, strpos($user_id, '@')+1);
+    $user_id = substr($user_id, 0, strpos($user_id, '@'));
+    $src = ($mbox == "INBOX")? '' : '.'.$mbox.'/';
+
+    $word_encoded_arr = array();
+    // array_push($word_encoded_arr, $search_word);   우선 한글은 빼고
+    
+    // 거의 대부분이 quoted_printable(4)이고 가끔 광고성메일이 base_64(3)임 (test4 > 정크메일에 종류별로 다 넣음)
+    // utf-8 / quoted_printable(4) -> 7J6s7YOd7LmY66OM(테스트)
+    $word_encoded_utf8_quoted = quoted_printable_encode($search_word);
+    array_push($word_encoded_arr, $word_encoded_utf8_quoted);
+    // ks_c_5601-1987 / quoted_printable -> =BE=C8=B3=E7=C7=CF=BC=BC=BF=E4(안녕하세요)
+    $word_encoded_1987_quoted = quoted_printable_encode(iconv('utf-8', 'cp949', $search_word));
+    array_push($word_encoded_arr, $word_encoded_1987_quoted);
+    // utf-8 / base64(3) -> (재택치료)
+    $word_encoded_utf8_base64 = base64_encode($search_word);
+    array_push($word_encoded_arr, $word_encoded_utf8_base64);
+    // euc-kr / base64 -> xde9usau(테스트)
+    $word_encoded_euc_base64 = base64_encode(iconv('utf-8', 'cp949', $search_word));
+    array_push($word_encoded_arr, $word_encoded_euc_base64);
+    $word_encoded_arr = array_unique($word_encoded_arr);
+    echo '<pre>';
+    var_dump($word_encoded_arr);
+    echo '</pre>';
+
+    $msg_no_arr = array();
+    $name_arr = array();
+    foreach($word_encoded_arr as $word_encoded) {
+      exec("sudo grep -r '$word_encoded' /home/vmail/'$domain'/'$user_id'/'$src'cur", $output, $error);
+      if(count($output) == 0)   continue;
+      $name_arr = array_unique(array_merge($name_arr, $output));
+      echo '<pre>';
+      var_dump($name_arr);
+      echo '</pre>';
+      echo '<br>==================<br><br>';
+    }
+    exit;
+    rsort($name_arr);     // 최신날짜로 정렬
+    // exit;
+
+    $msg_no_arr_tmp = array();
+    foreach($name_arr as $i => $v) {
+      $v = substr($v, 0, strpos($v, ":"));
+      $v = htmlspecialchars(substr($v, strpos($v, "cur")+4));
+      exec("sudo grep -r '$v' /home/vmail/'$domain'/'$user_id'/'$src'dovecot-uidlist", $output2, $error2);
+      $uid = substr($output2[0], 0, strpos($output2[0], " :"));
+      echo 'uid: '.$uid.'<br>';
+      $msg_no = imap_msgno($mails, (int)$uid);    // A non well formed numeric value encountered 애러처리
+      array_push($msg_no_arr_tmp, $msg_no);
+    }
+    echo '<pre>';
+    var_dump($msg_no_arr_tmp);
+    echo '</pre>';
+    exit;
+    // $msg_no_arr = array_unique(array_merge($msg_no_arr, $msg_no_arr_tmp));    // 합친후 중복값 제거
+    // return $msg_no_arr;
+  }
+
   function testtest(){
     // $user_id = $_SESSION['userid'];
     // $user_id = substr($user_id, 0, strpos($user_id, '@'));

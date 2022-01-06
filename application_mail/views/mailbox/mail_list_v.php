@@ -541,56 +541,18 @@ $(".mlist_tbl tr").on("mousedown", function(){
      alert('검색어를 입력하세요');
      $('#search').focus();
    }else {
-     let parent_tr = ths.parentNode;
-     let subject = parent_tr.childNodes[1].value;
+     // let parent_tr = ths.parentNode;
+     // let subject = parent_tr.childNodes[1].value;
      var newForm = $('<form></form>');
      newForm.attr("method","get");
      newForm.attr("action", "<?php echo site_url(); ?>/mailbox/mail_list");
      newForm.append($('<input>', {type: 'hidden', name: 'boxname', value: '<?php echo $mbox ?>'}));
      newForm.append($('<input>', {type: 'hidden', name: 'type', value: 'search' }));
-     newForm.append($('<input>', {type: 'hidden', name: 'subject_contents', value: subject }));
+     newForm.append($('<input>', {type: 'hidden', name: 'search_word', value: search_word }));
      newForm.appendTo('body');
      newForm.submit();
    }
  }
-
- // 상세검색
- function search_detail() {
-   $(".modal").fadeIn();
- }
- $('#modal_form_submit').click(function() {
-   if($('#from').val() == "" && $('#to').val() == "" && $('#subject').val() == "" && $('#contents').val() == "" && $('#start_date').val() == "" && $('#end_date').val() == "") {
-     alert('검색어를 입력하세요');
-     $('#from').focus();
-     return;
-   }
-   // get방식이므로 주소창에 검색하는 애들만 출력되게끔
-   var mbox = '<?php echo $mbox; ?>';
-   var type = 'search';
-   var newForm = $('<form></form>');
-   newForm.attr("method","get");
-   newForm.attr("action", "<?php echo site_url(); ?>/mailbox/mail_list");
-   newForm.append($('<input>', {type: 'hidden', name: 'boxname', value: mbox }));
-   newForm.append($('<input>', {type: 'hidden', name: 'type', value: type }));
-   if($('#from').val() != "") newForm.append($('<input>', {type: 'hidden', name: 'from', value: $('#from').val() }));
-   if($('#to').val() != "")   newForm.append($('<input>', {type: 'hidden', name: 'to', value: $('#to').val() }));
-   if($('#subject').val() != "")  newForm.append($('<input>', {type: 'hidden', name: 'subject', value: $('#subject').val() }));
-   if($('#contents').val() != "")   newForm.append($('<input>', {type: 'hidden', name: 'contents', value: $('#contents').val() }));
-   if($('#start_date').val() != "")   newForm.append($('<input>', {type: 'hidden', name: 'start_date', value: $('#start_date').val() }));
-
-   if($('#end_date').val() != "") {
-     var selectedDate = new Date($('#end_date').val());   // 미만으로 검색되어 하루 더하기
-     selectedDate.setDate(selectedDate.getDate() + 1);
-     selectedDate = selectedDate.getFullYear() + "-" + (selectedDate.getMonth() + 1) + "-" + selectedDate.getDate();
-     newForm.append($('<input>', {type: 'hidden', name: 'end_date', value: selectedDate }));
-   }
-   newForm.appendTo('body');
-   newForm.submit();
-   // $("#modal_form").submit();
- })
- $('#modal_form_close').click(function() {
-   $(".modal").fadeOut();
- })
 
  // 검색창에 검색어 입력후 엔터키로 검색
  const input = document.querySelector('#search');
@@ -606,12 +568,50 @@ $(".mlist_tbl tr").on("mousedown", function(){
        newForm.attr("action", "<?php echo site_url(); ?>/mailbox/mail_list");
        newForm.append($('<input>', {type: 'hidden', name: 'boxname', value: '<?php echo $mbox ?>'}));
        newForm.append($('<input>', {type: 'hidden', name: 'type', value: 'search' }));
-       newForm.append($('<input>', {type: 'hidden', name: 'subject', value: search_word }));
+       newForm.append($('<input>', {type: 'hidden', name: 'search_word', value: search_word }));
        newForm.appendTo('body');
        newForm.submit();
      }
    }
  })
+
+ // 상세검색
+ function search_detail() {
+   $(".modal").fadeIn();
+ }
+ $('#modal_form_submit').click(function() {
+   if($('#from').val() == "" && $('#to').val() == "" && $('#subject').val() == "" && $('#contents').val() == "" && $('#start_date').val() == "" && $('#end_date').val() == "") {
+     alert('검색어를 입력하세요');
+     $('#from').focus();
+     return;
+   }
+   // get방식이므로 주소창에 검색하는 애들만 출력되게끔
+   var mbox = '<?php echo $mbox; ?>';
+   var type = 'search_detail';
+   var newForm = $('<form></form>');
+   newForm.attr("method","get");
+   newForm.attr("action", "<?php echo site_url(); ?>/mailbox/mail_list");
+   newForm.append($('<input>', {type: 'hidden', name: 'boxname', value: mbox }));
+   newForm.append($('<input>', {type: 'hidden', name: 'type', value: type }));
+   if($('#from').val() != "") newForm.append($('<input>', {type: 'hidden', name: 'from', value: $('#from').val() }));
+   if($('#to').val() != "")   newForm.append($('<input>', {type: 'hidden', name: 'to', value: $('#to').val() }));
+   if($('#subject').val() != "")  newForm.append($('<input>', {type: 'hidden', name: 'subject', value: $('#subject').val() }));
+   if($('#contents').val() != "")   newForm.append($('<input>', {type: 'hidden', name: 'contents', value: $('#contents').val() }));
+   if($('#start_date').val() != "")   newForm.append($('<input>', {type: 'hidden', name: 'start_date', value: $('#start_date').val() }));
+   if($('#end_date').val() != "") {
+     var selectedDate = new Date($('#end_date').val());   // 미만으로 검색되어 하루 더하기
+     selectedDate.setDate(selectedDate.getDate() + 1);
+     selectedDate = selectedDate.getFullYear() + "-" + (selectedDate.getMonth() + 1) + "-" + selectedDate.getDate();
+     newForm.append($('<input>', {type: 'hidden', name: 'end_date', value: selectedDate }));
+   }
+   newForm.appendTo('body');
+   newForm.submit();
+   // $("#modal_form").submit();
+ })
+ $('#modal_form_close').click(function() {
+   $(".modal").fadeOut();
+ })
+
 
  // 상단 체크박스 클릭시 전체선택/해제 설정
  function check_all(chk_all) {
@@ -666,7 +666,8 @@ $(".mlist_tbl tr").on("mousedown", function(){
  function go_page(page) {
   var mbox = '<?php echo $mbox; ?>';
   var per_page = '<?php echo $per_page; ?>';
-  var type = '<?php if(isset($type)) echo $type; else echo "original"; ?>';
+  var type = '<?php if(isset($type)) echo $type; else echo ""; ?>';
+  var search_word = '<?php if(isset($search_word)) echo $search_word; else echo ""; ?>';
   var from = '<?php if(isset($from)) echo $from; else echo ""; ?>';
   var to = '<?php if(isset($to)) echo $to; else echo ""; ?>';
   var subject = '<?php if(isset($subject)) echo $subject; else echo ""; ?>';
@@ -680,6 +681,7 @@ $(".mlist_tbl tr").on("mousedown", function(){
   newForm.append($('<input>', {type: 'hidden', name: 'type', value: type }));
   newForm.append($('<input>', {type: 'hidden', name: 'curpage', value: page }));
   newForm.append($('<input>', {type: 'hidden', name: 'mail_cnt_show', value: per_page }));
+  if(search_word != "") newForm.append($('<input>', {type: 'hidden', name: 'search_word', value: search_word }));
   if(from != "") newForm.append($('<input>', {type: 'hidden', name: 'from', value: from }));
   if(to != "")   newForm.append($('<input>', {type: 'hidden', name: 'to', value: to }));
   if(subject != "")  newForm.append($('<input>', {type: 'hidden', name: 'subject', value: subject }));
@@ -777,7 +779,8 @@ $(".mlist_tbl tr").on("mousedown", function(){
     const cnt = s.options[s.selectedIndex].value;
     var mbox = '<?php echo $mbox; ?>';
     var curpage = '<?php echo $curpage; ?>';
-    var type = '<?php if(isset($type)) echo $type; else echo "original"; ?>';
+    var type = '<?php if(isset($type)) echo $type; else echo ""; ?>';
+    var search_word = '<?php if(isset($search_word)) echo $search_word; else echo ""; ?>';
     var from = '<?php if(isset($from)) echo $from; else echo ""; ?>';
     var to = '<?php if(isset($to)) echo $to; else echo ""; ?>';
     var subject = '<?php if(isset($subject)) echo $subject; else echo ""; ?>';
@@ -791,6 +794,7 @@ $(".mlist_tbl tr").on("mousedown", function(){
     newForm.append($('<input>', {type: 'hidden', name: 'type', value: type }));
     newForm.append($('<input>', {type: 'hidden', name: 'curpage', value: curpage }));
     newForm.append($('<input>', {type: 'hidden', name: 'mail_cnt_show', value: cnt }));
+    if(search_word != "") newForm.append($('<input>', {type: 'hidden', name: 'search_word', value: search_word }));
     if(from != "") newForm.append($('<input>', {type: 'hidden', name: 'from', value: from }));
     if(to != "")   newForm.append($('<input>', {type: 'hidden', name: 'to', value: to }));
     if(subject != "")  newForm.append($('<input>', {type: 'hidden', name: 'subject', value: subject }));
