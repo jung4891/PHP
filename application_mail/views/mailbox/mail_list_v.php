@@ -130,8 +130,8 @@ $mbox = urldecode($mbox);
             <button type="button" class="top_button" onclick="move();" disabled="disabled" style="height: 25px;">이동</button>
             </td>
             <td>
-              <div style="display: inline-block; width: 160px; height: 25px;  border: solid 1px lightgray;">
-                <input type="text" id="search" style="outline: none; margin: 3px; margin-left: 6px; width: 77%; height: 20px; border: none; color: green; font-weight: bold; font-size:1em" >
+              <div style="display: inline-block; width: 190px; height: 25px;  border: solid 1px lightgray;">
+                <input type="text" id="search" style="outline: none; margin: 3px; margin-left: 6px; width: 79%; height: 20px; border: none; color: green; font-weight: bold; font-size:1em" >
                 <a href="javascript:void(0)" onclick="search_mail(this);">
                 <img style="width: 17px; position: relative; top:3px " src="<?php echo $misc; ?>/img/icon/search.png" alt="">
                 </a>
@@ -141,7 +141,6 @@ $mbox = urldecode($mbox);
                   상세
                 </a>
               </div>
-
               <div class="modal">
                 <div class="modal_content" title="">
                   <form class="" action="index.html" method="post">
@@ -195,6 +194,10 @@ $mbox = urldecode($mbox);
             </select>
             </td>
           </tr>
+          <!-- <tr >
+            <td colspan="5"></td>
+            <td colspan="3">test</td>
+          </tr> -->
       </table>
   </form>
 
@@ -294,11 +297,10 @@ if ($ipinfo[$mailno_arr[$i]]["country"] !="") {
           </a>
         </td>
         <td>
-          <!-- 메일크기로 첨부파일 유무 파악 -->
+          <!-- 첨부파일 유무 파악 -->
           <?php if($attached[$mailno_arr[$i]]) { ?>
           <img src="/misc/img/icon/attachment.png" alt="ss">
           <?php }?>
-          <!-- <?php // if($head[$mailno_arr[$i]]->Size > 30000) { ?>      -->
         </td>
         <?php
         // get방식으로 데이터를 직접 url에 적으면 &가 데이터 구별기호로 인식되서 바꿔줘야함

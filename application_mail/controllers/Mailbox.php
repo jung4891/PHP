@@ -194,7 +194,8 @@ class Mailbox extends CI_Controller {
     $src = ($mbox == "INBOX")? '' : '.'.$mbox.'/';
 
     $word_encoded_arr = array();
-    array_push($word_encoded_arr, $search_word);
+    // array_push($word_encoded_arr, $search_word);
+
     // 거의 대부분이 quoted_printable(4)이고 가끔 광고성메일이 base_64(3)임 (test4 > 정크메일에 종류별로 다 넣음)
     // utf-8 / quoted_printable(4) -> 7J6s7YOd7LmY66OM(테스트)
     $word_encoded_utf8_quoted = quoted_printable_encode($search_word);
@@ -210,23 +211,27 @@ class Mailbox extends CI_Controller {
     array_push($word_encoded_arr, $word_encoded_euc_base64);
     $word_encoded_arr = array_unique($word_encoded_arr);
 
-    $msg_no_arr = array();
+    $name_arr = array();
     foreach($word_encoded_arr as $word_encoded) {
+      $output = array();
       exec("sudo grep -r '$word_encoded' /home/vmail/'$domain'/'$user_id'/'$src'cur", $output, $error);
       if(count($output) == 0)   continue;
-      rsort($output);     // 최신날짜로 정렬
-
-      $msg_no_arr_tmp = array();
       foreach($output as $i => $v) {
         $v = substr($v, 0, strpos($v, ":"));
-        $v = htmlspecialchars(substr($v, strpos($v, "cur")+4));
-        $output2 = array();
-        exec("sudo grep -r '$v' /home/vmail/'$domain'/'$user_id'/'$src'dovecot-uidlist", $output2, $error2);
-        $uid = substr($output2[0], 0, strpos($output2[0], " :"));
-        $msg_no = imap_msgno($mails, (int)$uid);    // A non well formed numeric value encountered 애러처리
-        array_push($msg_no_arr_tmp, $msg_no);
+        $v = substr($v, strpos($v, "cur")+4);
+        array_push($name_arr, $v);
       }
-      $msg_no_arr = array_unique(array_merge($msg_no_arr, $msg_no_arr_tmp));    // 합친후 중복값 제거
+    }
+    $name_arr = array_unique($name_arr);
+    rsort($name_arr);     // 최신날짜로 정렬
+
+    $msg_no_arr = array();
+    foreach($name_arr as $name) {
+      $output2 = array();
+      exec("sudo grep -r '$name' /home/vmail/'$domain'/'$user_id'/'$src'dovecot-uidlist", $output2, $error2);
+      $uid = substr($output2[0], 0, strpos($output2[0], " :"));
+      $msg_no = imap_msgno($mails, (int)$uid);    // A non well formed numeric value encountered 애러처리
+      array_push($msg_no_arr, $msg_no);
     }
     return $msg_no_arr;
   }
@@ -300,23 +305,8 @@ class Mailbox extends CI_Controller {
       if($type === NULL || $type === "") {
         $mailno_arr = imap_sort($mails, SORTDATE, 1);
       }else if($type == "attachments") {
-        $mailno_arr = imap_sort($mails, SORTDATE, 1);
-        $mailno_attached_arr = array();
-        foreach ($mailno_arr as $no) {
-          $struct = imap_fetchstructure($mails, $no);
-          if(isset($struct->parts)) {
-            foreach($struct->parts as $part) {
-              // .txt 첨부파일의 type은 0, ifdisposition은 1, disposition은 attachment 들어가있음.
-              // 엑셀, 파워포인트 첨부파일의 type은 3임.
-              // img파일은 type은 5이고 ifdisposition이 1인경우만 첨부파일. 0이면 inline이미지.
-              if($part->type === 0 && $part->ifdisposition === 1 || $part->type === 3 || $part->type === 5 && $part->ifdisposition === 1) {
-                array_push($mailno_attached_arr, $no);
-                break;
-              }
-            }
-          }
-        }
-        $mailno_arr = $mailno_attached_arr;
+        $mailno_arr = $this->exec_name_search($mbox, $user_id, "Content-Disposition: attachment");
+        $data['search_flag'] = true;
         $data['type'] = "attachments";
       }else if ($type == "unseen") {
         $mailno_arr = imap_sort($mails, SORTDATE, 1, 0, "UNSEEN");
@@ -379,20 +369,6 @@ class Mailbox extends CI_Controller {
           $data['subject'] = $subject_target;
         }
 
-      $contents_target = trim(strtolower($this->input->get("contents")));
-      $user_id = $this->user_id;
-      $mailno_arr_exec = $this->exec_search($mbox, $user_id, $contents_target);
-      if($contents_target != "") {
-        if(count($mailno_arr_target) == 0 && $overlap_flag == false) {
-          $mailno_arr_target = $mailno_arr_exec;
-          $overlap_flag = true;
-        }
-        if(count($mailno_arr_target) != 0 && $overlap_flag == true){
-          $mailno_arr_target = array_intersect($mailno_arr_target, $mailno_arr_exec);
-        }
-        $data['contents'] = $contents_target;
-      }
-
       $start_date = trim(strtolower($this->input->get("start_date")));
       if($start_date != "") {
         if(count($mailno_arr_target) == 0 && $overlap_flag == false) {
@@ -409,6 +385,7 @@ class Mailbox extends CI_Controller {
       if($end_date != "") {
         if(count($mailno_arr_target) == 0 && $overlap_flag == false) {
           $mailno_arr_target = imap_sort($mails, SORTDATE, 1, 0, "BEFORE $end_date");
+          $overlap_flag = true;
         }
         if(count($mailno_arr_target) != 0 && $overlap_flag == true) {
           $mailno_arr_target = array_intersect($mailno_arr_target, imap_sort($mails, SORTDATE, 1, 0, "BEFORE $end_date"));
@@ -416,8 +393,21 @@ class Mailbox extends CI_Controller {
       }
       $data['end_date'] = $end_date;
 
-      $mailno_arr_target = array_values($mailno_arr_target);
-      $mailno_arr = $mailno_arr_target;
+      $contents_target = trim(strtolower($this->input->get("contents")));
+      if($contents_target != "") {
+        if(count($mailno_arr_target) == 0 && $overlap_flag == false) {
+          $mailno_arr_target = $this->exec_name_search($mbox, $user_id, $contents_target);
+          $data['search_flag'] = true;
+        }
+        if(count($mailno_arr_target) != 0 && $overlap_flag == true){
+          $user_id = $this->user_id;
+          $mailno_arr_exec = $this->exec_search($mbox, $user_id, $contents_target);
+          $mailno_arr_target = array_intersect($mailno_arr_target, $mailno_arr_exec);
+        }
+        $data['contents'] = $contents_target;
+      }
+
+      $mailno_arr = array_values($mailno_arr_target);
       $data['type'] = "search_detail";
       }else {
         $mailno_arr = imap_sort($mails, SORTDATE, 1);
@@ -484,9 +474,9 @@ class Mailbox extends CI_Controller {
 
       if($mails_cnt >= 1) {
         for($i=$start_row; $i<$start_row+$per_page; $i++) {
-          if (isset($mailno_arr[$i])) {                               // 마지막 페이지에서 15개가 안될경우 오류처리
-            if(isset($data['type']) && $data['type'] == "search") {   // 여기서 mailno_arr은 name_arr임
-              $mailno_arr[$i] = $this->exec_no_search($mbox, $user_id, $mailno_arr[$i]);
+          if (isset($mailno_arr[$i])) {       // 마지막 페이지에서 15개가 안될경우 오류처리
+            if( (isset($data['type']) && $data['type'] == "search") || (isset($data['search_flag']) && $data['search_flag']  == true) ) {
+              $mailno_arr[$i] = $this->exec_no_search($mbox, $user_id, $mailno_arr[$i]);    // 여기서 mailno_arr은 name_arr임
             }
             $data['head'][$mailno_arr[$i]] = imap_headerinfo($mails, $mailno_arr[$i]);
             $m_uid = imap_uid($mails, $mailno_arr[$i]);
@@ -935,7 +925,7 @@ class Mailbox extends CI_Controller {
                $down_link = "(파일명 없음)";
              }
              $attachments .= $down_link;
-           }else if($part->subtype == "HTML") {
+           }else if($part->subtype == "HTML" && $part->ifdisposition == 0) {
              if($html_cnt >=  1) break;
              foreach($part->parameters as $object) {  // charset이 parameters 배열에 [0] or [1]에 있음
                if(strtolower($object->attribute) == 'charset') {
@@ -946,6 +936,15 @@ class Mailbox extends CI_Controller {
              $message = $this->getPart($mails, $msg_no, $partNumber, $part->encoding, $charset);
              $contents .= $message;
              $html_cnt++;
+           }else if($part->subtype == "HTML" && $part->ifdisposition == 1) {    // .html 첨부파일 처리
+             $filename = $this-> getFilenameFromPart($part);
+             if ($filename) {
+               $down_link = "&nbsp;<a href=\"javascript:download('{$mbox}', '{$msg_no}',
+               '{$partNumber}', '{$filename}');\">".$filename.'</a><br>';
+             } else {
+               $down_link = "(파일명 없음)";
+             }
+             $attachments .= $down_link;
            }
            break;
          case 1:  // multi-part headers, can ignore  (MIXED, ALTERNATIVE, RELATED)
@@ -1110,8 +1109,9 @@ class Mailbox extends CI_Controller {
       $fileSource = substr($fileSource, 0, strpos($fileSource, '-------Boundary'));
       force_download($_POST['f_name'].'.html', imap_base64($fileSource));
     }else {
-      // .svg파일의 경우 uoted_printable로 encode되어서 따로 잡아줘야 파일 다운후 정상적으로 열린다.
-      $fileSource = strpos($_POST['f_name'], '.svg')? quoted_printable_decode($fileSource) : imap_base64($fileSource);
+      // .svg파일의 경우 quoted_printable로 encode되어서 따로 잡아줘야 파일 다운후 정상적으로 열린다.(+ .html 파일도 마찬가지)
+      $quoted_encode = strpos($_POST['f_name'], '.svg') || strpos($_POST['f_name'], '.html');
+      $fileSource = ($quoted_encode)? quoted_printable_decode($fileSource) : imap_base64($fileSource);
       force_download($_POST['f_name'], $fileSource);
     }
     imap_close($mails);

@@ -166,23 +166,39 @@ for ($i=0; $i < count($folders); $i++) {
 
       <?php
       if(isset($mbox)) {
-        $mbox = str_replace('&', '%26', $mbox);
-        $mbox = str_replace(' ', '+', $mbox);
+        $mbox2 = str_replace('&', '%26', $mbox);
+        $mbox2 = str_replace(' ', '+', $mbox2);
       } else {
-        $mbox = "INBOX";
+        $mbox2 = "INBOX";
       }
        ?>
 
       <div class="" style="display:flex;justify-content: center;">
-        <div class="side_top2" align="center" onclick="location.href='<?php echo site_url(); ?>/mailbox/mail_list?boxname=<?php echo $mbox; ?>&type=unseen'">
-          <img src="<?php echo $misc;?>img/icon/schedule.svg" width="25"><br>
+        <?php
+          if(isset($type) && $type == "unseen") {
+            $url_route = $mbox2;
+            $font_style = "font-weight: bold; color: #0575E6;";
+          }else {
+            $url_route = $mbox2.'&type=unseen';
+            $font_style = "";
+          }
+         ?>
+        <div class="side_top2" align="center" onclick="location.href='<?php echo site_url(); ?>/mailbox/mail_list?boxname=<?php echo $url_route; ?>'">
+          <!-- <img src="<?php echo $misc;?>img/icon/schedule.svg" width="25"><br> -->
+         <div class="" style="padding-bottom: 3px; font-size: 18px; <?php echo $font_style?>">
+           <?php
+             $key = array_search($mbox, array_column($mailbox_tree, "id"));
+             $unseen_cnt = $mailbox_tree[$key]["unseen"];
+             echo $unseen_cnt;
+            ?>
+         </div>
           안읽음
         </div>
-        <div class="side_top2" align="center" onclick="location.href='<?php echo site_url(); ?>/mailbox/mail_list?boxname=<?php echo $mbox; ?>&type=important'">
+        <div class="side_top2" align="center" onclick="location.href='<?php echo site_url(); ?>/mailbox/mail_list?boxname=<?php echo $mbox2; ?>&type=important'">
           <img src="<?php echo $misc;?>img/icon/side_important.svg" width="25"><br>
           중&nbsp;요
         </div>
-        <div class="side_top2" align="center" onclick="location.href='<?php echo site_url(); ?>/mailbox/mail_list?boxname=<?php echo $mbox; ?>&type=attachments'">
+        <div class="side_top2" align="center" onclick="location.href='<?php echo site_url(); ?>/mailbox/mail_list?boxname=<?php echo $mbox2; ?>&type=attachments'">
           <img src="<?php echo $misc;?>img/icon/side_attach.svg" width="25"><br>
           첨&nbsp;부
         </div>
