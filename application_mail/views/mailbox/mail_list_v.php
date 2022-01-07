@@ -506,11 +506,12 @@ $(".mlist_tbl tr").on("mousedown", function(){
 
  $(function() {
    // 검색 input창 초기화
-   $('#search').val('');
-   $('input[name=from]').val('');
-   $('input[name=to]').val('');
-   $('input[name=subject]').val('');
-   $('input[name=contents]').val('');
+   var search_word = '<?php if(isset($search_word)) echo $search_word; ?>';
+   if(search_word != "")   $('#search').val(search_word);
+   // $('input[name=from]').val('');
+   // $('input[name=to]').val('');
+   // $('input[name=subject]').val('');
+   // $('input[name=contents]').val('');
 
   // 보기설정 개수 선택시 새로고침된 페이지에서 옵션 selected 설정
   var per_page = '<?php echo $per_page; ?>';

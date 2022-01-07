@@ -155,6 +155,7 @@ class Mailbox extends CI_Controller {
   }
 
   public function subject_decode($subject) {
+    // return 'test';
     if(!isset($subject) || $subject == "") return '(제목 없음)';
 
     $utf8_decoded = imap_utf8($subject);
@@ -230,6 +231,58 @@ class Mailbox extends CI_Controller {
     return $msg_no_arr;
   }
 
+  public function exec_name_search($mbox, $user_id, $search_word) {
+    $mails= $this->connect_mailserver($mbox);
+    $domain = substr($user_id, strpos($user_id, '@')+1);
+    $user_id = substr($user_id, 0, strpos($user_id, '@'));
+    $src = ($mbox == "INBOX")? '' : '.'.$mbox.'/';
+
+    $word_encoded_arr = array();
+    // array_push($word_encoded_arr, $search_word);
+    // 거의 대부분이 quoted_printable(4)이고 가끔 광고성메일이 base_64(3)임 (test4 > 정크메일에 종류별로 다 넣음)
+    // utf-8 / quoted_printable(4) -> 7J6s7YOd7LmY66OM(테스트)
+    $word_encoded_utf8_quoted = quoted_printable_encode($search_word);
+    array_push($word_encoded_arr, $word_encoded_utf8_quoted);
+    // ks_c_5601-1987 / quoted_printable -> =BE=C8=B3=E7=C7=CF=BC=BC=BF=E4(안녕하세요)
+    $word_encoded_1987_quoted = quoted_printable_encode(iconv('utf-8', 'cp949', $search_word));
+    array_push($word_encoded_arr, $word_encoded_1987_quoted);
+    // utf-8 / base64(3) -> (재택치료)
+    $word_encoded_utf8_base64 = base64_encode($search_word);
+    array_push($word_encoded_arr, $word_encoded_utf8_base64);
+    // euc-kr / base64 -> xde9usau(테스트)
+    $word_encoded_euc_base64 = base64_encode(iconv('utf-8', 'cp949', $search_word));
+    array_push($word_encoded_arr, $word_encoded_euc_base64);
+    $word_encoded_arr = array_unique($word_encoded_arr);
+
+    $name_arr = array();
+    foreach($word_encoded_arr as $word_encoded) {
+      $output = array();
+      exec("sudo grep -r '$word_encoded' /home/vmail/'$domain'/'$user_id'/'$src'cur", $output, $error);
+      if(count($output) == 0)   continue;
+      foreach($output as $i => $v) {
+        $v = substr($v, 0, strpos($v, ":"));
+        $v = substr($v, strpos($v, "cur")+4);
+        array_push($name_arr, $v);
+      }
+    }
+    $name_arr = array_unique($name_arr);
+    rsort($name_arr);     // 최신날짜로 정렬
+    return $name_arr;
+  }
+
+  public function exec_no_search($mbox, $user_id, $name) {
+    $mails= $this->connect_mailserver($mbox);
+    $domain = substr($user_id, strpos($user_id, '@')+1);
+    $user_id = substr($user_id, 0, strpos($user_id, '@'));
+    $src = ($mbox == "INBOX")? '' : '.'.$mbox.'/';
+
+    $output2 = array();
+    exec("sudo grep -r '$name' /home/vmail/'$domain'/'$user_id'/'$src'dovecot-uidlist", $output2, $error2);
+    $uid = substr($output2[0], 0, strpos($output2[0], " :"));
+    $msg_no = imap_msgno($mails, (int)$uid);    // A non well formed numeric value encountered 애러처리
+    return $msg_no;
+  }
+
   public function mail_list(){
     if(!isset($_SESSION['userid']) && ($_SESSION['userid'] == "")){
       redirect("");
@@ -238,6 +291,7 @@ class Mailbox extends CI_Controller {
     $data = array();
     $mbox = $this->input->get("boxname");
     $mbox = (isset($mbox))? $mbox : "INBOX";
+    $user_id = $this->user_id;
     $mails= $this->connect_mailserver($mbox);
     $data['mbox'] = $mbox;
 
@@ -273,12 +327,10 @@ class Mailbox extends CI_Controller {
       }else if ($type == "search") {
         // 대표검색으로 제목+내용+보낸사람+받는사람 검색
         $search_word = trim(strtolower($this->input->get("search_word")));
-        $user_id = $this->user_id;
-        $mailno_arr = $this->exec_search($mbox, $user_id, $search_word);
+        $mailno_arr = $this->exec_name_search($mbox, $user_id, $search_word);
         $data['search_word'] = $search_word;
         $data['type'] = "search";
       }else if($type == "search_detail") {
-
         $mailno_arr_target = array(); // 상단조회해서 배열 나오는 경우 중복검색
         $overlap_flag = false;        // 상단조회에서 배열 안나오는경우(count가 0인 경우) 중복검색
 
@@ -371,7 +423,6 @@ class Mailbox extends CI_Controller {
         $mailno_arr = imap_sort($mails, SORTDATE, 1);
       }
       $mails_cnt = count($mailno_arr);
-      $data['mailno_arr'] = $mailno_arr;
 
       // php 페이징
       $curpage = $this->input->get("curpage");
@@ -433,7 +484,10 @@ class Mailbox extends CI_Controller {
 
       if($mails_cnt >= 1) {
         for($i=$start_row; $i<$start_row+$per_page; $i++) {
-          if (isset($mailno_arr[$i])) {             // 마지막 페이지에서 15개가 안될경우 오류처리
+          if (isset($mailno_arr[$i])) {                               // 마지막 페이지에서 15개가 안될경우 오류처리
+            if(isset($data['type']) && $data['type'] == "search") {   // 여기서 mailno_arr은 name_arr임
+              $mailno_arr[$i] = $this->exec_no_search($mbox, $user_id, $mailno_arr[$i]);
+            }
             $data['head'][$mailno_arr[$i]] = imap_headerinfo($mails, $mailno_arr[$i]);
             $m_uid = imap_uid($mails, $mailno_arr[$i]);
             $data['ipinfo'][$mailno_arr[$i]] = $this->get_senderip($m_uid);
@@ -459,6 +513,7 @@ class Mailbox extends CI_Controller {
       } else {
         $data['test_msg'] = "메일이 없습니다.";
       }
+      $data['mailno_arr'] = $mailno_arr;
       imap_close($mails);			              	// IMAP 스트림을 닫음
     }else {
       $data['test_msg'] = '사용자명 또는 패스워드가 틀립니다.';

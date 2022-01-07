@@ -285,7 +285,7 @@ class Dbmailtest2 extends CI_Controller {
 
     $word_encoded_arr = array();
     // array_push($word_encoded_arr, $search_word);   우선 한글은 빼고
-    
+
     // 거의 대부분이 quoted_printable(4)이고 가끔 광고성메일이 base_64(3)임 (test4 > 정크메일에 종류별로 다 넣음)
     // utf-8 / quoted_printable(4) -> 7J6s7YOd7LmY66OM(테스트)
     $word_encoded_utf8_quoted = quoted_printable_encode($search_word);
@@ -300,41 +300,50 @@ class Dbmailtest2 extends CI_Controller {
     $word_encoded_euc_base64 = base64_encode(iconv('utf-8', 'cp949', $search_word));
     array_push($word_encoded_arr, $word_encoded_euc_base64);
     $word_encoded_arr = array_unique($word_encoded_arr);
-    echo '<pre>';
-    var_dump($word_encoded_arr);
-    echo '</pre>';
+    // echo '<pre>';
+    // var_dump($word_encoded_arr);
+    // echo '</pre>';
 
-    $msg_no_arr = array();
     $name_arr = array();
     foreach($word_encoded_arr as $word_encoded) {
+      $output = array();
       exec("sudo grep -r '$word_encoded' /home/vmail/'$domain'/'$user_id'/'$src'cur", $output, $error);
       if(count($output) == 0)   continue;
-      $name_arr = array_unique(array_merge($name_arr, $output));
-      echo '<pre>';
-      var_dump($name_arr);
-      echo '</pre>';
-      echo '<br>==================<br><br>';
+      foreach($output as $i => $v) {
+        $v = substr($v, 0, strpos($v, ":"));
+        $v = substr($v, strpos($v, "cur")+4);
+        array_push($name_arr, $v);
+      }
+      // echo '<pre>';
+      // var_dump($name_arr);
+      // echo '</pre><br>';
+      // echo count($name_arr).'<br>';
     }
-    exit;
+    $name_arr = array_unique($name_arr);
     rsort($name_arr);     // 최신날짜로 정렬
-    // exit;
-
-    $msg_no_arr_tmp = array();
-    foreach($name_arr as $i => $v) {
-      $v = substr($v, 0, strpos($v, ":"));
-      $v = htmlspecialchars(substr($v, strpos($v, "cur")+4));
-      exec("sudo grep -r '$v' /home/vmail/'$domain'/'$user_id'/'$src'dovecot-uidlist", $output2, $error2);
-      $uid = substr($output2[0], 0, strpos($output2[0], " :"));
-      echo 'uid: '.$uid.'<br>';
-      $msg_no = imap_msgno($mails, (int)$uid);    // A non well formed numeric value encountered 애러처리
-      array_push($msg_no_arr_tmp, $msg_no);
-    }
     echo '<pre>';
-    var_dump($msg_no_arr_tmp);
+    var_dump($name_arr);
     echo '</pre>';
     exit;
-    // $msg_no_arr = array_unique(array_merge($msg_no_arr, $msg_no_arr_tmp));    // 합친후 중복값 제거
-    // return $msg_no_arr;
+    // echo '<br>==================<br><br>';
+
+    $msg_no_arr = array();
+    foreach($name_arr as $name) {
+      $output2 = array();
+      exec("sudo grep -r '$name' /home/vmail/'$domain'/'$user_id'/'$src'dovecot-uidlist", $output2, $error2);
+      // echo '<pre>';
+      // var_dump($output2);
+      // echo '</pre>';
+      $uid = substr($output2[0], 0, strpos($output2[0], " :"));
+      // echo 'uid: '.$uid.'<br>';
+      $msg_no = imap_msgno($mails, (int)$uid);    // A non well formed numeric value encountered 애러처리
+      array_push($msg_no_arr, $msg_no);
+    }
+    echo '<pre>';
+    var_dump($msg_no_arr);
+    echo '</pre>';
+    exit;
+
   }
 
   function testtest(){
