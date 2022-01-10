@@ -79,6 +79,20 @@ $mbox = urldecode($mbox);
     border-top:1px solid #dedede;
   }
 
+  /* 상세 검색 */
+  /* .modal{ position:absolute; width:100%; height:100%; background: rgba(0,0,0,0.1); top:0; left:0;
+          display:none; }
+  .modal_content{
+    width:420px; height:350px;
+    background:white; border-radius:10px;
+    border: 3px solid black;
+    position:relative; top:18%; left:58%;
+    margin-top:-100px; margin-left:-200px;
+    text-align:center;
+    box-sizing:border-box; padding:20px 0;
+    line-height:30px;
+    z-index: 1;
+  } */
 
   .input{
     border: 1px solid lightgray;
@@ -131,6 +145,48 @@ $mbox = urldecode($mbox);
                   상세
                 </a>
               </div>
+              <!-- <div class="modal">
+                <div class="modal_content" title="">
+                  <form class="" action="index.html" method="post"> -->
+                    <!-- 이유는 모르겠는데 form 이걸 해줘야 아래꺼가 출력이됨 -->
+                  <!-- </form>
+                  <form id="modal_form" action="<?php echo site_url(); ?>/mailbox/mail_list" method="get">
+                    <input type="hidden" name="boxname" value="<?php echo $mbox ?>" >
+                    <input type="hidden" name="type" value="search" >
+                    <table width="90%" style="margin-top: 10px;  padding-left: 50px; border-spacing: 10px">
+                      <tr>
+                        <td width="25%"></td>
+                        <td width="75%"></td>
+                      </tr>
+                      <tr>
+                        <td>보낸사람</td>
+                        <td><input type="text" id="from" name="from" value="" style=""></td>
+                      </tr>
+                      <tr>
+                        <td>받는사람</td>
+                        <td><input type="text" id="to" name="to" value="" style=""></td>
+                      </tr>
+                      <tr>
+                        <td>제목</td>
+                        <td><input type="text" id="subject" name="subject" value="" style=""></td>
+                      </tr>
+                      <tr>
+                        <td>내용</td>
+                        <td><input type="text" id="contents" name="contents" value="" style=""></td>
+                      </tr>
+                      <tr>
+                        <td>기간</td>
+                        <td><input type="text" id="start_date" size="8" /> ~ <input type="text" id="end_date" size="8" /></td>
+                      </tr>
+                    </table>
+                    <br>
+                    <button type="button" id="modal_form_submit" style="width: 70px; font-size: 1.1em">검색</button> &nbsp;
+                    <button type="button" id="modal_form_close" style="width: 70px; font-size: 1.1em">취소</button>
+                  </form>
+                  <br><br>
+                </div>
+            </div> -->
+
             </td>
             <td></td>
             <td>
@@ -565,11 +621,19 @@ $(".mlist_tbl tr").on("mousedown", function(){
  function search_detail() {
    if ($('#search_detail').css('display') == 'block') {
        $('#search_detail').css('display', 'none');
-   }else {
+   } else {
        $('#search_detail').css('display', 'block');
-    }
+   }
  }
 
+ // 상세검색(기존 모달로 했던부분.)
+ // function search_detail() {
+ //   $(".modal").fadeIn();
+ // }
+
+ // $('#modal_form_close').click(function() {
+ //   $(".modal").fadeOut();
+ // })
 
  $('#search_detail_submit').click(function() {
    if($('#from').val() == "" && $('#to').val() == "" && $('#subject').val() == "" && $('#contents').val() == "" && $('#start_date').val() == "" && $('#end_date').val() == "") {

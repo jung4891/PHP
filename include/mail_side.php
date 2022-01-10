@@ -151,12 +151,12 @@ for ($i=0; $i < count($folders); $i++) {
   </form>
   <?php
   if ($_SESSION['s_width'] == "" || !isset($_SESSION['s_width'])) {
-    $side_w = 250;
+    $side_w = 300;
   } else {
     $side_w =$_SESSION['s_width'];
   }
   ?>
-    <div id="sideBar" width="<?php echo $side_w; ?>">
+    <div id="sideBar" style="width:<?php echo $side_w; ?>px">
       <div class="" align="center" style="margin-top:20px;margin-bottom:20px;">
 
         <button class="btn_basic btn_blue" type="button" name="button" onclick = "location.href='<?php echo site_url(); ?>/mail_write/page'" style="width:40%;height:40px;">메일쓰기</button>
@@ -187,20 +187,42 @@ for ($i=0; $i < count($folders); $i++) {
           <!-- <img src="<?php echo $misc;?>img/icon/schedule.svg" width="25"><br> -->
          <div class="" style="padding-bottom: 3px; font-size: 18px; <?php echo $font_style?>">
            <?php
+           if(isset($mbox)) {   // 메일쓰기 페이지에서 오류방지
              $key = array_search($mbox, array_column($mailbox_tree, "id"));
              $unseen_cnt = $mailbox_tree[$key]["unseen"];
              echo $unseen_cnt;
+           }else {
+             echo 0;
+           }
             ?>
          </div>
-          안읽음
+          <span style="<?php if(isset($type) && $type == 'unseen') echo 'font-weight: bold;'?>">안읽음</span>
         </div>
-        <div class="side_top2" align="center" onclick="location.href='<?php echo site_url(); ?>/mailbox/mail_list?boxname=<?php echo $mbox2; ?>&type=important'">
-          <img src="<?php echo $misc;?>img/icon/side_important.svg" width="25"><br>
-          중&nbsp;요
+        <?php
+        if(isset($type) && $type == "important") {
+          $url_route = $mbox2;
+          $img_flag = "중요(본문)2.svg";
+        }else {
+          $url_route = $mbox2.'&type=important';
+          $img_flag = "중요(본문).svg";
+        }
+         ?>
+        <div class="side_top2" align="center" onclick="location.href='<?php echo site_url(); ?>/mailbox/mail_list?boxname=<?php echo $url_route; ?>'">
+          <img src="<?php echo $misc;?>img/icon/<?php echo $img_flag ?>" width="25"><br>
+          <span style="<?php if(isset($type) && $type == 'important') echo 'font-weight: bold;'?>">중&nbsp;요</span>
         </div>
-        <div class="side_top2" align="center" onclick="location.href='<?php echo site_url(); ?>/mailbox/mail_list?boxname=<?php echo $mbox2; ?>&type=attachments'">
-          <img src="<?php echo $misc;?>img/icon/side_attach.svg" width="25"><br>
-          첨&nbsp;부
+        <?php
+        if(isset($type) && $type == "attachments") {
+          $url_route = $mbox2;
+          $img_attach = "첨부2(사이드바).svg";
+        }else {
+          $url_route = $mbox2.'&type=attachments';
+          $img_attach = "첨부(본문).svg";
+        }
+         ?>
+        <div class="side_top2" align="center" onclick="location.href='<?php echo site_url(); ?>/mailbox/mail_list?boxname=<?php echo $url_route; ?>'">
+          <img src="<?php echo $misc;?>img/icon/<?php echo $img_attach ?>" width="25"><br>
+          <span style="<?php if(isset($type) && $type == 'attachments') echo 'font-weight: bold;'?>">첨&nbsp;부</span>
         </div>
       </div>
       <form name="boxform" id="boxform" class="" action="" method="get">
@@ -303,7 +325,7 @@ for ($i=0; $i < count($folders); $i++) {
             <!-- <col width="7%"> -->
             <col width="35%">
             </colgroup>
-            <tr class="box_tr" onclick="document.location='<?php echo site_url(); ?>/option/mailbox'" id="option_tr">
+            <tr class="box_tr" onclick="document.location='<?php echo site_url(); ?>/option/user'" id="option_tr">
             <td height=30 align="left">
               <img id="setting_img" src="<?php echo $misc;?>img/sideicon/setting2.svg" style="cursor:pointer;">
               </td>
@@ -595,7 +617,7 @@ function updown(el, type) {
     sessionStorage.setItem("mboxtoggle", downarr);
   }
 
-  console.log(downarr);
+  // console.log(downarr);
 }
 
 $(".mailbox_div, #sideMini").on("click", ".box_tr", function(){
@@ -615,48 +637,63 @@ function self_write(){
 
 
 // var i = 0;
-$('#dragbar').mousedown(function(e) {
+// $('#dragbar').mousedown(function(e) {
 
-// $(document).on('mousedown', '#dragbar', function(e){
-  // e.preventDefault();
+$(document).on('mousedown', '#dragbar', function(e){
+  e.preventDefault();
   var x = e.pageX;
-  var side_width = $("#sideBar").width();
+  console.log(x);
+  var side_width = document.getElementById('sideBar' ).style.width;
+  side_width = parseInt(side_width);
+  // console.log("siw"+side_width);
   var diff = x - side_width;
   // var side_width = side_width + diff;
-  console.log(diff);
-  console.log(side_width);
+  // console.log(diff);
+  // console.log(side_width);
   // console.log(x);
 
-  $(document).mousemove(function(e) {
+  $(document).on("mousemove.sidemove",function(e){
     var x2 = e.pageX;
-    console.log(x2);
     var gap = (x) - (x2);
-    gap = gap * -2.2;
-    console.log(gap);
-    // $("#dragbar").css('left', e.pageX + 2);
-    c_width = side_width + gap;
-    // console.log(gap);
-    // console.log(c_width);
+    gap = (gap * -1);
+    gap = (gap)+(gap*0.8);
 
+
+    // $("#dragbar").css('left', e.pageX + 2);
+    var c_width = side_width + gap;
+    // console.log(gap);
+    console.log(c_width);
+    var min_width = 250;
+    var max_width = 900;
+    if (c_width < min_width) {
+      c_width = min_width;
+    }
+
+    if (c_width > max_width) {
+      c_width = max_width;
+    }
     $('#sideBar').css("width", c_width);
 
   })
 
-  .mouseup(function(e) {
+  .on("mouseup.sideup",function(e){
 
-      var side_width = $("#sideBar").width();
+      // var side_width = $("#sideBar").width();
+      // console.log(side_width);
+      // console.log(c_width);
+      var after_width =document.getElementById('sideBar' ).style.width;
       $.ajax({
         url: "<?php echo site_url(); ?>/home/side_width_update",
         type: 'POST',
         dataType: 'json',
-        data:{ side_width : side_width },
+        data:{ side_width : after_width },
         async:true,
         success: function (result) {
 
         }
       });
-      $(document).unbind('mousemove');
-      $(document).unbind('mouseup');
+      $(document).unbind('mousemove.sidemove');
+      $(document).unbind('mouseup.sideup');
   });
 
 });
