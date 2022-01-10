@@ -106,10 +106,10 @@ $mbox = urldecode($mbox);
             <?php if($mbox == "&ycDGtA- &07jJwNVo-") {  // 휴지통 ?>
             <button type="button" class="top_button" onclick="del_ever();" disabled="disabled">영구삭제</button>
             <?php }else {?>
-            <button type="button" class="top_button" onclick="del_trash();" disabled="disabled" style="height: 25px;">삭제</button>
+            <button type="button" class="top_button" onclick="del_trash();" disabled="disabled" style="height: 25px; ">삭제</button>
             <?php } ?>
             &nbsp;&nbsp;
-            <select class="top_button" id="selected_box" style="background-color: #F0F0F0; height: 25px;" disabled="disabled" >
+            <select class="top_button" id="selected_box" style="background-color: #F0F0F0; height: 25px; padding-top: 1px" disabled="disabled" >
               <option value="">이동할 메일함</option>
               <?php
                 foreach($mailbox_tree as $b) {
@@ -123,18 +123,18 @@ $mbox = urldecode($mbox);
               <div style="display: inline-block; width: 190px; height: 25px;  border: solid 1px lightgray;">
                 <input type="text" id="search" style="outline: none; margin: 3px; margin-left: 6px; width: 79%; height: 20px; border: none; color: green; font-weight: bold; font-size:1em" >
                 <a href="javascript:void(0)" onclick="search_mail(this);">
-                <img style="width: 17px; position: relative; top:3px " src="<?php echo $misc; ?>/img/icon/search.png" alt="">
+                <img style="width: 17px; position:Arelative; top:3px " src="<?php echo $misc; ?>/img/icon/search.png" alt="">
                 </a>
               </div>
-              <div style="display: inline-block; cursor: pointer; width: 40px; height: 27px; position: relative; top: -1px; left: 5px; border: solid 1px lightgray; background-color: rgb(220,220,220); text-align: center">
-                <a onclick="search_detail();" style="position: relative; top: 0px; font-weight: 300; color: grey; font-size: 14px">
-                  상세
+              <div style="display: inline-block; cursor: pointer; width: 55px; height: 25px; position: relative; top: -1px; left: 5px; border: solid 1px lightgray; background-color: rgb(220,220,220); text-align: center">
+                <a onclick="search_detail(this);" style="position: relative; top: 0px; font-weight: 300; color: grey; font-size: 14px">
+                  상세 <img style="position: relative; top: 2px; width: 15px" src="<?php echo $misc; ?>/img/icon/아래.svg" alt="">
                 </a>
               </div>
             </td>
             <td></td>
             <td>
-            <select id="show_cnt" class="input" onchange="mails_cnt(this);" style="background-color: #F0F0F0; height: 25px" >
+            <select id="show_cnt" class="input" onchange="mails_cnt(this);" style="background-color: #F0F0F0; height: 25px; " >
               <option value="">보기설정</option>
               <option value="10">10개</option>
               <option value="20">20개</option>
@@ -145,9 +145,9 @@ $mbox = urldecode($mbox);
           <tr>
             <td colspan="5"></td>
             <td colspan="3">
-              <div id="search_detail"  style="display:none; position: absolute; margin-top: -4px; background-color: white; border: 2px solid lightgray; width: 240px; z-index: 1">
+              <div id="search_detail"  style="display:none; position: absolute; margin-top: 4px; background-color: white; border: 2px solid lightgray; width: 254px; z-index: 1">
                 <form>
-                  <table style="border-spacing: 5px; padding-top: 10px; padding-left: 10px; color: gray;">
+                  <table style="border-spacing: 5px; padding-top: 10px; padding-left: 15px; color: gray;">
                     <tr>
                       <td width="31%"></td>
                       <td width="69%"></td>
@@ -170,7 +170,7 @@ $mbox = urldecode($mbox);
                     </tr>
                     <tr>
                       <td>기간</td>
-                      <td><input type="text" id="start_date" class="input" size="4" /> ~ <input type="text" class="input" id="end_date" size="4" /></td>
+                      <td><input type="text" id="start_date" class="input" style="width:57px; font-size: 9pt; text-align: center" /> ~ <input type="text" id="end_date" class="input" style="width:57px; font-size: 9pt; text-align: center" /></td>
                     </tr>
                   </table>
                   <div class="" style="margin: 10px; text-align: center;">
@@ -562,11 +562,15 @@ $(".mlist_tbl tr").on("mousedown", function(){
  })
 
  // 상세검색
- function search_detail() {
+ function search_detail(ths) {
    if ($('#search_detail').css('display') == 'block') {
        $('#search_detail').css('display', 'none');
+       $(ths).children()[0].src = '<?php echo $misc; ?>img/icon/아래.svg';
+       ths.childNodes[0].nodeValue = " 상세 ";
    }else {
        $('#search_detail').css('display', 'block');
+       $(ths).children()[0].src = '<?php echo $misc; ?>img/icon/위.svg';
+       ths.childNodes[0].nodeValue = " 접기 ";
     }
  }
 
@@ -591,8 +595,12 @@ $(".mlist_tbl tr").on("mousedown", function(){
    if($('#contents').val() != "")   newForm.append($('<input>', {type: 'hidden', name: 'contents', value: $('#contents').val() }));
    if($('#start_date').val() != "")   newForm.append($('<input>', {type: 'hidden', name: 'start_date', value: $('#start_date').val() }));
    if($('#end_date').val() != "") {
-     var selectedDate = new Date($('#end_date').val());   // 미만으로 검색되어 하루 더하기
-     selectedDate.setDate(selectedDate.getDate() + 1);
+     var end_date = $('#end_date').val().split('-');  // 22-01-10
+     end_date[0] = parseInt(end_date[0]) + 2000;
+     end_date = end_date.join('-');                   // 2022-01-10
+
+     var selectedDate = new Date(end_date);
+     selectedDate.setDate(selectedDate.getDate() + 1);    // 미만으로 검색되어 하루 더하기 (20210110 형태로만 Date객체 형성 가능)
      selectedDate = selectedDate.getFullYear() + "-" + (selectedDate.getMonth() + 1) + "-" + selectedDate.getDate();
      newForm.append($('<input>', {type: 'hidden', name: 'end_date', value: selectedDate }));
    }

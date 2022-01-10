@@ -33,7 +33,7 @@ class Mailbox extends CI_Controller {
       $key = $this->db->password;
       $key = substr(hash('sha256', $key, true), 0, 32);
 			$decrypted = openssl_decrypt(base64_decode($encryp_password), 'aes-256-cbc', $key, 1, $iv);
-      // $this->mailserver = "192.168.0.100";
+      // $this->mailserver = "192.168.0.100"; 
       $this->mailserver = "192.168.0.50";
       $this->user_id = $_SESSION["userid"];
       $this->user_pwd = $decrypted;
@@ -383,6 +383,7 @@ class Mailbox extends CI_Controller {
 
       $end_date = trim(strtolower($this->input->get("end_date")));
       if($end_date != "") {
+
         if(count($mailno_arr_target) == 0 && $overlap_flag == false) {
           $mailno_arr_target = imap_sort($mails, SORTDATE, 1, 0, "BEFORE $end_date");
           $overlap_flag = true;
