@@ -11,7 +11,7 @@ class Account extends CI_Controller {
 			$this->load->helper('url');
 			$this->load->Model('M_account');
 			$this->load->library('email');
-			
+
 	}
 
     // public function index(){

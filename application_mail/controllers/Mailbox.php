@@ -33,8 +33,8 @@ class Mailbox extends CI_Controller {
       $key = $this->db->password;
       $key = substr(hash('sha256', $key, true), 0, 32);
 			$decrypted = openssl_decrypt(base64_decode($encryp_password), 'aes-256-cbc', $key, 1, $iv);
-      // $this->mailserver = "192.168.0.100"; 
-      $this->mailserver = "192.168.0.50";
+      $this->mailserver = "192.168.0.100";
+      // $this->mailserver = "192.168.0.50";
       $this->user_id = $_SESSION["userid"];
       $this->user_pwd = $decrypted;
       $this->defalt_folder = array(
@@ -70,7 +70,7 @@ class Mailbox extends CI_Controller {
     $folders_sorted[0] = "INBOX";
     $folders_sorted[1] = "&vPSwuA- &07jJwNVo-";   // 보낸메일함
     $folders_sorted[2] = "&x4TC3A- &vPStANVo-";   // 임시보관함
-    $folders_sorted[3] = "&yBXQbA- &ulTHfA-";     // 스팸메일함
+    $folders_sorted[3] = "&yBXQbA- &ulTHfA-";     // 스팸메일함g
     $folders_sorted[4] = "&ycDGtA- &07jJwNVo-";   // 휴지통
     foreach($folders as $f) {
       if($f == "INBOX") continue;
@@ -160,7 +160,14 @@ class Mailbox extends CI_Controller {
 
     $utf8_decoded = imap_utf8($subject);
     if(strpos($utf8_decoded, '=?') === false) {
-      $utf8_decoded = ($utf8_decoded == "")? "(제목 없음)" : $utf8_decoded;
+      // 가끔 광고성메일의 제목 인코딩이 EUC-KR이라 ��으로 뜨는 경우가 있다.
+      // mb_detect_encoding 함수가 이게 좀 확실하진 않는데 실험해보니 EUC-KR은 반드시 잡아낸다.
+      // 반면 UTF-8로 인코딩된 애들은 ASCII로 나온다.
+      $encoding = strtolower(mb_detect_encoding("$utf8_decoded", array('ASCII','EUC-KR','UTF-8')));
+      if($encoding == "euc-kr")
+        $utf8_decoded = iconv("euc-kr", "utf-8", $utf8_decoded);
+      else
+        $utf8_decoded = ($utf8_decoded == "")? "(제목 없음)" : $utf8_decoded;
       return $utf8_decoded;
     }else {   // =?utf-8?B?, 2개이상 있는 경우 인코딩부분 디코딩 안된채로 그대로 출력됨.
       $ques_mark_2 = strpos($subject, '?', 2);
@@ -295,7 +302,8 @@ class Mailbox extends CI_Controller {
 
     $data = array();
     $mbox = $this->input->get("boxname");
-    $mbox = (isset($mbox))? $mbox : "INBOX";
+    $folders_arr = $this->get_folders();  // 사이드바에서 우클릭 메일함 삭제시 그 메일함 리스트를 보고있었을경우 메일함 없다는 애러 처리
+    $mbox = (isset($mbox) && in_array($mbox, $folders_arr))? $mbox : "INBOX";
     $user_id = $this->user_id;
     $mails= $this->connect_mailserver($mbox);
     $data['mbox'] = $mbox;
@@ -631,9 +639,14 @@ class Mailbox extends CI_Controller {
 
       $name         = imap_utf8($headerinfos->personal);
       // $name         = $name[0]->text;
+
+      // 광고성 메일 euc-kr 인코딩부분 애러처리
+      $encoding = strtolower(mb_detect_encoding("$name", array('ASCII','EUC-KR','UTF-8')));
+      if($encoding == "euc-kr")
+        $name = iconv("euc-kr", "utf-8", $name);
+
       $from['name'] = empty($name) ? '' : $name;
     }
-
     return $from;
   }
 
@@ -915,7 +928,17 @@ class Mailbox extends CI_Controller {
       foreach($flattenedParts as $partNumber => $part) {
        switch($part->type) {
          case 0:    // the HTML or plain text part of the email
-           if ($part->subtype == "PLAIN" && $part->ifdisposition == 0) {
+           if ($part->subtype == "PLAIN" && count($flattenedParts) == 1) {    // parts에 Plain 하나만 있는경우
+             foreach($part->parameters as $object) {  // charset이 parameters 배열에 [0] or [1]에 있음
+               if(strtolower($object->attribute) == 'charset') {
+                 $charset = $object->value;
+                 break;
+               }
+             }
+             $message = $this->getPart($mails, $msg_no, $partNumber, $part->encoding, $charset);
+             $contents .= $message;
+             break;
+           }else if ($part->subtype == "PLAIN" && $part->ifdisposition == 0) {
              break;
            }else if($part->subtype == "PLAIN" && $part->ifdisposition == 1) {   // .txt 첨부파일은 여기 들어있음
              $filename = $this-> getFilenameFromPart($part);
@@ -1077,8 +1100,8 @@ class Mailbox extends CI_Controller {
         return $data_decoded;
       case 4:
         $data_decoded = quoted_printable_decode($data);    // QUOTED_PRINTABLE (업무일지 서식)
-        if ($charset == 'ks_c_5601-1987')                  // else는 charset이 utf-8로 iconv 불필요
-          $data_decoded = iconv('cp949', 'utf-8', $data_decoded);
+        if ($charset == 'ks_c_5601-1987' || $charset == 'us-ascii')   // else는 charset이 utf-8로 iconv 불필요
+          $data_decoded = iconv('cp949', 'utf-8', $data_decoded);     // us-ascii도 변경해줘야 제대로 출력됨
           // 아래로 디코딩 안되는 메일 가끔 있어서 이걸로 해야함 (대표님 메일중 발견)
           // $data = iconv('euc-kr', 'utf-8', $data);  // charset 변경
         // $res = 'encoding: '.$encoding.'<br><br>charset: '.$charset.'<br><br>rawData: <br>'.$data.'<br>decoded: <br>'.$data_decoded;

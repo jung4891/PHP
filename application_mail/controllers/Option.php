@@ -18,8 +18,8 @@ class Option extends CI_Controller {
       $key = $this->db->password;
       $key = substr(hash('sha256', $key, true), 0, 32);
 			$decrypted = openssl_decrypt(base64_decode($encryp_password), 'aes-256-cbc', $key, 1, $iv);
-			// $this->mailserver = "192.168.0.100";
-      $this->mailserver = "192.168.0.50";
+			$this->mailserver = "192.168.0.100";
+      // $this->mailserver = "192.168.0.50";
       $this->user_id = $_SESSION["userid"];
       $this->user_pwd = $decrypted;
 	}
@@ -212,26 +212,31 @@ class Option extends CI_Controller {
 			}else{
 				$this->load->view('login');
 			}
-
 		}
 
-		function add_mailbox() {
-			$new_mbox = $this->input->post('mbox');
-			$mails= $this->connect_mailserver();
-			$mailserver = $this->mailserver;
-			$host = "{" . $mailserver . ":143/imap/novalidate-cert}";	// 100서버
-			// $host = "{" . $mailserver . "}";			// 50서버
-			$encoded = mb_convert_encoding("$new_mbox", 'UTF7-IMAP', 'UTF-8');
-			$create = imap_createmailbox($mails, $host.$encoded);
-			if($create) echo "o"; else echo "x";
-			imap_close($mails);
+		function add_mailbox() {							  // mail_side에서 우클릭 메일함 추가시
+		   $parent = $this->input->post('parent_mbox');
+			 if(strpos($parent, '&') === false)		// 메일함 설정에서 메일함 추가시
+			 		$parent = mb_convert_encoding($parent, 'UTF7-IMAP', 'UTF-8');
+		   $child = $this->input->post('new_mbox');
+			 $child = mb_convert_encoding($child, 'UTF7-IMAP', 'UTF-8');
+			 $new_mbox = ($parent == "#")? $child : $parent.'.'.$child;
+		   $mails= $this->connect_mailserver();
+		   $mailserver = $this->mailserver;
+		   $host = "{" . $mailserver . ":143/imap/novalidate-cert}";
+		   $create = imap_createmailbox($mails, $host.$new_mbox);
+		   if($create) echo "o"; else echo "x";
+		   imap_close($mails);
 		}
 
-		function rename_mailbox() {
+		function rename_mailbox() {			// mail_side에서 우클릭 메일함명 수정시
+			$parent = $this->input->post('parent');
 			$old_mbox = $this->input->post('old_mbox');
 			$new_mbox = $this->input->post('new_mbox');
 			$old_mbox = mb_convert_encoding($old_mbox, 'UTF7-IMAP', 'UTF-8');
+			$old_mbox = ($parent == "")? $old_mbox : $parent.'.'.$old_mbox;
 			$new_mbox = mb_convert_encoding($new_mbox, 'UTF7-IMAP', 'UTF-8');
+			$new_mbox = ($parent == "")? $new_mbox : $parent.'.'.$new_mbox;
 			$mails = $this->connect_mailserver();
 			$mailserver = $this->mailserver;
 			$host = "{" . $mailserver . ":143/imap/novalidate-cert}";
@@ -240,6 +245,23 @@ class Option extends CI_Controller {
 			imap_close($mails);
 		}
 
+		function del_mailbox() {			// mail_side에서 우클릭 메일함명 삭제시
+			$folders = $this->input->post('folders');
+			// var_dump($folders);
+			// $folders_arr = array();
+			// $folders_arr = explode(',', $folders);
+			$mails = $this->connect_mailserver();
+			$mailserver = $this->mailserver;
+			$host = "{" . $mailserver . ":143/imap/novalidate-cert}";
+			$res = true;
+			foreach($folders as $f) {
+				if(!imap_deletemailbox($mails, $host.$f))	$res = false;
+			}
+			if($res) echo "o"; else echo "x";
+			imap_close($mails);
+		}
+
+		// 여기부터 가능하면 위랑 합치셈
 		function del_mailbox() {
 			$mbox = $this->input->post('mbox');
 			$mode = $this->input->post('mode');
@@ -264,6 +286,33 @@ class Option extends CI_Controller {
 			imap_close($mails);
 		}
 
+		// 문제 없으면 아래 생성/수정/삭제부분 다 지우기.
+		// function add_mailbox() {
+		// 	$new_mbox = $this->input->post('mbox');
+		// 	$mails= $this->connect_mailserver();
+		// 	$mailserver = $this->mailserver;
+		// 	$host = "{" . $mailserver . ":143/imap/novalidate-cert}";	// 100서버
+		// 	// $host = "{" . $mailserver . "}";			// 50서버
+		// 	$encoded = mb_convert_encoding("$new_mbox", 'UTF7-IMAP', 'UTF-8');
+		// 	$create = imap_createmailbox($mails, $host.$encoded);
+		// 	if($create) echo "o"; else echo "x";
+		// 	imap_close($mails);
+		// }
+
+		// function rename_mailbox() {
+		// 	$old_mbox = $this->input->post('old_mbox');
+		// 	$new_mbox = $this->input->post('new_mbox');
+		// 	$old_mbox = mb_convert_encoding($old_mbox, 'UTF7-IMAP', 'UTF-8');
+		// 	$new_mbox = mb_convert_encoding($new_mbox, 'UTF7-IMAP', 'UTF-8');
+		// 	$mails = $this->connect_mailserver();
+		// 	$mailserver = $this->mailserver;
+		// 	$host = "{" . $mailserver . ":143/imap/novalidate-cert}";
+		// 	$res = imap_renamemailbox($mails, $host.$old_mbox, $host.$new_mbox);
+		// 	if($res) echo "o"; else echo "x";
+		// 	imap_close($mails);
+		// }
+
+		// 여기부터 하면됨
 		function trash_all_mails() {
 			$mbox = $this->input->post("mbox");
 			$mbox = mb_convert_encoding($mbox, 'UTF7-IMAP', 'UTF-8');
@@ -292,9 +341,8 @@ class Option extends CI_Controller {
 
  		function set_seen() {
 			$mbox = $this->input->post("mbox");
-			$mbox = mb_convert_encoding($mbox, 'UTF7-IMAP', 'UTF-8');
+			// $mbox = mb_convert_encoding($mbox, 'UTF7-IMAP', 'UTF-8');
 			$mails= $this->connect_mailserver($mbox);
-
 			$mailno_arr = imap_sort($mails, SORTDATE, 1);
 			$arr_str = implode(',', $mailno_arr);
 			$res = imap_setflag_full($mails, $arr_str, "\\Seen");
@@ -358,54 +406,6 @@ class Option extends CI_Controller {
 			$seq = $this->input->post("seq");
 			$result = $this->M_option->sign_del($seq);
 			echo json_encode($result);
-		}
-
-		function add_mailbox2() {
-		   $parent = $this->input->post('parent');
-		   $child = $this->input->post('child_input');
-			 $child = mb_convert_encoding($child, 'UTF7-IMAP', 'UTF-8');
-			 $new_mbox = $parent.'.'.$child;
-
-		   $mails= $this->connect_mailserver();
-		   $mailserver = $this->mailserver;
-		   $host = "{" . $mailserver . ":143/imap/novalidate-cert}";
-		   $create = imap_createmailbox($mails, $host.$new_mbox);
-		   if($create) echo "o"; else echo "x";
-		   imap_close($mails);
-		}
-
-		function rename_mailbox2() {
-			$parent = $this->input->post('parent');
-			$old_mbox = $this->input->post('old_mbox');
-			$new_mbox = $this->input->post('new_mbox');
-			$old_mbox = mb_convert_encoding($old_mbox, 'UTF7-IMAP', 'UTF-8');
-			$old_mbox = ($parent == "")? $old_mbox : $parent.'.'.$old_mbox;
-			$new_mbox = mb_convert_encoding($new_mbox, 'UTF7-IMAP', 'UTF-8');
-			$new_mbox = ($parent == "")? $new_mbox : $parent.'.'.$new_mbox;
-			$mails = $this->connect_mailserver();
-			$mailserver = $this->mailserver;
-			$host = "{" . $mailserver . ":143/imap/novalidate-cert}";
-			$res = imap_renamemailbox($mails, $host.$old_mbox, $host.$new_mbox);
-			if($res) echo "o"; else echo "x";
-			imap_close($mails);
-		}
-
-		function del_mailbox2() {
-			$folders = $this->input->post('folders');
-
-			// var_dump($folders);
-			// $folders_arr = array();
-			// $folders_arr = explode(',', $folders);
-
-			$mails = $this->connect_mailserver();
-			$mailserver = $this->mailserver;
-			$host = "{" . $mailserver . ":143/imap/novalidate-cert}";
-			$res = true;
-			foreach($folders as $f) {
-				if(!imap_deletemailbox($mails, $host.$f))	$res = false;
-			}
-			if($res) echo "o"; else echo "x";
-			imap_close($mails);
 		}
 
 }

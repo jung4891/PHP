@@ -53,8 +53,8 @@ $iv = chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0)
 $key = $this->db->password;
 $key = substr(hash('sha256', $key, true), 0, 32);
 $decrypted = openssl_decrypt(base64_decode($encryp_password), 'aes-256-cbc', $key, 1, $iv);
-// $mailserver = "192.168.0.100";
-$mailserver = "192.168.0.50";
+$mailserver = "192.168.0.100";
+// $mailserver = "192.168.0.50";
 $user_id = $_SESSION["userid"];
 $user_pwd = $decrypted;
 $default_folder = array(
@@ -511,7 +511,7 @@ $(function (){
 
              if(confirm(alert) == true) {
                $.ajax({
-                 url: "<?php echo site_url(); ?>/option/del_mailbox2",
+                 url: "<?php echo site_url(); ?>/option/del_mailbox",
                  type : "post",
                  data : {folders: folders},
                  success: function (res) {
@@ -730,9 +730,9 @@ function add_mbox(ths) {
       id = id.replace(/_/gi, '.');
       id = id.replace('.text', '');
       $.ajax({
-        url: "<?php echo site_url(); ?>/option/add_mailbox2",
+        url: "<?php echo site_url(); ?>/option/add_mailbox",
         type : "post",
-        data : {parent: id, child_input: text},
+        data : {parent_mbox: id, new_mbox: text},
         success: function (res) {
           // if(res=='o')  alert("메일함 [" + text + "] 생성완료");
           // else {
@@ -765,7 +765,7 @@ function add_mbox(ths) {
       let target = $(ths).closest('tr').prev()[0].childNodes[3].id;
       target = $.trim(target);
       $.ajax({
-        url: "<?php echo site_url(); ?>/option/rename_mailbox2",
+        url: "<?php echo site_url(); ?>/option/rename_mailbox",
         type : "post",
         data : {parent: parent, old_mbox: target, new_mbox: text},
         success: function (res) {

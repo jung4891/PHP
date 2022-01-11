@@ -8,8 +8,8 @@ $iv = chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0)
 $key = $this->db->password;
 $key = substr(hash('sha256', $key, true), 0, 32);
 $decrypted = openssl_decrypt(base64_decode($encryp_password), 'aes-256-cbc', $key, 1, $iv);
-// $mailserver = "192.168.0.100";
-$mailserver = "192.168.0.50";
+$mailserver = "192.168.0.100";
+// $mailserver = "192.168.0.50";
 $user_id = $_SESSION["userid"];
 $user_pwd = $decrypted;
 $default_folder = array(
@@ -259,6 +259,16 @@ for ($i=0; $i < count($folders); $i++) {
 
 <script type="text/javascript">
 
+  function show_modify(ths, i) {
+    // let divTag = ths.parentNode.childNodes[12];
+    // divTag.id = 'mbox_modify_' + i;
+    // $('#'+divTag.id)[0].style.display = "block";
+    divTag = $('#mbox_modify_div_' + i);
+    // console.log(divTag);
+    divTag[0].style.display = "block";
+    divTag.addClass("click_event_display");
+  }
+
   function add_mailbox() {
     const s = document.getElementById('selected_box');
     const parent_mbox = s.options[s.selectedIndex].value;
@@ -284,7 +294,6 @@ for ($i=0; $i < count($folders); $i++) {
       $('#new_mbox').select();
       return;
     }
-
     $.ajax({
       url: "<?php echo site_url(); ?>/option/add_mailbox",
       type : "post",
@@ -295,16 +304,6 @@ for ($i=0; $i < count($folders); $i++) {
         location.reload();
       }
     });
-  }
-
-  function show_modify(ths, i) {
-    // let divTag = ths.parentNode.childNodes[12];
-    // divTag.id = 'mbox_modify_' + i;
-    // $('#'+divTag.id)[0].style.display = "block";
-    divTag = $('#mbox_modify_div_' + i);
-    // console.log(divTag);
-    divTag[0].style.display = "block";
-    divTag.addClass("click_event_display");
   }
 
   function modify_mbox(i) {
@@ -333,7 +332,7 @@ for ($i=0; $i < count($folders); $i++) {
       return;
     }else {
       $.ajax({
-        url: "<?php echo site_url(); ?>/option/rename_mailbox2",
+        url: "<?php echo site_url(); ?>/option/rename_mailbox",
         type : "post",
         data : {parent: parent_mbox, old_mbox: old_mbox, new_mbox: new_mbox},
         success: function (res) {

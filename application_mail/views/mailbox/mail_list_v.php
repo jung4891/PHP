@@ -210,10 +210,9 @@ $mbox = urldecode($mbox);
 
         for($i=$start_row; $i<$start_row+$per_page; $i++) {
           if (isset($mailno_arr[$i])) {
-            // echo "<pre align='left'>";
-            // var_dump($head[$mailno_arr[$i]] -> subject);
-            // echo '<br>';
-            // echo "</pre>";
+            // echo '<pre>';
+            // var_dump($head[$mailno_arr[$i]]);
+            // echo '</pre>';
 
         // 발신자 이름 or 메일주소 가져오기
         /*
@@ -232,6 +231,10 @@ $mbox = urldecode($mbox);
             } else {
               $from_name = $from_addr;          // 이름이 명시되어 있지 않은 메일은 메일주소 그대로 출력
             }
+            // 광고성 메일 euc-kr 인코딩부분 애러처리
+            $encoding = strtolower(mb_detect_encoding("$from_name", array('ASCII','EUC-KR','UTF-8')));
+            if($encoding == "euc-kr")
+              $from_name = iconv("euc-kr", "utf-8", $from_name);
           }
           if(isset($head[$mailno_arr[$i]]->toaddress)) {     // 보낸메일함의 경우 받는 사람 표기 (이름있으면 이름만 없으면 메일주소만 출력됨)
             $to_address = imap_utf8($head[$mailno_arr[$i]]->toaddress);
@@ -302,7 +305,7 @@ if ($ipinfo[$mailno_arr[$i]]["country"] !="") {
               echo (isset($to_address))? $to_address : '(이름 없음)' ;
             // 그외 메일함은 보낸사람 표기
             }else {
-              echo (isset($from_name))? imap_utf8($from_name) : '(이름 없음)' ;
+              echo (isset($from_name))? $from_name : '(이름 없음)' ;
             }
             ?>
           </a>

@@ -47,7 +47,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
   //   네이버(테스트용)
   //   $mailserver = "imap.naver.com";
   //   $user_id = "go_go_ssing";
-  //   $user_pwd = "gurwndA!23";
+  //   $user_pwd = "gurwnd4891!!";
   //
   //   POP3 서버
   //   $mailbox = @imap_open("{" . $mailserver . ":110/pop3}INBOX", $user_id, $user_pwd);
