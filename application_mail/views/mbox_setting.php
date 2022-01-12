@@ -8,8 +8,8 @@ $iv = chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0)
 $key = $this->db->password;
 $key = substr(hash('sha256', $key, true), 0, 32);
 $decrypted = openssl_decrypt(base64_decode($encryp_password), 'aes-256-cbc', $key, 1, $iv);
-$mailserver = "192.168.0.100";
-// $mailserver = "192.168.0.50";
+// $mailserver = "192.168.0.100";
+$mailserver = "192.168.0.50";
 $user_id = $_SESSION["userid"];
 $user_pwd = $decrypted;
 $default_folder = array(
@@ -142,7 +142,7 @@ for ($i=0; $i < count($folders); $i++) {
   <div id="main_contents" align="center">
     <form name="mform" action="" method="post">
       <div class="" align="left" width=100% style="border-bottom:1px solid #1A8DFF;margin:-10px 40px 10px 40px;">
-        <!-- <button type="button" name="button" class="nav_btn" style="margin-left:10px;"onclick="location.href='<?php echo site_url(); ?>/option/account'">계정설정</button> -->
+        <button type="button" name="button" class="nav_btn" style="margin-left:10px;"onclick="location.href='<?php echo site_url(); ?>/option/user'">계정설정</button>
         <button type="button" name="button" class="nav_btn select_btn" onclick="location.href='<?php echo site_url(); ?>/option/mailbox'">메일함설정</button>
         <button type="button" name="button" class="nav_btn" onclick="location.href='<?php echo site_url(); ?>/option/address_book'">주소록관리</button>
         <button type="button" name="button" class="nav_btn" onclick="location.href='<?php echo site_url(); ?>/option/singnature'">서명관리</button>
@@ -369,43 +369,31 @@ for ($i=0; $i < count($folders); $i++) {
       }
     });
 
+    var confirm_txt = '';
     if(children.length == 0) {
-        if(confirm("메일함을 삭제합니다. \n메일함의 모든 메일은 완전삭제됩니다. \n\n계속하시겠습니까?") == true) {
-          $.ajax({
-            url: "<?php echo site_url(); ?>/option/del_mailbox",
-            type : "post",
-            data : {mbox: mbox, mode: '1'},
-            success: function (res) {
-              if(res=="o")  alert("메일함이 삭제되었습니다.");
-              else  alert("메일함 삭제실패");
-              location.reload();
-            },
-            error : function(request, status, error){
-              console.log(error);
-            }
-          });
-        } else {
-          return;
-        }
+      children.push(mbox);
+      confirm_txt = "메일함을 삭제합니다. \n메일함의 모든 메일은 완전삭제됩니다. \n\n계속하시겠습니까?";
     }else {
-        children.push(mbox);
-        if(confirm("메일함을 삭제합니다. \n단, 선택한 메일함 및 그 하위 메일함을 포함하여 메일함에 있던 모든 메일은 완전삭제됩니다. \n\n계속하시겠습니까?") == true) {
-          $.ajax({
-            url: "<?php echo site_url(); ?>/option/del_mailbox",
-            type : "post",
-            data : {folders: children, mode: '2'},
-            success: function (res) {
-              if(res=="o")  alert("메일함 및 그 하위 메일함들이 삭제되었습니다.");
-              else  alert("메일 삭제실패");
-              location.reload();
-            },
-            error : function(request, status, error){
-              console.log(error);
-            }
-          });
-        }else {
-          return;
+      children.push(mbox);
+      confirm_txt = "메일함을 삭제합니다. \n단, 선택한 메일함 및 그 하위 메일함을 포함하여 메일함에 있던 모든 메일은 완전삭제됩니다. \n\n계속하시겠습니까?";
+    }
+
+    if(confirm(confirm_txt) == true) {
+      $.ajax({
+        url: "<?php echo site_url(); ?>/option/del_mailbox",
+        type : "post",
+        data : {folders: children},
+        success: function (res) {
+          if(res=="o")  alert("메일함이 삭제되었습니다.");
+          else  alert("메일함 삭제실패");
+          location.reload();
+        },
+        error : function(request, status, error){
+          console.log(error);
         }
+      });
+    } else {
+      return;
     }
   }
 

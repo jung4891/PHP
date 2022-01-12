@@ -52,6 +52,10 @@ class Dbmailtest2 extends CI_Controller {
       // );
   }
 
+  function info() {
+    phpinfo();
+  }
+
   function get_threads(){
     $stream = $this->connect_mailserver();
     $attach = $this->_get_attachments(729, imap_fetchstructure($stream, 729));

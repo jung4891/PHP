@@ -33,8 +33,8 @@ class Mailbox extends CI_Controller {
       $key = $this->db->password;
       $key = substr(hash('sha256', $key, true), 0, 32);
 			$decrypted = openssl_decrypt(base64_decode($encryp_password), 'aes-256-cbc', $key, 1, $iv);
-      $this->mailserver = "192.168.0.100";
-      // $this->mailserver = "192.168.0.50";
+      // $this->mailserver = "192.168.0.100";
+      $this->mailserver = "192.168.0.50";
       $this->user_id = $_SESSION["userid"];
       $this->user_pwd = $decrypted;
       $this->defalt_folder = array(
@@ -487,26 +487,98 @@ class Mailbox extends CI_Controller {
             if( (isset($data['type']) && $data['type'] == "search") || (isset($data['search_flag']) && $data['search_flag']  == true) ) {
               $mailno_arr[$i] = $this->exec_no_search($mbox, $user_id, $mailno_arr[$i]);    // 여기서 mailno_arr은 name_arr임
             }
-            $data['head'][$mailno_arr[$i]] = imap_headerinfo($mails, $mailno_arr[$i]);
-            $m_uid = imap_uid($mails, $mailno_arr[$i]);
-            $data['ipinfo'][$mailno_arr[$i]] = $this->get_senderip($m_uid);
-
-            // 메일제목만 디코딩 따로처리
-            $subject = $data['head'][$mailno_arr[$i]]->subject;
-            $subject_decoded = $this->subject_decode($subject);
-            $data['subject_decoded'][$mailno_arr[$i]] = $subject_decoded;
-
-            // 첨부파일 유무 확인
-            $data['attached'][$mailno_arr[$i]] = false;
-            $struct = imap_fetchstructure($mails, $mailno_arr[$i]);
+            $mail_no = $mailno_arr[$i];
+            $m_uid = imap_uid($mails, $mail_no);
+            $headerinfo = imap_headerinfo($mails, $mail_no);
+            $attached = false;
+            $struct = imap_fetchstructure($mails, $mail_no);
             if(isset($struct->parts)) {
               foreach($struct->parts as $part) {
                 if($part->type === 0 && $part->ifdisposition === 1 || $part->type === 3 || $part->type === 5 && $part->ifdisposition === 1) {
-                  $data['attached'][$mailno_arr[$i]] = true;
+                  $attached = true;
                   break;
                 }
               }
             }
+
+            if (isset($headerinfo->from[0])) {
+              $from_obj = $headerinfo->from[0];
+              $from_addr = imap_utf8($from_obj->mailbox).'@'.imap_utf8($from_obj->host);
+              $from_name_full = $from_addr;
+              if (isset($from_obj->personal)) {
+                $from_name = imap_utf8($from_obj->personal);
+                $from_name_full = $from_name.' <'.$from_addr.'>';
+              } else {
+                $from_name = $from_addr;
+              }
+              // 광고성 메일 euc-kr 인코딩부분 애러처리
+              $encoding = strtolower(mb_detect_encoding("$from_name", array('ASCII','EUC-KR','UTF-8')));
+              if($encoding == "euc-kr")
+                $from_name = iconv("euc-kr", "utf-8", $from_name);
+            }else {
+              $from_name = "(이름 없음)";
+            }
+            if(isset($headerinfo->to[0])) {
+              $to_obj = $headerinfo->to[0];
+              if(isset($to_obj->host))
+                $to_addr = imap_utf8($to_obj->mailbox).'@'.imap_utf8($to_obj->host);    // host없는경우 애러처리
+              else
+                $to_addr = imap_utf8($to_obj->mailbox);
+              $to_name_full = $to_addr;
+              if (isset($to_obj->personal)) {
+                $to_name = imap_utf8($to_obj->personal);
+                $to_name_full = $to_name.' <'.$to_addr.'>';
+              } else {
+                $to_name = $to_addr;
+              }
+            }else {
+              $to_name = "(이름 없음)";
+            }
+
+            $subject = $headerinfo->subject;
+            $subject_decoded = $this->subject_decode($subject);
+            $udate = isset($headerinfo->date)? strtotime($headerinfo->date) : (int)$headerinfo->udate;
+            $date = date("y.m.d", $udate);
+            // 오늘 날짜일 경우 시간으로 출력처리
+            $date = ($date == date("y.m.d", time()))? date("H:i", $udate) : $date;
+            if(isset($headerinfo->Size)) {
+            	$size = round(($headerinfo->Size)/1024, 1);
+            	($size < 1000)? $size .= 'KB' : $size = round($size/1000, 1).'MB';
+            } else {
+            	$size = '';
+            }
+
+            $data["mail_list_info"][$i] = array(
+            	'mail_no'		=>		$mail_no,
+            	'ipinfo'		=>		$this->get_senderip($m_uid),
+            	'flagged'		=>		$headerinfo->Flagged,
+            	'attached'	=>		$attached,
+            	'unseen'		=>		$headerinfo->Unseen,
+            	'from'			=>		array('from_name' => $from_name, 'from_name_full' => $from_name_full),
+            	'to'		   	=>		array('to_name' => $to_name, 'to_name_full' => $to_name_full),
+            	'subject'		=>		$subject_decoded,
+            	'date'			=>		$date,
+            	'size'			=>		$size
+            );
+
+            // $data['head'][$mailno_arr[$i]] = imap_headerinfo($mails, $mailno_arr[$i]);
+            // $data['ipinfo'][$mailno_arr[$i]] = $this->get_senderip($m_uid);
+            //
+            // // 메일제목만 디코딩 따로처리
+            // $data['subject_decoded'][$mailno_arr[$i]] = $subject_decoded;
+            //
+            // // 첨부파일 유무 확인
+            // $data['attached'][$mailno_arr[$i]] = false;
+            // $struct = imap_fetchstructure($mails, $mailno_arr[$i]);
+            // if(isset($struct->parts)) {
+            //   foreach($struct->parts as $part) {
+            //     if($part->type === 0 && $part->ifdisposition === 1 || $part->type === 3 || $part->type === 5 && $part->ifdisposition === 1) {
+            //       $data['attached'][$mailno_arr[$i]] = true;
+            //       break;
+            //     }
+            //   }
+            // }
+
           }
         }
       } else {
@@ -517,6 +589,10 @@ class Mailbox extends CI_Controller {
     }else {
       $data['test_msg'] = '사용자명 또는 패스워드가 틀립니다.';
     }
+    // echo '<pre>';
+    // var_dump($data['mail_list_info']);
+    // echo '</pre>';
+    // exit;
     $this->load->view('mailbox/mail_list_v', $data);
   } // function(mail_list)
 
@@ -1035,7 +1111,8 @@ class Mailbox extends CI_Controller {
       'in_reply_to' => isset($head->in_reply_to) ? (string)$head->in_reply_to : '',
       'references'  => isset($head->references) ? explode(' ', $head->references) : array(),
       'date'        => isset($head->date) ? $head->date : '',//date('c', strtotime(substr($header->date, 0, 30))),
-      'udate'       => (int)$head->udate,
+      'udate'       => isset($head->date) ? strtotime($head->date) : (int)$head->udate,
+      // 'udate'       => (int)$head->udate,
       'subject'     => $this->subject_decode($head->subject),
       // 'subject'     => isset($head->subject) ? imap_utf8($head->subject) : '(제목 없음)',
       'recent'      => strlen(trim($head->Recent)) > 0,

@@ -207,54 +207,10 @@ $mbox = urldecode($mbox);
        ?>
 
       <?php
-
         for($i=$start_row; $i<$start_row+$per_page; $i++) {
-          if (isset($mailno_arr[$i])) {
-            // echo '<pre>';
-            // var_dump($head[$mailno_arr[$i]]);
-            // echo '</pre>';
-
-        // 발신자 이름 or 메일주소 가져오기
-        /*
-          이름+메일주소(송혁중 <go_go_ssing@naver.com>) 으로 출력하려면
-          htmlspecialchars(mb_decode_mimeheader($head[$num]->fromaddress))
-          - mb_decode_mimeheader() : MIME 인코드(암호화)되어있는 메일의 제목을 디코드(복호화)함
-          - htmlspecialchars() : 제목에 포함된 HTML태그를 무효로 처리함
-        */
-          if (isset($head[$mailno_arr[$i]]->from[0])) {
-            $from_obj = $head[$mailno_arr[$i]]->from[0];     // 보낸 사람의 이름 또는 메일주소를 얻기위함
-            $from_addr = imap_utf8($from_obj->mailbox).'@'.imap_utf8($from_obj->host);      // hjsong@durianit.co.kr
-            $from_name_full = $from_addr;
-            if (isset($from_obj->personal)) {
-              $from_name = imap_utf8($from_obj->personal);   // 송혁중 (이름이 명시되어 있는 메일)
-              $from_name_full = $from_name.' <'.$from_addr.'>';
-            } else {
-              $from_name = $from_addr;          // 이름이 명시되어 있지 않은 메일은 메일주소 그대로 출력
-            }
-            // 광고성 메일 euc-kr 인코딩부분 애러처리
-            $encoding = strtolower(mb_detect_encoding("$from_name", array('ASCII','EUC-KR','UTF-8')));
-            if($encoding == "euc-kr")
-              $from_name = iconv("euc-kr", "utf-8", $from_name);
-          }
-          if(isset($head[$mailno_arr[$i]]->toaddress)) {     // 보낸메일함의 경우 받는 사람 표기 (이름있으면 이름만 없으면 메일주소만 출력됨)
-            $to_address = imap_utf8($head[$mailno_arr[$i]]->toaddress);
-          }
-
-          if(isset($head[$mailno_arr[$i]]->to[0])) {
-            $to_obj = $head[$mailno_arr[$i]]->to[0];
-            if(isset($to_obj->host))
-              $to_addr = imap_utf8($to_obj->mailbox).'@'.imap_utf8($to_obj->host);    // host없는경우 애러처리
-            else
-              $to_addr = imap_utf8($to_obj->mailbox);
-            if (isset($to_obj->personal)) {
-              $to_name = imap_utf8($to_obj->personal);
-              $to_name_full = $to_name.' <'.$to_addr.'>';
-            } else {
-              $to_name_full = $to_addr;
-            }
-          }
-          $msg_no = trim($head[$mailno_arr[$i]]->Msgno);            // 메일번호
-        ?>
+          if(!isset($mail_list_info[$i])) break;        // offset 애러처리
+          $msg_no = trim($mail_list_info[$i]['mail_no']);
+      ?>
 
         <tr onclick="detail_mailview(<?php echo $msg_no?>);">
 
@@ -263,9 +219,9 @@ $mbox = urldecode($mbox);
         <td name="msg_no_td" style="display:none;"><?php echo $msg_no?></td>
         <td>
 <?php
-if ($ipinfo[$mailno_arr[$i]]["country"] !="") {
+if ($mail_list_info[$i]['ipinfo']["country"] !="") {
 ?>
-    <img width="25" src="<?php echo $misc; ?>/img/flag/<?php echo $ipinfo[$mailno_arr[$i]]['country']; ?>.png" alt="">
+    <img width="25" src="<?php echo $misc; ?>/img/flag/<?php echo $mail_list_info[$i]['ipinfo']['country']; ?>.png" alt="">
 <?php
 }
 ?>
@@ -275,7 +231,7 @@ if ($ipinfo[$mailno_arr[$i]]["country"] !="") {
         </td>
         <td onclick="event.cancelBubble=true">
           <a href="javascript:void(0);" onclick="starClick(this); " >
-            <?php if($head[$mailno_arr[$i]]->Flagged == "F") {?>
+            <?php if($mail_list_info[$i]['flagged'] == "F") {?>
               <img class="fullStar" src="/misc/img/icon/star2.png" alt="" width="15px">
             <?php   }else {?>
               <img class="emptyStar" src="/misc/img/icon/star1.png" alt="" width="15px">
@@ -284,7 +240,7 @@ if ($ipinfo[$mailno_arr[$i]]["country"] !="") {
         </td>
         <td>
           <!-- 첨부파일 유무 파악 -->
-          <?php if($attached[$mailno_arr[$i]]) { ?>
+          <?php if($mail_list_info[$i]['attached']) { ?>
           <img src="/misc/img/icon/attachment.png" alt="ss">
           <?php }?>
         </td>
@@ -294,15 +250,16 @@ if ($ipinfo[$mailno_arr[$i]]["country"] !="") {
         $mbox2 = str_replace(' ', '+', $mbox2);
 
         // 메일 읽은경우/읽지 않은경우 class명 지정하여 색 변경 (메일 읽으면 "U" -> ""로 바뀜)
-        $unseen = $head[$mailno_arr[$i]]->Unseen;
-        $unseen = ($unseen == "U")? "unseen":"seen";
+        $unseen = ($mail_list_info[$i]['unseen'] == "U")? "unseen":"seen";
         ?>
         <td>
           <a class= <?php echo $unseen ?> href="javascript:void(0);" onclick="event.cancelBubble=true;send_context(this);">
             <?php
+            $from_name = $mail_list_info[$i]['from']['from_name'];
+            $to_name = $mail_list_info[$i]['to']['to_name'];
             // 보낸메일함은 받는사람 표기
             if(strpos($mbox, '&vPSwuA- &07jJwNVo-') === 0) {
-              echo (isset($to_address))? $to_address : '(이름 없음)' ;
+              echo (isset($to_name))? $to_name : '(이름 없음)' ;
             // 그외 메일함은 보낸사람 표기
             }else {
               echo (isset($from_name))? $from_name : '(이름 없음)' ;
@@ -311,6 +268,9 @@ if ($ipinfo[$mailno_arr[$i]]["country"] !="") {
           </a>
           <span style="display: none">
             <?php
+            $from_name_full = $mail_list_info[$i]['from']['from_name_full'];
+            $to_name_full = $mail_list_info[$i]['to']['to_name_full'];
+            // 요부분은 회신할때 보낸사람 받는사람 이름<주소> 형식으로 출력되도록 처리함
             if(strpos($mbox, '&vPSwuA- &07jJwNVo-') === 0) {
               echo htmlspecialchars($to_name_full);
             }else {
@@ -320,25 +280,14 @@ if ($ipinfo[$mailno_arr[$i]]["country"] !="") {
           </span>
         </td>
         <td style="text-overflow:ellipsis; overflow:hidden; white-space:nowrap;">
-          <a class=<?php echo $unseen ?> href="<?php echo site_url(); ?>/mailbox/mail_detail?boxname=<?php echo $mbox2 ?>&mailno=<?php echo $mailno_arr[$i] ?>">
-
-            <?php echo $subject_decoded[$mailno_arr[$i]]?>
+          <a class=<?php echo $unseen ?> href="<?php echo site_url(); ?>/mailbox/mail_detail?boxname=<?php echo $mbox2 ?>&mailno=<?php echo $msg_no ?>">
+            <?php echo $mail_list_info[$i]['subject']?>
           </a>
         </td>
-        <td style="color: darkgray; font-weight: 400;"><?php echo isset($head[$mailno_arr[$i]]->udate)? date("y.m.d", $head[$mailno_arr[$i]]->udate) : '' ?></td>
-        <!-- 시, 분은 H:i -->
-        <?php
-          if(isset($head[$mailno_arr[$i]]->Size)) {
-            $size = round(($head[$mailno_arr[$i]]->Size)/1024, 1);
-            ($size < 1000)? $size .= 'KB' : $size = round($size/1000, 1).'MB';
-          } else {
-            $size = '';
-          }
-         ?>
-        <td><?php echo $size ?></td>
+        <td style="color: darkgray; font-weight: 400;"><?php echo $mail_list_info[$i]['date'];?></td>
+        <td><?php echo $mail_list_info[$i]['size'] ?></td>
       </tr>
       <?php
-        }
       }
       ?>
        </form>
