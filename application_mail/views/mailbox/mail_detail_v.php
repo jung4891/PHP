@@ -33,6 +33,9 @@ function address_text($address){
 $reply_to_input = address_text($mail_info["to"]);
 $reply_cc_input = address_text($mail_info["cc"]);
 
+// echo '<pre>';
+// var_dump($mail_info);
+// echo '</pre>';
   ?>
  <link rel="stylesheet" href="<?php echo $misc; ?>/css/style.css" type="text/css" charset="utf-8"/>
  <div id="" style="width:100%;max-height:100%;margin:50px 0px 80px 0px;padding-left: 20px; ">
@@ -72,7 +75,12 @@ $reply_cc_input = address_text($mail_info["cc"]);
               $mail_info["from"]["email"] = $target.$rest;
             };
             ?>
-           <span id="from_td"><?php echo $mail_info["from"]["name"]."&lt;".$mail_info["from"]["email"]."&gt;"; ?></span>
+           <span id="from_td">
+             <?php if($mail_info["from"]["email"] == "")
+                      echo "(이름 없음)";
+                   else
+                      echo $mail_info["from"]["name"]."&lt;".$mail_info["from"]["email"]."&gt;"; ?>
+           </span>
          </td>
        </tr>
        <tr>

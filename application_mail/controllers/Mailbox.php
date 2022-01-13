@@ -431,12 +431,13 @@ class Mailbox extends CI_Controller {
       $total_rows = $mails_cnt;                                   // 총 16개 데이터라 가정.
       $per_page = ($mail_cnt_show == "")? 15:$mail_cnt_show;      // 한 페이지에 보여줄 데이터 갯수
       $pagingNum_cnt = 10;                                        // 페이징 블록에서의 페이징 번호 갯수 (5개로 가정하면)
+      $total_pages = ceil($total_rows/$per_page);                 // 16/15 -> 총 2페이지
+      $curpage = ($curpage > $total_pages)? $total_pages : $curpage;    // 보기개수 변경시(10개>30개) 없는 페이지 처리
 
       $paging_block = ceil($curpage/$pagingNum_cnt);              // 1/5 -> 1번째 페이징 블록
       $block_start = (($paging_block - 1) * $pagingNum_cnt) + 1;  // (1-1)*5 + 1 -> 1
       $block_end = $block_start + $pagingNum_cnt - 1;             // 1 + 5 -1 -> 5 (1~5)
 
-      $total_pages = ceil($total_rows/$per_page);                 // 16/15 -> 총 2페이지
 
       if ($block_end > $total_pages)  $block_end = $total_pages;  // 페이징 블록을 1~2로 수정
       $total_blocks = ceil($total_pages/$pagingNum_cnt);          // 2/5 -> 페이징 블록 총 1개
@@ -517,6 +518,7 @@ class Mailbox extends CI_Controller {
                 $from_name = iconv("euc-kr", "utf-8", $from_name);
             }else {
               $from_name = "(이름 없음)";
+              $from_name_full = "(이름 없음)";
             }
             if(isset($headerinfo->to[0])) {
               $to_obj = $headerinfo->to[0];
@@ -533,6 +535,7 @@ class Mailbox extends CI_Controller {
               }
             }else {
               $to_name = "(이름 없음)";
+              $to_name_full = "(이름 없음)";
             }
 
             $subject = $headerinfo->subject;
@@ -560,25 +563,9 @@ class Mailbox extends CI_Controller {
             	'date'			=>		$date,
             	'size'			=>		$size
             );
-
-            // $data['head'][$mailno_arr[$i]] = imap_headerinfo($mails, $mailno_arr[$i]);
-            // $data['ipinfo'][$mailno_arr[$i]] = $this->get_senderip($m_uid);
-            //
-            // // 메일제목만 디코딩 따로처리
-            // $data['subject_decoded'][$mailno_arr[$i]] = $subject_decoded;
-            //
-            // // 첨부파일 유무 확인
-            // $data['attached'][$mailno_arr[$i]] = false;
-            // $struct = imap_fetchstructure($mails, $mailno_arr[$i]);
-            // if(isset($struct->parts)) {
-            //   foreach($struct->parts as $part) {
-            //     if($part->type === 0 && $part->ifdisposition === 1 || $part->type === 3 || $part->type === 5 && $part->ifdisposition === 1) {
-            //       $data['attached'][$mailno_arr[$i]] = true;
-            //       break;
-            //     }
-            //   }
-            // }
-
+            // echo '<pre>';
+            // var_dump($headerinfo);
+            // echo '</pre>';
           }
         }
       } else {
@@ -1101,7 +1088,7 @@ class Mailbox extends CI_Controller {
     $data["mail_info"] = array(
       'id'          => (int)$mailno,
       'uid'         => (int)$mailno,
-      'from'        => isset($head->from[0]) ? (array)$this->to_address($head->from[0]) : array(),
+      'from'        => isset($head->from[0]) ? (array)$this->to_address($head->from[0]) : array('email'=>'', 'name'=>''),
       'to'          => isset($head->to) ? (array)$this->array_to_address($head->to) : array(),
       'cc'          => isset($head->cc) ? (array)$this->array_to_address($head->cc) : array(),
       'bcc'         => isset($head->bcc) ? (array)$this->array_to_address($head->bcc) : array(),

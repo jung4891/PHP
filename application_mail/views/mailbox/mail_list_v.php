@@ -722,7 +722,7 @@ $(".mlist_tbl tr").on("mousedown", function(){
     });
  }
 
-   // 보기 설정
+   // 보기개수 설정
    function mails_cnt(s) {
     const cnt = s.options[s.selectedIndex].value;
     var mbox = '<?php echo $mbox; ?>';
