@@ -507,7 +507,7 @@ $(function (){
                }
              };
 
-             let alert = (folders.length == 1)? "메일함을 삭제합니다. \n해당메일함의 모든 메일은 완전삭제됩니다. \n\n계속하시겠습니까?" : "메일함을 삭제합니다. \n해당메일함 및 하위 메일함의 모든 메일은 완전삭제됩니다. \n\n계속하시겠습니까?";
+             let alert = (folders.length == 1)? "메일함을 삭제합니다. \n해당메일함의 모든 메일은 휴지통으로 이동됩니다. \n\n계속하시겠습니까?" : "메일함을 삭제합니다. \n해당메일함 및 하위 메일함의 모든 메일은 휴지통으로 이동됩니다. \n\n계속하시겠습니까?";
 
              if(confirm(alert) == true) {
                $.ajax({
@@ -515,7 +515,20 @@ $(function (){
                  type : "post",
                  data : {folders: folders},
                  success: function (res) {
-                   location.reload();
+                   var mbox = '<?php if(isset($mbox)) echo $mbox; ?>';
+                   var mbox_exist = false;
+                   for(var i=0; i<folders.length; i++) {
+                     if(folders[i] == mbox) {
+                       mbox_exist = true;
+                       break;
+                     }
+                   }
+                   if(mbox_exist) {
+                     var url =  "<?php echo site_url(); ?>/mailbox/mail_list";
+                     location.href = url;
+                   }else {
+                     location.reload();
+                   }
                  },
                  error : function(request, status, error){
                    console.log(error);

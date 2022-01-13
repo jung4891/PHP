@@ -372,10 +372,10 @@ for ($i=0; $i < count($folders); $i++) {
     var confirm_txt = '';
     if(children.length == 0) {
       children.push(mbox);
-      confirm_txt = "메일함을 삭제합니다. \n메일함의 모든 메일은 완전삭제됩니다. \n\n계속하시겠습니까?";
+      confirm_txt = "메일함을 삭제합니다. \n메일함의 모든 메일은 휴지통으로 이동됩니다. \n\n계속하시겠습니까?";
     }else {
       children.push(mbox);
-      confirm_txt = "메일함을 삭제합니다. \n단, 선택한 메일함 및 그 하위 메일함을 포함하여 메일함에 있던 모든 메일은 완전삭제됩니다. \n\n계속하시겠습니까?";
+      confirm_txt = "메일함을 삭제합니다. \n단, 선택한 메일함 및 그 하위 메일함의 모든 메일은 휴지통으로 이동됩니다. \n\n계속하시겠습니까?";
     }
 
     if(confirm(confirm_txt) == true) {
@@ -384,8 +384,12 @@ for ($i=0; $i < count($folders); $i++) {
         type : "post",
         data : {folders: children},
         success: function (res) {
-          if(res=="o")  alert("메일함이 삭제되었습니다.");
-          else  alert("메일함 삭제실패");
+          // if(res=="o") {
+          //   alert("메일함이 삭제되었습니다.");
+          // }else{
+          //   console.log(res);
+          //   alert("메일함 삭제실패");
+          // }
           location.reload();
         },
         error : function(request, status, error){

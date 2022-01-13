@@ -302,8 +302,7 @@ class Mailbox extends CI_Controller {
 
     $data = array();
     $mbox = $this->input->get("boxname");
-    $folders_arr = $this->get_folders();  // 사이드바에서 우클릭 메일함 삭제시 그 메일함 리스트를 보고있었을경우 메일함 없다는 애러 처리
-    $mbox = (isset($mbox) && in_array($mbox, $folders_arr))? $mbox : "INBOX";
+    $mbox = (isset($mbox))? $mbox : "INBOX";
     $user_id = $this->user_id;
     $mails= $this->connect_mailserver($mbox);
     $data['mbox'] = $mbox;

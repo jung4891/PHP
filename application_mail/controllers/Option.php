@@ -247,22 +247,20 @@ class Option extends CI_Controller {
 
 		function del_mailbox() {			// mail_side에서 우클릭 메일함명 삭제시
 			$folders = $this->input->post('folders');
-			// var_dump($folders);
-			// $folders_arr = array();
-			// $folders_arr = explode(',', $folders);
 			$mails = $this->connect_mailserver();
 			$mailserver = $this->mailserver;
 			$host = "{" . $mailserver . ":143/imap/novalidate-cert}";
 			$res = true;
 			foreach($folders as $f) {
+				$this->trash_all_mails($f);
 				if(!imap_deletemailbox($mails, $host.$f))	$res = false;
 			}
 			if($res) echo "o"; else echo "x";
 			imap_close($mails);
 		}
 
-		function trash_all_mails() {		// 여기서부터 아래 set_seen까지는 mbox_setting부분임.
-			$mbox = $this->input->post("mbox");
+		function trash_all_mails($f = "") {		// 여기서부터 아래 set_seen까지는 mbox_setting부분임.(+ side에서 메일함삭제시 실행)
+			$mbox = ($f == "")? $this->input->post("mbox") : $f;
 			// $mbox = mb_convert_encoding($mbox, 'UTF7-IMAP', 'UTF-8');
 			$trash = mb_convert_encoding('지운 편지함', 'UTF7-IMAP', 'UTF-8');
 			$mails= $this->connect_mailserver($mbox);
@@ -271,7 +269,7 @@ class Option extends CI_Controller {
 			$res = imap_mail_move($mails, $arr_str, $trash);
 			imap_expunge($mails);
 			imap_close($mails);
-			echo $res;
+			if($f == "")	echo $res;
 		}
 
  		function del_all_mails() {
