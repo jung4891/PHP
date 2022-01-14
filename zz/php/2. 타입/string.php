@@ -68,7 +68,7 @@
     echo '<br><br><br>';
 
 
-    // strpos(전체 문자열, 찾을 문자) : 특정 문자의 인덱스 반환
+    // strpos(전체 문자열, 찾을 문자) : 특정 문자의 인덱스 반환(없으면 false 반환)
     echo '<h3>strpos()</h3>';
     $str = "web developer";
     $findStr = 'e';              // 'develop'은 'd'랑 결과가 같다.

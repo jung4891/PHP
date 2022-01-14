@@ -278,9 +278,9 @@ class Dbmailtest2 extends CI_Controller {
 
 
   public function exec_search() {
-    $mbox = "INBOX";
+    $mbox = "INBOX.test2";
     $user_id = "test4@durianict.co.kr";
-    $search_word = "업무";
+    $search_word = "수신확인";
 
     $mails= $this->connect_mailserver($mbox);
     $domain = substr($user_id, strpos($user_id, '@')+1);
@@ -304,9 +304,10 @@ class Dbmailtest2 extends CI_Controller {
     $word_encoded_euc_base64 = base64_encode(iconv('utf-8', 'cp949', $search_word));
     array_push($word_encoded_arr, $word_encoded_euc_base64);
     $word_encoded_arr = array_unique($word_encoded_arr);
-    // echo '<pre>';
-    // var_dump($word_encoded_arr);
-    // echo '</pre>';
+    echo '<pre>';
+    var_dump($word_encoded_arr);
+    echo '</pre>';
+    exit;
 
     $name_arr = array();
     foreach($word_encoded_arr as $word_encoded) {

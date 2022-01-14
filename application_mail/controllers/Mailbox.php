@@ -33,8 +33,8 @@ class Mailbox extends CI_Controller {
       $key = $this->db->password;
       $key = substr(hash('sha256', $key, true), 0, 32);
 			$decrypted = openssl_decrypt(base64_decode($encryp_password), 'aes-256-cbc', $key, 1, $iv);
-      // $this->mailserver = "192.168.0.100";
-      $this->mailserver = "192.168.0.50";
+      $this->mailserver = "192.168.0.100";
+      // $this->mailserver = "192.168.0.50";
       $this->user_id = $_SESSION["userid"];
       $this->user_pwd = $decrypted;
       $this->defalt_folder = array(
@@ -1036,7 +1036,7 @@ class Mailbox extends CI_Controller {
          case 1:  // multi-part headers, can ignore  (MIXED, ALTERNATIVE, RELATED)
            break;
          case 2:  // attached message headers, can ignore (.eml 첨부파일은 2로 넘어와서 break 해제하면 되는데)
-           //break;                                         // 그렇게되면 다른부분 또 애러 생겨서 우선 살려둠
+           break;                                         // 그렇게되면 다른부분 또 애러 생겨서 우선 살려둠
          case 3: // application	(엑셀, 파워포인트등 첨부파일은 3임)
          case 4: // audio
          case 5: // image		(PNG 인라인출력 or 첨부 모두 type이 5임. 여기서는 삽입된거만 처리 첨부는 아래로 내려감)
@@ -1049,10 +1049,19 @@ class Mailbox extends CI_Controller {
 
              // contents의 기존 src 속성값을 이미지 데이터로 교체후 contents 변수에 다시 넣어줌
              // 삽입된 이미지의 경우 디코딩 안하고 fetchbody으로 추출한 내용을 src에 아래처럼 넣어줌
+             $img_name = $part->parameters[0]->value;
              $pattern = '/src="cid:[a-zA-Z0-9.@]+"/';
              preg_match_all($pattern, $contents, $matches);
-             if(isset($matches[0][0]))
-              $contents = str_replace($matches[0][0], "src='data:image/png;base64,$img_data'", $contents);
+             $matched_arr = $matches[0];
+             $target = '';
+             // if(count($matched_arr) != 1) {
+               foreach($matched_arr as $e) {
+                 if(strpos($e, $img_name) !== false)    // 이미지 위치 바뀌는 애러처리 (이미지 2개이상일 경우 이미지 파일명으로 찾아감.)
+                    $target = $e;
+               }
+             // }
+             // if(isset($matches[0][0]))
+              $contents = str_replace($target, "src='data:image/png;base64,$img_data'", $contents);
              break;
            }
          case 6: // video
