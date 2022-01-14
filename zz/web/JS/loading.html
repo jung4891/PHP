@@ -1,0 +1,96 @@
+
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>로딩중 이미지 출력</title>
+    <style media="screen">
+
+      /* 전체 화면을 덮는 layer, 로딩중일때 다른 이벤트를 방지하기 위함 */
+      #loadingBar {
+        width: 100%;
+        height: 100%;
+        top: 0px;
+        left: 0px;
+        position: fixed;
+        display: block;
+        opacity: 0.7;
+        background-color: #fff;
+        z-index: 99;
+
+      }
+
+      /* 로딩중 이미지 위치 및 출력순서 */
+      #loading-image {
+        position: absolute;
+        top: 20%;
+        left: 10%;
+        z-index: 100;
+      }
+    </style>
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+    <script type="text/javascript">
+      // 1. JQ
+      $(document).ready(function() {
+        $('#btn').on('click', function(e) {
+          e.preventDefault();
+          $("#loadingBar").show();
+        });
+        $("#loadingBar").hide();
+      })
+    </script>
+  </head>
+  <body>
+    <div id="loadingBar" style="display: none;">
+      <img id="loading-image"  src="/img/loading.svg" alt="loading...">
+    </div>
+    <div>
+      <button id="btn">버튼</button>
+    </div>
+  </body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 페이지 로딩시간 출력하기 -->
+<!-- <!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+  </head>
+  <script type="text/javascript">
+    var from_time = new Date();
+    from_time = from_time.getTime();
+
+    function show_loading_time() {
+      var to_time = new Date();
+      to_time = to_time.getTime();
+      var secs = (to_time - from_time) / 1000;
+      document.f.t.value = secs + "seconds";
+    }
+  </script>
+  <body onLoad = "show_loading_time()">
+    <form name="f" onSubmit="0">
+      Page Loading Time : <input size="15" name="t" value="로딩중..">
+    </form>
+  </body>
+</html> -->
