@@ -33,8 +33,8 @@ class Mailbox extends CI_Controller {
       $key = $this->db->password;
       $key = substr(hash('sha256', $key, true), 0, 32);
 			$decrypted = openssl_decrypt(base64_decode($encryp_password), 'aes-256-cbc', $key, 1, $iv);
-      $this->mailserver = "192.168.0.100";
-      // $this->mailserver = "192.168.0.50";
+      // $this->mailserver = "192.168.0.100";
+      $this->mailserver = "192.168.0.50";
       $this->user_id = $_SESSION["userid"];
       $this->user_pwd = $decrypted;
       $this->defalt_folder = array(
@@ -262,6 +262,13 @@ class Mailbox extends CI_Controller {
     $word_encoded_utf8_base64 = base64_encode($search_word);
     array_push($word_encoded_arr, $word_encoded_utf8_base64);
     // euc-kr / base64 -> xde9usau(테스트)
+    // 완벽하지 않음(딱 오로지 제목 텍스트만 써야만, 즉 글자수까지 똑같아야만 검색됨)
+    /*
+      '업무'  	 	vve5qw==
+      '업무 '	  	vve5qyA=
+      '업무일지'	vve5q8DPwfY=
+      '일지업무'	wM/B9r73uas=
+    */
     $word_encoded_euc_base64 = base64_encode(iconv('utf-8', 'cp949', $search_word));
     array_push($word_encoded_arr, $word_encoded_euc_base64);
     $word_encoded_arr = array_unique($word_encoded_arr);
@@ -324,7 +331,23 @@ class Mailbox extends CI_Controller {
       }else if ($type == "search") {
         // 대표검색으로 제목+내용+보낸사람+받는사람 검색
         $search_word = trim(strtolower($this->input->get("search_word")));
-        $mailno_arr = $this->exec_name_search($mbox, $user_id, $search_word);
+
+        // 날짜로 대표검색시 (22-01-17, 22/1/17, 2022.01.17 모두 검색되도록 처리)
+        $pattern = '/[0-9]+(-|\/|\.)[0-9]+(-|\/|\.)[0-9]+/';
+        if(preg_match($pattern, $search_word)) {
+          $delimiter = (strpos($search_word, '-'))? '-' : ( (strpos($search_word, '/'))? '/' : '.' );
+          $search_word_arr = explode($delimiter, $search_word);
+          $year = $search_word_arr[0];
+          $year = (strlen($year) == 2)? 2000 + (int)$year : (int)$year;
+          $month = (int)$search_word_arr[1];
+          $day = (int)$search_word_arr[2];
+          $start_date = $year.'-'.$month.'-'.$day;
+          $timestamp = mktime(0, 0, 0, $month, $day, $year) + (24*60*60);
+          $end_date = date('Y-m-d', $timestamp);
+          $mailno_arr = imap_sort($mails, SORTDATE, 1, 0, "SINCE $start_date BEFORE $end_date");
+        }else {
+          $mailno_arr = $this->exec_name_search($mbox, $user_id, $search_word);
+        }
         $data['search_word'] = $search_word;
         $data['type'] = "search";
       }else if($type == "search_detail") {
@@ -379,7 +402,7 @@ class Mailbox extends CI_Controller {
       $start_date = trim(strtolower($this->input->get("start_date")));
       if($start_date != "") {
         if(count($mailno_arr_target) == 0 && $overlap_flag == false) {
-          $mailno_arr_target = imap_sort($mails, SORTDATE, 1, 0, "SINCE $start_date");
+          $mailno_arr_target = imap_sort($mails, SORTDATE, 1, 0, "SINCE $start_date"); // 22-01-17, 2022-1-17 모두 검색됨.
           $overlap_flag = true;
         }
         if(count($mailno_arr_target) != 0 && $overlap_flag == true) {
@@ -390,7 +413,6 @@ class Mailbox extends CI_Controller {
 
       $end_date = trim(strtolower($this->input->get("end_date")));
       if($end_date != "") {
-
         if(count($mailno_arr_target) == 0 && $overlap_flag == false) {
           $mailno_arr_target = imap_sort($mails, SORTDATE, 1, 0, "BEFORE $end_date");
           $overlap_flag = true;
@@ -485,7 +507,8 @@ class Mailbox extends CI_Controller {
         for($i=$start_row; $i<$start_row+$per_page; $i++) {
           if (isset($mailno_arr[$i])) {       // 마지막 페이지에서 15개가 안될경우 오류처리
             if( (isset($data['type']) && $data['type'] == "search") || (isset($data['search_flag']) && $data['search_flag']  == true) ) {
-              $mailno_arr[$i] = $this->exec_no_search($mbox, $user_id, $mailno_arr[$i]);    // 여기서 mailno_arr은 name_arr임
+              if(gettype($mailno_arr[$i]) == "string")    // 날짜검색은 아래로 안가도록.
+                $mailno_arr[$i] = $this->exec_no_search($mbox, $user_id, $mailno_arr[$i]);    // 여기서 인수 mailno_arr은 name_arr임
             }
             $mail_no = $mailno_arr[$i];
             $m_uid = imap_uid($mails, $mail_no);
@@ -538,6 +561,7 @@ class Mailbox extends CI_Controller {
             }
 
             $subject = $headerinfo->subject;
+            // echo $subject.'<br>';
             $subject_decoded = $this->subject_decode($subject);
             $udate = isset($headerinfo->date)? strtotime($headerinfo->date) : (int)$headerinfo->udate;
             $date = date("y.m.d", $udate);
@@ -565,6 +589,7 @@ class Mailbox extends CI_Controller {
             // echo '<pre>';
             // var_dump($headerinfo);
             // echo '</pre>';
+            // exit;
           }
         }
       } else {
@@ -575,9 +600,9 @@ class Mailbox extends CI_Controller {
     }else {
       $data['test_msg'] = '사용자명 또는 패스워드가 틀립니다.';
     }
-    // echo '<pre>';
-    // var_dump($data['mail_list_info']);
-    // echo '</pre>';
+    echo '<pre>';
+    var_dump($data['mail_list_info']);
+    echo '</pre>';
     // exit;
     $this->load->view('mailbox/mail_list_v', $data);
   } // function(mail_list)

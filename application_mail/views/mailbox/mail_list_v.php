@@ -79,9 +79,29 @@ $mbox = urldecode($mbox);
     border-top:1px solid #dedede;
   }
 
-
   .input{
     border: 1px solid lightgray;
+  }
+
+
+  #loading {
+  	width: 100%;
+  	height: 100%;
+  	top: 0;
+  	left: 0;
+  	position: fixed;
+  	display: block;
+  	opacity: 0.8;
+  	background: white;
+  	z-index: 99;
+  	text-align: center;
+  }
+
+  #loading > img {
+  	position: absolute;
+  	top: 35%;
+  	left: 50%;
+  	z-index: 100;
   }
  </style>
 
@@ -123,9 +143,14 @@ $mbox = urldecode($mbox);
               <div style="display: inline-block; width: 190px; height: 25px;  border: solid 1px lightgray;">
                 <input type="text" id="search" style="outline: none; margin: 3px; margin-left: 6px; width: 79%; height: 20px; border: none; color: green; font-weight: bold; font-size:1em" >
                 <a href="javascript:void(0)" onclick="search_mail(this);">
-                <img style="width: 17px; position:Arelative; top:3px " src="<?php echo $misc; ?>/img/icon/search.png" alt="">
+                <img style="width: 17px; position:relative; top:3px " src="<?php echo $misc; ?>/img/icon/search.png" alt="">
                 </a>
               </div>
+
+              <div id="loading">
+                <img src="<?php echo $misc; ?>/img/icon/loading.svg" alt="loading..">
+              </div>
+
               <div style="display: inline-block; cursor: pointer; width: 55px; height: 25px; position: relative; top: -1px; left: 5px; border: solid 1px lightgray; background-color: rgb(220,220,220); text-align: center">
                 <a onclick="search_detail(this);" style="position: relative; top: 0px; font-weight: 300; color: grey; font-size: 14px">
                   상세 <img style="position: relative; top: 2px; width: 15px" src="<?php echo $misc; ?>/img/icon/아래.svg" alt="">
@@ -453,6 +478,13 @@ $(".mlist_tbl tr").on("mousedown", function(){
   // 보기설정 개수 선택시 새로고침된 페이지에서 옵션 selected 설정
   var per_page = '<?php echo $per_page; ?>';
   $('#show_cnt option[value='+per_page+']').attr('selected', true);
+
+  // 로딩시 이미지 띄우기
+  $('#loading').hide();
+  $('#search_form').submit(function(){
+    $('#loading').show();
+    return true;
+  });
  })
 
  // jquery datepicker 설정
@@ -481,7 +513,7 @@ $(".mlist_tbl tr").on("mousedown", function(){
    }else {
      // let parent_tr = ths.parentNode;
      // let subject = parent_tr.childNodes[1].value;
-     var newForm = $('<form></form>');
+     var newForm = $('<form id="search_form"></form>');
      newForm.attr("method","get");
      newForm.attr("action", "<?php echo site_url(); ?>/mailbox/mail_list");
      newForm.append($('<input>', {type: 'hidden', name: 'boxname', value: '<?php echo $mbox ?>'}));
@@ -501,7 +533,7 @@ $(".mlist_tbl tr").on("mousedown", function(){
        alert('검색어를 입력하세요');
        $('#search').focus();
      }else {
-       var newForm = $('<form></form>');
+       var newForm = $('<form id="search_form"></form>');
        newForm.attr("method","get");
        newForm.attr("action", "<?php echo site_url(); ?>/mailbox/mail_list");
        newForm.append($('<input>', {type: 'hidden', name: 'boxname', value: '<?php echo $mbox ?>'}));
@@ -536,7 +568,7 @@ $(".mlist_tbl tr").on("mousedown", function(){
    // get방식이므로 주소창에 검색하는 애들만 출력되게끔
    var mbox = '<?php echo $mbox; ?>';
    var type = 'search_detail';
-   var newForm = $('<form></form>');
+   var newForm = $('<form id="search_form"></form>');
    newForm.attr("method","get");
    newForm.attr("action", "<?php echo site_url(); ?>/mailbox/mail_list");
    newForm.append($('<input>', {type: 'hidden', name: 'boxname', value: mbox }));

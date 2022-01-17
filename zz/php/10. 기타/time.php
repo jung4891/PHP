@@ -40,6 +40,30 @@
       }
       echo '<br>';
 
+      // 날짜숫자 입력 > 14 Jan 2022 형태로 출력
+      $input = '2022/1/14';
+      $pattern = '/[0-9]+(-|\/)[0-9]+(-|\/)[0-9]+/';
+      var_dump(preg_match($pattern, $input));
+      echo '<br>';
+      if(preg_match($pattern, $input)) {
+        $delimiter = (strpos($input, '-'))? '-' : '/';
+        $input_arr = explode($delimiter, $input);
+        $year = $input_arr[0];
+        $year = (strlen($year) == 2)? 2000 + (int)$year : (int)$year;
+        $month = (int)$input_arr[1];
+        $day = (int)$input_arr[2];
+      }
+      $month_arr = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+      $month = $month_arr[$month-1];
+      echo '년: '.$year.'<br>';
+      echo '월: '.$month.'<br>';
+      echo '일: '.$day.'<br>';
+      $res = $day.' '.$month.' '.$year;
+      echo '결과: '.$res;
+
+      echo '<br><br>';
+
+
 
       // 특정 날짜가 있는 주의 월요일/일요일 날짜 구하기
       $year = 2021;
@@ -86,8 +110,8 @@
 
       if (isset($monday) && isset($sunday)) {
         echo "{$year}년 {$month}월 {$day}일이 있는 주의 월요일, 일요일 날짜 <br>";
-        echo '월요일: '.date('Y-m-d', $monday).'<br>';
-        echo '일요일: '.date('Y-m-d', $sunday).'<br>';
+        echo '월요일: '.date('y-M-d', $monday).'<br>';   // 21-Sep-06
+        echo '일요일: '.date('Y-m-d', $sunday).'<br>';   // 2021-09-12
       } else {
         echo "내부오류";
       }
@@ -95,7 +119,11 @@
 
 
       // getdate() : 현재 시간정보를 배열로 보내줌
-      $nowTime = getdate();
+      $nowTime = getdate(1630995612);
+      // $nowTime = getdate();
+      echo '<pre>';
+      var_dump($nowTime);
+      echo '</pre>';
       echo "현재 년도 : ".$nowTime['year']."<br>";
       echo "현재 월 : ".$nowTime['mon']."<br>";
       echo "현재 일 : ".$nowTime['mday']."<br>";

@@ -17,11 +17,11 @@
         opacity: 0.7;
         background-color: #fff;
         z-index: 99;
-
+        /* text-align: center; */
       }
 
       /* 로딩중 이미지 위치 및 출력순서 */
-      #loading-image {
+      #loading > img {
         position: absolute;
         top: 20%;
         left: 10%;
@@ -35,17 +35,18 @@
         $('#btn').on('click', function(e) {
           e.preventDefault();
           $("#loadingBar").show();
+          // $("#loadingBar").hide();
         });
-        $("#loadingBar").hide();
-      })
+      });
+
     </script>
   </head>
   <body>
     <div id="loadingBar" style="display: none;">
-      <img id="loading-image"  src="/img/loading.svg" alt="loading...">
+      <img src="/img/loading.svg" alt="loading...">
     </div>
     <div>
-      <button id="btn">버튼</button>
+      <button id="btn">실행</button>
     </div>
   </body>
 </html>
