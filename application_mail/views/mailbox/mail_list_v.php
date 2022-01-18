@@ -83,7 +83,6 @@ $mbox = urldecode($mbox);
     border: 1px solid lightgray;
   }
 
-
   #loading {
   	width: 100%;
   	height: 100%;
@@ -99,8 +98,8 @@ $mbox = urldecode($mbox);
 
   #loading > img {
   	position: absolute;
-  	top: 35%;
-  	left: 50%;
+  	top: 30%;
+  	left: 43%;
   	z-index: 100;
   }
  </style>
@@ -147,7 +146,7 @@ $mbox = urldecode($mbox);
                 </a>
               </div>
 
-              <div id="loading">
+              <div id="loading" style="display:none">
                 <img src="<?php echo $misc; ?>/img/icon/loading.svg" alt="loading..">
               </div>
 
@@ -479,12 +478,6 @@ $(".mlist_tbl tr").on("mousedown", function(){
   var per_page = '<?php echo $per_page; ?>';
   $('#show_cnt option[value='+per_page+']').attr('selected', true);
 
-  // 로딩시 이미지 띄우기
-  $('#loading').hide();
-  $('#search_form').submit(function(){
-    $('#loading').show();
-    return true;
-  });
  })
 
  // jquery datepicker 설정
@@ -520,6 +513,7 @@ $(".mlist_tbl tr").on("mousedown", function(){
      newForm.append($('<input>', {type: 'hidden', name: 'type', value: 'search' }));
      newForm.append($('<input>', {type: 'hidden', name: 'search_word', value: search_word }));
      newForm.appendTo('body');
+     $('#loading').show();
      newForm.submit();
    }
  }
@@ -540,6 +534,7 @@ $(".mlist_tbl tr").on("mousedown", function(){
        newForm.append($('<input>', {type: 'hidden', name: 'type', value: 'search' }));
        newForm.append($('<input>', {type: 'hidden', name: 'search_word', value: search_word }));
        newForm.appendTo('body');
+       $('#loading').show();
        newForm.submit();
      }
    }
@@ -589,6 +584,7 @@ $(".mlist_tbl tr").on("mousedown", function(){
      newForm.append($('<input>', {type: 'hidden', name: 'end_date', value: selectedDate }));
    }
    newForm.appendTo('body');
+   $('#loading').show();
    newForm.submit();
  })
 

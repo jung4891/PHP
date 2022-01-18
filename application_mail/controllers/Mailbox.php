@@ -600,9 +600,9 @@ class Mailbox extends CI_Controller {
     }else {
       $data['test_msg'] = '사용자명 또는 패스워드가 틀립니다.';
     }
-    echo '<pre>';
-    var_dump($data['mail_list_info']);
-    echo '</pre>';
+    // echo '<pre>';
+    // var_dump($data['mail_list_info']);
+    // echo '</pre>';
     // exit;
     $this->load->view('mailbox/mail_list_v', $data);
   } // function(mail_list)
