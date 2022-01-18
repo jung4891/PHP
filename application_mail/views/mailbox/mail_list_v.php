@@ -54,6 +54,16 @@ $mbox = urldecode($mbox);
      cursor: pointer;
    } */
 
+   /* .top_button[disabled=disabled] {
+     -webkit-appearance: none;
+     -moz-appearance: none;
+     appearance: none;
+     border:1px solid #B0B0B0;
+     border-radius: 5px;
+     height: 30px;
+     cursor: pointer;
+   } */
+
    .send_context{
      display:none;
      position: absolute;
@@ -123,24 +133,25 @@ $mbox = urldecode($mbox);
             <td><input type="checkbox" id="total" onClick="check_all(this);"></td>
             <td colspan="3">
             <?php if($mbox == "&ycDGtA- &07jJwNVo-") {  // 휴지통 ?>
-            <button type="button" class="top_button" onclick="del_ever();" disabled="disabled">영구삭제</button>
+            <button type="button" class="top_button" onclick="del_ever();" disabled="disabled"
+                    style="width: 70px; height: 27px; font-weight: bold; border-radius: 5px">영구삭제</button>
             <?php }else {?>
-            <button type="button" class="top_button" onclick="del_trash();" disabled="disabled" style="height: 25px; ">삭제</button>
+            <button type="button" class="top_button" onclick="del_trash();" disabled="disabled"
+                    style="width: 55px; height: 27px; font-weight: bold; border-radius: 5px">삭제</button>
             <?php } ?>
             &nbsp;&nbsp;
-            <select class="top_button" id="selected_box" style="background-color: #F0F0F0; height: 25px; padding-top: 1px" disabled="disabled" >
-              <option value="">이동할 메일함</option>
+            <select class="top_button" id="selected_box" style="background-color: #F0F0F0; height: 28px; padding-top: 1px;  border-radius: 5px; font-weight: bold" disabled="disabled" onchange="move();" >
+              <option value="" style="text-align: center;">이동할 메일함</option>
               <?php
                 foreach($mailbox_tree as $b) {
                   echo "<option value='{$b["id"]}'>{$b['text']}</option>";
                 }
               ?>
             </select>
-            <button type="button" class="top_button" onclick="move();" disabled="disabled" style="height: 25px;">이동</button>
             </td>
             <td>
-              <div style="display: inline-block; width: 190px; height: 25px;  border: solid 1px lightgray;">
-                <input type="text" id="search" style="outline: none; margin: 3px; margin-left: 6px; width: 79%; height: 20px; border: none; color: green; font-weight: bold; font-size:1em" >
+              <div style="display: inline-block; width: 190px; height: 27px; border-radius: 5px; border: solid 1px lightgray;">
+                <input type="text" id="search" style="outline: none; margin: 3px; margin-left: 6px; width: 79%; height: 20px; border: none; color: #0575E6; font-size: 16px; font-weight: bold" >
                 <a href="javascript:void(0)" onclick="search_mail(this);">
                 <img style="width: 17px; position:relative; top:3px " src="<?php echo $misc; ?>/img/icon/search.png" alt="">
                 </a>
@@ -150,16 +161,16 @@ $mbox = urldecode($mbox);
                 <img src="<?php echo $misc; ?>/img/icon/loading.svg" alt="loading..">
               </div>
 
-              <div style="display: inline-block; cursor: pointer; width: 55px; height: 25px; position: relative; top: -1px; left: 5px; border: solid 1px lightgray; background-color: rgb(220,220,220); text-align: center">
-                <a onclick="search_detail(this);" style="position: relative; top: 0px; font-weight: 300; color: grey; font-size: 14px">
-                  상세 <img style="position: relative; top: 2px; width: 15px" src="<?php echo $misc; ?>/img/icon/아래.svg" alt="">
+              <div style="display: inline-block; cursor: pointer; width: 60px; height: 27px; border-radius: 5px; position: relative; top: -1px; left: 5px; border: solid 1px lightgray; background-color: rgb(220,220,220); text-align: center">
+                <a onclick="search_detail(this);" style="position: relative; top: 0px; font-weight: 400; color: gray; font-size: 14px">
+                  상세 <img style="position: relative; top: 2px; left: 2px; width: 15px" src="<?php echo $misc; ?>/img/icon/아래.svg" alt="">
                 </a>
               </div>
             </td>
             <td></td>
             <td>
-            <select id="show_cnt" class="input" onchange="mails_cnt(this);" style="background-color: #F0F0F0; height: 25px; " >
-              <option value="">보기설정</option>
+            <select id="show_cnt" class="input" onchange="mails_cnt(this);" style="background-color: rgb(220,220,220); width: 85px; height: 28px; border-radius: 5px; font-weight: bold; color: gray; font-size: 12px; cursor: pointer" >
+              <option value="" style="text-align: center">보기설정</option>
               <option value="10">10개</option>
               <option value="20">20개</option>
               <option value="30">30개</option>
@@ -396,6 +407,7 @@ $(".mlist_tbl tr").on("mousedown", function(){
        $('input[type="checkbox"]').prop('checked', false);
        tr_checkbox.prop('checked', true);
        $('.top_button').prop('disabled', false);
+       $('.top_button').css('cursor', 'pointer');
      }
      var chk_lenth = $('input[name="chk"]:checked').length;
      $("#movebox_len").html(chk_lenth);
@@ -593,10 +605,12 @@ $(".mlist_tbl tr").on("mousedown", function(){
  function check_all(chk_all) {
    if(chk_all.checked) {
      $('.top_button').prop('disabled', false);
+     $('.top_button').css('cursor', 'pointer');
      $('input[type="checkbox"]').prop('checked', true);
    }else {
      $('.top_button').prop('disabled', "disabled");
      $('input[type="checkbox"]').prop('checked', false);
+     $('.top_button').css('cursor', '');
    }
  };
 
@@ -610,9 +624,12 @@ $(".mlist_tbl tr").on("mousedown", function(){
    }
    if(this.checked) {
      $('.top_button').prop('disabled', false);
+     $('.top_button').css('cursor', 'pointer');
    }else {
-      if($('input[name="chk"]:checked').length == 0)
+      if($('input[name="chk"]:checked').length == 0) {
         $('.top_button').prop('disabled', 'disabled');
+        $('.top_button').css('cursor', '');
+      }
     }
  })
 
@@ -681,7 +698,7 @@ $(".mlist_tbl tr").on("mousedown", function(){
       type : "post",
       data : {mbox: '<?php echo $mbox ?>', to_box: '&ycDGtA- &07jJwNVo-', mail_arr: arr},
       success : function(data){
-        (data == 1)? alert("삭제되었습니다.") : alert("애러발생");
+        // (data == 1)? alert("삭제되었습니다.") : alert("애러발생");
       },
       error : function(request, status, error){
           console.log("AJAX_ERROR");
@@ -708,7 +725,7 @@ $(".mlist_tbl tr").on("mousedown", function(){
         type : "post",
         data : {mbox: '<?php echo $mbox ?>', mail_arr: arr},
         success : function(data){
-          (data == 1)? alert("영구삭제 되었습니다.") : alert("애러발생");
+          // (data == 1)? alert("영구삭제 되었습니다.") : alert("애러발생");
         },
         error : function(request, status, error){
           console.log("AJAX_ERROR");
@@ -739,7 +756,7 @@ $(".mlist_tbl tr").on("mousedown", function(){
       type : "post",
       data : {mbox: '<?php echo $mbox ?>', to_box: to_box, mail_arr: arr},
       success : function(data){
-        (data == 1)? alert("이동되었습니다.") : alert("애러발생");
+        // (data == 1)? alert("이동되었습니다.") : alert("애러발생");
       },
       error : function(request, status, error){
           console.log("AJAX_ERROR");
