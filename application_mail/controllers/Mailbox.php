@@ -19,6 +19,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     // }
 
 class Mailbox extends CI_Controller {
+
+  public $test = 88;
+  
   function __construct() {
       parent::__construct();
       if(!isset($_SESSION)){

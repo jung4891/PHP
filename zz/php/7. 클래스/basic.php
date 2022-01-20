@@ -44,15 +44,16 @@
 
       class pen extends test{
         public $color = '노랑색';
-        public $price;
+        public static $price = 50;
 
         function __construct($param) {
           echo "parameter로 전달받은 팬 색상: {$param} <br>";
           echo "지정되어있는 property 팬 색상: {$this->color} <br>";
           $this->color = $param;    // 전달받은 색으로 property 변경
           parent::method_test();    // 부모클래스의 메소드 실행
-        }                           // parent::__construct(); -> 부모클래스의 생성자 실행
-
+                                    // parent::__construct(); -> 부모클래스의 생성자 실행
+          $this->size = 'small';    // 이런식으로 property가 선언이 되지 않았는대도 자동생성되어 값 들어가지게됨
+          }
         public function write($contents) {
           echo "{$this->color}팬으로 {$contents}를 쓰다.<br>";
         }
@@ -66,11 +67,14 @@
         }
       }
       $pen = new pen('파랑색');
+      echo '<br>';
       echo $pen->color.'<br>';  // 파랑색
       $pen->write('일기');      // 파랑색팬으로 일기를 쓰다.
       // pen::write("테스트");     // Using $this when not in object context. ($this는 객체에서만 사용)
-      pen::method_test();       // pen 클래스의 method_test 실행
+      pen::method_test();       // pen 클래스의 method_test 실행 (::는 인스턴스 생성없이 메소드를 호출함)
       test::method_test();      // ~
+      echo pen::$price;         // 여기서 ::는 인스턴스 생성없이 클래스의 프라퍼티를 호출함.
+
 
 
 
