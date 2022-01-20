@@ -134,13 +134,13 @@ $mbox = urldecode($mbox);
             <td colspan="3">
             <?php if($mbox == "&ycDGtA- &07jJwNVo-") {  // 휴지통 ?>
             <button type="button" class="top_button" onclick="del_ever();" disabled="disabled"
-                    style="width: 70px; height: 27px; font-weight: bold; border-radius: 5px">영구삭제</button>
+                    style="width: 70px; height: 29px; border-radius: 3px; font-weight: bold">영구삭제</button>
             <?php }else {?>
             <button type="button" class="top_button" onclick="del_trash();" disabled="disabled"
-                    style="width: 55px; height: 27px; font-weight: bold; border-radius: 5px">삭제</button>
+                    style="width: 53px; height: 29px; border-radius: 3px; font-weight: bold; border: 1px solid">삭제</button>
             <?php } ?>
             &nbsp;&nbsp;
-            <select class="top_button" id="selected_box" style="background-color: #F0F0F0; height: 28px; padding-top: 1px;  border-radius: 5px; font-weight: bold" disabled="disabled" onchange="move();" >
+            <select class="top_button" id="selected_box" style="background-color: #F6F6F6; height: 30px; padding-top: 1px;  border-radius: 3px; " disabled="disabled" onchange="move();" >
               <option value="" style="text-align: center;">이동할 메일함</option>
               <?php
                 foreach($mailbox_tree as $b) {
@@ -625,10 +625,12 @@ $(".mlist_tbl tr").on("mousedown", function(){
    if(this.checked) {
      $('.top_button').prop('disabled', false);
      $('.top_button').css('cursor', 'pointer');
+     // $('.top_button').css({'background-color':'white', 'border':'1px solid lightgray'});
    }else {
       if($('input[name="chk"]:checked').length == 0) {
         $('.top_button').prop('disabled', 'disabled');
         $('.top_button').css('cursor', '');
+        // $('.top_button').css({'background-color':'', 'border':''});
       }
     }
  })
