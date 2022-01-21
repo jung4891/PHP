@@ -300,15 +300,56 @@ class Dbmailtest2 extends CI_Controller {
     // utf-8 / base64(3) -> (재택치료)
     $word_encoded_utf8_base64 = base64_encode($search_word);
     array_push($word_encoded_arr, $word_encoded_utf8_base64);
-    // euc-kr / base64 -> xde9usau(테스트)
+    // euc-kr / base64 -> xde9usau(테스트), xde9usauIA==(테스트 )
     $word_encoded_euc_base64 = base64_encode(iconv('utf-8', 'cp949', $search_word));
     array_push($word_encoded_arr, $word_encoded_euc_base64);
     $word_encoded_arr = array_unique($word_encoded_arr);
+    $word_encoded_imp = implode('\|', $word_encoded_arr);   // OR 조건으로 exec 검색하기 위해 설정함
+
+    // echo '<pre>';
+    // var_dump($word_encoded_imp);
+    // echo '</pre><br>';
+    // exit;
+
+    exec("sudo grep -r '$word_encoded_imp' /home/vmail/'$domain'/'$user_id'/'$src'cur", $output, $error);
+
     echo '<pre>';
-    var_dump($word_encoded_arr);
-    echo '</pre>';
+    var_dump($output);
+    echo '</pre><br>';
     exit;
 
+    $name_arr = array();
+    foreach($output as $i => $v) {
+      $v = substr($v, 0, strpos($v, ":"));
+      $v = substr($v, strpos($v, "cur")+4);
+      array_push($name_arr, $v);
+    }
+
+    $name_arr = array_unique($name_arr);
+    rsort($name_arr);     // 최신날짜로 정렬
+    $name_arr_imp = implode('\|', $name_arr);
+    // echo '<pre>';
+    // var_dump($name_arr_imp);
+    // echo '</pre><br>';
+
+    exec("sudo grep -r '$name_arr_imp' /home/vmail/'$domain'/'$user_id'/'$src'dovecot-uidlist", $output2, $error2);
+
+    $msg_no_arr = array();
+    foreach($output2 as $i => $v) {
+      $v = explode(' :', $v)[0];
+      // $v = substr($v, 0, strpos($v, ":"));
+      array_push($msg_no_arr, $v);
+    }
+    echo '<pre>';
+    var_dump($msg_no_arr);
+    echo '</pre><br>';
+    exit;
+
+
+
+
+
+    // 이전 검색하던 부분
     $name_arr = array();
     foreach($word_encoded_arr as $word_encoded) {
       $output = array();
@@ -326,10 +367,10 @@ class Dbmailtest2 extends CI_Controller {
     }
     $name_arr = array_unique($name_arr);
     rsort($name_arr);     // 최신날짜로 정렬
-    echo '<pre>';
-    var_dump($name_arr);
-    echo '</pre>';
-    exit;
+    // echo '<pre>';
+    // var_dump($name_arr);
+    // echo '</pre>';
+    // exit;
     // echo '<br>==================<br><br>';
 
     $msg_no_arr = array();

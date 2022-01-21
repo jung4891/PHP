@@ -9,10 +9,10 @@ $mbox = urldecode($mbox);
 
  <!-- IE에서 input date 입력가능하게 설정 (jQuery에서 제공하는 datepicker 기능) -->
  <!-- jQuery에서 제공하는 css 와 js 파일 -->
- <link rel="stylesheet" href="http://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css"/>
+ <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css"/>
  <!-- <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script> -->
- <script src="http://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
- <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/i18n/jquery-ui-i18n.min.js"></script>
+ <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
+ <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/i18n/jquery-ui-i18n.min.js"></script>
 
  <link rel="stylesheet" href="<?php echo $misc; ?>/css/style.css" type="text/css" charset="utf-8"/>
  <style media="screen">
@@ -526,6 +526,10 @@ $(".mlist_tbl tr").on("mousedown", function(){
      newForm.append($('<input>', {type: 'hidden', name: 'search_word', value: search_word }));
      newForm.appendTo('body');
      $('#loading').show();
+     setTimeout(function() {
+      alert('검색결과가 너무 많습니다.\n페이지가 새로고침됩니다.');
+      location.reload();
+     }, 6000);
      newForm.submit();
    }
  }
@@ -547,6 +551,10 @@ $(".mlist_tbl tr").on("mousedown", function(){
        newForm.append($('<input>', {type: 'hidden', name: 'search_word', value: search_word }));
        newForm.appendTo('body');
        $('#loading').show();
+       setTimeout(function() {
+        alert('검색결과가 너무 많습니다.\n페이지가 새로고침됩니다.');
+        location.reload();
+       }, 6000);
        newForm.submit();
      }
    }
@@ -597,8 +605,13 @@ $(".mlist_tbl tr").on("mousedown", function(){
    }
    newForm.appendTo('body');
    $('#loading').show();
-   newForm.submit();
- })
+
+   setTimeout(function() {
+    alert('검색결과가 너무 많습니다.\n페이지가 새로고침됩니다.');
+    location.reload();
+  }, 6000);
+  newForm.submit();
+  })
 
 
  // 상단 체크박스 클릭시 전체선택/해제 설정
