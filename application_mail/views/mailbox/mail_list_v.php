@@ -3,7 +3,9 @@ include $this->input->server('DOCUMENT_ROOT')."/include/base.php";
 include $this->input->server('DOCUMENT_ROOT')."/include/mail_header.php";
 include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
 
-$mbox = urldecode($mbox);
+// echo 'decode 전:'.$mbox.'<br>';
+$mbox2 = urlencode($mbox);
+// echo 'decode 후:'.$mbox2.'<br>';
 
  ?>
 
@@ -280,9 +282,8 @@ if ($mail_list_info[$i]['ipinfo']["country"] !="") {
           <?php }?>
         </td>
         <?php
-        // get방식으로 데이터를 직접 url에 적으면 &가 데이터 구별기호로 인식되서 바꿔줘야함
-        $mbox2 = str_replace('&', '%26', $mbox);
-        $mbox2 = str_replace(' ', '+', $mbox2);
+        // get방식으로 데이터를 직접 url에 적으면 &가 데이터 구별기호로 인식되서 바꿔줘야함 (위에서 아싸리 바꿔줌 함수 사용해서.)
+        // $mbox2 = str_replace(array('#', '&', ' '), array('%23', '%26', '+'), $mbox);
 
         // 메일 읽은경우/읽지 않은경우 class명 지정하여 색 변경 (메일 읽으면 "U" -> ""로 바뀜)
         $unseen = ($mail_list_info[$i]['unseen'] == "U")? "unseen":"seen";
@@ -526,10 +527,10 @@ $(".mlist_tbl tr").on("mousedown", function(){
      newForm.append($('<input>', {type: 'hidden', name: 'search_word', value: search_word }));
      newForm.appendTo('body');
      $('#loading').show();
-     setTimeout(function() {
-      alert('검색결과가 너무 많습니다.\n페이지가 새로고침됩니다.');
-      location.reload();
-     }, 6000);
+     // setTimeout(function() {
+     //  alert('검색결과가 너무 많습니다.\n페이지가 새로고침됩니다.');
+     //  location.reload();
+     // }, 6000);
      newForm.submit();
    }
  }
@@ -551,10 +552,10 @@ $(".mlist_tbl tr").on("mousedown", function(){
        newForm.append($('<input>', {type: 'hidden', name: 'search_word', value: search_word }));
        newForm.appendTo('body');
        $('#loading').show();
-       setTimeout(function() {
-        alert('검색결과가 너무 많습니다.\n페이지가 새로고침됩니다.');
-        location.reload();
-       }, 6000);
+       // setTimeout(function() {
+       //  alert('검색결과가 너무 많습니다.\n페이지가 새로고침됩니다.');
+       //  location.reload();
+       // }, 6000);
        newForm.submit();
      }
    }
@@ -606,10 +607,15 @@ $(".mlist_tbl tr").on("mousedown", function(){
    newForm.appendTo('body');
    $('#loading').show();
 
-   setTimeout(function() {
-    alert('검색결과가 너무 많습니다.\n페이지가 새로고침됩니다.');
-    location.reload();
-  }, 6000);
+  //  setTimeout(function() {
+  //   alert('검색결과가 너무 많습니다.\n페이지가 새로고침됩니다.');
+  //   location.href = location.href;
+  //   // location.href = "" + $(location).attr('href')+ "";
+  //   // location.reload();
+  //   // location.href = "https://mail.durianict.co.kr/index.php/mailbox/mail_list";
+  //   // history.back();
+  //   // location.href = "<?php echo site_url(); ?>/mailbox/mail_list?boxname=INBOX";
+  // }, 3000);
   newForm.submit();
   })
 
@@ -663,10 +669,14 @@ $(".mlist_tbl tr").on("mousedown", function(){
 
    let parent_tr = ths.parentNode.parentNode;
    let mailno = parent_tr.childNodes[5].innerText;
+   console.log('<?php echo $mbox ?>');
    $.ajax({
      url : "<?php echo site_url(); ?>/mailbox/set_flag",
      type : "get",
      data : {boxname: '<?php echo $mbox ?>', mailno: mailno, state: className},
+     success : function(data){
+       console.log(data);
+     },
    });
  }
 

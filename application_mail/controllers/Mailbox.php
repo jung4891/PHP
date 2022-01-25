@@ -33,8 +33,8 @@ class Mailbox extends CI_Controller {
       $key = $this->db->password;
       $key = substr(hash('sha256', $key, true), 0, 32);
 			$decrypted = openssl_decrypt(base64_decode($encryp_password), 'aes-256-cbc', $key, 1, $iv);
-      // $this->mailserver = "192.168.0.100";
-      $this->mailserver = "192.168.0.50";
+      $this->mailserver = "192.168.0.100";
+      // $this->mailserver = "192.168.0.50";
       $this->user_id = $_SESSION["userid"];
       $this->user_pwd = $decrypted;
       $this->defalt_folder = array(
@@ -339,6 +339,7 @@ class Mailbox extends CI_Controller {
 
     $data = array();
     $mbox = $this->input->get("boxname");
+    // echo $mbox;
     $mbox = (isset($mbox))? $mbox : "INBOX";
     $user_id = $this->user_id;
     $mails= $this->connect_mailserver($mbox);
@@ -384,9 +385,11 @@ class Mailbox extends CI_Controller {
       }else if($type == "search_detail") {
         $mailno_arr_target = array(); // 상단조회해서 배열 나오는 경우 중복검색
         $overlap_flag = false;        // 상단조회에서 배열 안나오는경우(count가 0인 경우) 중복검색
-
         $from_target = trim(strtolower($this->input->get("from")));
+        $from_target = base64_encode($from_target);
+
         if($from_target != "") {
+          echo $from_target.'<br>';
           $mailno_arr_target = imap_sort($mails, SORTDATE, 1, 0, "FROM $from_target");
           $overlap_flag = true;
         }
@@ -705,8 +708,9 @@ class Mailbox extends CI_Controller {
     $mbox = $this->input->get("boxname");
 
     if(isset($mbox)) {
-      $mbox = str_replace('%26', '&', $mbox);
-      $mbox = str_replace('+', ' ',  $mbox);
+      // echo '여기는 set_flag: '.$mbox.'<br>';
+      // 여기랑 mail_list_v도 mbox2부분 수정 동시에 해줘야함(아닌가? 아래 주석해도 별 문제 없네? 음.. )
+      // $mbox = str_replace(array('%23', '%26', '+'), array('#', '&', ' '), $mbox);
     } else {
       $mbox = "INBOX";
     }
@@ -1023,6 +1027,7 @@ class Mailbox extends CI_Controller {
   public function mail_detail(){
 
     $mbox = $this->input->get("boxname");
+    echo 'mailbox->mail_detail():'.$mbox;
     $mailno = $this->input->get("mailno");
     $mails= $this->connect_mailserver($mbox);
     $mails_cnt = imap_num_msg($mails);
@@ -1072,7 +1077,7 @@ class Mailbox extends CI_Controller {
                $down_link = "(파일명 없음)";
              }
              $attachments .= $down_link;
-           }else if($part->subtype == "HTML" && $part->ifdisposition == 0) {
+           }else if($part->subtype == "HTML" && $part->ifdisposition == 0) {    // html 본문 출력부분
              if($html_cnt >=  1) break;
              foreach($part->parameters as $object) {  // charset이 parameters 배열에 [0] or [1]에 있음
                if(strtolower($object->attribute) == 'charset') {
@@ -1233,7 +1238,7 @@ class Mailbox extends CI_Controller {
         return $data_decoded;
       case 4:
         $data_decoded = quoted_printable_decode($data);    // QUOTED_PRINTABLE (업무일지 서식)
-        if ($charset == 'ks_c_5601-1987' || $charset == 'us-ascii')   // else는 charset이 utf-8로 iconv 불필요
+        if ($charset == 'ks_c_5601-1987' || $charset == 'us-ascii' || $charset == 'euc-kr')   // else는 charset이 utf-8로 iconv 불필요
           $data_decoded = iconv('cp949', 'utf-8', $data_decoded);     // us-ascii도 변경해줘야 제대로 출력됨
           // 아래로 디코딩 안되는 메일 가끔 있어서 이걸로 해야함 (대표님 메일중 발견)
           // $data = iconv('euc-kr', 'utf-8', $data);  // charset 변경
