@@ -339,7 +339,8 @@ class Mailbox extends CI_Controller {
 
     $data = array();
     $mbox = $this->input->get("boxname");
-    // echo $mbox;
+    $mbox = stripslashes($mbox);              // 메일함명 '처리
+    
     $mbox = (isset($mbox))? $mbox : "INBOX";
     $user_id = $this->user_id;
     $mails= $this->connect_mailserver($mbox);
@@ -386,10 +387,10 @@ class Mailbox extends CI_Controller {
         $mailno_arr_target = array(); // 상단조회해서 배열 나오는 경우 중복검색
         $overlap_flag = false;        // 상단조회에서 배열 안나오는경우(count가 0인 경우) 중복검색
         $from_target = trim(strtolower($this->input->get("from")));
-        $from_target = base64_encode($from_target);
+        // $from_target = base64_encode($from_target);
 
         if($from_target != "") {
-          echo $from_target.'<br>';
+          // echo $from_target.'<br>';
           $mailno_arr_target = imap_sort($mails, SORTDATE, 1, 0, "FROM $from_target");
           $overlap_flag = true;
         }
@@ -709,6 +710,7 @@ class Mailbox extends CI_Controller {
 
     if(isset($mbox)) {
       // echo '여기는 set_flag: '.$mbox.'<br>';
+      $mbox = urldecode($mbox);     // 없어도 작동은 하는데 일단 넣어줌.
       // 여기랑 mail_list_v도 mbox2부분 수정 동시에 해줘야함(아닌가? 아래 주석해도 별 문제 없네? 음.. )
       // $mbox = str_replace(array('%23', '%26', '+'), array('#', '&', ' '), $mbox);
     } else {
@@ -1027,7 +1029,7 @@ class Mailbox extends CI_Controller {
   public function mail_detail(){
 
     $mbox = $this->input->get("boxname");
-    echo 'mailbox->mail_detail():'.$mbox;
+    // echo 'mailbox->mail_detail():'.$mbox;
     $mailno = $this->input->get("mailno");
     $mails= $this->connect_mailserver($mbox);
     $mails_cnt = imap_num_msg($mails);

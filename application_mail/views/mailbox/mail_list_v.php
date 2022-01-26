@@ -4,6 +4,7 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_header.php";
 include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
 
 // echo 'decode 전:'.$mbox.'<br>';
+// $mbox2 = str_replace(array('#', '&', ' '), array('%23', '%26', '+'), $mbox);   // 아래 함수로 대체함
 $mbox2 = urlencode($mbox);
 // echo 'decode 후:'.$mbox2.'<br>';
 
@@ -146,7 +147,7 @@ $mbox2 = urlencode($mbox);
               <option value="" style="text-align: center;">이동할 메일함</option>
               <?php
                 foreach($mailbox_tree as $b) {
-                  echo "<option value='{$b["id"]}'>{$b['text']}</option>";
+                  echo "<option value=\"{$b["id"]}\">{$b['text']}</option>";
                 }
               ?>
             </select>
@@ -428,6 +429,8 @@ $(".mlist_tbl tr").on("mousedown", function(){
 
        // mail_arr.push(msg_id);
        var tobox = $(event.target).closest("tr").attr("id");
+       tobox = tobox.replace(/\\'/g, "'");  // 메일함에 '있는경우 애러처리
+
        var frombox = "<?php echo $mbox ?>";
        $.ajax({
          url : "<?php echo site_url(); ?>/mailbox/mail_move",
@@ -522,7 +525,7 @@ $(".mlist_tbl tr").on("mousedown", function(){
      var newForm = $('<form id="search_form"></form>');
      newForm.attr("method","get");
      newForm.attr("action", "<?php echo site_url(); ?>/mailbox/mail_list");
-     newForm.append($('<input>', {type: 'hidden', name: 'boxname', value: '<?php echo $mbox ?>'}));
+     newForm.append($('<input>', {type: 'hidden', name: 'boxname', value: `<?php echo $mbox ?>`}));
      newForm.append($('<input>', {type: 'hidden', name: 'type', value: 'search' }));
      newForm.append($('<input>', {type: 'hidden', name: 'search_word', value: search_word }));
      newForm.appendTo('body');
@@ -547,7 +550,7 @@ $(".mlist_tbl tr").on("mousedown", function(){
        var newForm = $('<form id="search_form"></form>');
        newForm.attr("method","get");
        newForm.attr("action", "<?php echo site_url(); ?>/mailbox/mail_list");
-       newForm.append($('<input>', {type: 'hidden', name: 'boxname', value: '<?php echo $mbox ?>'}));
+       newForm.append($('<input>', {type: 'hidden', name: 'boxname', value: `<?php echo $mbox ?>`}));
        newForm.append($('<input>', {type: 'hidden', name: 'type', value: 'search' }));
        newForm.append($('<input>', {type: 'hidden', name: 'search_word', value: search_word }));
        newForm.appendTo('body');
@@ -582,7 +585,7 @@ $(".mlist_tbl tr").on("mousedown", function(){
      return;
    }
    // get방식이므로 주소창에 검색하는 애들만 출력되게끔
-   var mbox = '<?php echo $mbox; ?>';
+   var mbox = `<?php echo $mbox; ?>`;
    var type = 'search_detail';
    var newForm = $('<form id="search_form"></form>');
    newForm.attr("method","get");
@@ -669,11 +672,11 @@ $(".mlist_tbl tr").on("mousedown", function(){
 
    let parent_tr = ths.parentNode.parentNode;
    let mailno = parent_tr.childNodes[5].innerText;
-   console.log('<?php echo $mbox ?>');
+   // console.log(`<?php echo $mbox ?>`);
    $.ajax({
      url : "<?php echo site_url(); ?>/mailbox/set_flag",
      type : "get",
-     data : {boxname: '<?php echo $mbox ?>', mailno: mailno, state: className},
+     data : {boxname: `<?php echo $mbox ?>`, mailno: mailno, state: className},
      success : function(data){
        console.log(data);
      },
@@ -682,7 +685,7 @@ $(".mlist_tbl tr").on("mousedown", function(){
 
  // 페이지 이동
  function go_page(page) {
-  var mbox = '<?php echo $mbox; ?>';
+  var mbox = `<?php echo $mbox; ?>`;
   var per_page = '<?php echo $per_page; ?>';
   var type = '<?php if(isset($type)) echo $type; else echo ""; ?>';
   var search_word = '<?php if(isset($search_word)) echo $search_word; else echo ""; ?>';
@@ -721,7 +724,7 @@ $(".mlist_tbl tr").on("mousedown", function(){
     $.ajax({
       url : "<?php echo site_url(); ?>/mailbox/mail_move",
       type : "post",
-      data : {mbox: '<?php echo $mbox ?>', to_box: '&ycDGtA- &07jJwNVo-', mail_arr: arr},
+      data : {mbox: `<?php echo $mbox ?>`, to_box: '&ycDGtA- &07jJwNVo-', mail_arr: arr},
       success : function(data){
         // (data == 1)? alert("삭제되었습니다.") : alert("애러발생");
       },
@@ -748,7 +751,7 @@ $(".mlist_tbl tr").on("mousedown", function(){
       $.ajax({
         url : "<?php echo site_url(); ?>/mailbox/mail_delete",
         type : "post",
-        data : {mbox: '<?php echo $mbox ?>', mail_arr: arr},
+        data : {mbox: `<?php echo $mbox ?>`, mail_arr: arr},
         success : function(data){
           // (data == 1)? alert("영구삭제 되었습니다.") : alert("애러발생");
         },
@@ -770,16 +773,20 @@ $(".mlist_tbl tr").on("mousedown", function(){
   function move() {
     const s = document.getElementById('selected_box');
     const to_box = s.options[s.selectedIndex].value;
+
     let arr = [];
     for(var i=0; i<document.frm.length; i++) {
      if(document.frm[i].checked) {
        arr.push(document.frm[i].value)
      }
     }
+
+    // console.log('to_box: ' + to_box);
+
     $.ajax({
       url : "<?php echo site_url(); ?>/mailbox/mail_move",
       type : "post",
-      data : {mbox: '<?php echo $mbox ?>', to_box: to_box, mail_arr: arr},
+      data : {mbox: `<?php echo $mbox ?>`, to_box: to_box, mail_arr: arr},
       success : function(data){
         // (data == 1)? alert("이동되었습니다.") : alert("애러발생");
       },
@@ -795,7 +802,7 @@ $(".mlist_tbl tr").on("mousedown", function(){
    // 보기개수 설정
    function mails_cnt(s) {
     const cnt = s.options[s.selectedIndex].value;
-    var mbox = '<?php echo $mbox; ?>';
+    var mbox = `<?php echo $mbox; ?>`;
     var curpage = '<?php echo $curpage; ?>';
     var type = '<?php if(isset($type)) echo $type; else echo ""; ?>';
     var search_word = '<?php if(isset($search_word)) echo $search_word; else echo ""; ?>';

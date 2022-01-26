@@ -6,7 +6,6 @@
     cursor: pointer;
   }
 
-
   .select_side{
     color:#0575E6;
     font-weight: bold;
@@ -88,7 +87,6 @@ foreach($folders as $f) {
     if(in_array($f,$folders_root )){
         continue;
     }
-
     array_push($folders_root, $f);
   } else {
     array_push($folders_sub, $f);
@@ -105,6 +103,10 @@ foreach($folders_root as $root) {
     }
   }
 }
+// echo '<pre>';
+// var_dump($folders);
+// echo '</pre>';
+// exit;
 $folders = $folders_sorted;
 $mailbox_tree = array();
 for ($i=0; $i < count($folders); $i++) {
@@ -132,8 +134,8 @@ for ($i=0; $i < count($folders); $i++) {
   }
   $tree = array(
     // "name" => $folders[$i],
-    "id" => $fid,
-    "parent" => $parent_folder,
+    "id" => addslashes($fid),
+    "parent" => addslashes($parent_folder),
     "text" => $text,
     "child_num" => $substr_count,
     "unseen" => $mbox_status->unseen,
@@ -153,7 +155,7 @@ for ($i=0; $i < count($folders); $i++) {
   if ($_SESSION['s_width'] == "" || !isset($_SESSION['s_width'])) {
     $side_w = 300;
   } else {
-    $side_w =$_SESSION['s_width'];
+    $side_w = $_SESSION['s_width'];
   }
   ?>
     <div id="sideBar" style="width:<?php echo $side_w; ?>px">
@@ -166,8 +168,9 @@ for ($i=0; $i < count($folders); $i++) {
 
       <?php
       if(isset($mbox)) {
-        $mbox2 = str_replace('&', '%26', $mbox);
-        $mbox2 = str_replace(' ', '+', $mbox2);
+        // $mbox2 = str_replace('&', '%26', $mbox);
+        // $mbox2 = str_replace(' ', '+', $mbox2);
+        $mbox2 = urlencode($mbox);
       } else {
         $mbox2 = "INBOX";
       }
@@ -265,23 +268,23 @@ for ($i=0; $i < count($folders); $i++) {
           }
             ?>
         <tr class="box_tr <?php if($b["folderkey"] == "custom") echo 'context-menu-one2'; else  echo 'context-menu-default'; ?>" id="<?php echo $b["id"]; ?>" child_num="<?php echo $b["child_num"]; ?>">
-        <td height=30 align="left">
-          <?php if($b["parent"] == "#" && $b["folderkey"] != "custom"){ ?>
-          <img src="<?php echo $misc;?>img/sideicon/<?php echo $b["folderkey"].$sel_img; ?>.svg" style="cursor:pointer;">
-        <?php } ?>
-        </td>
-        <?php
-          $arr = explode('.', $b["id"]);
-          $id_me = $arr[count($arr)-1];
-         ?>
-        <td id="<?php echo $b['text'] ?>" align="left" style="padding-left:<?php echo $padding.'px'; ?>;" dept="<?php echo $dept; ?>">
+          <td height=30 align="left">
+            <?php if($b["parent"] == "#" && $b["folderkey"] != "custom"){ ?>
+            <img src="<?php echo $misc;?>img/sideicon/<?php echo $b["folderkey"].$sel_img; ?>.svg" style="cursor:pointer;">
+          <?php } ?>
+          </td>
           <?php
-            echo $b['text'];
-          ?>
-          <?php echo ($b['unseen'] == 0)?"":"(".$b['unseen'].")"; ?>
-        </td>
-        <!-- <td align="right" style="color:#0575E6;">
-        </td> -->
+            $arr = explode('.', $b["id"]);
+            $id_me = $arr[count($arr)-1];
+           ?>
+          <td id="<?php echo $b['text'] ?>" align="left" style="padding-left:<?php echo $padding.'px'; ?>;" dept="<?php echo $dept; ?>">
+            <?php
+              echo $b['text'];
+            ?>
+            <?php echo ($b['unseen'] == 0)?"":"(".$b['unseen'].")"; ?>
+          </td>
+          <!-- <td align="right" style="color:#0575E6;">
+          </td> -->
           <td height=30 align="center" onclick="event.cancelBubble=true">
             <?php
             if ($i+1 < $box_len) {
@@ -387,8 +390,6 @@ if(sidetype == "mini"){
   $("#sideBar, #sideMini, #dragbar").toggle();
 }
 
-
-
 $("#headMenu").on("click", function(){
   $("#sideBar, #sideMini, #dragbar").toggle();
   var mode = sessionStorage.getItem("sidemode");
@@ -432,7 +433,6 @@ $(function (){
   <?php
   if(strpos($_SERVER['REQUEST_URI'],'mailbox/') !== false){
     if(isset($_GET["boxname"])){
-
         $select_box = $_GET["boxname"];
         if($select_box == ""){
           $select_box = "INBOX";
@@ -441,7 +441,24 @@ $(function (){
       $select_box = "INBOX";
     }
     ?>
-    $("[id='<?php echo $select_box; ?>']").addClass("select_side");
+
+    // 원래 있던부분
+    // $("[id='<?php echo $select_box; ?>']").addClass("select_side");
+    $("[id=\"<?php echo $select_box; ?>\"]").addClass("select_side");
+
+    // 메일함에 홑따옴표 포함될경우 애러처리
+    // var test = `<?php echo $select_box ?>`;
+    // test = test.split("'").join("\\'");
+    // $(".mailbox_div tr[id='" + test + "']").addClass("select_side");
+
+    // $(".mailbox_div tr[id=`<?php echo $select_box; ?>`]").addClass("select_side");    // `는 제이쿼리에선 안되고 스크립트에서도 아래형태만 됨.
+    // document.getElementById(`<?php echo $select_box; ?>`).className = 'select_side';
+
+    // $("#side_mbox tr").each(function() {
+    //   if($.trim($(this).attr('id')) == `<?php echo $select_box; ?>`) {
+    //     $(this).addClass('select_side');
+    //   }
+    // })
     <?php
   }
 
@@ -489,7 +506,7 @@ $(function (){
              let folders = [];
              folders.push(id);
 
-             let mbox_tree = '<?php echo json_encode($mailbox_tree) ?>';
+             let mbox_tree = `<?php echo json_encode($mailbox_tree) ?>`;  // 메일함명에 ' 들어갈경우 백틱으로 애러처리
              mbox_tree = JSON.parse(mbox_tree);
              let target_i = 0;
              $.each(mbox_tree, function(index, el) {
@@ -515,7 +532,7 @@ $(function (){
                  type : "post",
                  data : {folders: folders},
                  success: function (res) {
-                   var mbox = '<?php if(isset($mbox)) echo $mbox; ?>';
+                   var mbox = `<?php if(isset($mbox)) echo $mbox; ?>`;
                    var mbox_exist = false;
                    for(var i=0; i<folders.length; i++) {
                      if(folders[i] == mbox) {
@@ -725,7 +742,7 @@ function add_mbox(ths) {
   let mode = $(ths).closest('td').find("input").eq(1).val();
   if(mode === "추가") {
     let parent = $(ths).closest('tr').prev()[0].id;
-    let mbox_tree = '<?php echo json_encode($mailbox_tree) ?>';
+    let mbox_tree = `<?php echo json_encode($mailbox_tree) ?>`;
     mbox_tree = JSON.parse(mbox_tree);
     let children = [];
     $.each(mbox_tree, function(index, el) {
@@ -759,7 +776,7 @@ function add_mbox(ths) {
   }else {
     // mode == 수정
     let parent = $(ths).next().next()[0].id;
-    let mbox_tree = '<?php echo json_encode($mailbox_tree) ?>';
+    let mbox_tree = `<?php echo json_encode($mailbox_tree) ?>`;
     mbox_tree = JSON.parse(mbox_tree);
     let children = [];
     $.each(mbox_tree, function(index, el) {

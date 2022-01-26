@@ -281,7 +281,7 @@ for ($i=0; $i < count($folders); $i++) {
       return;
     }
 
-    let mbox_tree = '<?php echo json_encode($mailbox_tree) ?>';
+    let mbox_tree = `<?php echo json_encode($mailbox_tree) ?>`;
     mbox_tree = JSON.parse(mbox_tree);
     let children = [];
     $.each(mbox_tree, function(index, el) {
@@ -318,7 +318,7 @@ for ($i=0; $i < count($folders); $i++) {
       return;
     }
 
-    let mbox_tree = '<?php echo json_encode($mailbox_tree) ?>';
+    let mbox_tree = `<?php echo json_encode($mailbox_tree) ?>`;
     mbox_tree = JSON.parse(mbox_tree);
     let children = [];
     $.each(mbox_tree, function(index, el) {
@@ -360,7 +360,7 @@ for ($i=0; $i < count($folders); $i++) {
   });
 
   function del_mailbox(mbox) {
-    let mbox_tree = '<?php echo json_encode($mailbox_tree) ?>';
+    let mbox_tree = `<?php echo json_encode($mailbox_tree) ?>`;
     mbox_tree = JSON.parse(mbox_tree);
     let children = [];
     $.each(mbox_tree, function(index, el) {
