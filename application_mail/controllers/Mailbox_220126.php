@@ -32,9 +32,9 @@ class Mailbox extends CI_Controller {
 			$iv = chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0);
       $key = $this->db->password;
       $key = substr(hash('sha256', $key, true), 0, 32);
-			$decrypted = openssl_decrypt(base64_decode($encryp_password), 'aes-256-cbc', $key, 1, $iv);
+      $decrypted = openssl_decrypt(base64_decode($encryp_password), 'aes-256-cbc', $key, 1, $iv);
       $this->mailserver = "192.168.0.100";
-      // $this->mailserver = "mail.durianit.co.kr";
+      // $this->mailserver = "192.168.0.50";
       $this->user_id = $_SESSION["userid"];
       $this->user_pwd = $decrypted;
       $this->defalt_folder = array(
@@ -228,11 +228,11 @@ class Mailbox extends CI_Controller {
 
     exec("sudo grep -r '$word_encoded_imp' /home/vmail/'$domain'/'$user_id'/'$src'cur", $output, $error);
     $name_arr = array();
-      foreach($output as $i => $v) {
-        $v = substr($v, 0, strpos($v, ":"));
-        $v = substr($v, strpos($v, "cur")+4);
-        array_push($name_arr, $v);
-      }
+    foreach($output as $i => $v) {
+      $v = substr($v, 0, strpos($v, ":"));
+      $v = substr($v, strpos($v, "cur")+4);
+      array_push($name_arr, $v);
+    }
     $name_arr = array_unique($name_arr);
     rsort($name_arr);     // 최신날짜로 정렬
     $name_arr_imp = implode('\|', $name_arr);
@@ -291,11 +291,11 @@ class Mailbox extends CI_Controller {
 
     exec("sudo grep -r '$word_encoded_imp' /home/vmail/'$domain'/'$user_id'/'$src'cur", $output, $error);
     $name_arr = array();
-      foreach($output as $i => $v) {
-        $v = substr($v, 0, strpos($v, ":"));
-        $v = substr($v, strpos($v, "cur")+4);
-        array_push($name_arr, $v);
-      }
+    foreach($output as $i => $v) {
+      $v = substr($v, 0, strpos($v, ":"));
+      $v = substr($v, strpos($v, "cur")+4);
+      array_push($name_arr, $v);
+    }
 
     $name_arr = array_unique($name_arr);
     rsort($name_arr);     // 최신날짜로 정렬
@@ -339,7 +339,7 @@ class Mailbox extends CI_Controller {
 
     $data = array();
     $mbox = $this->input->get("boxname");
-    // $mbox = stripslashes($mbox);              // 메일함명 '처리
+    $mbox = stripslashes($mbox);              // 메일함명 '처리
 
     $mbox = (isset($mbox))? $mbox : "INBOX";
     $user_id = $this->user_id;
@@ -1029,6 +1029,7 @@ class Mailbox extends CI_Controller {
   public function mail_detail(){
 
     $mbox = $this->input->get("boxname");
+    // echo 'mailbox->mail_detail():'.$mbox;
     $mailno = $this->input->get("mailno");
     $mails= $this->connect_mailserver($mbox);
     $mails_cnt = imap_num_msg($mails);
@@ -1073,7 +1074,7 @@ class Mailbox extends CI_Controller {
              $filename = $this-> getFilenameFromPart($part);
              if ($filename) {
                $down_link = "&nbsp;<a href=\"javascript:download('{$mbox}', '{$msg_no}',
-               '{$partNumber}', '$part->encoding', '{$filename}');\">".$filename.'</a><br>';
+               '{$partNumber}', '{$filename}');\">".$filename.'</a><br>';
              } else {
                $down_link = "(파일명 없음)";
              }
@@ -1093,7 +1094,7 @@ class Mailbox extends CI_Controller {
              $filename = $this-> getFilenameFromPart($part);
              if ($filename) {
                $down_link = "&nbsp;<a href=\"javascript:download('{$mbox}', '{$msg_no}',
-               '{$partNumber}', '$part->encoding', '{$filename}');\">".$filename.'</a><br>';
+               '{$partNumber}', '{$filename}');\">".$filename.'</a><br>';
              } else {
                $down_link = "(파일명 없음)";
              }
@@ -1136,7 +1137,7 @@ class Mailbox extends CI_Controller {
            $filename = $this-> getFilenameFromPart($part);
            if ($filename) {
              $down_link = "&nbsp;<a href=\"javascript:download('{$mbox}', '{$msg_no}',
-             '{$partNumber}', '$part->encoding', '{$filename}');\">".$filename.'</a><br>';
+             '{$partNumber}', '{$filename}');\">".$filename.'</a><br>';
            } else {
              $down_link = "(파일명 없음)";
            }
@@ -1264,7 +1265,6 @@ class Mailbox extends CI_Controller {
   function download() {
     $mails = $this->connect_mailserver($_POST['box']);
     $fileSource = imap_fetchbody($mails, $_POST['msg_no'], $_POST['part_no']);
-    $encoding = $_POST['encoding'];
 
     // eml형식은 따로 제외하여 html로 파일 다운로드 (eml는 outlook에서만 열리는 듯함)
     if(strpos($_POST['f_name'], '.eml')) {
@@ -1273,17 +1273,9 @@ class Mailbox extends CI_Controller {
       $fileSource = substr($fileSource, 0, strpos($fileSource, '-------Boundary'));
       force_download($_POST['f_name'].'.html', imap_base64($fileSource));
     }else {
-      // 아래 switch 인코딩에 따라 아얘 깔끔하게 처리함.
       // .svg파일의 경우 quoted_printable로 encode되어서 따로 잡아줘야 파일 다운후 정상적으로 열린다.(+ .html 파일도 마찬가지)
-      // $quoted_encode = strpos($_POST['f_name'], '.svg') || strpos($_POST['f_name'], '.html');
-      // $fileSource = ($quoted_encode)? quoted_printable_decode($fileSource) : imap_base64($fileSource);
-      switch($encoding) {
-        case 3:
-          $fileSource = imap_base64($fileSource);
-          break;
-        case 4:
-          $fileSource = quoted_printable_decode($fileSource);
-      }
+      $quoted_encode = strpos($_POST['f_name'], '.svg') || strpos($_POST['f_name'], '.html');
+      $fileSource = ($quoted_encode)? quoted_printable_decode($fileSource) : imap_base64($fileSource);
       force_download($_POST['f_name'], $fileSource);
     }
     imap_close($mails);

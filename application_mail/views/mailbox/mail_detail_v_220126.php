@@ -65,7 +65,7 @@ $reply_cc_input = address_text($mail_info["cc"]);
            ?>
          </th>
          <td align="right">
-           <!-- <button type="button" class="btn_basic btn_white" style="width:60px; height: 25px" onclick="go_list()">목록</button> -->
+           <button type="button" class="btn_basic btn_white" style="width:60px; height: 25px" onclick="go_list()">목록</button>
          </td>
        </tr>
        <!-- <tr style="text-align: right">
@@ -136,9 +136,9 @@ $reply_cc_input = address_text($mail_info["cc"]);
        <!-- <pre>
          <?php // var_dump($flattenedParts); ?>
        </pre> -->
-       <!-- <pre>
-         <?php  // var_dump($struct); ?>
-       </pre> -->
+       <pre>
+         <?php  var_dump($struct); ?>
+       </pre>
        <!-- <pre>
          <?php // var_dump($body); ?>
        </pre> -->

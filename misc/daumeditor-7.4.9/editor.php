@@ -384,6 +384,11 @@
 		form: 'tx_editor_form'+"", /* 등록하기 위한 Form 이름 */
 		txIconPath: "/misc/daumeditor-7.4.9/images/icon/editor/", /*에디터에 사용되는 이미지 디렉터리, 필요에 따라 수정한다. */
 		txDecoPath: "/misc/daumeditor-7.4.9/images/deco/contents/", /*본문에 사용되는 이미지 디렉터리, 서비스에서 사용할 때는 완성된 컨텐츠로 배포되기 위해 절대경로로 수정한다. */
+		toolbar: {
+			table: {
+				tableWidth: "50%"
+			}
+		},
 		canvas: {
 			styles: {
 			color: "#123456", /* 기본 글자색 */
@@ -392,12 +397,9 @@
 			backgroundColor: "#fff", /*기본 배경색 */
 			lineHeight: "1.5", /*기본 줄간격 */
 			padding: "8px" /* 위지윅 영역의 여백 */
+
 			},
-			<?php if(strpos($_SERVER['REQUEST_URI'], '/official_doc')!== false){
-				echo "showGuideArea: true";
-			} else {
-				echo "showGuideArea: false";
-			} ?>
+		showGuideArea: true
 
 		},
 		events: {
@@ -410,15 +412,14 @@
 			}
 		},
 		size: {
-			<?php if(strpos($_SERVER['REQUEST_URI'], '/official_doc')!== false){
-				echo "contentWidth: 700";
-			} ?>
+			// contentWidth: 700
 			 /* 지정된 본문영역의 넓이가 있을 경우에 설정 */
 		}
 	};
 
 	EditorJSLoader.ready(function(Editor) {
 		var editor = new Editor(config);
+		// Editor.getConfig().toolbar.table.tableWidth = "50%";
 	});
 
 </script>

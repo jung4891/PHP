@@ -440,6 +440,7 @@ $(function (){
     } else {
       $select_box = "INBOX";
     }
+  echo $select_box.'<br>';
     ?>
 
     // 원래 있던부분
@@ -506,7 +507,7 @@ $(function (){
              let folders = [];
              folders.push(id);
 
-             let mbox_tree = `<?php echo json_encode($mailbox_tree) ?>`;  // 메일함명에 ' 들어갈경우 백틱으로 애러처리
+             let mbox_tree = `<?php echo stripslashes(json_encode($mailbox_tree)) ?>`;  // 메일함명에 ' 들어갈경우 백틱으로 애러처리
              mbox_tree = JSON.parse(mbox_tree);
              let target_i = 0;
              $.each(mbox_tree, function(index, el) {
@@ -741,8 +742,9 @@ function add_mbox(ths) {
 
   let mode = $(ths).closest('td').find("input").eq(1).val();
   if(mode === "추가") {
+    // console.log(`<?php echo json_encode($mailbox_tree);  ?>`);
     let parent = $(ths).closest('tr').prev()[0].id;
-    let mbox_tree = `<?php echo json_encode($mailbox_tree) ?>`;
+    let mbox_tree = `<?php echo stripslashes(json_encode($mailbox_tree)) ?>`;
     mbox_tree = JSON.parse(mbox_tree);
     let children = [];
     $.each(mbox_tree, function(index, el) {
@@ -776,7 +778,7 @@ function add_mbox(ths) {
   }else {
     // mode == 수정
     let parent = $(ths).next().next()[0].id;
-    let mbox_tree = `<?php echo json_encode($mailbox_tree) ?>`;
+    let mbox_tree = `<?php echo stripslashes(json_encode($mailbox_tree)) ?>`;
     mbox_tree = JSON.parse(mbox_tree);
     let children = [];
     $.each(mbox_tree, function(index, el) {
@@ -794,6 +796,9 @@ function add_mbox(ths) {
       parent = (parent === "#")? '' : parent;
       let target = $(ths).closest('tr').prev()[0].childNodes[3].id;
       target = $.trim(target);
+      console.log('old_mbox: ' + target);
+      console.log('new_mbox: ' + text);
+
       $.ajax({
         url: "<?php echo site_url(); ?>/option/rename_mailbox",
         type : "post",
@@ -801,9 +806,13 @@ function add_mbox(ths) {
         success: function (res) {
           let className = $(ths).closest('tr').prev()[0].className;
           if(className.indexOf('select_side') == -1) {
+            alert(className);
+            alert('일로옴?');
             location.reload();
           } else {
-            var mbox = parent+'.'+text;
+            alert('뭐노');
+            var mbox = (parent === "")? text : parent+'.'+text;
+            alert(mbox);
             var page = '<?php echo (isset($_GET["curpage"]))? $_GET["curpage"] : "" ?>';
             var newForm = $('<form></form>');
             newForm.attr("method","get");
@@ -815,6 +824,7 @@ function add_mbox(ths) {
           }
         }
       });
+
     }
   }
 }
