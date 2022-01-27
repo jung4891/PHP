@@ -433,19 +433,24 @@ $(function (){
   <?php
   if(strpos($_SERVER['REQUEST_URI'],'mailbox/') !== false){
     if(isset($_GET["boxname"])){
-        $select_box = $_GET["boxname"];
+        $select_box = ($_GET["boxname"]);
         if($select_box == ""){
           $select_box = "INBOX";
         }
     } else {
       $select_box = "INBOX";
     }
-  echo $select_box.'<br>';
-    ?>
+  ?>
 
     // 원래 있던부분
-    // $("[id='<?php echo $select_box; ?>']").addClass("select_side");
-    $("[id=\"<?php echo $select_box; ?>\"]").addClass("select_side");
+    // $("[id='<?php //echo $select_box; ?>']").addClass("select_side");
+    select_box = "<?php echo $select_box ?>";
+    select_box = select_box.split("'").join("\\\\\\'");
+    // console.log(select_box);
+    // select_box.split("").join("\\'");
+    $("tr[id=\"" + select_box + "\"]").addClass("select_side");
+    // $("tr[id=\"<?php echo addslashes($select_box); ?>\"]").addClass("select_side");
+    // $("tr[id=\"\\\'\\\'test1\"]").addClass("select_side");
 
     // 메일함에 홑따옴표 포함될경우 애러처리
     // var test = `<?php echo $select_box ?>`;
@@ -504,11 +509,15 @@ $(function (){
            name: "메일함 삭제",
            callback: function(key, opt){
              let id = this[0].id;
+             id = id.split("\\").join("");
              let folders = [];
              folders.push(id);
 
-             let mbox_tree = `<?php echo stripslashes(json_encode($mailbox_tree)) ?>`;  // 메일함명에 ' 들어갈경우 백틱으로 애러처리
+             let mbox_tree = `<?php echo stripslashes(json_encode($mailbox_tree)) ?>`;
              mbox_tree = JSON.parse(mbox_tree);
+             console.log(id);
+             console.log(mbox_tree);
+             // return;
              let target_i = 0;
              $.each(mbox_tree, function(index, el) {
                if(el['id'] == id) {
@@ -653,6 +662,7 @@ function updown(el, type) {
 
 $(".mailbox_div, #sideMini").on("click", ".box_tr", function(){
   var trid = $(this).attr("id");
+  trid = trid.replace(/\\'/g, "'");  // 메일함에 '있는경우 애러처리
   $("#boxname").val(trid);
   var action = "<?php echo site_url(); ?>/mailbox/mail_list";
   $("#boxform").attr("action", action);
@@ -742,16 +752,27 @@ function add_mbox(ths) {
 
   let mode = $(ths).closest('td').find("input").eq(1).val();
   if(mode === "추가") {
-    // console.log(`<?php echo json_encode($mailbox_tree);  ?>`);
     let parent = $(ths).closest('tr').prev()[0].id;
+    parent = parent.split("\\").join("");
+    // console.log( `<?php echo (json_encode($mailbox_tree)) ?>`);
+    // return;
+    console.log(`<?php echo stripslashes(json_encode($mailbox_tree)) ?>`);
     let mbox_tree = `<?php echo stripslashes(json_encode($mailbox_tree)) ?>`;
     mbox_tree = JSON.parse(mbox_tree);
+    console.log('============ mbox_tree =============');
+    console.log(mbox_tree);
     let children = [];
+    console.log('============ parent =============');
+    console.log(parent);
+
     $.each(mbox_tree, function(index, el) {
       if(el['parent'] == parent) {
         children.push(el['text']);
       }
     });
+    console.log('============ children =============');
+    console.log(children);
+
     if($.inArray(text, children) != -1) {
       alert("이미 동일한 이름의 메일함이 존재합니다.");
       // $(ths).closest('td').find("input").eq(0).focus();
@@ -761,23 +782,22 @@ function add_mbox(ths) {
       let id = $(ths).closest('td').find("input").eq(0).attr('id');
       id = id.replace(/_/gi, '.');
       id = id.replace('.text', '');
+      id = id.replace(/\\'/g, "'");
       $.ajax({
         url: "<?php echo site_url(); ?>/option/add_mailbox",
         type : "post",
         data : {parent_mbox: id, new_mbox: text},
         success: function (res) {
-          // if(res=='o')  alert("메일함 [" + text + "] 생성완료");
-          // else {
-          //   console.log(res);
-          //   alert("메일함 생성 실패");
-          // }
           location.reload();
         }
       });
     }
   }else {
     // mode == 수정
+    // 작은애러1 : 현재 선택한 폴더의 상위폴더명 수정시 새로고침된게 선택했던 폴더가 아님
+    // 작은애러2 : 현재 선택한 폴더명을 한글로 수정시 "".
     let parent = $(ths).next().next()[0].id;
+    parent = parent.split("\\").join("");
     let mbox_tree = `<?php echo stripslashes(json_encode($mailbox_tree)) ?>`;
     mbox_tree = JSON.parse(mbox_tree);
     let children = [];
@@ -794,8 +814,10 @@ function add_mbox(ths) {
     }else {
       let parent = $(ths).next().next().attr('id');
       parent = (parent === "#")? '' : parent;
+      parent = parent.split("\\").join("");
       let target = $(ths).closest('tr').prev()[0].childNodes[3].id;
       target = $.trim(target);
+      target = target.replace(/\\'/g, "'");
       console.log('old_mbox: ' + target);
       console.log('new_mbox: ' + text);
 
@@ -805,14 +827,11 @@ function add_mbox(ths) {
         data : {parent: parent, old_mbox: target, new_mbox: text},
         success: function (res) {
           let className = $(ths).closest('tr').prev()[0].className;
+          console.log(className)
           if(className.indexOf('select_side') == -1) {
-            alert(className);
-            alert('일로옴?');
             location.reload();
           } else {
-            alert('뭐노');
             var mbox = (parent === "")? text : parent+'.'+text;
-            alert(mbox);
             var page = '<?php echo (isset($_GET["curpage"]))? $_GET["curpage"] : "" ?>';
             var newForm = $('<form></form>');
             newForm.attr("method","get");

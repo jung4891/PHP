@@ -702,6 +702,66 @@ class Mailbox extends CI_Controller {
     }
   }
 
+  function get_senderip2(){
+
+    $this->load->model('M_dbmail');
+    $msgno_arr = $this->input->post("ip_arr");
+    $mbox = $this->input->get("boxname");
+    $mbox = (isset($mbox))? $mbox : "INBOX";
+    $mails= $this->connect_mailserver($mbox);
+    $box = ($mbox == "INBOX") ? "" : "'/.{$mbox}'";
+    $mail = $this->user_id;
+    $domain = explode("@",$mail)[1];
+    $user = explode("@",$mail)[0];
+    $path = "/home/vmail/{$domain}/{$user}{$box}";
+
+    $ip_collect = array();
+    foreach ($msgno_arr as $no) {
+      $ip_arr = array(
+        "ip" => "",
+        "country" => ""
+      );
+      $uid = imap_uid($mails, $no);
+      exec("sudo awk '$1=={$uid} && /:/ {print}' {$path}/dovecot-uidlist",$file);
+      if(count($file) > 0){
+        $file = substr($file[0],1);
+        $filename = explode(":", $file)[1];
+
+        exec("sudo find {$path}/cur -name '*{$filename}*' -exec grep 'SENDERIP' {} \\;",$senderip);
+        if(count($senderip) > 0){
+          // var_dump($sendip);
+          $ip = $senderip[0];
+          $ip = explode(": ", $ip)[1];
+          if(strpos($ip,"192.168.")!==false){
+            $country = "kr";
+          } else {
+
+            $get_country = $this->M_dbmail->get_country($ip);
+            if($get_country){
+                $country = $get_country->country;
+            }else{
+                $country = "";
+            }
+          }
+          $ip_arr = array(
+            "ip" => $ip,
+            "country" => $country
+          );
+          array_push($ip_collect, $ip_arr);
+        } else {
+          array_push($ip_collect, $ip_arr);
+        }
+
+      } else {
+        array_push($ip_collect, $ip_arr);
+      }
+
+
+    }
+    echo json_encode($ip_collect);
+
+  }
+
 
 
   // flag 지정 (중요메일)
@@ -1150,7 +1210,10 @@ class Mailbox extends CI_Controller {
       // MS-TNEF는 MAPI 메시지 속성을 캡슐화하기 위한 Microsoft 관련 형식. 일단 오류메시지 제거.
       if($struct->subtype == "MS-TNEF") {
         $data['contents'] = '메시지가 전부 또는 일부 받는 사람에게 도착하지 않았습니다.';
-      } else {
+      }else if($struct->subtype == "HTML") {  // 팀장님 신용보증재단 기능문의 디코딩 오류제거
+        $contents = $this->getPart($mails, $msg_no, 1, $struct->encoding, $struct->parameters[0]->value);
+        $data['contents'] = $contents;
+      }else {
         // Microsoft Office Outlook 테스트 메시지	( 2021/09/03 11:04 )는
         // parts가 없고 html만 있어서 제어문 처리함
         // + [전자결재]결재문서 최종 승인 메일은 역시 parts가 없는데 base64로 디코딩됨
@@ -1229,7 +1292,12 @@ class Mailbox extends CI_Controller {
 
     switch($encoding) {
       case 0: return $data; // 7BIT
-      case 1: return $data; // 8BIT
+      case 1:
+        // 팀장님 신용보증재단 메일 디코딩 애러처리
+        if ($charset == 'ks_c_5601-1987' || $charset == 'us-ascii' || $charset == 'euc-kr')
+          return iconv('cp949', 'utf-8', $data);
+        else
+          return $data; // 8BIT
       case 2: return $data; // BINARY
       case 3:
         $data_decoded = base64_decode($data);

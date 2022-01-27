@@ -442,6 +442,7 @@ $(".mlist_tbl tr").on("mousedown", function(){
        },
          success : function(data){
            (data == 1)? alert("이동되었습니다.") :  alert("애러발생");
+
          },
          error : function(request, status, error){
              console.log("AJAX_ERROR");
