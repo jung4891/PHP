@@ -5,8 +5,8 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
 
 // echo 'decode 전:'.$mbox.'<br>';
 // $mbox2 = str_replace(array('#', '&', ' '), array('%23', '%26', '+'), $mbox);   // 아래 함수로 대체함
-$mbox2 = urlencode($mbox);
-// echo 'decode 후:'.$mbox2.'<br>';
+$mbox_urlencode = urlencode($mbox);
+// echo 'decode 후:'.$mbox_urlencode.'<br>';
 
  ?>
 
@@ -122,17 +122,26 @@ $mbox2 = urlencode($mbox);
   <form name="mform" action="" method="post">
       <table style="width:90%; padding-bottom:10px; " border="0" cellspacing="0" cellpadding="0">
         <colgroup>
-          <col width="3%" >
+          <col width="6%" >
           <col width="3%" >
           <col width="3%" >
           <col width="3%" >
           <col width="25%" >
           <col width="*" >
           <col width="10%" >
-          <col width="10%" >
+          <col width="12%" >
         </colgroup>
           <tr>
-            <td></td>
+            <td>
+              <?php
+if ($_SESSION['userid'] == "test4@durianict.co.kr") {
+?>
+<input type="button" class="btn_basic btn_white" name="" value="ip확인" onclick ="ip_check();">
+
+<?php
+}
+?>
+            </td>
             <td><input type="checkbox" id="total" onClick="check_all(this);"></td>
             <td colspan="3">
             <?php if($mbox == "&ycDGtA- &07jJwNVo-") {  // 휴지통 ?>
@@ -147,7 +156,11 @@ $mbox2 = urlencode($mbox);
               <option value="" style="text-align: center;">이동할 메일함</option>
               <?php
                 foreach($mailbox_tree as $b) {
-                  echo "<option value=\"{$b["id"]}\">{$b['text']}</option>";
+                  $indent = "";
+                  for($i=0; $i<$b['child_num']; $i++) {
+                    $indent .= "&nbsp;";
+                  }
+                  echo "<option value=\"{$b["id"]}\">{$indent}{$b['text']}</option>";
                 }
               ?>
             </select>
@@ -172,7 +185,7 @@ $mbox2 = urlencode($mbox);
             </td>
             <td></td>
             <td>
-            <select id="show_cnt" class="input" onchange="mails_cnt(this);" style="background-color: rgb(220,220,220); width: 85px; height: 28px; border-radius: 5px; font-weight: bold; color: gray; font-size: 12px; cursor: pointer" >
+            <select id="show_cnt" class="input" onchange="mails_cnt(this);" style="background-color: rgb(220,220,220); width: 85px; height: 28px; border-radius: 5px; font-weight: bold; color: gray; font-size: 12px; cursor: pointer; float:right;"  >
               <option value="" style="text-align: center">보기설정</option>
               <option value="10">10개</option>
               <option value="20">20개</option>
@@ -225,14 +238,14 @@ $mbox2 = urlencode($mbox);
   <!-- <?php // echo $test_msg; ?> <br><br> -->
   <table class="mlist_tbl" border="0" cellspacing="0" cellpadding="0" style="table-layout: fixed;">
     <colgroup>
-      <col width="3%" >
+      <col width="6%" >
       <col width="3%" >
       <col width="3%" >
       <col width="3%" >
       <col width="25%" >
       <col width="*" >
       <col width="10%" >
-      <col width="10%" >
+      <col width="12%" >
     </colgroup>
     <tbody>
 
@@ -250,19 +263,13 @@ $mbox2 = urlencode($mbox);
           $msg_no = trim($mail_list_info[$i]['mail_no']);
       ?>
 
-        <tr onclick="detail_mailview(<?php echo $msg_no?>);">
+        <tr data-msgno="<?php echo $msg_no; ?>" onclick="detail_mailview(<?php echo $msg_no?>);">
 
         <!-- 메일목록 출력 -->
         <!-- <td><?php // echo $head[$mailno_arr[$i]]->Unseen ?></td> -->
         <td name="msg_no_td" style="display:none;"><?php echo $msg_no?></td>
-        <td>
-<?php
-if ($mail_list_info[$i]['ipinfo']["country"] !="") {
-?>
-    <img width="25" src="<?php echo $misc; ?>/img/flag/<?php echo $mail_list_info[$i]['ipinfo']['country']; ?>.png" alt="">
-<?php
-}
-?>
+        <td name="ipcountry_td" style="text-align:center;">
+
         </td>
         <td onclick="event.cancelBubble=true">
           <input type="checkbox" name="chk" value=<?php echo $msg_no;?>>
@@ -317,7 +324,7 @@ if ($mail_list_info[$i]['ipinfo']["country"] !="") {
           </span>
         </td>
         <td style="text-overflow:ellipsis; overflow:hidden; white-space:nowrap;">
-          <a class=<?php echo $unseen ?> href="<?php echo site_url(); ?>/mailbox/mail_detail?boxname=<?php echo $mbox2 ?>&mailno=<?php echo $msg_no ?>">
+          <a class=<?php echo $unseen ?> href="<?php echo site_url(); ?>/mailbox/mail_detail?boxname=<?php echo $mbox_urlencode ?>&mailno=<?php echo $msg_no ?>" title="<?php echo $mail_list_info[$i]['subject']?>">
             <?php echo $mail_list_info[$i]['subject']?>
           </a>
         </td>
@@ -370,6 +377,41 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_footer.php";
 
 
  <script type="text/javascript">
+
+
+
+function ip_check(){
+  var ip_arr = [];
+  var mail_box = "<?php echo $mbox; ?>";
+
+  $("td[name=ipcountry_td]").each(function(){
+    var msg_no = $(this).closest("tr").attr("data-msgno");
+    ip_arr.push(msg_no);
+  });
+  $.ajax({
+    type : "post",
+    url : "<?php echo site_url(); ?>/mailbox/get_senderip2",
+    dataType:"json",
+    data : {
+      ip_arr: ip_arr,
+      mail_box : mail_box
+  },
+    success : function(result){
+      var i = 0;
+      $("td[name=ipcountry_td]").each(function(){
+        var country = result[i].country;
+        var ip = result[i].ip;
+        var img = "<img width='25' src='<?php echo $misc; ?>/img/flag/"+country+".png' alt='"+country+"' title='"+ip+"'>";
+        $(this).append(img);
+        i++;
+      });
+    },
+    error : function(request, status, error){
+        console.log("AJAX_ERROR");
+    }
+  });
+
+}
 
 // function detail_mailview(){
 //   var mid = $(this).find("input[name='chk']").val();
@@ -429,7 +471,7 @@ $(".mlist_tbl tr").on("mousedown", function(){
 
        // mail_arr.push(msg_id);
        var tobox = $(event.target).closest("tr").attr("id");
-       tobox = tobox.replace(/\\'/g, "'");  // 메일함에 '있는경우 애러처리
+       tobox = tobox.replace(/\\'/g, "'");    // 메일함에 '있는경우 애러처리
 
        var frombox = "<?php echo $mbox ?>";
        $.ajax({
@@ -442,7 +484,6 @@ $(".mlist_tbl tr").on("mousedown", function(){
        },
          success : function(data){
            (data == 1)? alert("이동되었습니다.") :  alert("애러발생");
-
          },
          error : function(request, status, error){
              console.log("AJAX_ERROR");
@@ -521,8 +562,6 @@ $(".mlist_tbl tr").on("mousedown", function(){
      alert('검색어를 입력하세요');
      $('#search').focus();
    }else {
-     // let parent_tr = ths.parentNode;
-     // let subject = parent_tr.childNodes[1].value;
      var newForm = $('<form id="search_form"></form>');
      newForm.attr("method","get");
      newForm.attr("action", "<?php echo site_url(); ?>/mailbox/mail_list");
@@ -578,7 +617,6 @@ $(".mlist_tbl tr").on("mousedown", function(){
     }
  }
 
-
  $('#search_detail_submit').click(function() {
    if($('#from').val() == "" && $('#to').val() == "" && $('#subject').val() == "" && $('#contents').val() == "" && $('#start_date').val() == "" && $('#end_date').val() == "") {
      alert('검색어를 입력하세요');
@@ -610,7 +648,6 @@ $(".mlist_tbl tr").on("mousedown", function(){
    }
    newForm.appendTo('body');
    $('#loading').show();
-
   //  setTimeout(function() {
   //   alert('검색결과가 너무 많습니다.\n페이지가 새로고침됩니다.');
   //   location.href = location.href;
@@ -670,17 +707,12 @@ $(".mlist_tbl tr").on("mousedown", function(){
      imgTag.src = "/misc/img/icon/star1.png";
      imgTag.className = "emptyStar";
    }
-
    let parent_tr = ths.parentNode.parentNode;
    let mailno = parent_tr.childNodes[5].innerText;
-   // console.log(`<?php echo $mbox ?>`);
    $.ajax({
      url : "<?php echo site_url(); ?>/mailbox/set_flag",
      type : "get",
      data : {boxname: `<?php echo $mbox ?>`, mailno: mailno, state: className},
-     success : function(data){
-       console.log(data);
-     },
    });
  }
 
@@ -736,8 +768,6 @@ $(".mlist_tbl tr").on("mousedown", function(){
         location.reload();
       }
     });
-    // console.log(arr);
-    // console.log(arr.length);
   }
 
  // 휴지통에서 완전삭제
@@ -753,12 +783,6 @@ $(".mlist_tbl tr").on("mousedown", function(){
         url : "<?php echo site_url(); ?>/mailbox/mail_delete",
         type : "post",
         data : {mbox: `<?php echo $mbox ?>`, mail_arr: arr},
-        success : function(data){
-          // (data == 1)? alert("영구삭제 되었습니다.") : alert("애러발생");
-        },
-        error : function(request, status, error){
-          console.log("AJAX_ERROR");
-        },
         complete : function() {
           location.reload();
         }
@@ -766,14 +790,13 @@ $(".mlist_tbl tr").on("mousedown", function(){
     } else {
       return;
     }
-    // console.log(arr);
-    // console.log(arr.length);
   }
 
   // 메일함 이동
   function move() {
     const s = document.getElementById('selected_box');
-    const to_box = s.options[s.selectedIndex].value;
+    let to_box = s.options[s.selectedIndex].value;
+    to_box = to_box.split("\\").join("");
 
     let arr = [];
     for(var i=0; i<document.frm.length; i++) {
@@ -781,19 +804,10 @@ $(".mlist_tbl tr").on("mousedown", function(){
        arr.push(document.frm[i].value)
      }
     }
-
-    // console.log('to_box: ' + to_box);
-
     $.ajax({
       url : "<?php echo site_url(); ?>/mailbox/mail_move",
       type : "post",
       data : {mbox: `<?php echo $mbox ?>`, to_box: to_box, mail_arr: arr},
-      success : function(data){
-        // (data == 1)? alert("이동되었습니다.") : alert("애러발생");
-      },
-      error : function(request, status, error){
-          console.log("AJAX_ERROR");
-      },
       complete : function() {
         location.reload();
       }
@@ -851,7 +865,7 @@ $(".mlist_tbl tr").on("mousedown", function(){
    }
 
    function detail_mailview(msgno){
-     location.href="<?php echo site_url(); ?>/mailbox/mail_detail?boxname=<?php echo $mbox2 ?>&mailno="+msgno;
+     location.href="<?php echo site_url(); ?>/mailbox/mail_detail?boxname=<?php echo $mbox_urlencode ?>&mailno="+msgno;
    }
 
  </script>

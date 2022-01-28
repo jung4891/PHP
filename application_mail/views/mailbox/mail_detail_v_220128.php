@@ -3,18 +3,7 @@ include $this->input->server('DOCUMENT_ROOT')."/include/base.php";
 include $this->input->server('DOCUMENT_ROOT')."/include/mail_header.php";
 include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
  ?>
-<style media="screen">
-#detail_all_div {
-    -ms-overflow-style: none; /* IE and Edge */
-    scrollbar-width: none; /* Firefox */
-}
 
-#detail_all_div::-webkit-scrollbar {
-    display: none; /* Chrome, Safari, Opera*/
-}
-
-
-</style>
  <?php
 function address_text($address){
   if(!empty($address) || count($address)!=0){
@@ -49,7 +38,7 @@ $reply_cc_input = address_text($mail_info["cc"]);
 // echo '</pre>';
   ?>
  <link rel="stylesheet" href="<?php echo $misc; ?>/css/style.css" type="text/css" charset="utf-8"/>
- <div id="detail_all_div" style="width:100%; max-height:100%; margin:20px 0px 80px 0px; padding-left: 20px; overflow-x: hidden;overflow-y: auto;">
+ <div id="" style="width:100%; max-height:100%; margin:20px 0px 80px 0px; padding-left: 20px; ">
      <input type="hidden" id="reply_from" name="reply_from" value="<?php echo $mail_info["from"]["email"]; ?>">
      <input type="hidden" id="reply_to" name="reply_to" value="<?php echo $reply_to_input["input"]; ?>">
      <input type="hidden" id="reply_cc" name="reply_cc" value="<?php echo $reply_cc_input["input"]; ?>">
@@ -148,7 +137,7 @@ $reply_cc_input = address_text($mail_info["cc"]);
          <?php // var_dump($flattenedParts); ?>
        </pre> -->
        <!-- <pre>
-         <?php  // var_dump($struct); ?>
+         <?php  //var_dump($struct); ?>
        </pre> -->
        <!-- <pre>
          <?php // var_dump($body); ?>

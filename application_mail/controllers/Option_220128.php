@@ -8,22 +8,18 @@ class Option extends CI_Controller {
 			if(!isset($_SESSION)){
 					session_start();
 			}
-
 			$this->load->helper('url');
 			$this->load->Model('M_option');
 			$this->load->Model('M_account');
 			$this->load->Model('M_group');
-			if(!isset($_SESSION['userid']) && ($_SESSION['userid'] == "")){
-				redirect("");
-			}
 
 			$encryp_password = $this->M_account->mbox_conf($_SESSION['userid']);
 			$iv = chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0);
       $key = $this->db->password;
       $key = substr(hash('sha256', $key, true), 0, 32);
 			$decrypted = openssl_decrypt(base64_decode($encryp_password), 'aes-256-cbc', $key, 1, $iv);
-			// $this->mailserver = "192.168.0.100";
-      $this->mailserver = "192.168.0.100";
+			$this->mailserver = "192.168.0.100";
+      // $this->mailserver = "192.168.0.50";
       $this->user_id = $_SESSION["userid"];
       $this->user_pwd = $decrypted;
 	}
@@ -33,8 +29,7 @@ class Option extends CI_Controller {
 		if(isset($_SESSION['userid']) && ($_SESSION['userid'] != "")){
 			$this->load->view('account_info');
 		}else{
-			// $this->load->view('login');
-			redirect("");
+			$this->load->view('login');
 		}
 
 	}
@@ -97,21 +92,12 @@ class Option extends CI_Controller {
 
 
 		if(isset($_SESSION['userid']) && ($_SESSION['userid'] != "")){
-			$user_id = $_SESSION['userid'];
-			if(isset($_GET['group_name'])) {
-				$group_name = $_GET['group_name'];
-			} else {
-				$group_name = 'all';
-			}
-			$data['group_name'] = $group_name;
-
+			$address_data = $_SESSION['userid'];
 			if(isset($_GET['cur_page'])) {
 				$cur_page = $_GET['cur_page'];
 			} else {
 				$cur_page = 0;
-			}
-
-																	//	현재 페이지
+			}														//	현재 페이지
 			$no_page_list = 10;										//	한페이지에 나타나는 목록 개수
 
 			if  ( $cur_page <= 0 ){
@@ -119,10 +105,9 @@ class Option extends CI_Controller {
 			}
 
 			$data['cur_page'] = $cur_page;
-			$data['count'] = $this->M_group->address_book_count($user_id, $group_name)->totalCount;
+			$data['count'] = $this->M_group->address_book_count($address_data)->totalCount;
 
-			$data['address_group'] = $this->M_group->group_list($user_id);
-			$data['address_list'] = $this->M_group->address_book_view($user_id ,$group_name, ( $cur_page - 1 ) * $no_page_list, $no_page_list); // 값을 보내는  것, 아규먼트
+			$data['group_list'] = $this->M_group->address_book_view($address_data ,( $cur_page - 1 ) * $no_page_list, $no_page_list); // 값을 보내는  것, 아규먼트
 
 			$total_page = 1;
 			if  ( $data['count'] % $no_page_list == 0 )
@@ -144,12 +129,9 @@ class Option extends CI_Controller {
 
 			$this->load->view('address_book_view', $data);
 		}else{
-			// $this->load->view('login');
-			redirect("");
+			$this->load->view('login');
 		}
 	}
-
-
 		// public function index(){
 		// 	if(isset($_SESSION['userid']) && ($_SESSION['userid'] != "")){
 		// 		echo "<script>location.href='".site_url()."/option/account'</script>";
@@ -228,8 +210,7 @@ class Option extends CI_Controller {
 				$data['mbox_info'] = $mbox_info;
 				$this->load->view('mbox_setting', $data);
 			}else{
-				// $this->load->view('login');
-				redirect("");
+				$this->load->view('login');
 			}
 		}
 
@@ -319,8 +300,7 @@ class Option extends CI_Controller {
 			if(isset($_SESSION['userid']) && ($_SESSION['userid'] != "")){
 				$this->load->view('sign_list');
 			}else{
-				// $this->load->view('login');
-				redirect("");
+				$this->load->view('login');
 			}
 		}
 

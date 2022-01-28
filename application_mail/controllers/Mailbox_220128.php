@@ -706,11 +706,10 @@ class Mailbox extends CI_Controller {
 
     $this->load->model('M_dbmail');
     $msgno_arr = $this->input->post("ip_arr");
-    $mbox = $this->input->post("mail_box");
-
+    $mbox = $this->input->get("boxname");
     $mbox = (isset($mbox))? $mbox : "INBOX";
     $mails= $this->connect_mailserver($mbox);
-    $box = ($mbox == "INBOX") ? "" : "/'.{$mbox}'";
+    $box = ($mbox == "INBOX") ? "" : "'/.{$mbox}'";
     $mail = $this->user_id;
     $domain = explode("@",$mail)[1];
     $user = explode("@",$mail)[0];
@@ -724,15 +723,13 @@ class Mailbox extends CI_Controller {
       );
       $uid = imap_uid($mails, $no);
       exec("sudo awk '$1=={$uid} && /:/ {print}' {$path}/dovecot-uidlist",$file);
-
       if(count($file) > 0){
         $file = substr($file[0],1);
         $filename = explode(":", $file)[1];
-        $senderip = array();
-        exec("sudo find {$path}/cur -name '*{$filename}*' -exec grep -E 'Originating-IP|SENDERIP|X-Session-IP' {} \\;",$senderip);
-        // var_dump($senderip);
-        if(count($senderip) > 0){
 
+        exec("sudo find {$path}/cur -name '*{$filename}*' -exec grep 'SENDERIP' {} \\;",$senderip);
+        if(count($senderip) > 0){
+          // var_dump($sendip);
           $ip = $senderip[0];
           $ip = explode(": ", $ip)[1];
           if(strpos($ip,"192.168.")!==false){
@@ -752,8 +749,6 @@ class Mailbox extends CI_Controller {
           );
           array_push($ip_collect, $ip_arr);
         } else {
-
-
           array_push($ip_collect, $ip_arr);
         }
 

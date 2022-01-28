@@ -26,7 +26,6 @@
     /* filter: invert(39%) sepia(74%) saturate(5687%) hue-rotate(197deg) brightness(98%) contrast(96%); */
   }
 
-
   .box_tr{
     cursor: pointer;
   }
@@ -71,8 +70,6 @@ $default_folder = array(
 //   "trash"
 // );
 
-
-// $mbox="";
 $host = "{" . $mailserver . ":143/imap/novalidate-cert}";
 $mails = @imap_open($host, $user_id, $user_pwd);
 $folders = imap_list($mails, "{" . $mailserver . "}", '*');
@@ -103,10 +100,6 @@ foreach($folders_root as $root) {
     }
   }
 }
-// echo '<pre>';
-// var_dump($folders);
-// echo '</pre>';
-// exit;
 $folders = $folders_sorted;
 $mailbox_tree = array();
 for ($i=0; $i < count($folders); $i++) {
@@ -139,8 +132,8 @@ for ($i=0; $i < count($folders); $i++) {
     "text" => $text,
     "child_num" => $substr_count,
     "unseen" => $mbox_status->unseen,
-    "folderkey" => $folderkey,
-    "state" => array("opened" => true)
+    "folderkey" => $folderkey
+    // "state" => array("opened" => true)
   );
   array_push($mailbox_tree, $tree);
 }
@@ -170,19 +163,19 @@ for ($i=0; $i < count($folders); $i++) {
       if(isset($mbox)) {
         // $mbox2 = str_replace('&', '%26', $mbox);
         // $mbox2 = str_replace(' ', '+', $mbox2);
-        $mbox2 = urlencode($mbox);
+        $mbox_urlencode = urlencode($mbox);
       } else {
-        $mbox2 = "INBOX";
+        $mbox_urlencode = "INBOX";
       }
        ?>
 
       <div class="" style="display:flex;justify-content: center;">
         <?php
           if(isset($type) && $type == "unseen") {
-            $url_route = $mbox2;
+            $url_route = $mbox_urlencode;
             $font_style = "font-weight: bold; color: #0575E6;";
           }else {
-            $url_route = $mbox2.'&type=unseen';
+            $url_route = $mbox_urlencode.'&type=unseen';
             $font_style = "";
           }
          ?>
@@ -191,7 +184,8 @@ for ($i=0; $i < count($folders); $i++) {
          <div class="" style="padding-bottom: 3px; font-size: 18px; <?php echo $font_style?>">
            <?php
            if(isset($mbox)) {   // 메일쓰기 페이지에서 오류방지
-             $key = array_search($mbox, array_column($mailbox_tree, "id"));
+             $mbox_addslash = addslashes($mbox);
+             $key = array_search($mbox_addslash, array_column($mailbox_tree, "id"));
              $unseen_cnt = $mailbox_tree[$key]["unseen"];
              echo $unseen_cnt;
            }else {
@@ -203,10 +197,10 @@ for ($i=0; $i < count($folders); $i++) {
         </div>
         <?php
         if(isset($type) && $type == "important") {
-          $url_route = $mbox2;
+          $url_route = $mbox_urlencode;
           $img_flag = "중요(본문)2.svg";
         }else {
-          $url_route = $mbox2.'&type=important';
+          $url_route = $mbox_urlencode.'&type=important';
           $img_flag = "중요(본문).svg";
         }
          ?>
@@ -216,10 +210,10 @@ for ($i=0; $i < count($folders); $i++) {
         </div>
         <?php
         if(isset($type) && $type == "attachments") {
-          $url_route = $mbox2;
+          $url_route = $mbox_urlencode;
           $img_attach = "첨부2(사이드바).svg";
         }else {
-          $url_route = $mbox2.'&type=attachments';
+          $url_route = $mbox_urlencode.'&type=attachments';
           $img_attach = "첨부(본문).svg";
         }
          ?>
@@ -433,7 +427,7 @@ $(function (){
   <?php
   if(strpos($_SERVER['REQUEST_URI'],'mailbox/') !== false){
     if(isset($_GET["boxname"])){
-        $select_box = ($_GET["boxname"]);
+        $select_box = $_GET["boxname"];
         if($select_box == ""){
           $select_box = "INBOX";
         }
@@ -441,25 +435,19 @@ $(function (){
       $select_box = "INBOX";
     }
   ?>
-
     // 원래 있던부분
-    // $("[id='<?php //echo $select_box; ?>']").addClass("select_side");
+    // $("tr[id='<?php echo $select_box; ?>']").addClass("select_side");
+
+    // 메일함명의 ' -> \'으로 변환. (여기에서는 \'로 id를 찾아야해서 이렇게 처리함)
     select_box = "<?php echo $select_box ?>";
     select_box = select_box.split("'").join("\\\\\\'");
-    // console.log(select_box);
-    // select_box.split("").join("\\'");
     $("tr[id=\"" + select_box + "\"]").addClass("select_side");
-    // $("tr[id=\"<?php echo addslashes($select_box); ?>\"]").addClass("select_side");
-    // $("tr[id=\"\\\'\\\'test1\"]").addClass("select_side");
 
-    // 메일함에 홑따옴표 포함될경우 애러처리
-    // var test = `<?php echo $select_box ?>`;
-    // test = test.split("'").join("\\'");
-    // $(".mailbox_div tr[id='" + test + "']").addClass("select_side");
-
-    // $(".mailbox_div tr[id=`<?php echo $select_box; ?>`]").addClass("select_side");    // `는 제이쿼리에선 안되고 스크립트에서도 아래형태만 됨.
+    // `는 제이쿼리에선 안되고 스크립트에서도 아래형태만 됨.(연습용)
+    // $(".mailbox_div tr[id=`<?php echo $select_box; ?>`]").addClass("select_side");
     // document.getElementById(`<?php echo $select_box; ?>`).className = 'select_side';
 
+    // 요런식으로도 되는데 반복문이라 시간걸려서 주석처리.
     // $("#side_mbox tr").each(function() {
     //   if($.trim($(this).attr('id')) == `<?php echo $select_box; ?>`) {
     //     $(this).addClass('select_side');
@@ -482,7 +470,6 @@ $(function (){
        add: {
            name: "메일함 추가",
            callback: function(key, opt){
-
             this.next()[0].style.cssText = "display: contents";
             $(this).next()[0].childNodes[3].childNodes[1].value = '';   // 수정버튼뒤 추가버튼 누를때 공백으로
             $(this).next()[0].childNodes[3].childNodes[1].focus();
@@ -499,9 +486,6 @@ $(function (){
             target = $.trim(target);
             $(this).next()[0].childNodes[3].childNodes[1].value = target;
             $(this).next()[0].childNodes[3].childNodes[3].value = "수정";
-            // $(this).next()[0].childNodes[5].childNodes[1].val;
-            // $(this).next()[0].childNodes[3].childNodes[1].focus().select();
-            // $(this).next().find('input')[0].focus();
             $(this).next().find('input')[0].select();
            }
        },
@@ -515,9 +499,8 @@ $(function (){
 
              let mbox_tree = `<?php echo stripslashes(json_encode($mailbox_tree)) ?>`;
              mbox_tree = JSON.parse(mbox_tree);
-             console.log(id);
-             console.log(mbox_tree);
-             // return;
+             // console.log(id);
+             // console.log(mbox_tree);
              let target_i = 0;
              $.each(mbox_tree, function(index, el) {
                if(el['id'] == id) {
@@ -754,25 +737,21 @@ function add_mbox(ths) {
   if(mode === "추가") {
     let parent = $(ths).closest('tr').prev()[0].id;
     parent = parent.split("\\").join("");
-    // console.log( `<?php echo (json_encode($mailbox_tree)) ?>`);
-    // return;
-    console.log(`<?php echo stripslashes(json_encode($mailbox_tree)) ?>`);
+    // console.log( `<?php // echo (json_encode($mailbox_tree)) ?>`);
     let mbox_tree = `<?php echo stripslashes(json_encode($mailbox_tree)) ?>`;
     mbox_tree = JSON.parse(mbox_tree);
-    console.log('============ mbox_tree =============');
-    console.log(mbox_tree);
     let children = [];
-    console.log('============ parent =============');
-    console.log(parent);
-
+    // console.log('============ mbox_tree =============');
+    // console.log(mbox_tree);
+    // console.log('============ parent =============');
+    // console.log(parent);
     $.each(mbox_tree, function(index, el) {
       if(el['parent'] == parent) {
         children.push(el['text']);
       }
     });
-    console.log('============ children =============');
-    console.log(children);
-
+    // console.log('============ children =============');
+    // console.log(children);
     if($.inArray(text, children) != -1) {
       alert("이미 동일한 이름의 메일함이 존재합니다.");
       // $(ths).closest('td').find("input").eq(0).focus();
@@ -818,16 +797,14 @@ function add_mbox(ths) {
       let target = $(ths).closest('tr').prev()[0].childNodes[3].id;
       target = $.trim(target);
       target = target.replace(/\\'/g, "'");
-      console.log('old_mbox: ' + target);
-      console.log('new_mbox: ' + text);
-
+      // console.log('old_mbox: ' + target);
+      // console.log('new_mbox: ' + text);
       $.ajax({
         url: "<?php echo site_url(); ?>/option/rename_mailbox",
         type : "post",
         data : {parent: parent, old_mbox: target, new_mbox: text},
         success: function (res) {
           let className = $(ths).closest('tr').prev()[0].className;
-          console.log(className)
           if(className.indexOf('select_side') == -1) {
             location.reload();
           } else {
@@ -843,7 +820,6 @@ function add_mbox(ths) {
           }
         }
       });
-
     }
   }
 }

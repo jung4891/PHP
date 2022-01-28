@@ -27,8 +27,6 @@ $default_folder = array(
 //   "trash"
 // );
 
-
-// $mbox="";
 $host = "{" . $mailserver . ":143/imap/novalidate-cert}";
 $mails = @imap_open($host, $user_id, $user_pwd);
 $folders = imap_list($mails, "{" . $mailserver . "}", '*');
@@ -86,7 +84,6 @@ for ($i=0; $i < count($folders); $i++) {
     $parent_folder = "#";
   }
   $tree = array(
-    // "name" => $folders[$i],
     "id" => $fid,
     "parent" => $parent_folder,
     "text" => $text,
@@ -172,9 +169,9 @@ for ($i=0; $i < count($folders); $i++) {
       <input type="text" id="new_mbox" style="width: 70px; height: 19px"> &nbsp;
       <button type="button" name="button" onclick="add_mailbox()">추가</button>
       <!-- <pre align="left">
-        메일함 수: <?php echo count($mbox_info)-5 ?>
+        메일함 수: <?php // echo count($mbox_info)-5 ?>
         <br>
-        <?php var_dump($mailbox_tree); ?>
+        <?php // var_dump($mailbox_tree); ?>
       </pre> -->
 
     <br><br>
@@ -193,6 +190,7 @@ for ($i=0; $i < count($folders); $i++) {
       $i = 0;
       foreach ($mailbox_tree as $b) {
         $id = $b["id"];
+        $id = addslashes($id);
         $text = $b["text"];
         $dept = $b["child_num"];
         $blanks = '';
@@ -260,11 +258,7 @@ for ($i=0; $i < count($folders); $i++) {
 <script type="text/javascript">
 
   function show_modify(ths, i) {
-    // let divTag = ths.parentNode.childNodes[12];
-    // divTag.id = 'mbox_modify_' + i;
-    // $('#'+divTag.id)[0].style.display = "block";
     divTag = $('#mbox_modify_div_' + i);
-    // console.log(divTag);
     divTag[0].style.display = "block";
     divTag.addClass("click_event_display");
   }
@@ -346,9 +340,6 @@ for ($i=0; $i < count($folders); $i++) {
   }
 
   function modify_close(i) {
-    // id = 'mbox_modify_' + i;
-    // divTag = $('#'+id)[0];
-    // divTag.style.display = "none";
     divTag = $('#mbox_modify_div_' + i);
     divTag[0].style.display = "none";
   }
@@ -360,6 +351,7 @@ for ($i=0; $i < count($folders); $i++) {
   });
 
   function del_mailbox(mbox) {
+    mbox = mbox.split("\\").join("");
     let mbox_tree = `<?php echo json_encode($mailbox_tree) ?>`;
     mbox_tree = JSON.parse(mbox_tree);
     let children = [];
@@ -384,12 +376,6 @@ for ($i=0; $i < count($folders); $i++) {
         type : "post",
         data : {folders: children},
         success: function (res) {
-          // if(res=="o") {
-          //   alert("메일함이 삭제되었습니다.");
-          // }else{
-          //   console.log(res);
-          //   alert("메일함 삭제실패");
-          // }
           location.reload();
         },
         error : function(request, status, error){
@@ -403,6 +389,7 @@ for ($i=0; $i < count($folders); $i++) {
 
   function del_trash(mbox) {
     if(confirm("메일함의 모든 메일을 휴지통으로 삭제합니다. \n\n계속하시겠습니까?") == true) {
+      mbox = mbox.split("\\").join("");
       $.ajax({
         url: "<?php echo site_url(); ?>/option/trash_all_mails",
         type : "post",
@@ -442,6 +429,7 @@ for ($i=0; $i < count($folders); $i++) {
 
   function set_seen(mbox) {
     if(confirm("메일함의 모든 메일을 읽음으로 처리하겠습니까?") == true) {
+      mbox = mbox.split("\\").join("");
       $.ajax({
         url: "<?php echo site_url(); ?>/option/set_seen",
         type : "post",
