@@ -331,6 +331,11 @@ if ($_SESSION['userid'] == "test4@durianict.co.kr") {
         <td style="color: darkgray; font-weight: 400;"><?php echo $mail_list_info[$i]['date'];?></td>
         <td><?php echo $mail_list_info[$i]['size'] ?></td>
       </tr>
+      <!-- <tr>
+        <pre>
+          <?php // var_dump($mail_list_info[$i]); ?>
+        </pre>
+      </tr> -->
       <?php
       }
       ?>

@@ -386,12 +386,14 @@ class Mailbox extends CI_Controller {
       }else if($type == "search_detail") {
         $mailno_arr_target = array(); // 상단조회해서 배열 나오는 경우 중복검색
         $overlap_flag = false;        // 상단조회에서 배열 안나오는경우(count가 0인 경우) 중복검색
+
         $from_target = trim(strtolower($this->input->get("from")));
         // $from_target = base64_encode($from_target);
-
         if($from_target != "") {
-          // echo $from_target.'<br>';
-          $mailno_arr_target = imap_sort($mails, SORTDATE, 1, 0, "FROM $from_target");
+          // 보낸사람이 ks_c_5601-1987로 인코딩된경우 검색안되는 애러 처리
+          $from_target = mb_convert_encoding($from_target, 'euc-kr', 'UTF-8');
+          $mailno_arr_target = imap_sort($mails, SORTDATE, 1, 0, "FROM $from_target", "ks_c_5601-1987");
+          // $mailno_arr_target = imap_sort($mails, SORTDATE, 1, 0, "FROM $from_target");
           $overlap_flag = true;
         }
         $data['from'] = $from_target;
