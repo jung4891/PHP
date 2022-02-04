@@ -30,10 +30,10 @@ class Dbmailtest2 extends CI_Controller {
       // $this->mail = $this->input->get("mail_address");
       // $this->password = $this->input->get("password");
       // $this->mailbox = $this->input->get("mailbox");
-      $this->mail = "test4@durianict.co.kr";
+      $this->mail = "hjsong@durianit.co.kr";
       $this->password = "durian12#";
       $this->mailbox = "INBOX";
-      $this->mailserver = "192.168.0.50";
+      $this->mailserver = "192.168.0.100";
 
       // $encryp_password = $this->M_account->mbox_conf($_SESSION['userid']);
 			// $iv = chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0);
@@ -278,9 +278,10 @@ class Dbmailtest2 extends CI_Controller {
 
 
   public function exec_search() {
-    $mbox = "INBOX.test2";
-    $user_id = "test4@durianict.co.kr";
-    $search_word = "수신확인";
+    // $mbox = "INBOX.test2";
+    $mbox = "&ycDGtA- &07jJwNVo-";
+    $user_id = "hjsong@durianit.co.kr";
+    $search_word = "test";
 
     $mails= $this->connect_mailserver($mbox);
     $domain = substr($user_id, strpos($user_id, '@')+1);
@@ -303,50 +304,62 @@ class Dbmailtest2 extends CI_Controller {
     // euc-kr / base64 -> xde9usau(테스트), xde9usauIA==(테스트 )
     $word_encoded_euc_base64 = base64_encode(iconv('utf-8', 'cp949', $search_word));
     array_push($word_encoded_arr, $word_encoded_euc_base64);
+    echo '<pre>';
+    var_dump($word_encoded_arr);
+    echo '</pre>';
     $word_encoded_arr = array_unique($word_encoded_arr);
     $word_encoded_imp = implode('\|', $word_encoded_arr);   // OR 조건으로 exec 검색하기 위해 설정함
-
-    // echo '<pre>';
-    // var_dump($word_encoded_imp);
-    // echo '</pre><br>';
+    echo '<pre>';
+    var_dump($word_encoded_imp);
+    echo '</pre><br>';
     // exit;
 
-    exec("sudo grep -r '$word_encoded_imp' /home/vmail/'$domain'/'$user_id'/'$src'cur", $output, $error);
-
+    // -r        : 하위 디렉토리 탐색.
+    // -l        : 패턴이 존재하는 파일 이름만 표시. (중복안되게 검색됨)
+    exec("sudo grep -rl '$word_encoded_imp' /home/vmail/'$domain'/'$user_id'/'$src'cur", $output, $error);
+    echo "output => <br>";
     echo '<pre>';
     var_dump($output);
     echo '</pre><br>';
     exit;
 
-    $name_arr = array();
-    foreach($output as $i => $v) {
-      $v = substr($v, 0, strpos($v, ":"));
-      $v = substr($v, strpos($v, "cur")+4);
-      array_push($name_arr, $v);
+    if(count($output) != 0) {
+      $name_arr = array();
+      foreach($output as $i => $v) {
+        $v = substr($v, 0, strpos($v, ":"));
+        $v = substr($v, strpos($v, "cur")+4);
+        array_push($name_arr, $v);
+      }
+
+      $name_arr = array_unique($name_arr);
+      rsort($name_arr);     // 최신날짜로 정렬
+      $name_arr_imp = implode('\|', $name_arr);
+      echo '<pre>';
+      var_dump($name_arr_imp);
+      echo '</pre><br>';
+      // exit;
+
+      exec("sudo grep -r '$name_arr_imp' /home/vmail/'$domain'/'$user_id'/'$src'dovecot-uidlist", $output2, $error2);
+      echo "output2 => <br>";
+      echo '<pre>';
+      var_dump($output2);
+      echo '</pre><br>';
+      exit;
+
+      $msg_no_arr = array();
+      foreach($output2 as $i => $uid) {
+        $uid = explode(' :', $uid)[0];
+        // $v = substr($v, 0, strpos($v, ":"));
+        $msg_no = imap_msgno($mails, (int)$uid);    // A non well formed numeric value encountered 애러처리
+        array_push($msg_no_arr, $msg_no);
+      }
+      echo '<pre>';
+      var_dump($msg_no_arr);
+      echo '</pre><br>';
+      exit;
+    }else {
+      echo '검색결과 없음';
     }
-
-    $name_arr = array_unique($name_arr);
-    rsort($name_arr);     // 최신날짜로 정렬
-    $name_arr_imp = implode('\|', $name_arr);
-    // echo '<pre>';
-    // var_dump($name_arr_imp);
-    // echo '</pre><br>';
-
-    exec("sudo grep -r '$name_arr_imp' /home/vmail/'$domain'/'$user_id'/'$src'dovecot-uidlist", $output2, $error2);
-
-    $msg_no_arr = array();
-    foreach($output2 as $i => $v) {
-      $v = explode(' :', $v)[0];
-      // $v = substr($v, 0, strpos($v, ":"));
-      array_push($msg_no_arr, $v);
-    }
-    echo '<pre>';
-    var_dump($msg_no_arr);
-    echo '</pre><br>';
-    exit;
-
-
-
 
 
     // 이전 검색하던 부분
