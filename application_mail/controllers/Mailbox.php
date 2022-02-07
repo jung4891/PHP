@@ -264,14 +264,17 @@ class Mailbox extends CI_Controller {
       $word_encoded_arr = array_unique($word_encoded_arr);
       $word_encoded_imp = implode('\|', $word_encoded_arr);
     }
-    exec("sudo grep -r '$word_encoded_imp' /home/vmail/'$domain'/'$user_id'/'$src'cur", $output, $error);
+    // -r        : 하위 디렉토리 탐색.
+    // -l        : 패턴이 존재하는 파일 이름만 표시. (중복안되게 검색됨)
+    exec("sudo grep -rl '$word_encoded_imp' /home/vmail/'$domain'/'$user_id'/'$src'cur", $output, $error);
     $name_arr = array();
-      foreach($output as $i => $v) {
-        $v = substr($v, 0, strpos($v, ":"));
-        $v = substr($v, strpos($v, "cur")+4);
-        array_push($name_arr, $v);
-      }
-    $name_arr = array_unique($name_arr);
+    foreach($output as $i => $v) {
+      $v = explode(':', explode('cur/', $v)[1])[0];
+      // $v = substr($v, 0, strpos($v, ":"));
+      // $v = substr($v, strpos($v, "cur")+4);
+      array_push($name_arr, $v);
+    }
+    // $name_arr = array_unique($name_arr);
     rsort($name_arr);     // 최신날짜로 정렬
     return $name_arr;
   }
@@ -285,8 +288,9 @@ class Mailbox extends CI_Controller {
     $src = ($mbox == "INBOX")? '' : '.'.$mbox.'/';
 
     $output2 = array();
-    exec("sudo grep -r '$name' /home/vmail/'$domain'/'$user_id'/'$src'dovecot-uidlist", $output2, $error2);
-    $uid = substr($output2[0], 0, strpos($output2[0], " :"));
+    exec("sudo grep '$name' /home/vmail/'$domain'/'$user_id'/'$src'dovecot-uidlist", $output2, $error2);
+    $uid = explode(' :', $output2[0])[0];
+    // $uid = substr($output2[0], 0, strpos($output2[0], " :"));
     $msg_no = imap_msgno($mails, (int)$uid);    // A non well formed numeric value encountered 애러처리
     return $msg_no;
   }
@@ -426,11 +430,13 @@ class Mailbox extends CI_Controller {
       $contents_target = trim(strtolower($this->input->get("contents")));
       if($contents_target != "") {
         if(count($mailno_arr_target) == 0 && $overlap_flag == false) {
-          $mailno_arr_target = $this->exec_search($mbox, $user_id, $contents_target);
-          // $mailno_arr_target = $this->exec_name_search($mbox, $user_id, $contents_target);
+          // 순수 내용만 검색한경우에는 대표검색으로 검색한것과 같게 처리함
+          $mailno_arr_target = $this->exec_name_search($mbox, $user_id, $contents_target);
+          // $mailno_arr_target = $this->exec_search($mbox, $user_id, $contents_target);
           $data['search_flag'] = true;
         }
         if(count($mailno_arr_target) != 0 && $overlap_flag == true){
+          // 상세검색시 위에서 중복검색되는 요소 있는경우엔 시간걸리더라도 exec_search로 배열 가져오게 처리.
           $user_id = $this->user_id;
           $mailno_arr_exec = $this->exec_search($mbox, $user_id, $contents_target);
           $mailno_arr_target = array_intersect($mailno_arr_target, $mailno_arr_exec);
@@ -509,8 +515,8 @@ class Mailbox extends CI_Controller {
           if (isset($mailno_arr[$i])) {                   // 마지막 페이지에서 15개가 안될경우 오류처리
             if( (isset($data['type']) && $data['type'] == "search") || (isset($data['search_flag']) && $data['search_flag']  == true) ) {
               if(gettype($mailno_arr[$i]) == "string")    // 날짜검색은 continue
-                $mailno_arr[$i] = $this->exec_no_search($mbox, $user_id, $mailno_arr[$i]);
-            }                                             // 여기서 인수 mailno_arr은 name_arr임
+                $mailno_arr[$i] = $this->exec_no_search($mbox, $user_id, $mailno_arr[$i]);  // 여기서 인수 mailno_arr은 name_arr임
+            }
             $mail_no = $mailno_arr[$i];
             $m_uid = imap_uid($mails, $mail_no);
             $headerinfo = imap_headerinfo($mails, $mail_no);
@@ -1087,27 +1093,33 @@ class Mailbox extends CI_Controller {
       foreach($flattenedParts as $partNumber => $part) {
        switch($part->type) {
          case 0:    // the HTML or plain text part of the email
-           if ($part->subtype == "PLAIN" && count($flattenedParts) == 1) {    // parts에 Plain 하나만 있는경우
-             foreach($part->parameters as $object) {  // charset이 parameters 배열에 [0] or [1]에 있음
+           // parts에 Plain 하나만 있는경우 || 메일 전송때 첨부파일 용량초과시 리턴되는 메일출력
+           if ($part->subtype == "PLAIN" && count($flattenedParts) == 1 || $part->subtype == "PLAIN" && $part->encoding == 0) {
+             foreach($part->parameters as $object) {          // charset이 parameters 배열에 [0] or [1]에 있음
                if(strtolower($object->attribute) == 'charset') {
                  $charset = $object->value;
                  break;
                }
              }
              $message = $this->getPart($mails, $msg_no, $partNumber, $part->encoding, $charset);
+             $message = htmlspecialchars($message); // 내용에 <> 있을경우 그대로 출력(아랫부분과 동일)
+             // $message = str_replace(array("<", ">"), array("&lt;", "&gt;"), $message);
              $contents .= $message;
              break;
            }else if ($part->subtype == "PLAIN" && $part->ifdisposition == 0) {
-             break;
-           }else if($part->subtype == "PLAIN" && $part->ifdisposition == 1) {   // .txt 첨부파일은 여기 들어있음
-             $filename = $this-> getFilenameFromPart($part);
-             if ($filename) {
-               $down_link = "&nbsp;<a href=\"javascript:download('{$mbox}', '{$msg_no}',
-               '{$partNumber}', '$part->encoding', '{$filename}');\">".$filename.'</a><br>';
-             } else {
-               $down_link = "(파일명 없음)";
-             }
-             $attachments .= $down_link;
+             break;   // 그외 일반적인 plain은 출력하지 않음
+           // // .txt 첨부파일은 여기 들어있음 + Undelivered Message Headers.txt도 여기로 빠짐
+           }else if(($part->subtype == "PLAIN" || $part->subtype == "RFC822-HEADERS") && $part->ifdisposition == 1) {
+           // }else if($part->subtype == "PLAIN" && $part->ifdisposition == 1) {   // 이전부분
+             // $filename = $this-> getFilenameFromPart($part);
+             // if ($filename) {
+             //   $down_link = "&nbsp;<a href=\"javascript:download('{$mbox}', '{$msg_no}',
+             //   '{$partNumber}', '$part->encoding', '{$filename}');\">".$filename.'</a><br>';
+             // } else {
+             //   $down_link = "(파일명 없음)";
+             // }
+             // $attachments .= $down_link;
+             $attachments .= $this->makeDownloadLink($mbox, $msg_no, $partNumber, $part);
            }else if($part->subtype == "HTML" && $part->ifdisposition == 0) {    // html 본문 출력부분
              if($html_cnt >=  1) break;
              foreach($part->parameters as $object) {  // charset이 parameters 배열에 [0] or [1]에 있음
@@ -1120,20 +1132,40 @@ class Mailbox extends CI_Controller {
              $contents .= $message;
              $html_cnt++;
            }else if($part->subtype == "HTML" && $part->ifdisposition == 1) {    // .html 첨부파일 처리
-             $filename = $this-> getFilenameFromPart($part);
-             if ($filename) {
-               $down_link = "&nbsp;<a href=\"javascript:download('{$mbox}', '{$msg_no}',
-               '{$partNumber}', '$part->encoding', '{$filename}');\">".$filename.'</a><br>';
-             } else {
-               $down_link = "(파일명 없음)";
-             }
-             $attachments .= $down_link;
+             // $filename = $this-> getFilenameFromPart($part);
+             // if ($filename) {
+             //   $down_link = "&nbsp;<a href=\"javascript:download('{$mbox}', '{$msg_no}',
+             //   '{$partNumber}', '$part->encoding', '{$filename}');\">".$filename.'</a><br>';
+             // } else {
+             //   $down_link = "(파일명 없음)";
+             // }
+             // $attachments .= $down_link;
+             $attachments .= $this->makeDownloadLink($mbox, $msg_no, $partNumber, $part);
            }
            break;
          case 1:  // multi-part headers, can ignore  (MIXED, ALTERNATIVE, RELATED)
            break;
-         case 2:  // attached message headers, can ignore (.eml 첨부파일은 2로 넘어와서 break 해제하면 되는데)
-           break;                                         // 그렇게되면 다른부분 또 애러 생겨서 우선 살려둠
+         case 2:  // attached message headers, can ignore
+                  // (.eml 첨부파일은 2로 넘어와서 break 해제하면 되는데 그렇게되면 다른부분 또 애러 생겨서 우선 살려둠)
+           // 첨부파일 용량 초과시 리턴되는 메일의 첨부파일부분 처리
+           if($part->subtype == "DELIVERY-STATUS") {
+              // $filename = $this->getFilenameFromPart($part);
+              // if ($filename) {
+              //   if(isset($part->bytes)) {
+              //     $size = $part->bytes;
+              //     $size = ($size < 1024)? $size .= 'B' : (($size < 1024*1024)? $size .= round($size/1024, 1).'KB' : $size = round($size/1024*1024, 1).'MB');
+              //   } else {
+              //     $size = '';
+              //   }
+              //   $down_link = "&nbsp;<a href=\"javascript:download('{$mbox}', '{$msg_no}',
+              //   '{$partNumber}', '$part->encoding', '{$filename}');\">".$filename."</a>&nbsp;
+              //   <span style='color: silver;'>$size</span><br>";
+              // } else {
+              //   $down_link = "(파일명 없음)";
+              // }
+              $attachments .= $this->makeDownloadLink($mbox, $msg_no, $partNumber, $part);
+           }
+           break;                                         //
          case 3: // application	(엑셀, 파워포인트등 첨부파일은 3임)
          case 4: // audio
          case 5: // image		(PNG 인라인출력 or 첨부 모두 type이 5임. 여기서는 삽입된거만 처리 첨부는 아래로 내려감)
@@ -1163,14 +1195,15 @@ class Mailbox extends CI_Controller {
            }
          case 6: // video
          case 7: // other (첨부파일)
-           $filename = $this-> getFilenameFromPart($part);
-           if ($filename) {
-             $down_link = "&nbsp;<a href=\"javascript:download('{$mbox}', '{$msg_no}',
-             '{$partNumber}', '$part->encoding', '{$filename}');\">".$filename.'</a><br>';
-           } else {
-             $down_link = "(파일명 없음)";
-           }
-           $attachments .= $down_link;
+           // $filename = $this-> getFilenameFromPart($part);
+           // if ($filename) {
+           //   $down_link = "&nbsp;<a href=\"javascript:download('{$mbox}', '{$msg_no}',
+           //   '{$partNumber}', '$part->encoding', '{$filename}');\">".$filename.'</a><br>';
+           // } else {
+           //   $down_link = "(파일명 없음)";
+           // }
+           // $attachments .= $down_link;
+           $attachments .= $this->makeDownloadLink($mbox, $msg_no, $partNumber, $part);
          break;
        } // switch (type)
      } // foreach (part)
@@ -1269,13 +1302,13 @@ class Mailbox extends CI_Controller {
         else
           return $data; // 8BIT
       case 2: return $data; // BINARY
-      case 3:
+      case 3:   // base64
         $data_decoded = base64_decode($data);
         if($charset == "euc-kr")
           $data_decoded = iconv('cp949', 'utf-8', $data_decoded);
         // $res = 'encoding: '.$encoding.'<br><br>charset: '.$charset.'<br><br>rawData: <br>'.$data.'<br>decoded: <br>'.$data_decoded;
         return $data_decoded;
-      case 4:
+      case 4:   // quoted_printable
         $data_decoded = quoted_printable_decode($data);    // QUOTED_PRINTABLE (업무일지 서식)
         if ($charset == 'ks_c_5601-1987' || $charset == 'us-ascii' || $charset == 'euc-kr')   // else는 charset이 utf-8로 iconv 불필요
           $data_decoded = iconv('cp949', 'utf-8', $data_decoded);     // us-ascii도 변경해줘야 제대로 출력됨
@@ -1285,6 +1318,25 @@ class Mailbox extends CI_Controller {
         return $data_decoded;
       case 5: return $data; // OTHER
     }
+  }
+
+  // 첨부파일 링크 만드는 부분
+  function makeDownloadLink($mbox, $msg_no, $partNumber, $part) {
+    $filename = $this->getFilenameFromPart($part);
+    if ($filename) {
+      if(isset($part->bytes)) {
+        $size = $part->bytes;
+        $size = ($size < 1024)? $size .= 'B' : (($size < 1024*1024)? $size = round($size/1024, 1).'KB' : $size = round($size/(1024*1024), 1).'MB');
+      } else {
+        $size = '';
+      }
+      $down_link = "&nbsp;<a href=\"javascript:download('{$mbox}', '{$msg_no}',
+      '{$partNumber}', '$part->encoding', '{$filename}');\">".$filename."</a>&nbsp;
+      <span style='color: silver;'>$size</span><br>";
+    } else {
+      $down_link = "(파일명 없음)";
+    }
+    return $down_link;
   }
 
   // 첨부파일 다운로드 링크의 파일명 가져오는 부분

@@ -279,9 +279,10 @@ class Dbmailtest2 extends CI_Controller {
 
   public function exec_search() {
     // $mbox = "INBOX.test2";
-    $mbox = "&ycDGtA- &07jJwNVo-";
-    $user_id = "hjsong@durianit.co.kr";
-    $search_word = "test";
+    $mbox = "INBOX";
+    $user_id = "test2@durianict.co.kr";
+    // $user_id = "hjsong@durianit.co.kr";
+    $search_word = "테스트";
 
     $mails= $this->connect_mailserver($mbox);
     $domain = substr($user_id, strpos($user_id, '@')+1);
@@ -326,25 +327,25 @@ class Dbmailtest2 extends CI_Controller {
     if(count($output) != 0) {
       $name_arr = array();
       foreach($output as $i => $v) {
-        $v = substr($v, 0, strpos($v, ":"));
-        $v = substr($v, strpos($v, "cur")+4);
+        $v = explode(':', explode('cur/', $v)[1])[0];
+        // $v = substr($v, 0, strpos($v, ":"));
+        // $v = substr($v, strpos($v, "cur")+4);
         array_push($name_arr, $v);
       }
-
-      $name_arr = array_unique($name_arr);
-      rsort($name_arr);     // 최신날짜로 정렬
+      // $name_arr = array_unique($name_arr);
       $name_arr_imp = implode('\|', $name_arr);
       echo '<pre>';
       var_dump($name_arr_imp);
       echo '</pre><br>';
       // exit;
 
-      exec("sudo grep -r '$name_arr_imp' /home/vmail/'$domain'/'$user_id'/'$src'dovecot-uidlist", $output2, $error2);
+      exec("sudo grep '$name_arr_imp' /home/vmail/'$domain'/'$user_id'/'$src'dovecot-uidlist", $output2, $error2);
+      rsort($output2);     // 최신날짜로 정렬
       echo "output2 => <br>";
       echo '<pre>';
       var_dump($output2);
       echo '</pre><br>';
-      exit;
+      // exit;
 
       $msg_no_arr = array();
       foreach($output2 as $i => $uid) {
