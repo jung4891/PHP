@@ -322,7 +322,7 @@ class Dbmailtest2 extends CI_Controller {
     echo '<pre>';
     var_dump($output);
     echo '</pre><br>';
-    exit;
+    // exit;
 
     if(count($output) != 0) {
       $name_arr = array();
@@ -332,12 +332,13 @@ class Dbmailtest2 extends CI_Controller {
         // $v = substr($v, strpos($v, "cur")+4);
         array_push($name_arr, $v);
       }
+      $_SESSION['array_session'] = $name_arr;
+      echo '<pre>';
+      var_dump($name_arr);
+      echo '</pre><br>';
+      exit;
       // $name_arr = array_unique($name_arr);
       $name_arr_imp = implode('\|', $name_arr);
-      echo '<pre>';
-      var_dump($name_arr_imp);
-      echo '</pre><br>';
-      // exit;
 
       exec("sudo grep '$name_arr_imp' /home/vmail/'$domain'/'$user_id'/'$src'dovecot-uidlist", $output2, $error2);
       rsort($output2);     // 최신날짜로 정렬
@@ -404,6 +405,13 @@ class Dbmailtest2 extends CI_Controller {
     echo '</pre>';
     exit;
 
+  }
+
+  function session_test() {
+    echo "세션테스트 <br>";
+    echo "<pre>";
+    var_dump($_SESSION["array_session"]);
+    echo "</pre>";
   }
 
   function testtest(){
