@@ -270,29 +270,31 @@ class Mailbox extends CI_Controller {
     $name_arr = array();
     foreach($output as $i => $v) {
       $v = explode(':', explode('cur/', $v)[1])[0];
-      // $v = substr($v, 0, strpos($v, ":"));
-      // $v = substr($v, strpos($v, "cur")+4);
       array_push($name_arr, $v);
     }
-    // $name_arr = array_unique($name_arr);
-    rsort($name_arr);     // 최신날짜로 정렬
+    rsort($name_arr);     // 최신날짜로 정렬 (이후 exec_no_search에서 index로 정렬되게됨)
     return $name_arr;
   }
 
-  // 대표검색 및 첨부파일 검색시 실제 메일이름 > uid(msg_no)
-  // 단, exec_search와는 다르게 arr아 아닌 문자열 name 하나만 들어감(속도를 위해)
-  public function exec_no_search($mbox, $user_id, $name) {
+  // 대표검색 및 첨부파일 검색시 : 실제 메일이름 > uid > msg_no
+  public function exec_no_search($mbox, $user_id, $name_arr, $start_i) {
     $mails= $this->connect_mailserver($mbox);
     $domain = substr($user_id, strpos($user_id, '@')+1);
     $user_id = substr($user_id, 0, strpos($user_id, '@'));
     $src = ($mbox == "INBOX")? '' : '.'.$mbox.'/';
+    $name_arr_imp = implode('\|', $name_arr);
 
     $output2 = array();
-    exec("sudo grep '$name' /home/vmail/'$domain'/'$user_id'/'$src'dovecot-uidlist", $output2, $error2);
-    $uid = explode(' :', $output2[0])[0];
-    // $uid = substr($output2[0], 0, strpos($output2[0], " :"));
+    exec("sudo grep '$name_arr_imp' /home/vmail/'$domain'/'$user_id'/'$src'dovecot-uidlist", $output2, $error2);
+    rsort($output2);
+
+    $msg_no_arr = array();
+    foreach($output2 as $i => $uid) {
+      $uid = explode(' :', $uid)[0];
     $msg_no = imap_msgno($mails, (int)$uid);    // A non well formed numeric value encountered 애러처리
-    return $msg_no;
+      $msg_no_arr[$i+$start_i] = $msg_no;
+  }
+    return $msg_no_arr;
   }
 
   public function mail_list(){
@@ -311,10 +313,18 @@ class Mailbox extends CI_Controller {
 
     if($mails) {
       $type = $this->input->get('type');
-      if($type === NULL || $type === "") {
-        $mailno_arr = imap_sort($mails, SORTDATE, 1);
-      }else if($type == "attachments") {
+      // 없어도 될것 같음
+      // if($type === NULL || $type === "") {
+      //   $mailno_arr = imap_sort($mails, SORTDATE, 1);
+      // }
+      if($type == "attachments") {
+        $session = $this->input->get("session");
+        if(isset($session)) {
+          $mailno_arr = $_SESSION['mailno_arr'];
+        }else {
         $mailno_arr = $this->exec_name_search($mbox, $user_id, "Content-Disposition: attachment");
+          $_SESSION['mailno_arr'] = $mailno_arr;
+        }
         $data['search_flag'] = true;
         $data['type'] = "attachments";
       }else if ($type == "unseen") {
@@ -326,7 +336,12 @@ class Mailbox extends CI_Controller {
       }else if ($type == "search") {
         // 대표검색으로 제목+내용+보낸사람+받는사람 검색
         $search_word = trim(strtolower($this->input->get("search_word")));
-
+        $session = $this->input->get("session");
+        if(isset($session)) {
+          // 검색후 페이지 링크 클릭시에는 세션에서 검색값 가져와서 빠르게 출력처리
+          $mailno_arr = $_SESSION['mailno_arr'];
+        }else {
+          // 처음 검색시
         // 날짜로 대표검색시 (22-01-17, 22/1/17, 2022.01.17 모두 검색되도록 처리)
         $pattern = '/[0-9]+(-|\/|\.)[0-9]+(-|\/|\.)[0-9]+/';
         if(preg_match($pattern, $search_word)) {
@@ -341,33 +356,31 @@ class Mailbox extends CI_Controller {
           $end_date = date('Y-m-d', $timestamp);
           $mailno_arr = imap_sort($mails, SORTDATE, 1, 0, "SINCE $start_date BEFORE $end_date");
         }else {
-          // $mailno_arr = $this->exec_search($mbox, $user_id, $search_word);
           $mailno_arr = $this->exec_name_search($mbox, $user_id, $search_word);
-          // echo "<script>var test = '$mailno_arr'; console.log(test)</script>";
+        }
+          $_SESSION['mailno_arr'] = $mailno_arr;    // 처음 검색할때는 세션에 넣어줌
         }
         $data['search_word'] = $search_word;
         $data['type'] = "search";
       }else if($type == "search_detail") {
+        $session = $this->input->get("session");
+        if(isset($session)) {
+          $mailno_arr = $_SESSION['mailno_arr'];
+        }else {
         $mailno_arr_target = array(); // 상단조회해서 배열 나오는 경우 중복검색
         $overlap_flag = false;        // 상단조회에서 배열 안나오는경우(count가 0인 경우) 중복검색
 
         $from_target = trim(strtolower($this->input->get("from")));
         if($from_target != "") {
-          // 보낸이가 ks_c_5601-1987로 인코딩된경우 검색안되는 애러 처리
-          // $from_target = mb_convert_encoding($from_target, 'euc-kr', 'UTF-8');
-          $from_target = iconv("utf-8", "euc-kr", $from_target);
+            $data['from'] = $from_target;   // 아래에서 charset 인코딩을 변경하기에 그전에 값을 넣어줌
+            $from_target = iconv("utf-8", "euc-kr", $from_target);  // 보낸이가 ks_c_5601-1987로 인코딩된경우 검색안되는 애러 처리(utf8도 같이 처리됨. but 아래에서 같은 방식으로 받는이는 처리가 안됨...)
           $mailno_arr_target = imap_sort($mails, SORTDATE, 1, 0, "FROM $from_target", "ks_c_5601-1987");
-          // $mailno_arr_target = imap_sort($mails, SORTDATE, 1, 0, "FROM $from_target");
           $overlap_flag = true;
         }
-        $data['from'] = $from_target;
 
         $to_target = trim(strtolower($this->input->get("to")));
         if($to_target != "") {
           if(count($mailno_arr_target) == 0 && $overlap_flag == false) {    // 위에서 중복검색 안들른경우, to가 최초방문.
-            // 받는이가 ks_c_5601-1987로 인코딩된경우 검색안되는 애러 처리(안됨..)
-            // $to_target = iconv("utf-8", "euc-kr", $to_target);
-            // $mailno_arr_target = imap_sort($mails, SORTDATE, 1, 0, "TO $to_target", "ks_c_5601-1987");
             $mailno_arr_target = imap_sort($mails, SORTDATE, 1, 0, "TO $to_target");
             $overlap_flag = true;
           }
@@ -443,8 +456,9 @@ class Mailbox extends CI_Controller {
         }
         $data['contents'] = $contents_target;
       }
-
       $mailno_arr = array_values($mailno_arr_target);
+          $_SESSION['mailno_arr'] = $mailno_arr;
+        }
       $data['type'] = "search_detail";
       }else {
         $mailno_arr = imap_sort($mails, SORTDATE, 1);
@@ -511,12 +525,23 @@ class Mailbox extends CI_Controller {
       $data['links'] = $paging;
 
       if($mails_cnt >= 1) {
+
+        // 검색시 name_arr로 넘어온 배열을 no_arr로 변경해줌
+        $mailname_arr_tmp = array();
+        if( (isset($data['type']) && $data['type'] == "search") || (isset($data['search_flag']) && $data['search_flag']  == true) ) {
+          if(gettype($mailno_arr[0]) == "string") {       // 처음 검색시에만 아래 for문 작동. 날짜검색 or 검색후 링크클릭시에는 skip함.
+            for($i=$start_row; $i<$start_row+$per_page; $i++) {
+              if(isset($mailno_arr[$i])) {                // 여기서 mailno_arr은 exec_name_search로 반환된 메일명들이 들어있음. 번호x
+                $mailname_arr_tmp[$i] = $mailno_arr[$i];  // 페이지에서 보여지는 수만큼만 메일명들 담음
+              }
+            }
+            $mailno_arr = $this->exec_no_search($mbox, $user_id, $mailname_arr_tmp, $start_row);  // index 유지한채 msg_no 배열로 반환됨.
+          }
+        }
+
+        // 여기서부턴 mailno_arr엔 msg_no만 들어있음
         for($i=$start_row; $i<$start_row+$per_page; $i++) {
           if (isset($mailno_arr[$i])) {                   // 마지막 페이지에서 15개가 안될경우 오류처리
-            if( (isset($data['type']) && $data['type'] == "search") || (isset($data['search_flag']) && $data['search_flag']  == true) ) {
-              if(gettype($mailno_arr[$i]) == "string")    // 날짜검색은 continue
-                $mailno_arr[$i] = $this->exec_no_search($mbox, $user_id, $mailno_arr[$i]);  // 여기서 인수 mailno_arr은 name_arr임
-            }
             $mail_no = $mailno_arr[$i];
             $m_uid = imap_uid($mails, $mail_no);
             $headerinfo = imap_headerinfo($mails, $mail_no);
@@ -541,8 +566,7 @@ class Mailbox extends CI_Controller {
               } else {
                 $from_name = $from_addr;
               }
-              // 광고성 메일 euc-kr 인코딩부분 애러처리
-              $encoding = strtolower(mb_detect_encoding("$from_name", array('ASCII','EUC-KR','UTF-8')));
+              $encoding = strtolower(mb_detect_encoding("$from_name", array('ASCII','EUC-KR','UTF-8')));  // 광고성 메일 euc-kr 인코딩부분 애러처리
               if($encoding == "euc-kr")
                 $from_name = iconv("euc-kr", "utf-8", $from_name);
             }else {
@@ -567,8 +591,6 @@ class Mailbox extends CI_Controller {
               $to_name_full = "(이름 없음)";
             }
 
-            // $subject = $headerinfo->subject;
-            // echo $subject.'<br>';
             $subject_decoded = $this->subject_decode($headerinfo->subject);
             $udate = isset($headerinfo->date)? strtotime($headerinfo->date) : (int)$headerinfo->udate;
             $date = date("y.m.d", $udate);
@@ -608,9 +630,7 @@ class Mailbox extends CI_Controller {
     }else {
       $data['test_msg'] = '사용자명 또는 패스워드가 틀립니다.';
     }
-    // echo '<pre>';
-    // var_dump($data['mail_list_info']);
-    // echo '</pre>';
+    // var_dump($mailno_arr);
     // exit;
     $this->load->view('mailbox/mail_list_v', $data);
   } // function(mail_list)

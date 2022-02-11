@@ -133,14 +133,9 @@ $mbox_urlencode = urlencode($mbox);
         </colgroup>
           <tr>
             <td>
-              <?php
-if ($_SESSION['userid'] == "test4@durianict.co.kr") {
-?>
-<input type="button" class="btn_basic btn_white" name="" value="ip확인" onclick ="ip_check();">
+<input type="button" class="btn_basic btn_white" id="ip_checkBtn" name="" value="ip확인" onclick ="ip_check();">
 
-<?php
-}
-?>
+
             </td>
             <td><input type="checkbox" id="total" onClick="check_all(this);"></td>
             <td colspan="3">
@@ -331,11 +326,6 @@ if ($_SESSION['userid'] == "test4@durianict.co.kr") {
         <td style="color: darkgray; font-weight: 400;"><?php echo $mail_list_info[$i]['date'];?></td>
         <td><?php echo $mail_list_info[$i]['size'] ?></td>
       </tr>
-      <!-- <tr>
-        <pre>
-          <?php // var_dump($mail_list_info[$i]); ?>
-        </pre>
-      </tr> -->
       <?php
       }
       ?>
@@ -385,10 +375,15 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_footer.php";
 
 
 
+ var ip_yn = 1;
 function ip_check(){
+   if(ip_yn == 0){
+
+     return false;
+   }
   var ip_arr = [];
   var mail_box = "<?php echo $mbox; ?>";
-
+   $('#loading').show();
   $("td[name=ipcountry_td]").each(function(){
     var msg_no = $(this).closest("tr").attr("data-msgno");
     ip_arr.push(msg_no);
@@ -406,13 +401,17 @@ function ip_check(){
       $("td[name=ipcountry_td]").each(function(){
         var country = result[i].country;
         var ip = result[i].ip;
-        var img = "<img width='25' src='<?php echo $misc; ?>/img/flag/"+country+".png' alt='"+country+"' title='"+ip+"'>";
+         var img = "<img width='25' src='<?php echo $misc; ?>/img/flag/"+country+".png' alt='"+country+"'>";
         $(this).append(img);
         i++;
       });
+       ip_yn = 0;
+       $("#ip_checkBtn").hide();
+       $('#loading').hide();
     },
     error : function(request, status, error){
         console.log("AJAX_ERROR");
+         $('#loading').hide();
     }
   });
 
@@ -583,7 +582,7 @@ $(".mlist_tbl tr").on("mousedown", function(){
    }
  }
 
- // 검색창에 검색어 입력후 엔터키로 검색
+ // 대표검색창에 검색어 입력후 엔터키로 검색
  const input = document.querySelector('#search');
  input.addEventListener('keyup', function(e){
    if(e.key === 'Enter') {
@@ -663,6 +662,44 @@ $(".mlist_tbl tr").on("mousedown", function(){
   //   // location.href = "<?php echo site_url(); ?>/mailbox/mail_list?boxname=INBOX";
   // }, 3000);
   newForm.submit();
+  })
+
+  // 상세검색창에 검색어 입력후 엔터키로 검색
+  const input_detail = document.querySelector('#search_detail');
+  input_detail.addEventListener('keyup', function(e){
+    if(e.key === 'Enter') {
+      if($('#from').val() == "" && $('#to').val() == "" && $('#subject').val() == "" && $('#contents').val() == "" && $('#start_date').val() == "" && $('#end_date').val() == "") {
+        alert('검색어를 입력하세요');
+        $('#from').focus();
+        return;
+      }
+      // get방식이므로 주소창에 검색하는 애들만 출력되게끔
+      var mbox = `<?php echo $mbox; ?>`;
+      var type = 'search_detail';
+      var newForm = $('<form id="search_form"></form>');
+      newForm.attr("method","get");
+      newForm.attr("action", "<?php echo site_url(); ?>/mailbox/mail_list");
+      newForm.append($('<input>', {type: 'hidden', name: 'boxname', value: mbox }));
+      newForm.append($('<input>', {type: 'hidden', name: 'type', value: type }));
+      if($('#from').val() != "") newForm.append($('<input>', {type: 'hidden', name: 'from', value: $('#from').val() }));
+      if($('#to').val() != "")   newForm.append($('<input>', {type: 'hidden', name: 'to', value: $('#to').val() }));
+      if($('#subject').val() != "")  newForm.append($('<input>', {type: 'hidden', name: 'subject', value: $('#subject').val() }));
+      if($('#contents').val() != "")   newForm.append($('<input>', {type: 'hidden', name: 'contents', value: $('#contents').val() }));
+      if($('#start_date').val() != "")   newForm.append($('<input>', {type: 'hidden', name: 'start_date', value: $('#start_date').val() }));
+      if($('#end_date').val() != "") {
+        var end_date = $('#end_date').val().split('-');  // 22-01-10
+        end_date[0] = parseInt(end_date[0]) + 2000;
+        end_date = end_date.join('-');                   // 2022-01-10
+
+        var selectedDate = new Date(end_date);
+        selectedDate.setDate(selectedDate.getDate() + 1);    // 미만으로 검색되어 하루 더하기 (20210110 형태로만 Date객체 형성 가능)
+        selectedDate = selectedDate.getFullYear() + "-" + (selectedDate.getMonth() + 1) + "-" + selectedDate.getDate();
+        newForm.append($('<input>', {type: 'hidden', name: 'end_date', value: selectedDate }));
+      }
+      newForm.appendTo('body');
+      $('#loading').show();
+     newForm.submit();
+    }
   })
 
 
@@ -747,7 +784,8 @@ $(".mlist_tbl tr").on("mousedown", function(){
   if(contents != "")  newForm.append($('<input>', {type: 'hidden', name: 'contents', value: contents }));
   if(start_date != "")  newForm.append($('<input>', {type: 'hidden', name: 'start_date', value: start_date }));
   if(end_date != "")  newForm.append($('<input>', {type: 'hidden', name: 'end_date', value: end_date }));
-  newForm.append($('<input>', {type: 'hidden', name: 'session', value: 'on' }));
+  if(type == "attachments" || type == "search" || type == "search_detail")
+    newForm.append($('<input>', {type: 'hidden', name: 'session', value: 'on' }));
   newForm.appendTo('body');
   newForm.submit();
 }
@@ -847,6 +885,8 @@ $(".mlist_tbl tr").on("mousedown", function(){
     if(contents != "")  newForm.append($('<input>', {type: 'hidden', name: 'contents', value: contents }));
     if(start_date != "")  newForm.append($('<input>', {type: 'hidden', name: 'start_date', value: start_date }));
     if(end_date != "")  newForm.append($('<input>', {type: 'hidden', name: 'end_date', value: end_date }));
+    if(type == "attachments" || type == "search" || type == "search_detail")
+      newForm.append($('<input>', {type: 'hidden', name: 'session', value: 'on' }));
     newForm.appendTo('body');
     newForm.submit();
   }
