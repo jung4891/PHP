@@ -600,7 +600,7 @@ class Mailbox extends CI_Controller {
             // exit;
           }
         }
-      } else {
+      }else {
         $data['test_msg'] = "메일이 없습니다.";
       }
       $data['mailno_arr'] = $mailno_arr;

@@ -747,6 +747,7 @@ $(".mlist_tbl tr").on("mousedown", function(){
   if(contents != "")  newForm.append($('<input>', {type: 'hidden', name: 'contents', value: contents }));
   if(start_date != "")  newForm.append($('<input>', {type: 'hidden', name: 'start_date', value: start_date }));
   if(end_date != "")  newForm.append($('<input>', {type: 'hidden', name: 'end_date', value: end_date }));
+  newForm.append($('<input>', {type: 'hidden', name: 'session', value: 'on' }));
   newForm.appendTo('body');
   newForm.submit();
 }
