@@ -59,7 +59,6 @@ $reply_cc_input = address_text($mail_info["cc"]);
      <input type="hidden" id="reply_target_cc" name="reply_target_cc" value="">
      <input type="hidden" id="reply_title" name="reply_title" value="">
      <input type="hidden" id="reply_content" name="reply_content" value="">
-     <input type="hidden" id="reply_file" name="reply_file" value="">
    </form>
    <div id="send_top" align="left" style="width:95%; padding-bottom:10px;">
      <button type="button" class="btn_basic btn_blue" name="button" id="submit_button" enctype="multipart/form-data" style="width:80px" onclick="reply_mail(1)">회신</button>
@@ -76,7 +75,7 @@ $reply_cc_input = address_text($mail_info["cc"]);
            echo $mail_info["subject"];
            ?>
          </th>
-         <td align="right" style="width:150px;">
+         <td align="right">
            <!-- <button type="button" class="btn_basic btn_white" style="width:60px; height: 25px" onclick="go_list()">목록</button> -->
          </td>
        </tr>
@@ -122,24 +121,18 @@ $reply_cc_input = address_text($mail_info["cc"]);
         </td>
        </tr>
 
-      <?php if (!empty($attachments)) { ?>
+      <?php if ($attachments != "") { ?>
        <tr>
          <td colspan="2">
            <hr style="border: 1px solid #dedede;">
          </td>
        </tr>
        <tr><td style="font-weight: bold; padding-bottom: 3px; ">첨부파일</td></tr>
-       <?php foreach ($attachments as $att) {
-         $param = "'{$att['mbox']}','{$att['msgno']}','{$att['part_num']}','{$att['encoding']}','".addslashes($att['filename'])."'";
-
-         ?>
-         <tr>
-          <td>
-            <a href="JavaScript:download(<?php echo $param; ?>);"><?php echo $att["filename"]; ?></a><span style='color: silver;margin-left:10px;'><?php echo $att["size"]; ?></span>
-          </td>
-        </tr>
-       <?php
-       } ?>
+       <tr>
+         <td bgcolor="#F7F7F7" style="width: 530px">
+           <?php echo $attachments; ?>
+         </td>
+       </tr>
      <?php } ?>
      </table>
    <hr style="width: 98%; border: 1px solid #dedede; margin-left: -10px; margin-bottom: 30px">
@@ -244,12 +237,6 @@ $reply_cc_input = address_text($mail_info["cc"]);
       $("#reply_target_cc").val("");
       var re_title = " FW: "+title;
       $("#reply_title").val(re_title);
-      <?php if (!empty($attachments)) { ?>
-      // var fw_attach = new Object();
-      var fw_attach = '<?php echo addslashes(json_encode($attachments)); ?>';
-      $("#reply_file").val(fw_attach);
-      <?php } ?>
-
     }
 
     $("#reply_form").attr("method","post");

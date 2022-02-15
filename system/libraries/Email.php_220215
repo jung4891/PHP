@@ -395,8 +395,6 @@ class CI_Email {
 		5 => '5 (Lowest)'
 	);
 
-	protected $_fw_file = array();
-
 	// --------------------------------------------------------------------
 
 	/**
@@ -501,7 +499,6 @@ class CI_Email {
 		if ($clear_attachments !== FALSE)
 		{
 			$this->_attachments = array();
-			$this->_fw_file = array();
 		}
 
 		return $this;
@@ -698,13 +695,8 @@ class CI_Email {
 	 */
 	public function subject($subject)
 	{
-		if ($subject == "") {
-			$this->set_header('Subject', $subject);
-		} else {
-			$subject = $this->_prep_q_encoding($subject);
-			$this->set_header('Subject', $subject);
-
-		}
+		$subject = $this->_prep_q_encoding($subject);
+		$this->set_header('Subject', $subject);
 		return $this;
 	}
 
@@ -1024,12 +1016,7 @@ class CI_Email {
 	{
 		if ($this->mailtype === 'html')
 		{
-			// return (count($this->_attachments) === 0) ? 'html' : 'html-attach';
-			if (count($this->_attachments) === 0 && count($this->_fw_file) === 0) {
-				return 'html';
-			} else {
-				return 'html-attach';
-			}
+			return (count($this->_attachments) === 0) ? 'html' : 'html-attach';
 		}
 		elseif	($this->mailtype === 'text' && count($this->_attachments) > 0)
 		{
@@ -1333,7 +1320,6 @@ class CI_Email {
 	 */
 	protected function _build_message()
 	{
-
 		if ($this->wordwrap === TRUE && $this->mailtype !== 'html')
 		{
 			$this->_body = $this->word_wrap($this->_body);
@@ -1450,17 +1436,6 @@ class CI_Email {
 			break;
 		}
 
-		if (empty($this->_fw_file)) {
-			$fw_file = "";
-		} else {
-			$fw_file = $this->newline;
-			for ($y=0; $y < count($this->_fw_file); $y++) {
-				$fw_file .= '--'.$this->_atc_boundary.$this->newline
-				.$this->_fw_file[$y];
-			}
-		}
-		$body.= $fw_file;
-
 		$attachment = array();
 		for ($i = 0, $c = count($this->_attachments), $z = 0; $i < $c; $i++)
 		{
@@ -1478,10 +1453,7 @@ class CI_Email {
 			$attachment[$z++] = $this->_attachments[$i]['content'];
 		}
 
-
 		$body .= implode($this->newline, $attachment).$this->newline.'--'.$this->_atc_boundary.'--';
-
-
 		$this->_finalbody = ($this->_get_protocol() === 'mail')
 			? $body
 			: $hdr.$this->newline.$this->newline.$body;
@@ -2323,59 +2295,6 @@ class CI_Email {
 		return $msg.($raw_data === '' ? '' : '<pre>'.$raw_data.'</pre>');
 	}
 
-
-
-	public function append_rawdata($include = array('headers', 'subject', 'body'))
-	{
-		$msg = '';
-		$raw_data = '';
-		is_array($include) OR $include = array($include);
-
-		// $head_info = $this->_headers;
-		// if(isset($head_info["Message-ID"])){
-		// 	unset($head_info["Message-ID"]);
-		// 	$msg_id = str_replace(array('>', '<'), '', $head_info['Return-Path']);
-		// 	$msg_id = '<'.uniqid('').strstr($msg_id, '@').'>';
-		// 	$head_info["Message-ID"] = $msg_id;
-		// }
-
-		// if(isset($head_info["Subject"])){
-		// 	unset($head_info["Subject"]);
-		// }
-		// var_dump($head_info);
-		//
-		// $head_str = '';
-		//
-		// foreach ($head_info as $key => $val)
-		// {
-		// 	$val = trim($val);
-		//
-		// 	if ($val !== '')
-		// 	{
-		// 		$head_str .= $key.': '.$val.$this->newline;
-		// 	}
-		// }
-		//
-		// echo "<br>".$head_str;
-
-		if (in_array('headers', $include, TRUE))
-		{
-			$raw_data = $this->_header_str;
-		}
-
-		if (in_array('subject', $include, TRUE))
-		{
-			$raw_data .= $this->_subject;
-		}
-
-		if (in_array('body', $include, TRUE))
-		{
-			$raw_data .= $this->_finalbody;
-		}
-
-		return $msg.($raw_data === '' ? '' : $raw_data);
-	}
-
 	// --------------------------------------------------------------------
 
 	/**
@@ -2422,92 +2341,6 @@ class CI_Email {
 		}
 
 		return 'application/x-unknown-content-type';
-	}
-
-
-	public function _fw_attachfile($content_type, $encoding, $subtype, $disposition, $filename, $source){
-
-		switch ( $content_type ) {
-			  case 0:
-			    $content_type = "text";
-			    break;
-
-				case 1:
-			    $content_type = "multipart";
-					break;
-
-				case 2:
-					$content_type = "message";
-					break;
-
-				case 3:
-					$content_type = "application";
-					break;
-
-				case 4:
-					$content_type = "audio";
-					break;
-
-				case 5:
-					$content_type = "image";
-					break;
-
-				case 6:
-					$content_type = "video";
-					break;
-
-				case 7:
-					$content_type = "model";
-					break;
-
-				case 8:
-					$content_type = "other";
-					break;
-
-			  default:
-			    $content_type = "application";
-		}
-
-
-		switch ( $encoding ) {
-				case 0:
-					$encoding = "7bit";
-					break;
-
-				case 1:
-					$encoding = "8bit";
-					break;
-
-				case 2:
-					$encoding = "Binary";
-					break;
-
-				case 3:
-					$encoding = "Base64";
-					break;
-
-				case 4:
-					$encoding = "quoted-pintable";
-					break;
-
-				case 5:
-					$encoding = "other";
-					break;
-
-				default:
-					$encoding = "Base64";
-		}
-
-
-		$fw_file = 'Content-type: '.$content_type.'/'.$subtype.'; '
-			.'name="'.$filename.'"'.$this->newline
-			.'Content-Transfer-Encoding: '.$encoding.$this->newline
-			.'Content-Disposition: '.$disposition.';
-		filename="'.$filename.'"'.$this->newline.$this->newline
-			.$this->word_wrap($source).$this->newline;
-
-		$this->_fw_file[] = $fw_file;
-		return $this;
 	}
 
 }

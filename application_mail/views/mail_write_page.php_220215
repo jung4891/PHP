@@ -23,7 +23,7 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
     height: 30px;
   }
 
-  #group_table tr:hover {
+  #group_table td:hover {
     background-color: #e4f6f7;
   }
 
@@ -66,108 +66,16 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
     justify-content: space-between;
   }
 
-  /* .to_item{
+  .to_item{
     display: flex;
     height: 33%;
-  } */
-
-  #adress_modal {
-    display:none;
-    padding: 20px;
-    border-radius: 3px;
-    background-color: white;
-    min-width: 400px;
-    min-height: 500px;
-    width:40vw;
-    height: 70vh;
   }
 
-  #adress_modal input {
-    appearance:none;
-    border:none;
-    border: solid 1px;
-    height:30px;
-    border-radius:3px;
-    border-color:#DFDFDF;
-    /* background:url(/misc/img/icon/search.png) no-repeat 98% 50% #fff; */
-		/* background-size: 20px; */
-  }
-
-  #adress_modal input::placeholder {
-    color: #B0B0B0;
-  }
-
-  #adress_modal .btn {
-    height:35px;
-    color:#B0B0B0;
-    width:auto;
-    padding-left:10px;
-    padding-right:10px;
-    padding-top:7px;
-    float:left;
-    display:table-cell;
-    vertical-align: middle;
-    border-right:thin solid #DFDFDF;
-    font-weight: 500;
-    cursor:pointer;
-  }
-
-  #adress_modal .selected {
-    color: #1C1C1C;
-  }
-
-  #adress_modal .allow {
-    background-color: white;
-    border:thin solid #C2C2C2;
-    border-radius: 2px;
-    color:#565656;
-    font-weight:500;
-  }
-
-  .adress_box {
-    width:100%;
-    height:calc(90% - 30px);
-    border:thin solid #DFDFDF;
-    border-radius: 3px;
-
-  }
-
-  .btn-common {
-    cursor: pointer;
-    border: 1px solid black;
-    background-color: white;
-    width: 90px;
-    height: 30px;
-    font-weight: 400;
-    border-radius: 3px;
-    background: #a9abac;
-    border-color: #a9abac;
-    color: rgb(255, 255, 255);
-    font-size:14px;
-    vertical-align: middle;
-    font-family: "Noto Sans KR", sans-serif;
-    float:right;
-  }
-  .btn-style3 {
-    background: white;
-    border-color: #B0B0B0;
-    color: #1C1C1C;
-  }
-  .btn-color2 {
-    background: #0575E6;
-    border: #0575E6;
-    color: #FFFFFF;
-  }
-
-  .sender-tr td{
-    height: 40px;
-    border-top: solid 1px #DFDFDF;
-  }
 
    </style>
    <?php
    $reply_to = (isset($reply_to))?$reply_to:"";
-   $reply_cc = (isset($reply_cc))?str_replace(",", ";", $reply_cc):"";
+   $reply_cc = (isset($reply_cc))?$reply_cc:"";
    $reply_title = (isset($reply_title))?$reply_title:"";
    $reply_content = (isset($reply_content))?$reply_content:"";
     ?>
@@ -176,54 +84,54 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
           <button type="button" class="btn_basic btn_blue" name="button" id="submit_button" enctype="multipart/form-data" style="width:80px" onclick="chkForm();return false;">보내기</button>
   <!-- <button type="button" class="btn_basic btn_white" name="" style="width:80px">미리보기</button> -->
     <!-- <button type="button" class="btn_basic btn_white" style="width:80px">임시저장</button> -->
-    <textarea name="reply_content" id="reply_content" style="display:none;"><?php echo $reply_content; ?></textarea>
+    <textarea name="reply_content" id="reply_content" style="display:none;"><?php echo htmlspecialchars($reply_content); ?></textarea>
     <input type="hidden" id="re_mode" name="re_mode" value="<?php echo $mode; ?>">
         </div>
         <div class="main_div">
           <form action="<?php echo site_url();?>/mail_write/mail_write_action" method="post" enctype="multipart/form-data" id="tx_editor_form" name="tx_editor_form">
         <!-- <input type="text" id="recipient" name="recipient" value="" placeholder="받는 사람"><br> -->
 
-        <table width="90%" class="" border="0" cellspacing="0" cellpadding="0" style="width:95%;
-          height: 100%;">
+        <table width="90%" class="contents_tbl" border="0" cellspacing="0" cellpadding="0">
           <colgroup>
             <col width=10% align="left">
             <col width=85%>
             <col width=5%>
           </colgroup>
 
-          <tr class="mail_write sender-tr">
+          <tr class="mail_write">
               <td>받는사람</td>
               <td>
-                <input type="text" class="input_basic inputsender" id="recipient" name="recipient" value="<?php echo $reply_to; ?>" placeholder="받는 사람" style="width:100%">
+                <input type="text" class="input_basic" id="recipient" name="recipient" value="<?php echo $reply_to; ?>" placeholder="받는 사람" style="width:100%">
               </td>
-              <td align="right">
+              <td align="right" style="overflow:hidden;">
                 <!-- <button class="btn_basic btn_white" type="button" id="address_button" name="address_button">주소록</button> -->
                 <input class="btn_basic btn_white" type="button" id="address_button" name="address_button" value="주소록">
               </td>
           </tr>
 
 
-          <tr class="mail_cc sender-tr">
+          <tr class="mail_cc">
               <td>참조
+
                 <!-- <span style="font-size:8px;float:right;padding-right:10px;">아래</span> -->
               </td>
               <td>
-                <input type="text" class="input_basic inputsender" id="cc" name="cc" value="<?php echo $reply_cc; ?>" placeholder="참조" style="width:100%">
+                <input type="text" class="input_basic" id="cc" name="cc" value="<?php echo $reply_cc; ?>" placeholder="참조" style="width:100%">
               </td>
               <td>
 
               </td>
           </tr>
 
-          <tr class="mail_bcc sender-tr">
+          <tr class="mail_bcc">
               <td>숨은 참조</td>
               <td>
-                <input type="text" class="input_basic inputsender" id="bcc" name="bcc" value="" placeholder="숨은 참조" style="width:100%">
+                <input type="text" class="input_basic" id="bcc" name="bcc" value="" placeholder="숨은 참조" style="width:100%">
               </td>
               <td></td>
           </tr>
 
-          <tr class="mail_title sender-tr">
+          <tr class="mail_title">
             <td>제목
               <!-- <span style="font-size:8px;float:right;padding-right:10px;"><input type="checkbox" name="" value="">중요</span> -->
             </td>
@@ -232,7 +140,7 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
             </td>
             <td></td>
           </tr>
-          <tr class="attachment sender-tr">
+          <tr class="attachment">
               <td>첨부파일</td>
               <td>
                 <label class="btn_basic btn_white" for="file_up" style="cursor:pointer;display:block;width:100px;text-align:center;">
@@ -267,31 +175,6 @@ foreach ($sign_list as $sl) {
      									</tr>
      							 </tbody>
      				 </table>
-             <?php if (isset($reply_file)) {
-            ?>
-            <table class="basic_table" id="fw_filetbl" width="100%" height="auto" style="min-height: 30px;border:solid 1px #B0B0B0;">
-              <tr>
-                <td>
-
-                  <input type="hidden" name="fw_mbox" value="<?php echo $reply_file[0]->mbox; ?>">
-                  <input type="hidden" name="fw_msgno" value="<?php echo $reply_file[0]->msgno; ?>">
-                </td>
-              </tr>
-              <?php foreach ($reply_file as $rf) {
-                $param = "'{$rf->mbox}','{$rf->msgno}','{$rf->part_num}','{$rf->encoding}','{$rf->filename}'";
-                ?>
-                <tr>
-                  <td>
-                    <a href="JavaScript:download(<?php echo $param; ?>);"><?php echo $rf->filename; ?></a><span style='color: silver;margin-left:10px;'><?php echo $rf->size; ?></span>
-                    <a href='#' onclick='del_fwfile(this)' class='btn small bg_02'><img src='<?php echo $misc;?>/img/btn_del2.jpg' style='vertical-align:middle;'></a>
-                    <input type="hidden" name="fw_part[]" value="<?php echo $rf->part_num.",".$rf->content_type.",".$rf->encoding.",".$rf->subtype.",".$rf->disposition.",".$rf->realname; ?>">
-                  </td>
-                </tr>
-                <?php
-              } ?>
-            </table>
-            <?php
-             } ?>
             </td>
           </tr>
 
@@ -306,118 +189,19 @@ foreach ($sign_list as $sl) {
       </form>
       </div>
 
-    <div id="adress_modal">
-      <div style="float:left;width:53%;height:90%;display:flex;flex-direction:column;">
-        <div style="width:100%;height:auto;">
-          <p style="font-size:20px;font-weight:bold;">주소록</p>
-          <p><span style="font-size:14px;font-weight:bold;">주소록검색</span>
-            <img id="add_search_btn" style="width: 20px; float:right;position: relative;top: 6px;right: 30px;cursor: pointer;" src="<?php echo $misc; ?>/img/icon/search.png" alt="">
-            <input type="text" name="" id="address_search" style="float:right;width:calc(90% - 70px);;" value="" placeholder="이름 또는 이메일 주소로 검색" autocomplete="off">
-          </p>
-        </div>
-        <div style="width:100%;height:auto;border:thin solid #DFDFDF;border-radius:3px;vertical-align:middle;">
-          <span type="button" class="btn selected" id="addressspan" onclick="group_button_click('address', this);" name="button">주소록</span>
-          <span type="submit" class="btn" id="mboxspan" onclick="group_button_click('mailbox', this);" name="button">메일박스</span>
-          <!-- <span type="button" class="btn" onclick="group_button_click('alias');" name="button">그룹메일</span> -->
-        </div>
-
-        <!-- <div style="width:calc(100%-1px);height:auto;border:thin solid #DFDFDF;border-radius:3px;vertical-align:middle;">
-            <select class="" name="" style="height:100%;width:100%;border:none;">
-              <option value="">전체</option>
-            </select>
-        </div> -->
-
-        <div style="width:100%;height:100%;overflow:auto;border:thin solid #DFDFDF;">
-          <table id="group_table" border="0" cellspacing="0" cellpadding="0" style="width:100%;max-height:100%;">
-            <colgroup>
-              <col width="35%">
-              <col width="65%">
-            </colgroup>
-            <tbody>
-            </tbody>
-          </table>
-        </div>
-      </div>
-      <div style="float:left;width:7%;height:90%;display:flex;flex-direction:column;">
-        <div style="height:13%"></div>
-        <div style="height:29%;vertical-align:middle;display:table;text-align:center;">
-          <span style="display:table-cell;vertical-align:middle;">
-            <button type="button" class="allow" onclick="address_button_click('recipients_tbl');"> > </button><br>
-            <button type="button" class="allow" onclick="address_button_click_back('recipients_tbl');"> < </button>
-          </span>
-        </div>
-        <div style="height:29%;vertical-align:middle;display:table;text-align:center;">
-          <span style="display:table-cell;vertical-align:middle;">
-            <button type="button" class="allow" onclick="address_button_click('cc_tbl');"> > </button><br>
-            <button type="button" class="allow" onclick="address_button_click_back('cc_tbl');"> < </button>
-          </span>
-        </div>
-        <div style="height:29%;vertical-align:middle;display:table;text-align:center;">
-          <span style="display:table-cell;vertical-align:middle;">
-            <button type="button" class="allow" onclick="address_button_click('bcc_tbl');"> > </button><br>
-            <button type="button" class="allow" onclick="address_button_click_back('bcc_tbl');"> < </button>
-          </span>
-        </div>
-      </div>
-      <div style="float:left;width:40%;height:90%;display:flex;flex-direction:column;">
-        <div style="height:13%"></div>
-        <div style="height:29%;">
-          <p style="font-size:13px;font-weight:bold;padding:0;">
-            <span>받는사람</span>
-            <span style="margin-left:5px;color:#0575E6"></span>
-          </p>
-          <div class="adress_box to_item" style="overflow-y:scroll;">
-            <table id="recipients_tbl" style="width:100%;">
-              <tbody>
-              </tbody>
-            </table>
-
-          </div>
-        </div>
-        <div style="height:29%;">
-          <p style="font-size:13px;font-weight:bold;">
-            <span>참조</span>
-            <span style="margin-left:5px;color:#0575E6"></span>
-          </p>
-          <div class="adress_box to_item" style="overflow-y:scroll;">
-          <table id="cc_tbl" style="width:100%;">
-            <tbody>
-            </tbody>
-          </table>
-        </div>
-        </div>
-        <div style="height:29%;">
-          <p style="font-size:13px;font-weight:bold;">
-            <span>숨은참조</span>
-            <span style="margin-left:5px;color:#0575E6"></span>
-          </p>
-          <div class="adress_box to_item" style="overflow-y:scroll;">
-          <table id="bcc_tbl" style="width:100%;">
-            <tbody>
-            </tbody>
-          </table>
-        </div>
-        </div>
-      </div>
-      <button type="button" class="btn-common btn-color2" onclick="register_button();" name="button" style="margin-top:20px;">저장</button>
-      <button type="button" class="btn-common btn-style3" name="button" onclick="$('#adress_modal').bPopup().close();" style="margin-right:10px;margin-top:20px;">취소</button>
-    </div>
-
 
     <!-- 모달창 -->
-    <!-- <div id="adress_modal2" style="display: none; background-color: white; width: 40vw; height: 70vh;">
-      <div id="modal_h">
-        <p style="font-size:20px;font-weight:bold;">주소록</p>
-        <span style="font-size:14px;font-weight:bold;">주소록검색</span>
-        <input type="text" name="" style="margin-left:10px;" value="">
-
+    <div id="adress_modal" style="display: none; background-color: white; width: 40vw; height: 70vh;">
+      <div id="modal_h" align="center">
+        <h2>주소록</h2>
+        <!-- <p>주소록검색<input type="text" name="" value=""></p> -->
       </div>
 
-      <div id="modal_b">
+      <div id="modal_b" align="center">
         <div class="mb_c" style="overflow:auto;" style="width:55%">
-          <button type="button" onclick="group_button_click('all');" name="button">전체</button>
-          <button type="submit" id="group" onclick="group_button_click('tech');" name="button">그룹</button>
-          <button type="button" onclick="group_button_click('salse');" name="button">즐겨찾기</button>
+          <button type="button" onclick="group_button_click('all');" name="button">주소록</button>
+          <button type="submit" id="group" onclick="group_button_click('tech');" name="button">메일박스</button>
+          <!-- <button type="button" onclick="group_button_click('salse');" name="button">즐겨찾기</button> -->
 
           <table id="group_table">
              <tbody>
@@ -476,11 +260,11 @@ foreach ($sign_list as $sl) {
         </div>
     </div>
 
-      <div id="modal_f">
+      <div id="modal_f" align="center">
         <button type="button" name="button" onclick="$('#adress_modal').bPopup().close();">취소</button>
         <button type="button" onclick="register_button();" name="button">확인</button>
       </div>
-    </div> -->
+    </div>
 
     <div id="loading_div" style="display:none;">
       <img src="<?php echo $misc; ?>/img/loading.gif" alt="" style="width:100px;">
@@ -488,109 +272,66 @@ foreach ($sign_list as $sl) {
 <!-- main_contents 끝 -->
  </div>
   <script>
-
-  $(".inputsender").keyup(function(){
-    var inputVal = $(this).val();
-    $(this).val(inputVal.replace(/[,]/gi,';'));
-  })
-
   $(function (){
     $("#signature_list").change();
   })
 
 function sign_select(seq){
-  var load_content = $("#reply_content").text();
+  var load_content = $("#reply_content").html();
   if(seq =="no"){
     var content = "<p><br></p>";
     content += load_content;
-    $("#content").text(content).html();
+    $("#content").html(content);
     loadContent();
     return false;
-  }
-  $.ajax({
-    url: "<?php echo site_url(); ?>/option/get_signcontent",
-    type: 'POST',
-    dataType: 'json',
-    data: {seq:seq},
-    success: function (result) {
-      var content = result.sign_content;
-      if(content == null){
-        content = "<p><br></p>";
-      }
-      content += load_content;
+  } else {
+    $.ajax({
+      url: "<?php echo site_url(); ?>/option/get_signcontent",
+      type: 'POST',
+      dataType: 'json',
+      data: {seq:seq},
+      success: function (result) {
+        var content = result.sign_content;
+        if(content == null){
+          content = "<p><br></p>";
+        }
+        content += load_content;
 
-      $("#content").text(content).html();
-      loadContent();
-    }
-  });
+        $("#content").html(content);
+        loadContent();
+      }
+    });
+
+  }
 }
 
 
      $('#address_button').bind('click', function(e) {
-       $("#address_search").val("");
-       $("#addressspan").click();
        e.preventDefault();
         $('#adress_modal').bPopup({
             modalClose : true
            });
          });
 
+      function group_button_click(group_name){
 
-
-      $("#address_search").keydown(function(e){
-        const keyCode = e.keyCode;
-
-        if(keyCode == 13){ // Enter key
-          $("#add_search_btn").click();
-        }
-      })
-
-
-           $("#add_search_btn").click(function(){
-              var el = $("#adress_modal .selected");
-              if (el.attr("id") == "addressspan") {
-                var mode = "address";
-              } else {
-                var mode = "mailbox";
-              }
-
-              group_button_click(mode, el);
-
-           })
-
-           // $("#adress_modal input").click(function(){
-           //   console.log("1234141");
-           // })
-
-
-      function group_button_click(mode, el){
-
-        var search_keyword = $("#address_search").val();
-        $("#adress_modal .selected").removeClass("selected");
-        $(el).addClass("selected");
-
-        $("#group_table tr").remove(); // 한번 띄워주고 테이블 초기화
-        $.ajax({
-              url:"<?php echo site_url();?>/group/get_user_address",
+       $.ajax({
+              url:"<?php echo site_url();?>/mail_write/group_button",
               type:"GET",
               dataType : 'json',
-              data:{
-                mode:mode,
-                search_keyword: search_keyword
-              },
+              data:{g_name:group_name},
               success: function(result){
-                // console.log(result.length);
-                if(result.length > 0){
+                if(result != ""){
                   // $('#group').text(result);
+                  $("#group_table tr").remove(); // 한번 띄워주고 테이블 초기화
 
                   for (var i = 0; i < result.length; i++) {
                     // console.log(result[i].user_name);
-                  var name=result[i].name;
-                  var email=result[i].email;
-                  var tag = "<tr><td height='30' name='select_name_td'>"+ name +"</td>";
-                  tag += "<td name='select_mail_td'>"+ email +"</td></tr>";
-                  // console.log(tag);
-                  $("#group_table tbody").append(tag);
+                  var name=result[i].user_name;
+                  var groupName=result[i].parentGroupName;
+                  var email=result[i].user_email;
+                  var tag = "<tr><td>"+ email +"/"+ name +"</td></tr>";
+                  $("#group_table").append(tag);
                   // append이용해서 table tr태그를 생성해서 갖다붙임, group_table는 테이블id
                   }
 
@@ -615,8 +356,9 @@ function sign_select(seq){
        //받는사람으로 값 보내기
        function address_button_click(table_id){
         $(".user_selected").each(function(index,obj){
-
-          var contents =$(obj).find('td[name=select_mail_td]').html();
+          // console.log(index);
+          // console.log(obj);
+          var contents =$(obj).children().html();
           var tag = "<tr><td>"+ contents +"</td></tr>";
           $("#"+table_id).append(tag);
           $(this).removeClass("user_selected");
@@ -643,14 +385,14 @@ function sign_select(seq){
           }
 
          function register_button(){
-           // var recipients_length=$("#recipients_tbl >tbody tr").length
+           var recipients_length=$("#recipients_tbl >tbody tr").length
            // console.log(recipients_length);
            var recipient_mail = [];
            var cc_mail = [];
            var bcc_mail = [];
            $("#recipients_tbl td").each(function(){
              var td_val = $(this).html(); //$(this).text랑 이양, each반복문으로 하나하나 가져옴
-             // td_val = td_val.split(" ")[2];
+             td_val = td_val.split("/")[0];
 
              recipient_mail.push(td_val);
 
@@ -658,7 +400,7 @@ function sign_select(seq){
 
            $("#cc_tbl td").each(function(){
                var cc_td_val = $(this).html();
-               // cc_td_val = cc_td_val.split(" ")[2];
+               cc_td_val = cc_td_val.split("/")[0];
                // console.log(cc_td_val);
                cc_mail.push(cc_td_val);
 
@@ -666,18 +408,15 @@ function sign_select(seq){
 
            $("#bcc_tbl td").each(function(){
                var bcc_td_val = $(this).html();
-               // bcc_td_val = bcc_td_val.split(" ")[2];
+               bcc_td_val = bcc_td_val.split("/")[0];
                // console.log(cc_td_val);
                bcc_mail.push(bcc_td_val);
 
            });
-           recipient_mail = recipient_mail.join("; ");
+
            $("#recipient").val(recipient_mail); // 모달창 말고 메일쓰기화면에서 받는사람 id값
-           cc_mail = cc_mail.join("; ");
            $("#cc").val(cc_mail);
-           bcc_mail = bcc_mail.join("; ");
            $("#bcc").val(bcc_mail);
-           // console.log(recipient_mail);
            $("#adress_modal").bPopup().close();
 
          }
@@ -700,7 +439,7 @@ var fileSizeList = new Array();
 // 등록 가능한 파일 사이즈 MB
 var uploadSize = 50;
 // 등록 가능한 총 파일 사이즈 MB
-var maxUploadSize = 50;
+var maxUploadSize = 500;
 
 $(function (){
     // 파일 드롭 다운
@@ -801,16 +540,10 @@ function selectFile(files){
 
 // 업로드 파일 목록 생성
 function addFileList(fIndex, fileName, fileSize){
-    if (fileSize > 1) {
-      fileSize = Math.round((fileSize + Number.EPSILON) * 100) / 100 + "MB ";
-    } else {
-      fileSize = (fileSize*1024);
-      fileSize = Math.round((fileSize + Number.EPSILON) * 100) / 100 + "KB ";
-    }
     var html = "";
     html += "<tr id='fileTr_" + fIndex + "'>";
     html += "    <td class='left' >";
-    html +=         fileName + " <span style='color:silver;padding-left:10px;'> " + fileSize + "</span><a href='#' onclick='deleteFile(" + fIndex + "); return false;' class='btn small bg_02'><img src='<?php echo $misc;?>/img/btn_del2.jpg' style='vertical-align:middle;'></a>";
+    html +=         fileName + " / " + fileSize + "MB "  + "<a href='#' onclick='deleteFile(" + fIndex + "); return false;' class='btn small bg_02'><img src='<?php echo $misc;?>/img/btn_del2.jpg' style='vertical-align:middle;'></a>";
     html += "    </td>";
     html += "</tr>";
 
@@ -843,8 +576,7 @@ var chkForm = function () {
 
   if (mform.recipient.value == "") {
  		mform.recipient.focus();
-      $("#loading_div").bPopup().close();
-  		alert("받는사람을 입력해 주세요.");
+  		alert("제목을 입력해 주세요.");
   		return false;
   	}
 
@@ -898,28 +630,8 @@ var chkForm = function () {
 
 }
 
-function download(box, msg_no, part_no, encoding, f_name) {
-  var newForm = $('<form></form>');
-  newForm.attr("method","post");
-  newForm.attr("action", "<?php echo site_url(); ?>/mailbox/download");
-  // site_url() : http://dev.mail.durianit.co.kr/index.php
 
-  newForm.append($('<input>', {type: 'hidden', name: 'box', value: box }));
-  newForm.append($('<input>', {type: 'hidden', name: 'msg_no', value: msg_no }));
-  newForm.append($('<input>', {type: 'hidden', name: 'part_no', value: part_no }));
-  newForm.append($('<input>', {type: 'hidden', name: 'encoding', value: encoding }));
-  newForm.append($('<input>', {type: 'hidden', name: 'f_name', value: f_name }));
-  newForm.appendTo('body');
-  newForm.submit();
-}
 
-function del_fwfile(el){
-  $(el).closest("tr").remove();
-  const fw_lengh = $("input[name='fw_part[]']").length;
-  if (fw_lengh <= 0) {
-    $("#fw_filetbl").remove();
-  }
-}
 
   </script>
 

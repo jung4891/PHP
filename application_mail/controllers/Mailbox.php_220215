@@ -33,8 +33,8 @@ class Mailbox extends CI_Controller {
       $key = $this->db->password;
       $key = substr(hash('sha256', $key, true), 0, 32);
 			$decrypted = openssl_decrypt(base64_decode($encryp_password), 'aes-256-cbc', $key, 1, $iv);
-      $this->mailserver = "192.168.0.100";
-      // $this->mailserver = "mail.durianit.co.kr";
+      // $this->mailserver = "192.168.0.100";
+      $this->mailserver = "mail.durianit.co.kr";
       $this->user_id = $_SESSION["userid"];
       $this->user_pwd = $decrypted;
       $this->defalt_folder = array(
@@ -1101,8 +1101,8 @@ class Mailbox extends CI_Controller {
 
     // 내용 가져오는 부분
     $contents = '';       // 내용 부분 담을 변수
-    // $attachments = '';    // 첨부파일 부분 담을 변수
-    $attachments = array();
+    $attachments = '';    // 첨부파일 부분 담을 변수
+
     if (isset($struct->parts)) {
       $flattenedParts = $this->flattenParts($struct->parts);  // 메일구조 평면화
 
@@ -1139,8 +1139,7 @@ class Mailbox extends CI_Controller {
              //   $down_link = "(파일명 없음)";
              // }
              // $attachments .= $down_link;
-             $attachment = $this->makeDownloadLink($mbox, $msg_no, $partNumber, $part);
-             array_push($attachments, $attachment);
+             $attachments .= $this->makeDownloadLink($mbox, $msg_no, $partNumber, $part);
            }else if($part->subtype == "HTML" && $part->ifdisposition == 0) {    // html 본문 출력부분
              if($html_cnt >=  1) break;
              foreach($part->parameters as $object) {  // charset이 parameters 배열에 [0] or [1]에 있음
@@ -1161,8 +1160,7 @@ class Mailbox extends CI_Controller {
              //   $down_link = "(파일명 없음)";
              // }
              // $attachments .= $down_link;
-             $attachment = $this->makeDownloadLink($mbox, $msg_no, $partNumber, $part);
-             array_push($attachments, $attachment);
+             $attachments .= $this->makeDownloadLink($mbox, $msg_no, $partNumber, $part);
            }
            break;
          case 1:  // multi-part headers, can ignore  (MIXED, ALTERNATIVE, RELATED)
@@ -1185,8 +1183,7 @@ class Mailbox extends CI_Controller {
               // } else {
               //   $down_link = "(파일명 없음)";
               // }
-              $attachment = $this->makeDownloadLink($mbox, $msg_no, $partNumber, $part);
-              array_push($attachments, $attachment);
+              $attachments .= $this->makeDownloadLink($mbox, $msg_no, $partNumber, $part);
            }
            break;                                         //
          case 3: // application	(엑셀, 파워포인트등 첨부파일은 3임)
@@ -1226,8 +1223,7 @@ class Mailbox extends CI_Controller {
            //   $down_link = "(파일명 없음)";
            // }
            // $attachments .= $down_link;
-           $attachment = $this->makeDownloadLink($mbox, $msg_no, $partNumber, $part);
-           array_push($attachments, $attachment);
+           $attachments .= $this->makeDownloadLink($mbox, $msg_no, $partNumber, $part);
          break;
        } // switch (type)
      } // foreach (part)
@@ -1346,21 +1342,7 @@ class Mailbox extends CI_Controller {
 
   // 첨부파일 링크 만드는 부분
   function makeDownloadLink($mbox, $msg_no, $partNumber, $part) {
-    $return_val = array(
-      'mbox' => '',
-      'msgno' => '',
-      'part_num' => '',
-      'content_type' => '',
-      'encoding' => '',
-      'subtype' => '',
-      'disposition' => '',
-      'filename' => '',
-      'realname' => '',
-      'size' => ''
-    );
-
-    $realname = $this->getFilenameFromPart($part);
-    $filename = imap_utf8($realname);
+    $filename = $this->getFilenameFromPart($part);
     if ($filename) {
       if(isset($part->bytes)) {
         $size = $part->bytes;
@@ -1368,27 +1350,13 @@ class Mailbox extends CI_Controller {
       } else {
         $size = '';
       }
-      // $down_link = "&nbsp;<a href=\"javascript:download('{$mbox}', '{$msg_no}',
-      // '{$partNumber}', '$part->encoding', '{$filename}');\">".$filename."</a>&nbsp;
-      // <span style='color: silver;'>$size</span><br>";
-      $return_val = array(
-        'mbox' => $mbox,
-        'msgno' => $msg_no,
-        'part_num' => $partNumber,
-        'content_type' => $part->type,
-        'encoding' => $part->encoding,
-        'subtype' => $part->subtype,
-        'disposition' => $part->disposition,
-        'filename' => $filename,
-        'realname' => $realname,
-        'size' => $size
-      );
+      $down_link = "&nbsp;<a href=\"javascript:download('{$mbox}', '{$msg_no}',
+      '{$partNumber}', '$part->encoding', '{$filename}');\">".$filename."</a>&nbsp;
+      <span style='color: silver;'>$size</span><br>";
+    } else {
+      $down_link = "(파일명 없음)";
     }
-    // else {
-    //   $down_link = "(파일명 없음)";
-    // }
-    // return $down_link;
-    return $return_val;
+    return $down_link;
   }
 
   // 첨부파일 다운로드 링크의 파일명 가져오는 부분
@@ -1399,7 +1367,7 @@ class Mailbox extends CI_Controller {
         $filename = $object->value;
       }
     }
-    return $filename;   // 한글일 경우 ?ks_c_5601-1987?여서 디코딩 해야함
+    return imap_utf8($filename);   // 한글일 경우 ?ks_c_5601-1987?여서 디코딩 해야함
   }
 
   // 첨부파일 클릭시 다운로드 되는 부분
