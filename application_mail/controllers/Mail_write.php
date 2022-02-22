@@ -78,6 +78,13 @@ class Mail_write extends CI_Controller {
        }
        $uid = $_SESSION["userid"];
        $data['sign_list'] = $this->M_write->get_signlist($uid);
+
+       $recent_arr = $this->M_write->get_recentmail($uid);
+       $recent_list = array();
+       foreach ($recent_arr as $ra) {
+         array_push($recent_list, $ra['goto']);
+       }
+       $data['recentmail_list'] = $recent_list;
        $data['mode'] = 0;
        if(isset($_POST["reply_mode"])){
          $data['mode'] = $this->input->post("reply_mode");
@@ -154,20 +161,20 @@ class Mail_write extends CI_Controller {
 
          // $recipients = array($to_address);
          $recipients = preg_replace("/\s+/", "", $to_address);
-         $recipients = explode(';' ,$recipients);
+         $recipients = explode(',' ,$recipients);
          $recipients = array_filter($recipients);
          $this->email->to($recipients);  //$recipient
 
          $to_cc = $this->input->post('cc');
          // $cc = array($to_cc);
          $cc = preg_replace("/\s+/", "", $to_cc);
-         $cc = explode(';' ,$cc);
+         $cc = explode(',' ,$cc);
          $cc = array_filter($cc);
          $this->email->cc($cc);
 
          $to_bcc = $this->input->post('bcc');
          $bcc = preg_replace("/\s+/", "", $to_bcc);
-         $bcc = explode(';' ,$bcc);
+         $bcc = explode(',' ,$bcc);
          $bcc = array_filter($bcc);
          // $bcc = array($to_bcc);
          // $this->email->bcc(implod(',' ,$bcc));
@@ -218,6 +225,25 @@ class Mail_write extends CI_Controller {
               // $this->email->clear(TRUE);
               echo $err_msg;
            }else{
+             $recentmail = array();
+             foreach ($recipients as $re) {
+               $insert_data = array(
+                 'goto' => $re,
+                 'uid' => $_SESSION["userid"],
+                 'insert_date' => date("Y-m-d h:i:s")
+               );
+               array_push($recentmail, $insert_data);
+             }
+
+             foreach ($cc as $c) {
+               $insert_data = array(
+                 'goto' => $c,
+                 'uid' => $_SESSION["userid"],
+                 'insert_date' => date("Y-m-d h:i:s")
+               );
+               array_push($recentmail, $insert_data);
+             }
+             $this->M_write->insert_recentmail($recentmail);
              $raw_data = $this->email->append_rawdata();
              // echo $raw_data;
              // exit;
@@ -254,6 +280,12 @@ class Mail_write extends CI_Controller {
         $keyword = $this->input->get('g_name');
         $result= $this->M_addressbook->group_button($keyword);
         echo json_encode($result);
+     }
+
+     function lmtp_valid(){
+       $mail = $this->input->post("mail");
+       $result = $this->M_addressbook->check_lmtp($mail);
+       echo json_encode($result->cnt);
      }
 
 }

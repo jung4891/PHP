@@ -5,11 +5,14 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
  ?>
 
 
- <link rel="stylesheet" href="<?php echo $misc; ?>/daumeditor-7.4.9/css/editor.css" type="text/css" charset="utf-8"/>
- <link rel="stylesheet" href="<?php echo $misc; ?>/css/style.css" type="text/css" charset="utf-8"/>
- <script src="<?php echo $misc; ?>/daumeditor-7.4.9/js/editor_loader.js" type="text/javascript" charset="utf-8"></script>
- <!-- <script type="text/javascript" src="/misc/js/board/board_script_daum.js"></script> -->
- <!-- <script src="/misc/js/jquery.bpopup-0.1.1.min.js"></script> -->
+ <link rel="stylesheet" href="<?php echo $misc; ?>daumeditor-7.4.9/css/editor.css" type="text/css" charset="utf-8"/>
+ <link rel="stylesheet" href="<?php echo $misc; ?>css/style.css" type="text/css" charset="utf-8"/>
+ <link rel="stylesheet" href="<?php echo $misc; ?>css/jquery.tag-editor.css" type="text/css" charset="utf-8"/>
+
+ <script src="<?php echo $misc; ?>daumeditor-7.4.9/js/editor_loader.js" type="text/javascript" charset="utf-8"></script>
+ <script src="<?php echo $misc; ?>js/jquery.caret.min.js" type="text/javascript" charset="utf-8"></script>
+ <script src="<?php echo $misc; ?>js/jquery.tag-editor.js" type="text/javascript" charset="utf-8"></script>
+
 
  <!-- 넓이 높이 조절 -->
  <style>
@@ -164,6 +167,13 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
     border-top: solid 1px #DFDFDF;
   }
 
+
+  /* color tags */
+.tag-editor .red-tag .tag-editor-tag { color: #c65353; background: #ffd7d7; }
+.tag-editor .red-tag .tag-editor-delete { background-color: #ffd7d7; }
+.tag-editor .green-tag .tag-editor-tag { color: #45872c; background: #e1f3da; }
+.tag-editor .green-tag .tag-editor-delete { background-color: #e1f3da; }
+
    </style>
    <?php
    $reply_to = (isset($reply_to))?$reply_to:"";
@@ -190,11 +200,10 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
             <col width=85%>
             <col width=5%>
           </colgroup>
-
           <tr class="mail_write sender-tr">
               <td>받는사람</td>
               <td>
-                <input type="text" class="input_basic inputsender" id="recipient" name="recipient" value="<?php echo $reply_to; ?>" placeholder="받는 사람" style="width:100%">
+                <input type="text" class="input_basic inputsender" id="recipient" name="recipient" value="<?php echo $reply_to; ?>" placeholder="" style="width:100%">
               </td>
               <td align="right">
                 <!-- <button class="btn_basic btn_white" type="button" id="address_button" name="address_button">주소록</button> -->
@@ -208,7 +217,7 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
                 <!-- <span style="font-size:8px;float:right;padding-right:10px;">아래</span> -->
               </td>
               <td>
-                <input type="text" class="input_basic inputsender" id="cc" name="cc" value="<?php echo $reply_cc; ?>" placeholder="참조" style="width:100%">
+                <input type="text" class="input_basic inputsender" id="cc" name="cc" value="<?php echo $reply_cc; ?>" placeholder="" style="width:100%">
               </td>
               <td>
 
@@ -218,7 +227,7 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
           <tr class="mail_bcc sender-tr">
               <td>숨은 참조</td>
               <td>
-                <input type="text" class="input_basic inputsender" id="bcc" name="bcc" value="" placeholder="숨은 참조" style="width:100%">
+                <input type="text" class="input_basic inputsender" id="bcc" name="bcc" value="" placeholder="" style="width:100%">
               </td>
               <td></td>
           </tr>
@@ -489,10 +498,10 @@ foreach ($sign_list as $sl) {
  </div>
   <script>
 
-  $(".inputsender").keyup(function(){
-    var inputVal = $(this).val();
-    $(this).val(inputVal.replace(/[,]/gi,';'));
-  })
+  // $(".inputsender").keyup(function(){
+  //   var inputVal = $(this).val();
+  //   $(this).val(inputVal.replace(/[,]/gi,';'));
+  // })
 
   $(function (){
     $("#signature_list").change();
@@ -529,6 +538,30 @@ function sign_select(seq){
      $('#address_button').bind('click', function(e) {
        $("#address_search").val("");
        $("#addressspan").click();
+       $("#recipients_tbl tr").remove();
+       $("#cc_tbl tr").remove();
+       $("#bcc_tbl tr").remove();
+       var select_recipient = $('#recipient').tagEditor('getTags')[0].tags;
+       select_recipient.each(function(idx){
+
+         var add_tr = "<tr><td>"+idx+"</tr><td>";
+         $("#recipients_tbl").append(add_tr);
+       })
+
+       var select_recipient = $('#cc').tagEditor('getTags')[0].tags;
+       select_recipient.each(function(idx){
+
+         var add_tr = "<tr><td>"+idx+"</tr><td>";
+         $("#cc_tbl").append(add_tr);
+       })
+
+       var select_recipient = $('#bcc').tagEditor('getTags')[0].tags;
+       select_recipient.each(function(idx){
+
+         var add_tr = "<tr><td>"+idx+"</tr><td>";
+         $("#bcc_tbl").append(add_tr);
+       })
+
        e.preventDefault();
         $('#adress_modal').bPopup({
             modalClose : true
@@ -642,45 +675,58 @@ function sign_select(seq){
            })
           }
 
-         function register_button(){
-           // var recipients_length=$("#recipients_tbl >tbody tr").length
-           // console.log(recipients_length);
-           var recipient_mail = [];
-           var cc_mail = [];
-           var bcc_mail = [];
-           $("#recipients_tbl td").each(function(){
-             var td_val = $(this).html(); //$(this).text랑 이양, each반복문으로 하나하나 가져옴
-             // td_val = td_val.split(" ")[2];
+          // Remove all tags
+          function removeAllTag() {
+              var tags = $('#recipient').tagEditor('getTags')[0].tags;
+              for (i = 0; i < tags.length; i++) { $('#recipient').tagEditor('removeTag', tags[i]); }
 
-             recipient_mail.push(td_val);
+              var tags = $('#cc').tagEditor('getTags')[0].tags;
+              for (i = 0; i < tags.length; i++) { $('#cc').tagEditor('removeTag', tags[i]); }
 
-           })
+              var tags = $('#bcc').tagEditor('getTags')[0].tags;
+              for (i = 0; i < tags.length; i++) { $('#bcc').tagEditor('removeTag', tags[i]); }
+          }
 
-           $("#cc_tbl td").each(function(){
-               var cc_td_val = $(this).html();
-               // cc_td_val = cc_td_val.split(" ")[2];
-               // console.log(cc_td_val);
-               cc_mail.push(cc_td_val);
+          function register_button(){
+            // var recipients_length=$("#recipients_tbl >tbody tr").length
+            // console.log(recipients_length);
+            var recipient_mail = [];
+            var cc_mail = [];
+            var bcc_mail = [];
+            removeAllTag();
+            $("#recipients_tbl td").each(function(){
+              var td_val = $(this).html(); //$(this).text랑 이양, each반복문으로 하나하나 가져옴
+              // td_val = td_val.split(" ")[2];
 
-           })
+              // recipient_mail.push(td_val);
+              $("#recipient").tagEditor('addTag', td_val);
+            })
 
-           $("#bcc_tbl td").each(function(){
-               var bcc_td_val = $(this).html();
-               // bcc_td_val = bcc_td_val.split(" ")[2];
-               // console.log(cc_td_val);
-               bcc_mail.push(bcc_td_val);
+            $("#cc_tbl td").each(function(){
+                var cc_td_val = $(this).html();
+                // cc_td_val = cc_td_val.split(" ")[2];
+                // console.log(cc_td_val);
+                cc_mail.push(cc_td_val);
+                $("#cc").tagEditor('addTag', cc_td_val);
+            })
 
-           });
-           recipient_mail = recipient_mail.join("; ");
-           $("#recipient").val(recipient_mail); // 모달창 말고 메일쓰기화면에서 받는사람 id값
-           cc_mail = cc_mail.join("; ");
-           $("#cc").val(cc_mail);
-           bcc_mail = bcc_mail.join("; ");
-           $("#bcc").val(bcc_mail);
-           // console.log(recipient_mail);
-           $("#adress_modal").bPopup().close();
+            $("#bcc_tbl td").each(function(){
+                var bcc_td_val = $(this).html();
+                // bcc_td_val = bcc_td_val.split(" ")[2];
+                // console.log(cc_td_val);
+                bcc_mail.push(bcc_td_val);
+                $("#bcc").tagEditor('addTag', bcc_td_val);
+            });
+            // recipient_mail = recipient_mail.join("; ");
+            // $("#recipient").val(recipient_mail);
+            // cc_mail = cc_mail.join("; ");
+            // $("#cc").val(cc_mail);
+            // bcc_mail = bcc_mail.join("; ");
+            // $("#bcc").val(bcc_mail);
 
-         }
+            $("#adress_modal").bPopup().close();
+
+          }
 
          // $("#attachment").change(function(e){
          //   console.log(e);
@@ -834,11 +880,24 @@ function deleteFile(fIndex){
 
 
 var chkForm = function () {
+  var red_length = $(".red-tag").length;
+  if(red_length > 0){
+    alert("메일 주소를 확인해주세요.");
+    return false;
+  }
+  var recipient_tag = $('#recipient').tagEditor('getTags')[0].tags;
+  var cc_tag = $('#cc').tagEditor('getTags')[0].tags;
+  var bcc_tag = $('#bcc').tagEditor('getTags')[0].tags;
+  $("#recipient").val(recipient_tag);
+  $("#cc").val(cc_tag);
+  $("#bcc").val(bcc_tag);
   $("#loading_div").bPopup(
     {
       modalClose: false
     }
   )
+
+
   var mform = document.tx_editor_form;
 
   if (mform.recipient.value == "") {
@@ -921,6 +980,144 @@ function del_fwfile(el){
   }
 }
 
+
+const lmtp_mail = ["durianit.co.kr", "durianit.com", "durianict.co.kr", "the-mango.co.kr", "the-mango.com"];
+const mailRegExp = /^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*.[a-zA-Z]{2,3}$/i;
+var addtag = $('#recipient, #cc, #bcc').tagEditor({
+    autocomplete: {
+        delay: 0, // show suggestions immediately
+        position: { collision: 'flip' }, // automatic menu position up/down
+        // source: ['bhkim@durianit.co.kr', 'test2@durianict.co.kr', 'test3@durianict.co.kr', 'asf', 'test']
+        source: <?php echo json_encode($recentmail_list); ?>
+
+    },
+    forceLowercase: false,
+    removeDuplicates: false,
+//     onChange: function(field, editor, tags, val) {
+//       console.log(field);
+//       console.log(editor);
+//       console.log(tags);
+//       console.log($(this));
+//       // $(editor).find('.tag-editor-tag').addClass('red-tag');
+//     //   $(editor).each(function(){
+//     //     var li = $(this);
+//     //     li.addClass('red-tag');
+//     // });
+//     // $('#response').prepend(
+//     //     'Tags changed to: ' + (tags.length ? tags.join(', ') : '----') + '<hr>'
+//     // );
+//       alert("zzzz");
+// },
+    onChange: email_check
+    // beforeTagSave: function(field, editor, tags, tag, val) {
+    //   if(tag != ""){
+    //     $(editor).find('.active').addClass('red-tag');
+    //   }
+    // }
+});
+
+$(".tag-editor").on("focus", "input", function () {
+  $(this).closest("li").removeClass('check-y');
+});
+
+function email_check(field, editor, tags) {
+    const err1 = "메일 형식에 맞지 않습니다.";
+    const err2 = "해당 메일박스가 존재하지 않습니다.";
+    $(editor).find('li:not(".check-y")').each(function(index){
+        if(index == 0){
+          return true;
+        }
+        var li = $(this);
+        var li_val = li.find('.tag-editor-tag').text();
+        if (li_val.indexOf("<") !== -1){
+          li_val = li_val.split("<")[1];
+          li_val = li_val.substr(0, li_val.length-1);
+        }
+
+        if (li_val.match(mailRegExp) != null) {
+          var split = li_val.split("@")[1].trim();
+          if (lmtp_mail.indexOf(split) !== -1) {
+            $.ajax({
+                 url: "<?php echo site_url(); ?>/mail_write/lmtp_valid",
+                 type: 'post',
+                 dataType: 'json',
+                 data: {
+                   mail : li_val
+                 },
+                 async: false,
+                 success: function (result) {
+                   // console.log(`cnt는 ${result}`);
+                    if (result == 1) {
+                      li.removeClass('red-tag');
+                      li.addClass('check-y');
+
+
+                    } else {
+                      li.removeClass('check-y');
+                      li.addClass('red-tag');
+                      li.attr('title', err2);
+                    }
+                 }
+              });
+
+          } else {
+            li.removeClass('red-tag');
+            li.addClass('check-y');
+          }
+        } else {
+          li.removeClass('check-y');
+          li.addClass('red-tag');
+          li.attr('title', err1);
+        }
+
+    });
+}
+
+// function lmtp_check(mail){
+//   if (mail.match(mailRegExp) != null) {
+//     var split = mail.split("@")[1].trim();
+//     if (lmtp_mail.indexOf(split) !== -1) {
+//       $.ajax({
+//            url: "<?php echo site_url(); ?>/mail_write/lmtp_valid",
+//            type: 'post',
+//            dataType: 'json',
+//            data: {
+//              mail : mail
+//            },
+//            async: false,
+//            success: function (result) {
+//              console.log(`cnt는 ${result}`);
+//               if (result == 1) {
+//                 alert("val");
+//                 console.log(result);
+//                 return "valid";
+//               } else {
+//                 console.log(result);
+//                 return "err2";
+//               }
+//            }
+//         });
+//
+//     } else {
+//       return "valid";
+//     }
+//
+//   } else {
+//     return "err1";
+//   }
+// }
+
+
+//jquery ui type MSIE 에러 잡는 코드
+jQuery.browser = {};
+  (function () {
+      jQuery.browser.msie = false;
+      jQuery.browser.version = 0;
+      if (navigator.userAgent.match(/MSIE ([0-9]+)\./)) {
+          jQuery.browser.msie = true;
+          jQuery.browser.version = RegExp.$1;
+      }
+  })();
   </script>
 
 <?php

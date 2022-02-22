@@ -8,10 +8,6 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
 $mbox_urlencode = urlencode($mbox);
 // echo 'decode 후:'.$mbox_urlencode.'<br>';
 
-$request_url = $_SERVER['REQUEST_URI'];
-$_SESSION['list_page_url_tmp'] = substr($request_url, strpos($request_url, '/', 1));    // url에서 /index.php 부분 제외시킴
-// $_SERVER['REQUEST_URI'] -> /index.php/mailbox/mail_list?curpage=&searchbox=&boxname=INBOX
-
  ?>
 
  <!-- IE에서 input date 입력가능하게 설정 (jQuery에서 제공하는 datepicker 기능) -->
@@ -118,15 +114,6 @@ $_SESSION['list_page_url_tmp'] = substr($request_url, strpos($request_url, '/', 
   	top: 30%;
   	left: 43%;
   	z-index: 100;
-  }
-
-  #visited {
-    display: inline-block;
-    width: 5px;
-    height: 26px;
-    background: #b6dbff;
-    position: relative;
-    top: 4px;
   }
  </style>
 
@@ -273,76 +260,76 @@ $_SESSION['list_page_url_tmp'] = substr($request_url, strpos($request_url, '/', 
 
         <tr data-msgno="<?php echo $msg_no; ?>" onclick="detail_mailview(<?php echo $msg_no?>);">
 
-          <!-- 메일목록 출력 -->
-          <!-- <td><?php // echo $head[$mailno_arr[$i]]->Unseen ?></td> -->
-          <td name="msg_no_td" style="display:none;"><?php echo $msg_no?></td>
-          <td name="ipcountry_td" style="text-align:center;"></td>
-          <td onclick="event.cancelBubble=true">
-            <input type="checkbox" name="chk" value=<?php echo $msg_no;?>>
-          </td>
-          <td onclick="event.cancelBubble=true">
-            <a href="javascript:void(0);" onclick="starClick(this); " >
-              <?php if($mail_list_info[$i]['flagged'] == "F") {?>
-                <img class="fullStar" src="/misc/img/icon/star2.png" alt="" width="15px">
-              <?php   }else {?>
-                <img class="emptyStar" src="/misc/img/icon/star1.png" alt="" width="15px">
-              <?php   } ?>
-            </a>
-          </td>
-          <td>
-            <!-- 첨부파일 유무 파악 -->
-            <?php if($mail_list_info[$i]['attached']) { ?>
-            <img src="/misc/img/icon/attachment.png" alt="ss">
-            <?php }?>
-          </td>
-          <?php
-          // get방식으로 데이터를 직접 url에 적으면 &가 데이터 구별기호로 인식되서 바꿔줘야함
-          // (위에서 아싸리 바꿔줌 함수 사용해서.)
-          // $mbox2 = str_replace(array('#', '&', ' '), array('%23', '%26', '+'), $mbox);
+        <!-- 메일목록 출력 -->
+        <!-- <td><?php // echo $head[$mailno_arr[$i]]->Unseen ?></td> -->
+        <td name="msg_no_td" style="display:none;"><?php echo $msg_no?></td>
+        <td name="ipcountry_td" style="text-align:center;">
 
-          // 메일 읽은경우/읽지 않은경우 class명 지정하여 색 변경 (메일 읽으면 "U" -> ""로 바뀜)
-          $unseen = ($mail_list_info[$i]['unseen'] == "U")? "unseen":"seen";
-          ?>
-          <td>
-            <a class= <?php echo $unseen ?> href="javascript:void(0);" onclick="event.cancelBubble=true;send_context(this);">
-              <?php
-              $from_name = $mail_list_info[$i]['from']['from_name'];
-              $to_name = $mail_list_info[$i]['to']['to_name'];
-              // 보낸메일함은 받는사람 표기
-              if(strpos($mbox, '&vPSwuA- &07jJwNVo-') === 0) {
-                echo (isset($to_name))? $to_name : '(이름 없음)' ;
-              // 그외 메일함은 보낸사람 표기
-              }else {
-                echo (isset($from_name))? $from_name : '(이름 없음)' ;
-              }
-              ?>
-            </a>
-            <span style="display: none">
-              <?php
-              $from_name_full = $mail_list_info[$i]['from']['from_name_full'];
-              $to_name_full = $mail_list_info[$i]['to']['to_name_full'];
-              // 요부분은 회신할때 보낸사람 받는사람 이름<주소> 형식으로 출력되도록 처리함
-              if(strpos($mbox, '&vPSwuA- &07jJwNVo-') === 0) {
-                echo htmlspecialchars($to_name_full);
-              }else {
-                echo htmlspecialchars($from_name_full);
-              }
-              ?>
-            </span>
-          </td>
-          <td style="text-overflow:ellipsis; overflow:hidden; white-space:nowrap;">
-            <span id="<?php echo $msg_no.'_span' ?>" ></span>
-            <a class=<?php echo $unseen ?> href="javascript:void(0)" title="<?php echo $mail_list_info[$i]['subject']?>">
-              <?php echo $mail_list_info[$i]['subject']?>
-            </a>
-          </td>
-          <td style="color: darkgray; font-weight: 400;"><?php echo $mail_list_info[$i]['date'];?></td>
-          <td><?php echo $mail_list_info[$i]['size'] ?></td>
-        </tr>
+        </td>
+        <td onclick="event.cancelBubble=true">
+          <input type="checkbox" name="chk" value=<?php echo $msg_no;?>>
+        </td>
+        <td onclick="event.cancelBubble=true">
+          <a href="javascript:void(0);" onclick="starClick(this); " >
+            <?php if($mail_list_info[$i]['flagged'] == "F") {?>
+              <img class="fullStar" src="/misc/img/icon/star2.png" alt="" width="15px">
+            <?php   }else {?>
+              <img class="emptyStar" src="/misc/img/icon/star1.png" alt="" width="15px">
+            <?php   } ?>
+          </a>
+        </td>
+        <td>
+          <!-- 첨부파일 유무 파악 -->
+          <?php if($mail_list_info[$i]['attached']) { ?>
+          <img src="/misc/img/icon/attachment.png" alt="ss">
+          <?php }?>
+        </td>
         <?php
-        }
+        // get방식으로 데이터를 직접 url에 적으면 &가 데이터 구별기호로 인식되서 바꿔줘야함 (위에서 아싸리 바꿔줌 함수 사용해서.)
+        // $mbox2 = str_replace(array('#', '&', ' '), array('%23', '%26', '+'), $mbox);
+
+        // 메일 읽은경우/읽지 않은경우 class명 지정하여 색 변경 (메일 읽으면 "U" -> ""로 바뀜)
+        $unseen = ($mail_list_info[$i]['unseen'] == "U")? "unseen":"seen";
         ?>
-      </form>
+        <td>
+          <a class= <?php echo $unseen ?> href="javascript:void(0);" onclick="event.cancelBubble=true;send_context(this);">
+            <?php
+            $from_name = $mail_list_info[$i]['from']['from_name'];
+            $to_name = $mail_list_info[$i]['to']['to_name'];
+            // 보낸메일함은 받는사람 표기
+            if(strpos($mbox, '&vPSwuA- &07jJwNVo-') === 0) {
+              echo (isset($to_name))? $to_name : '(이름 없음)' ;
+            // 그외 메일함은 보낸사람 표기
+            }else {
+              echo (isset($from_name))? $from_name : '(이름 없음)' ;
+            }
+            ?>
+          </a>
+          <span style="display: none">
+            <?php
+            $from_name_full = $mail_list_info[$i]['from']['from_name_full'];
+            $to_name_full = $mail_list_info[$i]['to']['to_name_full'];
+            // 요부분은 회신할때 보낸사람 받는사람 이름<주소> 형식으로 출력되도록 처리함
+            if(strpos($mbox, '&vPSwuA- &07jJwNVo-') === 0) {
+              echo htmlspecialchars($to_name_full);
+            }else {
+              echo htmlspecialchars($from_name_full);
+            }
+            ?>
+          </span>
+        </td>
+        <td style="text-overflow:ellipsis; overflow:hidden; white-space:nowrap;">
+          <a class=<?php echo $unseen ?> href="<?php echo site_url(); ?>/mailbox/mail_detail?boxname=<?php echo $mbox_urlencode ?>&mailno=<?php echo $msg_no ?>" title="<?php echo $mail_list_info[$i]['subject']?>">
+            <?php echo $mail_list_info[$i]['subject']?>
+          </a>
+        </td>
+        <td style="color: darkgray; font-weight: 400;"><?php echo $mail_list_info[$i]['date'];?></td>
+        <td><?php echo $mail_list_info[$i]['size'] ?></td>
+      </tr>
+      <?php
+      }
+      ?>
+       </form>
     </tbody>
   </table>
 </div>
@@ -384,49 +371,51 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_footer.php";
  ?>
 
 
-<script type="text/javascript">
+ <script type="text/javascript">
+
+
 
  var ip_yn = 1;
- function ip_check(){
+function ip_check(){
    if(ip_yn == 0){
 
      return false;
    }
-   var ip_arr = [];
-   var mail_box = "<?php echo $mbox; ?>";
+  var ip_arr = [];
+  var mail_box = "<?php echo $mbox; ?>";
    $('#loading').show();
-   $("td[name=ipcountry_td]").each(function(){
-     var msg_no = $(this).closest("tr").attr("data-msgno");
-     ip_arr.push(msg_no);
-   });
-   $.ajax({
-     type : "post",
-     url : "<?php echo site_url(); ?>/mailbox/get_senderip2",
-     dataType:"json",
-     data : {
-       ip_arr: ip_arr,
-       mail_box : mail_box
-   },
-     success : function(result){
-       var i = 0;
-       $("td[name=ipcountry_td]").each(function(){
-         var country = result[i].country;
-         var ip = result[i].ip;
+  $("td[name=ipcountry_td]").each(function(){
+    var msg_no = $(this).closest("tr").attr("data-msgno");
+    ip_arr.push(msg_no);
+  });
+  $.ajax({
+    type : "post",
+    url : "<?php echo site_url(); ?>/mailbox/get_senderip2",
+    dataType:"json",
+    data : {
+      ip_arr: ip_arr,
+      mail_box : mail_box
+  },
+    success : function(result){
+      var i = 0;
+      $("td[name=ipcountry_td]").each(function(){
+        var country = result[i].country;
+        var ip = result[i].ip;
          var img = "<img width='25' src='<?php echo $misc; ?>/img/flag/"+country+".png' alt='"+country+"'>";
-         $(this).append(img);
-         i++;
-       });
+        $(this).append(img);
+        i++;
+      });
        ip_yn = 0;
        $("#ip_checkBtn").hide();
        $('#loading').hide();
-     },
-     error : function(request, status, error){
-         console.log("AJAX_ERROR");
+    },
+    error : function(request, status, error){
+        console.log("AJAX_ERROR");
          $('#loading').hide();
-     }
-   });
+    }
+  });
 
- }
+}
 
 // function detail_mailview(){
 //   var mid = $(this).find("input[name='chk']").val();
@@ -547,15 +536,10 @@ $(".mlist_tbl tr").on("mousedown", function(){
    // $('input[name=subject]').val('');
    // $('input[name=contents]').val('');
 
-   // 보기설정 개수 선택시 새로고침된 페이지에서 옵션 selected 설정
-   var per_page = '<?php echo $per_page; ?>';
-   $('#show_cnt option[value='+per_page+']').attr('selected', true);
+  // 보기설정 개수 선택시 새로고침된 페이지에서 옵션 selected 설정
+  var per_page = '<?php echo $per_page; ?>';
+  $('#show_cnt option[value='+per_page+']').attr('selected', true);
 
-   // 방금 전 읽었던 메일 표시처리하기
-   var visited_no = '<?php echo isset($visited_no)? $visited_no : 0 ?>'+'_span';
-   if(visited_no !== "") {
-     $("#"+visited_no).attr("id","visited");
-   }
  })
 
  // jquery datepicker 설정
@@ -790,9 +774,9 @@ $(".mlist_tbl tr").on("mousedown", function(){
   newForm.attr("method","get");
   newForm.attr("action", "<?php echo site_url(); ?>/mailbox/mail_list");
   newForm.append($('<input>', {type: 'hidden', name: 'boxname', value: mbox }));
+  newForm.append($('<input>', {type: 'hidden', name: 'type', value: type }));
   newForm.append($('<input>', {type: 'hidden', name: 'curpage', value: page }));
   newForm.append($('<input>', {type: 'hidden', name: 'mail_cnt_show', value: per_page }));
-  if(type != "") newForm.append($('<input>', {type: 'hidden', name: 'type', value: type }));
   if(search_word != "") newForm.append($('<input>', {type: 'hidden', name: 'search_word', value: search_word }));
   if(from != "") newForm.append($('<input>', {type: 'hidden', name: 'from', value: from }));
   if(to != "")   newForm.append($('<input>', {type: 'hidden', name: 'to', value: to }));
@@ -891,9 +875,9 @@ $(".mlist_tbl tr").on("mousedown", function(){
     newForm.attr("method","get");
     newForm.attr("action", "<?php echo site_url(); ?>/mailbox/mail_list");
     newForm.append($('<input>', {type: 'hidden', name: 'boxname', value: mbox }));
+    newForm.append($('<input>', {type: 'hidden', name: 'type', value: type }));
     newForm.append($('<input>', {type: 'hidden', name: 'curpage', value: curpage }));
     newForm.append($('<input>', {type: 'hidden', name: 'mail_cnt_show', value: cnt }));
-    if(type != "") newForm.append($('<input>', {type: 'hidden', name: 'type', value: type }));
     if(search_word != "") newForm.append($('<input>', {type: 'hidden', name: 'search_word', value: search_word }));
     if(from != "") newForm.append($('<input>', {type: 'hidden', name: 'from', value: from }));
     if(to != "")   newForm.append($('<input>', {type: 'hidden', name: 'to', value: to }));
@@ -926,8 +910,8 @@ $(".mlist_tbl tr").on("mousedown", function(){
      $("#reply_form").submit();
    }
 
-   function detail_mailview(msg_no){
-     location.href="<?php echo site_url(); ?>/mailbox/mail_detail?boxname=<?php echo $mbox_urlencode ?>&mailno="+msg_no;
+   function detail_mailview(msgno){
+     location.href="<?php echo site_url(); ?>/mailbox/mail_detail?boxname=<?php echo $mbox_urlencode ?>&mailno="+msgno;
    }
 
  </script>

@@ -9,8 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/themes/default/style.min.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/jstree.min.js"></script>
-    <!-- <script src="/misc/js/jquery-ui.min.js"></script> -->
-    <script src="https://code.jquery.com/ui/1.10.2/jquery-ui.min.js"></script>
+    <script src="/misc/js/jquery-ui.min.js"></script>
     <script src="/misc/js/jquery.bpopup-0.1.1.min.js"></script>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.9.2/jquery.contextMenu.css" />
@@ -35,7 +34,7 @@
           <?php } ?>
           </div>
           <div id="headBtn">
-                <span onclick="myinfo();" style="margin-right:30px;font-weight:bold;cursor:pointer;">
+                <span onclick="myinfo();" style="margin-right:30px;font-weight:bold;">
 
                   <?php if($_SESSION['roles'] == 'admin') { ?>
                         <?php echo $_SESSION['userid']; ?>
@@ -58,13 +57,6 @@
   //     $("#sideBar, #sideMini").toggle();
   //
   // })
-  function myinfo(){
-    <?php if($_SESSION['roles'] == 'admin') { ?>
-        console.log();
-    <?php } else { ?>
-        location.href='<?php echo site_url(); ?>/option/user'
-    <?php } ?>
-  }
 
 
   $("#headLogo").on("click", function(){

@@ -11,29 +11,11 @@ class M_addressbook extends CI_Model {
 
 
 
-  function test(){
 
-
-		// return $this->db->insert('usertbl', $data);
-    $sql = "select * from user";
-    $query = $this->db->query($sql);
-    $result = $query->result_array();
-	// $this->db->insert('usertbl', $data);
-    return $result;
-}
-
-	function test2(){
-		$sql = "select * from user_group";
-		$query = $this->db->query($sql);
-		$result = $query->result();
-		return $result;
-
-	// return $this->db->insert('buytbl',$data);
-	}
 
 	function group_button($keyword){
 		$id = $_SESSION["userid"];
-		if($keyword == 'all'){
+		if($keyword == 'address'){
 			// $where = " WHERE parentGroupName != '기술본부' and parentGroupName != '영업본부'";
 			$sql = "SELECT name as user_name, email as user_email, department as parentGroupName FROM address_book WHERE id = '{$id}'";
 			$query = $this->db->query($sql);
@@ -63,51 +45,40 @@ class M_addressbook extends CI_Model {
 	}
 
 
-	// 2. insert할 데이터를 함수안 ()에 넣어야 한다 ($data와 변수 명 달라도 상관 없음 model에서 받는 변수이기 때문)
-	function insert_test($data2){
-		var_dump($data2); // 찍어보기
-
-		$result = $this->db->insert('usertbl', $data2); // 3. insert할 데이터 true false
-
-		return $result; // 4. 결과값 리턴 (함수는 결과값을 리턴한다)
-	}
-
-	function update_test($data3, $mode = 0, $seq = 0){
-		var_dump($data3);
-
-	    if( $mode == 0 ) {
-	      return $this->db->insert('usertbl', $data3 );
-	    }
-	    else {
-	      return $this->db->update('usertbl', $data3, array('userID' => $seq));
-	    }
-
-	}
-
-	function delete_test($data){
-		var_dump($data);
-
-    $result = $this->db->delete('usertbl', array('userID' => $data));
-
-
-	 // $sql = "delete from meeting_room where seq = ?";
-	// $query = $this->db->query( $sql, $seq );
-
-			return	$result;
-	}
-
-	function biz_mom($keyword=""){ // 값을 받는 것, 파라미터
+	function get_address($id, $keyword = ""){
 		if($keyword == ""){
-			$where = "";
-		}	else{
-			$where = " WHERE place ='{$keyword}'";
+			$search = "";
+		} else {
+			$search = " AND (name LIKE '%{$keyword}%' OR email LIKE '%{$keyword}%')";
 		}
-		$sql = "select * from biz_mom{$where} order by day desc";
+		$sql = "SELECT seq, name, email FROM address_book a WHERE id = '{$id}'{$search}  ORDER BY seq DESC";
 		$query = $this->db->query($sql);
-		$result = $query->result_array();
+		$result = $query->result();
 		return $result;
 	}
 
+	function get_mailbox($id, $keyword = ""){
+		if($keyword == ""){
+			$search = "";
+		} else {
+			$search = " AND (mailbox.name LIKE '%{$keyword}%' OR alias.goto LIKE '%{$keyword}%')";
+		}
+		$sql = "SELECT
+    alias.goto as email,
+    mailbox.name as name
+    FROM alias LEFT JOIN mailbox ON alias.address=mailbox.username
+    WHERE mailbox.maildir IS NOT NULL{$search} ORDER BY goto";
+		$query = $this->db->query($sql);
+		$result = $query->result();
+		return $result;
+	}
+
+	function check_lmtp($mail){
+		$sql = "SELECT count(*) as cnt FROM alias WHERE address = '{$mail}'";
+		$query = $this->db->query($sql);
+		$result = $query->row();
+		return $result;
+	}
 
 
 

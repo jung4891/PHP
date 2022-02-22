@@ -11,10 +11,6 @@ $_SESSION['visited_arr'] = $visited_arr;
 
 // 목록으로 이동시 detail로 들어왔을때의 url정보를 세션에 저장.
 //  + 상세페이지 보다가 다른메일함 이동후 다시 되돌아왔을때 그 다른 메일함이 들어가는걸 방지
-// echo $mbox_urlencode.'<br>';
-// echo $_SESSION['list_page_url_tmp'].'<br>';
-// echo strpos($_SESSION['list_page_url_tmp'], $mbox_urlencode).'<br>';
-// var_dump(strpos($_SESSION['list_page_url_tmp'], $mbox_urlencode.'.'));
 if(strpos($_SESSION['list_page_url_tmp'], $mbox_urlencode) && !strpos($_SESSION['list_page_url_tmp'], $mbox_urlencode.'.')) {
   $_SESSION['list_page_url'] = $_SESSION['list_page_url_tmp'];
 }
@@ -227,19 +223,19 @@ $reply_cc_input = address_text($mail_info["cc"]);
 
   // 목록으로 이동
   function go_list(mailno) {
-    var url_tmp = `<?php echo $_SESSION['list_page_url'] ?>`;
-    <?php
-      $pattern = '/mail_cnt_show=[0-9]+/';
-      $reg = preg_match($pattern, $_SESSION['list_page_url'], $res);
-      if($reg) {
-        $mail_cnt_show = $res[0];
-      }else {
-        $mail_cnt_show = 15;
-      }
-     ?>
-    var mail_cnt_show = <?php echo $mail_cnt_show ?>;
-    console.log(url_tmp);
-    console.log(mail_cnt_show);
+    // var url_tmp = `<?php echo $_SESSION['list_page_url'] ?>`;
+    // <?php
+    //   $pattern = '/mail_cnt_show=[0-9]+/';
+    //   $reg = preg_match($pattern, $_SESSION['list_page_url'], $res);
+    //   if($reg) {
+    //     $mail_cnt_show = $res[0];
+    //   }else {
+    //     $mail_cnt_show = 15;
+    //   }
+    //  ?>
+    // var mail_cnt_show = <?php echo $mail_cnt_show ?>;
+    // console.log(url_tmp);
+    // console.log(mail_cnt_show);
 
     // console.log(`<?php echo $_SESSION['list_page_url'] ?>`);
 
@@ -260,8 +256,8 @@ $reply_cc_input = address_text($mail_info["cc"]);
     //   }
     // });
 
-    // var list_page_url = `<?php echo site_url().$_SESSION['list_page_url'] ?>`;
-    // location.href = list_page_url;
+    var list_page_url = `<?php echo site_url().$_SESSION['list_page_url'] ?>`;
+    location.href = list_page_url;
   }
 
   function download(box, msg_no, part_no, encoding, f_name) {
