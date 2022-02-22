@@ -1,24 +1,11 @@
 <?php
 include $this->input->server('DOCUMENT_ROOT')."/include/base.php";
 include $this->input->server('DOCUMENT_ROOT')."/include/mail_header.php";
-include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
+include $this->input->server('DOCUMENT_ROOT')."/include/test_mail_side.php";
 
 $mbox_urlencode = urlencode($mbox);
-
-// 방문한 메일 표시처리
 $visited_arr = array("boxname" => $_GET["boxname"], "mailno" => $_GET['mailno']);
 $_SESSION['visited_arr'] = $visited_arr;
-
-// 목록으로 이동시 detail로 들어왔을때의 url정보를 세션에 저장.
-//  + 상세페이지 보다가 다른메일함 이동후 다시 되돌아왔을때 그 다른 메일함이 들어가는걸 방지
-// echo $mbox_urlencode.'<br>';
-// echo $_SESSION['list_page_url_tmp'].'<br>';
-// echo strpos($_SESSION['list_page_url_tmp'], $mbox_urlencode).'<br>';
-// var_dump(strpos($_SESSION['list_page_url_tmp'], $mbox_urlencode.'.'));
-if(strpos($_SESSION['list_page_url_tmp'], $mbox_urlencode) && !strpos($_SESSION['list_page_url_tmp'], $mbox_urlencode.'.')) {
-  $_SESSION['list_page_url'] = $_SESSION['list_page_url_tmp'];
-}
-
  ?>
 <style media="screen">
 #detail_all_div {
@@ -94,11 +81,9 @@ $reply_cc_input = address_text($mail_info["cc"]);
            ?>
          </th>
          <td align="right">
-           <?php // echo 'mbox: '.$mbox.'<br>'; ?>
-           <?php // echo 'mbox_urlencode: '.$mbox_urlencode.'<br>'; ?>
-           <button type="button" class="btn_basic btn_white" style="width:60px" onclick="go_list(<?php echo $mailno ?>)">목록</button>
-           <img src="<?php echo $misc;?>img/icon/위2.svg" style="position:relative; width:28px; top:7px; cursor:pointer;" onclick="go_up(<?php echo $mailno; ?>)">
-           <img src="<?php echo $misc;?>img/icon/아래2.svg" style="position:relative; width:28px; top:7px; cursor:pointer;" onclick="go_down(<?php echo $mailno; ?>)">
+           <button type="button" class="btn_basic btn_white" style="width:60px" onclick="location.href='https://<?php echo $_SESSION['list_page']; ?>'">목록</button>
+           <img src="<?php echo $misc;?>img/icon/위2.svg" style="position:relative; width:28px; top:7px; cursor:pointer;" onclick="show_before(<?php echo $_GET['mailno']; ?>)">
+           <img src="<?php echo $misc;?>img/icon/아래2.svg" style="position:relative; width:28px; top:7px; cursor:pointer;" onclick="alert('test2')">
          </td>
        </tr>
        <tr>
@@ -186,82 +171,36 @@ $reply_cc_input = address_text($mail_info["cc"]);
 
 <script type="text/javascript">
 
-  // 상위메일(최근에 온것)로 이동
-  function go_up(mailno) {
-    $.ajax({
-      url : "<?php echo site_url(); ?>/mailbox/get_next_mailno",
-      type : "post",
-      data : {mbox: `<?php echo $mbox_urlencode ?>`, mail_no: mailno, way: 'up'},
-      success : function(next_no){
-        if(next_no == "x") {
-          alert("메일함의 첫번째 메일입니다.");
-        }else {
-          // alert("일단 오나보자 " + next_no);
-          location.href = "<?php echo site_url(); ?>/mailbox/mail_detail?boxname=<?php echo $mbox_urlencode ?>&mailno="+next_no;
-        }
-      },
-      error : function(request, status, error){
-          console.log("AJAX_ERROR");
-      }
-    });
+  function show_before(msg_no) {
+    var mailno_str_page = `<?php echo $_POST['mailno_json_page'] ?>`;
+    mailno_arr_page = mailno_str_page.split(",");
+    console.log(mailno_arr_page);
+    console.log("현재번호: "+msg_no);
+    var index_now = mailno_arr_page.indexOf(String(msg_no));
+    var index_last = mailno_arr_page.length-1;
+    console.log("현재 인덱스: "+index_now);
+
+    // if(index_now == 0) {
+    //   alert("현재 페이지에서 첫번째 메일입니다.");
+    // }else {
+    //   var mailno_arr_page = <?php echo json_encode($mailno_arr_page) ?>;
+    //   var newForm = $('<form></form>');
+    //   newForm.attr("method","post");
+    //   newForm.append($('<input>', {type: 'hidden', name: 'mailno_arr_page', value: mailno_arr_page }));
+    //   newForm.attr("action", "<?php echo site_url(); ?>/testmailbox/mail_detail?boxname=<?php echo $mbox_urlencode ?>&mailno="+msgno);
+    //   newForm.appendTo('body');
+    //   newForm.submit();
+
+      // location.href = "<?php echo site_url(); ?>/testmailbox/mail_detail?boxname=<?php echo $mbox_urlencode ?>&mailno="+(msg_no+1);
+
+    //
+    // else if(index_now == index_last) {
+    //   alert("현재 페이지에서 마지막 메일입니다.");
+    // }
   }
 
-  // 하위메일(나중에 온것)로 이동
-  function go_down(mailno) {
-    $.ajax({
-      url : "<?php echo site_url(); ?>/mailbox/get_next_mailno",
-      type : "post",
-      data : {mbox: `<?php echo $mbox_urlencode ?>`, mail_no: mailno, way: 'down'},
-      success : function(next_no){
-        if(next_no == "x") {
-          alert("메일함의 마지막 메일입니다.");
-        }else {
-          location.href = "<?php echo site_url(); ?>/mailbox/mail_detail?boxname=<?php echo $mbox_urlencode ?>&mailno="+next_no;
-        }
-      },
-      error : function(request, status, error){
-          console.log("AJAX_ERROR");
-      }
-    });
-  }
-
-  // 목록으로 이동
-  function go_list(mailno) {
-    var url_tmp = `<?php echo $_SESSION['list_page_url'] ?>`;
-    <?php
-      $pattern = '/mail_cnt_show=[0-9]+/';
-      $reg = preg_match($pattern, $_SESSION['list_page_url'], $res);
-      if($reg) {
-        $mail_cnt_show = $res[0];
-      }else {
-        $mail_cnt_show = 15;
-      }
-     ?>
-    var mail_cnt_show = <?php echo $mail_cnt_show ?>;
-    console.log(url_tmp);
-    console.log(mail_cnt_show);
-
-    // console.log(`<?php echo $_SESSION['list_page_url'] ?>`);
-
-    // mailno를 ajax로 보내서 curpage 받아오기
-    // $.ajax({
-    //   url : "<?php echo site_url(); ?>/mailbox/get_next_mailno",
-    //   type : "post",
-    //   data : {mbox: `<?php echo $mbox_urlencode ?>`, mail_no: mailno, way: 'down'},
-    //   success : function(next_no){
-    //     if(next_no == "x") {
-    //       alert("메일함의 마지막 메일입니다.");
-    //     }else {
-    //       location.href = "<?php echo site_url(); ?>/mailbox/mail_detail?boxname=<?php echo $mbox_urlencode ?>&mailno="+next_no;
-    //     }
-    //   },
-    //   error : function(request, status, error){
-    //       console.log("AJAX_ERROR");
-    //   }
-    // });
-
-    // var list_page_url = `<?php echo site_url().$_SESSION['list_page_url'] ?>`;
-    // location.href = list_page_url;
+  function go_list(boxname) {
+    alert(boxname);
   }
 
   function download(box, msg_no, part_no, encoding, f_name) {

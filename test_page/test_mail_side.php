@@ -51,8 +51,8 @@ $iv = chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0)
 $key = $this->db->password;
 $key = substr(hash('sha256', $key, true), 0, 32);
 $decrypted = openssl_decrypt(base64_decode($encryp_password), 'aes-256-cbc', $key, 1, $iv);
-// $mailserver = "192.168.0.100";
-$mailserver = "mail.durianit.co.kr";
+$mailserver = "192.168.0.100";
+// $mailserver = "192.168.0.50";
 $user_id = $_SESSION["userid"];
 $user_pwd = $decrypted;
 $default_folder = array(
@@ -179,7 +179,7 @@ for ($i=0; $i < count($folders); $i++) {
             $font_style = "";
           }
          ?>
-        <div class="side_top2" align="center" onclick="location.href='<?php echo site_url(); ?>/mailbox/mail_list?boxname=<?php echo $url_route; ?>'">
+        <div class="side_top2" align="center" onclick="location.href='<?php echo site_url(); ?>/testmailbox/mail_list?boxname=<?php echo $url_route; ?>'">
           <!-- <img src="<?php echo $misc;?>img/icon/schedule.svg" width="25"><br> -->
          <div class="" style="padding-bottom: 3px; font-size: 18px; <?php echo $font_style?>">
            <?php
@@ -204,7 +204,7 @@ for ($i=0; $i < count($folders); $i++) {
           $img_flag = "중요(본문).svg";
         }
          ?>
-        <div class="side_top2" align="center" onclick="location.href='<?php echo site_url(); ?>/mailbox/mail_list?boxname=<?php echo $url_route; ?>'">
+        <div class="side_top2" align="center" onclick="location.href='<?php echo site_url(); ?>/testmailbox/mail_list?boxname=<?php echo $url_route; ?>'">
           <img src="<?php echo $misc;?>img/icon/<?php echo $img_flag ?>" width="25"><br>
           <span style="<?php if(isset($type) && $type == 'important') echo 'font-weight: bold;'?>">중&nbsp;요</span>
         </div>
@@ -217,14 +217,14 @@ for ($i=0; $i < count($folders); $i++) {
           $img_attach = "첨부(본문).svg";
         }
          ?>
-        <div class="side_top2" align="center" onclick="location.href='<?php echo site_url(); ?>/mailbox/mail_list?boxname=<?php echo $url_route; ?>'">
+        <div class="side_top2" align="center" onclick="location.href='<?php echo site_url(); ?>/testmailbox/mail_list?boxname=<?php echo $url_route; ?>'">
           <img src="<?php echo $misc;?>img/icon/<?php echo $img_attach ?>" width="25"><br>
           <span style="<?php if(isset($type) && $type == 'attachments') echo 'font-weight: bold;'?>">첨&nbsp;부</span>
         </div>
       </div>
       <form name="boxform" id="boxform" class="" action="" method="get">
-        <!-- <input type="hidden" name="curpage" id="curpage" value="">
-        <input type="hidden" name="searchbox" id="searchbox" value=""> -->
+        <input type="hidden" name="curpage" id="curpage" value="">
+        <input type="hidden" name="searchbox" id="searchbox" value="">
         <input type="hidden" name="boxname" id="boxname" value="">
       </form>
       <div class="mailbox_div" id="side_mbox" align="center">
@@ -647,7 +647,7 @@ $(".mailbox_div, #sideMini").on("click", ".box_tr", function(){
   var trid = $(this).attr("id");
   trid = trid.replace(/\\'/g, "'");  // 메일함에 '있는경우 애러처리
   $("#boxname").val(trid);
-  var action = "<?php echo site_url(); ?>/mailbox/mail_list";
+  var action = "<?php echo site_url(); ?>/testmailbox/mail_list";
   $("#boxform").attr("action", action);
   $("#boxform").submit();
 })

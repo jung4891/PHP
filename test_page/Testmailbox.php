@@ -18,7 +18,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     //  string(45) "{192.168.0.100:143/imap/novalidate-cert}INBOX"  -> 전체 메일함
     // }
 
-class Mailbox extends CI_Controller {
+class Testmailbox extends CI_Controller {
+
   function __construct() {
       parent::__construct();
       if(!isset($_SESSION)){
@@ -297,6 +298,7 @@ class Mailbox extends CI_Controller {
     return $msg_no_arr;
   }
 
+
   public function mail_list(){
     if(!isset($_SESSION['userid']) && ($_SESSION['userid'] == "")){
       redirect("");
@@ -323,7 +325,7 @@ class Mailbox extends CI_Controller {
           $mailno_arr = $_SESSION['mailno_arr'];
         }else {
           $mailno_arr = $this->exec_name_search($mbox, $user_id, "Content-Disposition: attachment");
-          // $_SESSION['mailno_arr'] = $mailno_arr;
+          $_SESSION['mailno_arr'] = $mailno_arr;
         }
         $data['search_flag'] = true;
         $data['type'] = "attachments";
@@ -358,7 +360,7 @@ class Mailbox extends CI_Controller {
           }else {
             $mailno_arr = $this->exec_name_search($mbox, $user_id, $search_word);
           }
-          // $_SESSION['mailno_arr'] = $mailno_arr;    // 처음 검색할때는 세션에 넣어줌
+          $_SESSION['mailno_arr'] = $mailno_arr;    // 처음 검색할때는 세션에 넣어줌
         }
         $data['search_word'] = $search_word;
         $data['type'] = "search";
@@ -457,7 +459,7 @@ class Mailbox extends CI_Controller {
             $data['contents'] = $contents_target;
           }
           $mailno_arr = array_values($mailno_arr_target);
-          // $_SESSION['mailno_arr'] = $mailno_arr;
+          $_SESSION['mailno_arr'] = $mailno_arr;
         }
       $data['type'] = "search_detail";
       }else {
@@ -628,14 +630,10 @@ class Mailbox extends CI_Controller {
 
       // 방금 전 읽은 메일 표시처리
       // var_dump($_SESSION['visited_arr']);
-      if(isset($_SESSION['visited_arr'])) {
-        if($_SESSION["visited_arr"]["boxname"] == $mbox) {
-          $data['visited_no'] = $_SESSION["visited_arr"]["mailno"];
-        }
+      if($_SESSION["visited_arr"]["boxname"] == $mbox) {
+        $data['visited_no'] = $_SESSION["visited_arr"]["mailno"];
       }
-
-      $_SESSION['mailno_arr'] = $mailno_arr;  // 위에서 각각 처리하지 않고 일단 넣어줌. get방식의 session값에 따라 세션값 적용유무가 갈리므로.
-      $data['mailno_arr'] = $mailno_arr;      //  + 그리고 메일 상세페이지에서 상위/하위메일 가져올때 요 정보가 필요함
+      $data['mailno_arr'] = $mailno_arr;
       imap_close($mails);			              	// IMAP 스트림을 닫음
     }else {
       $data['test_msg'] = '사용자명 또는 패스워드가 틀립니다.';
@@ -1101,7 +1099,6 @@ class Mailbox extends CI_Controller {
 
     $data = array();
     $data['mbox'] = $mbox;
-    $data['mailno'] = $mailno;
     $head = imap_headerinfo($mails, $mailno);
     $msg_no = trim($head->Msgno);
 
@@ -1290,7 +1287,7 @@ class Mailbox extends CI_Controller {
       // 'body'        => imap_fetchstructure($mails, $msg_no)
     );
     imap_close($mails);
-    $this->load->view('mailbox/mail_detail_v', $data);
+    $this->load->view('mailbox/test_mail_detail_v', $data);
   }
 
   // 메일함 이동 (휴지통으로 이동 포함)
@@ -1410,8 +1407,7 @@ class Mailbox extends CI_Controller {
         $filename = $object->value;
       }
     }
-    return $filename;   // 한글일 경우 ?ks_c_5601-1987?여서 디코딩 해야함
-    // return imap_utf8($filename);   // 한글일 경우 ?ks_c_5601-1987?여서 디코딩 해야함
+    return imap_utf8($filename);   // 한글일 경우 ?ks_c_5601-1987?여서 디코딩 해야함
   }
 
   // 첨부파일 클릭시 다운로드 되는 부분
@@ -1470,30 +1466,6 @@ class Mailbox extends CI_Controller {
     }
     return $flattenedParts;
   }
-
-  function get_next_mailno() {
-    $mbox = $this->input->post("mbox");
-    $mail_no = $this->input->post("mail_no");
-    $way = $this->input->post("way");
-    $mailno_arr = $_SESSION['mailno_arr'];
-
-    $index_now = array_search($mail_no, $mailno_arr);
-    if($way == "up") {
-      if($index_now == 0) {
-        echo "x";
-      }else {
-        echo $mailno_arr[$index_now - 1];
-      }
-    }else {
-      if($index_now == count($mailno_arr)-1) {
-        echo "x";
-      }else {
-        echo $mailno_arr[$index_now + 1];
-      }
-    }
-  }
-
-   
 }
 
 
