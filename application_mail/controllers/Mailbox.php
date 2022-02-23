@@ -33,8 +33,8 @@ class Mailbox extends CI_Controller {
       $key = $this->db->password;
       $key = substr(hash('sha256', $key, true), 0, 32);
 			$decrypted = openssl_decrypt(base64_decode($encryp_password), 'aes-256-cbc', $key, 1, $iv);
-      // $this->mailserver = "192.168.0.100";
-      $this->mailserver = "mail.durianit.co.kr";
+      $this->mailserver = "192.168.0.100";
+      // $this->mailserver = "mail.durianit.co.kr";
       $this->user_id = $_SESSION["userid"];
       $this->user_pwd = $decrypted;
       $this->defalt_folder = array(
@@ -525,6 +525,8 @@ class Mailbox extends CI_Controller {
       $data['links'] = $paging;
 
       if($mails_cnt >= 1) {
+        $_SESSION['mailno_arr'] = $mailno_arr;  // 위에서 각각 처리하지 않고 일단 넣어줌. get방식의 session값에 따라 세션값 적용유무가 갈리므로.
+                                                //  + 대표검색/첨부파일은 속도를 위해 아래에서 cnt_show만큼 배열이 잘리므로 미리 세션 넣어줌
 
         // 검색시 name_arr로 넘어온 배열을 no_arr로 변경해줌
         $mailname_arr_tmp = array();
@@ -633,9 +635,7 @@ class Mailbox extends CI_Controller {
           $data['visited_no'] = $_SESSION["visited_arr"]["mailno"];
         }
       }
-
-      $_SESSION['mailno_arr'] = $mailno_arr;  // 위에서 각각 처리하지 않고 일단 넣어줌. get방식의 session값에 따라 세션값 적용유무가 갈리므로.
-      $data['mailno_arr'] = $mailno_arr;      //  + 그리고 메일 상세페이지에서 상위/하위메일 가져올때 요 정보가 필요함
+      $data['mailno_arr'] = $mailno_arr;      // 메일 상세페이지에서 상위/하위메일 가져올때 요 정보가 필요함
       imap_close($mails);			              	// IMAP 스트림을 닫음
     }else {
       $data['test_msg'] = '사용자명 또는 패스워드가 틀립니다.';
