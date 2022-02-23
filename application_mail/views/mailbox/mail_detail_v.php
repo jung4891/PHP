@@ -223,40 +223,34 @@ $reply_cc_input = address_text($mail_info["cc"]);
 
   // 목록으로 이동
   function go_list(mailno) {
-    // var url_tmp = `<?php echo $_SESSION['list_page_url'] ?>`;
-    // <?php
-    //   $pattern = '/mail_cnt_show=[0-9]+/';
-    //   $reg = preg_match($pattern, $_SESSION['list_page_url'], $res);
-    //   if($reg) {
-    //     $mail_cnt_show = $res[0];
-    //   }else {
-    //     $mail_cnt_show = 15;
-    //   }
-    //  ?>
-    // var mail_cnt_show = <?php echo $mail_cnt_show ?>;
-    // console.log(url_tmp);
-    // console.log(mail_cnt_show);
 
-    // console.log(`<?php echo $_SESSION['list_page_url'] ?>`);
+    // mailno -> index + mail_cnt_show -> curpage (ajax로 안보내고 스크립트에서 바로 처리)
+    <?php
+      // mailno -> index
+      $mailno_arr = $_SESSION['mailno_arr'];
+      $index_now = array_search($mailno, $mailno_arr);
 
-    // mailno를 ajax로 보내서 curpage 받아오기
-    // $.ajax({
-    //   url : "<?php echo site_url(); ?>/mailbox/get_next_mailno",
-    //   type : "post",
-    //   data : {mbox: `<?php echo $mbox_urlencode ?>`, mail_no: mailno, way: 'down'},
-    //   success : function(next_no){
-    //     if(next_no == "x") {
-    //       alert("메일함의 마지막 메일입니다.");
-    //     }else {
-    //       location.href = "<?php echo site_url(); ?>/mailbox/mail_detail?boxname=<?php echo $mbox_urlencode ?>&mailno="+next_no;
-    //     }
-    //   },
-    //   error : function(request, status, error){
-    //       console.log("AJAX_ERROR");
-    //   }
-    // });
+      // index + mail_cnt_show -> curpage
+      $list_page_url = $_SESSION['list_page_url'];
+      $pattern = '/mail_cnt_show=[0-9]+/';
+      $reg = preg_match($pattern, $list_page_url, $res);
+      if($reg) {
+        $mail_cnt_show = (int)str_replace('mail_cnt_show=', '', $res[0]);
+      }else {
+        $mail_cnt_show = 15;
+      }
+      $curpage = floor($index_now / $mail_cnt_show) + 1;
 
-    var list_page_url = `<?php echo site_url().$_SESSION['list_page_url'] ?>`;
+      // url에 curpage 파라미터 추가
+      $pattern = '/&curpage=[0-9]+/';
+      $reg = preg_match($pattern, $list_page_url, $res);
+      if($reg) {
+        $list_page_url = str_replace($res[0], '', $list_page_url);
+      }
+      $list_page_url .= "&curpage=$curpage";
+
+     ?>
+    var list_page_url = `<?php echo site_url().$list_page_url ?>`;
     location.href = list_page_url;
   }
 

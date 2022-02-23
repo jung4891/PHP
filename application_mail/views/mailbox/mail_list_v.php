@@ -9,6 +9,7 @@ $mbox_urlencode = urlencode($mbox);
 // echo 'decode 후:'.$mbox_urlencode.'<br>';
 
 $request_url = $_SERVER['REQUEST_URI'];
+if(!strpos($request_url, 'boxname')) $request_url .= '?boxname=INBOX';   // 로그인한후에는 뒤에 파라미터가 없어서 넣어줌
 $_SESSION['list_page_url_tmp'] = substr($request_url, strpos($request_url, '/', 1));    // url에서 /index.php 부분 제외시킴
 // $_SERVER['REQUEST_URI'] -> /index.php/mailbox/mail_list?curpage=&searchbox=&boxname=INBOX
 
