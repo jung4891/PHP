@@ -18,7 +18,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     //  string(45) "{192.168.0.100:143/imap/novalidate-cert}INBOX"  -> 전체 메일함
     // }
 
-class Mailbox extends CI_Controller {
+class Testmailbox extends CI_Controller {
+
   function __construct() {
       parent::__construct();
       if(!isset($_SESSION)){
@@ -161,10 +162,10 @@ class Mailbox extends CI_Controller {
     $utf8_decoded = imap_utf8($subject);
     if(strpos($utf8_decoded, '=?') === false) {
       // 가끔 광고성메일의 제목 인코딩이 EUC-KR이라 ��으로 뜨는 경우가 있다.
-      // + mb_detect_encoding 함수가 이게 좀 확실하진 않는데 실험해보니 EUC-KR은 반드시 잡아낸다.
-      // + 반면 UTF-8로 인코딩된 애들은 ASCII로 나온다.
-      $charset = strtolower(mb_detect_encoding("$utf8_decoded", array('ASCII','EUC-KR','UTF-8')));
-      if($charset == "euc-kr")
+      // mb_detect_encoding 함수가 이게 좀 확실하진 않는데 실험해보니 EUC-KR은 반드시 잡아낸다.
+      // 반면 UTF-8로 인코딩된 애들은 ASCII로 나온다.
+      $encoding = strtolower(mb_detect_encoding("$utf8_decoded", array('ASCII','EUC-KR','UTF-8')));
+      if($encoding == "euc-kr")
         $utf8_decoded = iconv("euc-kr", "utf-8", $utf8_decoded);
       else
         $utf8_decoded = ($utf8_decoded == "")? "(제목 없음)" : $utf8_decoded;
@@ -172,21 +173,12 @@ class Mailbox extends CI_Controller {
     }else {   // =?utf-8?B?, 2개이상 있는 경우 인코딩부분 디코딩 안된채로 그대로 출력됨.
       $ques_mark_2 = strpos($subject, '?', 2);
       $charset = strtolower(substr($subject, 2, $ques_mark_2-2));
-      $encoding = substr($subject, 8, 1);
 
       if($charset == "utf-8") {
-        if($encoding == "B") {
-          $subject_part_arr = explode('?= ', $subject);
-          for($i=0; $i<count($subject_part_arr); $i++) {
-            $subject_part_arr[$i] = str_replace(array("=?utf-8?B?", "=?UTF-8?B?", "?="), array("", "", ""), $subject_part_arr[$i]);
-            $subject_part_arr[$i] = imap_base64($subject_part_arr[$i]);
-          }
-        }else {   // Q인경우 (간혹 Q로 디코딩 된경우 골때리게 imap_utf8이 안통하는 경우가 있음)
-          $subject_part_arr = explode('?= ', $subject);
-          for($i=0; $i<count($subject_part_arr); $i++) {
-            $subject_part_arr[$i] = str_replace(array("=?utf-8?Q?", "=?UTF-8?Q?", "?=", "_"), array("", "", "", " "), $subject_part_arr[$i]);
-            $subject_part_arr[$i] = quoted_printable_decode($subject_part_arr[$i]);
-          }
+        $subject_part_arr = explode('?= ', $subject);
+        for($i=0; $i<count($subject_part_arr); $i++) {
+          $subject_part_arr[$i] = str_replace(array("=?utf-8?B?", "=?UTF-8?B?", "?="), array("", "", ""), $subject_part_arr[$i]);
+          $subject_part_arr[$i] = imap_base64($subject_part_arr[$i]);
         }
         $subject_merge = implode('', $subject_part_arr);
       }else {   // "euc-kr"  =?euc-kr?B?의 경우는 아예 출력이 안되서 따로처리함
@@ -292,7 +284,6 @@ class Mailbox extends CI_Controller {
     $user_id = substr($user_id, 0, strpos($user_id, '@'));
     $src = ($mbox == "INBOX")? '' : '.'.$mbox.'/';
     $name_arr_imp = implode('\|', $name_arr);
-
     $output2 = array();
     exec("sudo grep '$name_arr_imp' /home/vmail/'$domain'/'$user_id'/'$src'dovecot-uidlist", $output2, $error2);
     rsort($output2);
@@ -554,6 +545,7 @@ class Mailbox extends CI_Controller {
         for($i=$start_row; $i<$start_row+$per_page; $i++) {
           if (isset($mailno_arr[$i])) {                   // 마지막 페이지에서 15개가 안될경우 오류처리
             $mail_no = $mailno_arr[$i];
+            $mail_name = isset($mailname_arr_tmp[$i])?  $mailname_arr_tmp[$i] : "";   // 첨부 및 대표검색시 목록/상하위메일 이동버튼 구현시 필요
             $m_uid = imap_uid($mails, $mail_no);
             $headerinfo = imap_headerinfo($mails, $mail_no);
             $attached = false;
@@ -582,7 +574,7 @@ class Mailbox extends CI_Controller {
                 $from_name = iconv("euc-kr", "utf-8", $from_name);
             }else {
               $from_name = "(이름 없음)";
-              $from_name_full = "(이름 없음)";
+              $from_name_full = "(이름 없음)";2
             }
             if(isset($headerinfo->to[0])) {
               $to_obj = $headerinfo->to[0];
@@ -603,6 +595,8 @@ class Mailbox extends CI_Controller {
             }
 
             // $subject_decoded = $headerinfo->subject;
+            // $subject_decoded = imap_utf8('=?utf-8?Q?[=EC=A7=80=EB=9E=80=EC=A7=80=EA=B5=90=EC=8B=9C=ED=81=90=EB=A6=AC=ED=8B=B0]?=');
+            // $subject_decoded = imap_utf8('=?utf-8?Q?RE:_RE:_[=EC=A1=B0=EC=84=B8]?=');
 
             $subject_decoded = $this->subject_decode($headerinfo->subject);
             $udate = isset($headerinfo->date)? strtotime($headerinfo->date) : (int)$headerinfo->udate;
@@ -618,6 +612,7 @@ class Mailbox extends CI_Controller {
 
             $data["mail_list_info"][$i] = array(
             	'mail_no'		=>		$mail_no,
+              'mail_name' =>    $mail_name,
             	// 'ipinfo'		=>		$this->get_senderip($m_uid, $mbox),
               'ipinfo'    =>    array('ip'=> '192.', 'country' => 'kr'),
             	'flagged'		=>		$headerinfo->Flagged,
@@ -635,6 +630,10 @@ class Mailbox extends CI_Controller {
             // exit;
           }
         }
+        // echo '<pre>';
+        // var_dump($data["mail_list_info"]);
+        // echo '</pre>';
+        // exit;
       }else {
         $data['test_msg'] = "메일이 없습니다.";
       }
@@ -653,7 +652,7 @@ class Mailbox extends CI_Controller {
     }
     // var_dump($mailno_arr);
     // exit;
-    $this->load->view('mailbox/mail_list_v', $data);
+    $this->load->view('mailbox/test_mail_list_v', $data);
   } // function(mail_list)
 
   function get_senderip($uid, $mbox){
@@ -1107,12 +1106,14 @@ class Mailbox extends CI_Controller {
 
     $mbox = $this->input->get("boxname");
     $mailno = $this->input->get("mailno");
+    $mailname = $this->input->get("mailname");
     $mails= $this->connect_mailserver($mbox);
     $mails_cnt = imap_num_msg($mails);
 
     $data = array();
     $data['mbox'] = $mbox;
     $data['mailno'] = $mailno;
+    $data['mailname'] = $mailname;
     $head = imap_headerinfo($mails, $mailno);
     $msg_no = trim($head->Msgno);
 
@@ -1301,7 +1302,7 @@ class Mailbox extends CI_Controller {
       // 'body'        => imap_fetchstructure($mails, $msg_no)
     );
     imap_close($mails);
-    $this->load->view('mailbox/mail_detail_v', $data);
+    $this->load->view('mailbox/test_mail_detail_v', $data);
   }
 
   // 메일함 이동 (휴지통으로 이동 포함)
@@ -1504,14 +1505,46 @@ class Mailbox extends CI_Controller {
     }
   }
 
-  function test() {
-    // $subject_decoded = $headerinfo->subject;
-    // $subject_decoded = imap_utf8('=?utf-8?Q?RE:_RE:_[=EC=A1=B0=EC=84=B8]?=');
-    $subject_decoded = imap_utf8('=?utf-8?Q?[=EC=A7=80=EB=9E=80=EC=A7=80=EA=B5=90=EC=8B=9C=ED=81=90=EB=A6=AC=ED=8B=B0]?=');
-    $subject_decoded = imap_utf8('=?utf-8?Q?=EC=A1=B0=EC=84=B8?=');
-    $subject_decoded = quoted_printable_decode('[=EC=A7=80=EB=9E=80=EC=A7=80=EA=B5=90=EC=8B=9C=ED=81=90=EB=A6=AC=ED=8B=B0] Re:     [=EA=B2=BD=EC=B0=B0=EC=B2=AD]=ED=95=84=ED=84=B0');
-    $subject_decoded = quoted_printable_encode('Re:    a  [경찰청]');
-    echo $subject_decoded;
+  // 첨부/대표검색시 상세페이지 목록/상하위메일 이동시
+  function get_next_no_name() {
+    $mbox = $this->input->post("mbox");
+    $mail_name = $this->input->post("mail_name");
+    $way = $this->input->post("way");
+    $mailno_arr = $_SESSION['mailno_arr'];
+
+    $next_arr = array();
+    // 현재 mail_name -> 다음 mail_name
+    $index_now = array_search($mail_name, $mailno_arr);
+    if($way == "up") {
+      if($index_now == 0) {
+        echo "x";
+        exit;
+      }else {
+        array_push($next_arr, $mailno_arr[$index_now - 1]);
+      }
+    }else {
+      if($index_now == count($mailno_arr)-1) {
+        echo "x";
+        exit;
+      }else {
+        array_push($next_arr, $mailno_arr[$index_now + 1]);
+      }
+    }
+
+    // mail_name -> mail_no
+    $mails= $this->connect_mailserver($mbox);
+    $user_id = $this->user_id;
+    $domain = substr($user_id, strpos($user_id, '@')+1);
+    $user_id = substr($user_id, 0, strpos($user_id, '@'));
+    $src = ($mbox == "INBOX")? '' : '.'.$mbox.'/';
+    $mail_name = $next_arr[0];
+    $output = array();
+    exec("sudo grep '$mail_name' /home/vmail/'$domain'/'$user_id'/'$src'dovecot-uidlist", $output, $error);
+    $uid = explode(' :', $output[0])[0];
+    $msg_no = imap_msgno($mails, (int)$uid);
+    array_push($next_arr, $msg_no);
+
+    echo implode(' ', $next_arr);
   }
 
 
