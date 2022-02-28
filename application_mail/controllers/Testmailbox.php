@@ -162,10 +162,10 @@ class Testmailbox extends CI_Controller {
     $utf8_decoded = imap_utf8($subject);
     if(strpos($utf8_decoded, '=?') === false) {
       // 가끔 광고성메일의 제목 인코딩이 EUC-KR이라 ��으로 뜨는 경우가 있다.
-      // mb_detect_encoding 함수가 이게 좀 확실하진 않는데 실험해보니 EUC-KR은 반드시 잡아낸다.
-      // 반면 UTF-8로 인코딩된 애들은 ASCII로 나온다.
-      $encoding = strtolower(mb_detect_encoding("$utf8_decoded", array('ASCII','EUC-KR','UTF-8')));
-      if($encoding == "euc-kr")
+      // + mb_detect_encoding 함수가 이게 좀 확실하진 않는데 실험해보니 EUC-KR은 반드시 잡아낸다.
+      // + 반면 UTF-8로 인코딩된 애들은 ASCII로 나온다.
+      $charset = strtolower(mb_detect_encoding("$utf8_decoded", array('ASCII','EUC-KR','UTF-8')));
+      if($charset == "euc-kr")
         $utf8_decoded = iconv("euc-kr", "utf-8", $utf8_decoded);
       else
         $utf8_decoded = ($utf8_decoded == "")? "(제목 없음)" : $utf8_decoded;
@@ -173,12 +173,21 @@ class Testmailbox extends CI_Controller {
     }else {   // =?utf-8?B?, 2개이상 있는 경우 인코딩부분 디코딩 안된채로 그대로 출력됨.
       $ques_mark_2 = strpos($subject, '?', 2);
       $charset = strtolower(substr($subject, 2, $ques_mark_2-2));
+      $encoding = substr($subject, 8, 1);
 
       if($charset == "utf-8") {
-        $subject_part_arr = explode('?= ', $subject);
-        for($i=0; $i<count($subject_part_arr); $i++) {
-          $subject_part_arr[$i] = str_replace(array("=?utf-8?B?", "=?UTF-8?B?", "?="), array("", "", ""), $subject_part_arr[$i]);
-          $subject_part_arr[$i] = imap_base64($subject_part_arr[$i]);
+        if($encoding == "B") {
+          $subject_part_arr = explode('?= ', $subject);
+          for($i=0; $i<count($subject_part_arr); $i++) {
+            $subject_part_arr[$i] = str_replace(array("=?utf-8?B?", "=?UTF-8?B?", "?="), array("", "", ""), $subject_part_arr[$i]);
+            $subject_part_arr[$i] = imap_base64($subject_part_arr[$i]);
+          }
+        }else {   // Q인경우 (간혹 Q로 디코딩 된경우 골때리게 imap_utf8이 안통하는 경우가 있음)
+          $subject_part_arr = explode('?= ', $subject);
+          for($i=0; $i<count($subject_part_arr); $i++) {
+            $subject_part_arr[$i] = str_replace(array("=?utf-8?Q?", "=?UTF-8?Q?", "?=", "_"), array("", "", "", " "), $subject_part_arr[$i]);
+            $subject_part_arr[$i] = quoted_printable_decode($subject_part_arr[$i]);
+          }
         }
         $subject_merge = implode('', $subject_part_arr);
       }else {   // "euc-kr"  =?euc-kr?B?의 경우는 아예 출력이 안되서 따로처리함
@@ -283,15 +292,14 @@ class Testmailbox extends CI_Controller {
     $domain = substr($user_id, strpos($user_id, '@')+1);
     $user_id = substr($user_id, 0, strpos($user_id, '@'));
     $src = ($mbox == "INBOX")? '' : '.'.$mbox.'/';
-    $name_arr_imp = implode('\|', $name_arr);
-    $output2 = array();
-    exec("sudo grep '$name_arr_imp' /home/vmail/'$domain'/'$user_id'/'$src'dovecot-uidlist", $output2, $error2);
-    rsort($output2);
+    // $name_arr_imp = implode('\|', $name_arr);      // 한번에 명령문 실행시 list_v에서 mail_no와 mail_name이 서로 안맞는 애러생겨서 주석처리
 
     $msg_no_arr = array();
-    foreach($output2 as $i => $uid) {
-      $uid = explode(' :', $uid)[0];
-      $msg_no = imap_msgno($mails, (int)$uid);    // A non well formed numeric value encountered 애러처리
+    foreach($name_arr as $i => $mail_name) {
+      $output = array();  // exec는 반복하면 $output에 array_push 맹키로 계속 배열 요소가 덧붙지기에 반복할 때마다 초기화
+      exec("sudo grep '$mail_name' /home/vmail/'$domain'/'$user_id'/'$src'dovecot-uidlist", $output, $error);
+      $uid = explode(' :', $output[0])[0];
+      $msg_no = imap_msgno($mails, (int)$uid);
       $msg_no_arr[$i+$start_i] = $msg_no;
     }
     return $msg_no_arr;
@@ -574,7 +582,7 @@ class Testmailbox extends CI_Controller {
                 $from_name = iconv("euc-kr", "utf-8", $from_name);
             }else {
               $from_name = "(이름 없음)";
-              $from_name_full = "(이름 없음)";2
+              $from_name_full = "(이름 없음)";
             }
             if(isset($headerinfo->to[0])) {
               $to_obj = $headerinfo->to[0];
@@ -593,10 +601,6 @@ class Testmailbox extends CI_Controller {
               $to_name = "(이름 없음)";
               $to_name_full = "(이름 없음)";
             }
-
-            // $subject_decoded = $headerinfo->subject;
-            // $subject_decoded = imap_utf8('=?utf-8?Q?[=EC=A7=80=EB=9E=80=EC=A7=80=EA=B5=90=EC=8B=9C=ED=81=90=EB=A6=AC=ED=8B=B0]?=');
-            // $subject_decoded = imap_utf8('=?utf-8?Q?RE:_RE:_[=EC=A1=B0=EC=84=B8]?=');
 
             $subject_decoded = $this->subject_decode($headerinfo->subject);
             $udate = isset($headerinfo->date)? strtotime($headerinfo->date) : (int)$headerinfo->udate;
@@ -1532,6 +1536,7 @@ class Testmailbox extends CI_Controller {
     }
 
     // mail_name -> mail_no
+    $mbox = urldecode($mbox);   // 여기서는 urlencoded 형태로 %가 그대로 남음. decode해야함.
     $mails= $this->connect_mailserver($mbox);
     $user_id = $this->user_id;
     $domain = substr($user_id, strpos($user_id, '@')+1);
@@ -1547,6 +1552,9 @@ class Testmailbox extends CI_Controller {
     echo implode(' ', $next_arr);
   }
 
+  function test() {
+    echo '뭐꼬';
+  }
 
 }
 

@@ -1,7 +1,7 @@
 <?php
 include $this->input->server('DOCUMENT_ROOT')."/include/base.php";
 include $this->input->server('DOCUMENT_ROOT')."/include/mail_header.php";
-include $this->input->server('DOCUMENT_ROOT')."/include/test_mail_side.php";
+include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
 
 $mbox_urlencode = urlencode($mbox);
 
@@ -91,11 +91,10 @@ $reply_cc_input = address_text($mail_info["cc"]);
          </th>
          <td align="right">
            <?php // echo 'mbox: '.$mbox.'<br>'; ?>
-           <?php $mailno = isset($mailname)? $mailname : $mailno;   // 첨부/대표검색은 mailname으로 스크립트에서 처리함 ?>
-           <!-- <?php // var_dump($mailno); ?> -->
-           <button type="button" class="btn_basic btn_white" style="width:60px" onclick="go_list(`<?php echo $mailno ?>`)">목록</button>
-           <img src="<?php echo $misc;?>img/icon/위2.svg" style="position:relative; width:28px; top:7px; cursor:pointer;" onclick="go_up(`<?php echo $mailno; ?>`)">
-           <img src="<?php echo $misc;?>img/icon/아래2.svg" style="position:relative; width:28px; top:7px; cursor:pointer;" onclick="go_down(`<?php echo $mailno; ?>`)">
+           <?php // echo 'mbox_urlencode: '.$mbox_urlencode.'<br>'; ?>
+           <button type="button" class="btn_basic btn_white" style="width:60px" onclick="go_list(<?php echo $mailno ?>)">목록</button>
+           <img src="<?php echo $misc;?>img/icon/위2.svg" style="position:relative; width:28px; top:7px; cursor:pointer;" onclick="go_up(<?php echo $mailno; ?>)">
+           <img src="<?php echo $misc;?>img/icon/아래2.svg" style="position:relative; width:28px; top:7px; cursor:pointer;" onclick="go_down(<?php echo $mailno; ?>)">
          </td>
        </tr>
        <tr>
@@ -183,123 +182,76 @@ $reply_cc_input = address_text($mail_info["cc"]);
 
 <script type="text/javascript">
 
-// 목록으로 이동
-function go_list(mailno) {
-
-  // mailno -> index + mail_cnt_show -> curpage (ajax로 안보내고 스크립트에서 바로 처리)
-  <?php
-    // mailno -> index
-    $mailno_arr = $_SESSION['mailno_arr'];
-    $index_now = array_search($mailno, $mailno_arr);
-
-    // index + mail_cnt_show -> curpage
-    $list_page_url = isset($_SESSION['list_page_url'])? $_SESSION['list_page_url'] : '/mailbox/mail_list?'; // biz -> 상세페이지 애러처리
-    $pattern = '/mail_cnt_show=[0-9]+/';
-    $reg = preg_match($pattern, $list_page_url, $res);
-    if($reg) {
-      $mail_cnt_show = (int)str_replace('mail_cnt_show=', '', $res[0]);
-    }else {
-      $mail_cnt_show = 15;
-    }
-    $curpage = floor($index_now / $mail_cnt_show) + 1;
-
-    // url에 curpage 파라미터 추가
-    $pattern = '/&curpage=[0-9]+/';
-    $reg = preg_match($pattern, $list_page_url, $res);
-    if($reg) {
-      $list_page_url = str_replace($res[0], '', $list_page_url);
-    }
-    $list_page_url .= "&curpage=$curpage";
-   ?>
-
-  // console.log(`<?php // echo $list_page_url ?>`);
-  var list_page_url = `<?php echo site_url().$list_page_url ?>`;
-  location.href = list_page_url;
-}
-
   // 상위메일(최근에 온것)로 이동
   function go_up(mailno) {
-    // 첨부/대표검색인 경우
-    if(mailno.length > 10) {
-      $.ajax({
-        url : "<?php echo site_url(); ?>/testmailbox/get_next_no_name",
-        type : "post",
-        data : {mbox: `<?php echo $mbox_urlencode ?>`, mail_name: mailno, way: 'up'},
-        success : function(res){
-
-          if(res == "x") {
-            alert("메일함의 첫번째 메일입니다.");
-          }else {
-            var next_arr = res.split(' ');
-            var next_no = next_arr[1];
-            var mail_name = next_arr[0];
-            location.href = "<?php echo site_url(); ?>/testmailbox/mail_detail?boxname=<?php echo $mbox_urlencode ?>&mailno="+next_no+"&mailname="+mail_name;
-          }
-        },
-        error : function(request, status, error){
-          console.log("AJAX_ERROR");
+    $.ajax({
+      url : "<?php echo site_url(); ?>/mailbox/get_next_mailno",
+      type : "post",
+      data : {mbox: `<?php echo $mbox_urlencode ?>`, mail_no: mailno, way: 'up'},
+      success : function(next_no){
+        if(next_no == "x") {
+          alert("메일함의 첫번째 메일입니다.");
+        }else {
+          // alert("일단 오나보자 " + next_no);
+          location.href = "<?php echo site_url(); ?>/mailbox/mail_detail?boxname=<?php echo $mbox_urlencode ?>&mailno="+next_no;
         }
-      });
-    // 그외 일반적인 경우
-    }else {
-      $.ajax({
-        url : "<?php echo site_url(); ?>/testmailbox/get_next_mailno",
-        type : "post",
-        data : {mbox: `<?php echo $mbox_urlencode ?>`, mail_no: mailno, way: 'up'},
-        success : function(next_no){
-          if(next_no == "x") {
-            alert("메일함의 첫번째 메일입니다.");
-          }else {
-            location.href = "<?php echo site_url(); ?>/testmailbox/mail_detail?boxname=<?php echo $mbox_urlencode ?>&mailno="+next_no;
-          }
-        },
-        error : function(request, status, error){
+      },
+      error : function(request, status, error){
           console.log("AJAX_ERROR");
-        }
-      });
-    }
+      }
+    });
   }
 
   // 하위메일(나중에 온것)로 이동
   function go_down(mailno) {
-    // 첨부/대표검색인 경우
-    if(mailno.length > 10) {
-      $.ajax({
-        url : "<?php echo site_url(); ?>/testmailbox/get_next_no_name",
-        type : "post",
-        data : {mbox: `<?php echo $mbox_urlencode ?>`, mail_name: mailno, way: 'down'},
-        success : function(res){
-          if(res == "x") {
-            alert("메일함의 마지막 메일입니다.");
-          }else {
-            var next_arr = res.split(' ');
-            var next_no = next_arr[1];
-            var mail_name = next_arr[0];
-            location.href = "<?php echo site_url(); ?>/testmailbox/mail_detail?boxname=<?php echo $mbox_urlencode ?>&mailno="+next_no+"&mailname="+mail_name;
-          }
-        },
-        error : function(request, status, error){
-          console.log("AJAX_ERROR");
+    $.ajax({
+      url : "<?php echo site_url(); ?>/mailbox/get_next_mailno",
+      type : "post",
+      data : {mbox: `<?php echo $mbox_urlencode ?>`, mail_no: mailno, way: 'down'},
+      success : function(next_no){
+        if(next_no == "x") {
+          alert("메일함의 마지막 메일입니다.");
+        }else {
+          location.href = "<?php echo site_url(); ?>/mailbox/mail_detail?boxname=<?php echo $mbox_urlencode ?>&mailno="+next_no;
         }
-      });
-    // 그외 일반적인 경우
-    }else {
-      $.ajax({
-        url : "<?php echo site_url(); ?>/testmailbox/get_next_mailno",
-        type : "post",
-        data : {mbox: `<?php echo $mbox_urlencode ?>`, mail_no: mailno, way: 'down'},
-        success : function(next_no){
-          if(next_no == "x") {
-            alert("메일함의 마지막 메일입니다.");
-          }else {
-            location.href = "<?php echo site_url(); ?>/testmailbox/mail_detail?boxname=<?php echo $mbox_urlencode ?>&mailno="+next_no;
-          }
-        },
-        error : function(request, status, error){
+      },
+      error : function(request, status, error){
           console.log("AJAX_ERROR");
-        }
-      });
-    }
+      }
+    });
+  }
+
+  // 목록으로 이동
+  function go_list(mailno) {
+
+    // mailno -> index + mail_cnt_show -> curpage (ajax로 안보내고 스크립트에서 바로 처리)
+    <?php
+      // mailno -> index
+      $mailno_arr = $_SESSION['mailno_arr'];
+      $index_now = array_search($mailno, $mailno_arr);
+
+      // index + mail_cnt_show -> curpage
+      $list_page_url = $_SESSION['list_page_url'];
+      $pattern = '/mail_cnt_show=[0-9]+/';
+      $reg = preg_match($pattern, $list_page_url, $res);
+      if($reg) {
+        $mail_cnt_show = (int)str_replace('mail_cnt_show=', '', $res[0]);
+      }else {
+        $mail_cnt_show = 15;
+      }
+      $curpage = floor($index_now / $mail_cnt_show) + 1;
+
+      // url에 curpage 파라미터 추가
+      $pattern = '/&curpage=[0-9]+/';
+      $reg = preg_match($pattern, $list_page_url, $res);
+      if($reg) {
+        $list_page_url = str_replace($res[0], '', $list_page_url);
+      }
+      $list_page_url .= "&curpage=$curpage";
+
+     ?>
+    var list_page_url = `<?php echo site_url().$list_page_url ?>`;
+    location.href = list_page_url;
   }
 
   function download(box, msg_no, part_no, encoding, f_name) {
@@ -348,37 +300,31 @@ function go_list(mailno) {
     if(mode == 1){
       $("#reply_target_to").val(from);
       $("#reply_target_cc").val("");
-      var re_title = "RE: "+title;
+      var re_title = " RE: "+title;
       $("#reply_title").val(re_title);
     }else if (mode == 2) {
-      // var exp_to = to.split(",");
-      // for(var i = 0; i < exp_to.length; i++) {
-      //   if(exp_to[i] == from)  {
-      //     exp_to.splice(i, 1);
-      //     i--;
-      //   }
-      // }
-      // var exp_cc = cc.split(",");
-      // for(var i = 0; i < exp_cc.length; i++) {
-      //   if(exp_cc[i] == from)  {
-      //     exp_cc.splice(i, 1);
-      //     i--;
-      //   }
-      // }
-      // $("#reply_target_to").val(exp_to.join(","));
-      // $("#reply_target_cc").val(exp_cc.join(","));
-      var mymail = "<?php echo $_SESSION["userid"]; ?>";
-      if(mymail != from){
-        to = from + "," + to;
+      var exp_to = to.split(",");
+      for(var i = 0; i < exp_to.length; i++) {
+        if(exp_to[i] == from)  {
+          exp_to.splice(i, 1);
+          i--;
+        }
       }
-      $("#reply_target_to").val(to);
-      $("#reply_target_cc").val(cc);
-      var re_title = "RE: "+title;
+      var exp_cc = cc.split(",");
+      for(var i = 0; i < exp_cc.length; i++) {
+        if(exp_cc[i] == from)  {
+          exp_cc.splice(i, 1);
+          i--;
+        }
+      }
+      $("#reply_target_to").val(exp_to.join(","));
+      $("#reply_target_cc").val(exp_cc.join(","));
+      var re_title = " RE: "+title;
       $("#reply_title").val(re_title);
     }else{
       $("#reply_target_to").val("");
       $("#reply_target_cc").val("");
-      var re_title = "FW: "+title;
+      var re_title = " FW: "+title;
       $("#reply_title").val(re_title);
       <?php if (!empty($attachments)) { ?>
       // var fw_attach = new Object();

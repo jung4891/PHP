@@ -270,10 +270,9 @@ $_SESSION['list_page_url_tmp'] = substr($request_url, strpos($request_url, '/', 
         for($i=$start_row; $i<$start_row+$per_page; $i++) {
           if(!isset($mail_list_info[$i])) break;        // offset 애러처리
           $msg_no = trim($mail_list_info[$i]['mail_no']);
-          $mail_name = $mail_list_info[$i]['mail_name'];
       ?>
 
-        <tr data-msgno="<?php echo $msg_no; ?>" onclick="detail_mailview(<?php echo $msg_no?>, '<?php echo $mail_name ?>');">
+        <tr data-msgno="<?php echo $msg_no; ?>" onclick="detail_mailview(<?php echo $msg_no?>);">
 
           <!-- 메일목록 출력 -->
           <!-- <td><?php // echo $head[$mailno_arr[$i]]->Unseen ?></td> -->
@@ -928,9 +927,8 @@ $(".mlist_tbl tr").on("mousedown", function(){
      $("#reply_form").submit();
    }
 
-   function detail_mailview(msg_no, mail_name){
-     var mailname_param = (mail_name === "")? "" : "&mailname="+mail_name;  // 상세페이지에서 목록/상위메일이동시 필요
-     location.href="<?php echo site_url(); ?>/mailbox/mail_detail?boxname=<?php echo $mbox_urlencode ?>&mailno="+msg_no+mailname_param;
+   function detail_mailview(msg_no){
+     location.href="<?php echo site_url(); ?>/mailbox/mail_detail?boxname=<?php echo $mbox_urlencode ?>&mailno="+msg_no;
    }
 
  </script>
