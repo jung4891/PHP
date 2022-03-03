@@ -571,14 +571,15 @@ class Mailbox extends CI_Controller {
               $from_addr = imap_utf8($from_obj->mailbox).'@'.imap_utf8($from_obj->host);
               $from_name_full = $from_addr;
               if (isset($from_obj->personal)) {
-                $from_name = imap_utf8($from_obj->personal);
+                $from_name = $this->subject_decode($from_obj->personal);    // 대표님 보낸사람 디코딩 애러처리.  (utf-8/Q)
+                // $from_name = imap_utf8($from_obj->personal);
                 $from_name_full = $from_name.' <'.$from_addr.'>';
               } else {
                 $from_name = $from_addr;
               }
-              $encoding = strtolower(mb_detect_encoding("$from_name", array('ASCII','EUC-KR','UTF-8')));  // 광고성 메일 euc-kr 인코딩부분 애러처리
-              if($encoding == "euc-kr")
-                $from_name = iconv("euc-kr", "utf-8", $from_name);
+              // $encoding = strtolower(mb_detect_encoding("$from_name", array('ASCII','EUC-KR','UTF-8')));  // 광고성 메일 euc-kr 인코딩부분 애러처리 (위 subject_decode에 포함되어서 주석처리)
+              // if($encoding == "euc-kr")
+              //   $from_name = iconv("euc-kr", "utf-8", $from_name);
             }else {
               $from_name = "(이름 없음)";
               $from_name_full = "(이름 없음)";
@@ -845,13 +846,14 @@ class Mailbox extends CI_Controller {
       // $name         = $name[0]->text;
       // $from['name'] = empty($name) ? '' : imap_utf8($name);
 
-      $name         = imap_utf8($headerinfos->personal);
+      $name         = $this->subject_decode($headerinfos->personal);    // 대표님 보낸사람 디코딩 애러처리 (utf-8/Q)
+      // $name         = imap_utf8($headerinfos->personal);
       // $name         = $name[0]->text;
 
       // 광고성 메일 euc-kr 인코딩부분 애러처리
-      $encoding = strtolower(mb_detect_encoding("$name", array('ASCII','EUC-KR','UTF-8')));
-      if($encoding == "euc-kr")
-        $name = iconv("euc-kr", "utf-8", $name);
+      // $encoding = strtolower(mb_detect_encoding("$name", array('ASCII','EUC-KR','UTF-8')));
+      // if($encoding == "euc-kr")
+      //   $name = iconv("euc-kr", "utf-8", $name);
 
       $from['name'] = empty($name) ? '' : $name;
     }
@@ -1134,14 +1136,13 @@ class Mailbox extends CI_Controller {
     if (isset($struct->parts)) {
       $flattenedParts = $this->flattenParts($struct->parts);  // 메일구조 평면화
 
-      echo '<pre>';
-      var_dump($flattenedParts);
-      echo '</pre>';
-      exit;
+      // echo '<pre>';
+      // var_dump($flattenedParts);
+      // echo '</pre>';
+      // exit;
 
       // 테스트용
       $data['flattenedParts'] = $flattenedParts;
-
 
       $html_cnt = 0;    // 발송실패 메일중 .eml파일은 뒤에 html이 또 나와 첨부파일이 출력되는 오류 처리.
       foreach($flattenedParts as $partNumber => $part) {
@@ -1236,16 +1237,20 @@ class Mailbox extends CI_Controller {
              // contents의 기존 src 속성값을 이미지 데이터로 교체후 contents 변수에 다시 넣어줌
              // 삽입된 이미지의 경우 디코딩 안하고 fetchbody으로 추출한 내용을 src에 아래처럼 넣어줌
 
-             $type = gettype($part->parameters);    // 이미지 삽입된 메일중 parameters에 빈 object만 있는경우 흰색창만 뜨게됨
-             $img_name = ($type == 'array')? $part->parameters[0]->value: $part->dparameters[0]->value;
-             echo $img_name.'<br>';
-             $pattern = '/src="cid:[a-zA-Z0-9.@]+"/';
+             if($part->ifid == 1) {
+               $img_name = str_replace(array("<", ">"), array("", ""), $part->id);     // id가 있는경우 id로 아래 이름명보다 더 정확함 (어떤 메일을 메일명 image.png로만 나와서 아래만으로는 처리안됨)
+             }else {
+               $type = gettype($part->parameters);    // 이미지 삽입된 메일중 parameters에 빈 object만 있는경우 흰색창만 뜨게됨
+               $img_name = ($type == 'array')? $part->parameters[0]->value: $part->dparameters[0]->value;
+             }
+             $pattern = '/src="cid:[a-zA-Z0-9.@_\-]+"/';
              preg_match_all($pattern, $contents, $matches);
              $matched_arr = $matches[0];
+
              $target = '';
              // if(count($matched_arr) != 1) {
                foreach($matched_arr as $e) {
-                 if(strpos($e, $img_name) !== false)    // 이미지 위치 바뀌는 애러처리 (이미지 2개이상일 경우 이미지 파일명으로 찾아감.)
+                 if(strpos($e, $img_name) !== false)    // 이미지 위치 바뀌는 애러처리 (이미지 2개이상일 경우 이미지 파일명으로 찾아감. id있으면 id로 찾아감)
                     $target = $e;
                }
              // }
@@ -1501,7 +1506,10 @@ class Mailbox extends CI_Controller {
     $mbox = $this->input->post("mbox");
     $mail_no = $this->input->post("mail_no");
     $way = $this->input->post("way");
-    $mailno_arr = $_SESSION['mailno_arr'];
+    // biz에서 바로 넘어올경우 세션이 없어서 다시 넣어줌
+    $mails= $this->connect_mailserver($mbox);
+    $mailno_arr = isset($_SESSION['mailno_arr'])? $_SESSION['mailno_arr'] : imap_sort($mails, SORTDATE, 1);
+    // $mailno_arr = $_SESSION['mailno_arr'];
 
     $index_now = array_search($mail_no, $mailno_arr);
     if($way == "up") {

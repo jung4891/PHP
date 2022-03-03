@@ -226,7 +226,6 @@ function go_list(mailno) {
         type : "post",
         data : {mbox: `<?php echo $mbox_urlencode ?>`, mail_name: mailno, way: 'up'},
         success : function(res){
-
           if(res == "x") {
             alert("메일함의 첫번째 메일입니다.");
           }else {

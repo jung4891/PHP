@@ -1491,7 +1491,10 @@ class Testmailbox extends CI_Controller {
     $mbox = $this->input->post("mbox");
     $mail_no = $this->input->post("mail_no");
     $way = $this->input->post("way");
-    $mailno_arr = $_SESSION['mailno_arr'];
+    // biz에서 바로 넘어올경우 세션이 없어서 다시 넣어줌
+    $mails= $this->connect_mailserver($mbox);
+    $mailno_arr = isset($_SESSION['mailno_arr'])? $_SESSION['mailno_arr'] : imap_sort($mails, SORTDATE, 1);
+    // $mailno_arr = $_SESSION['mailno_arr'];
 
     $index_now = array_search($mail_no, $mailno_arr);
     if($way == "up") {
