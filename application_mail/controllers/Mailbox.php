@@ -294,12 +294,14 @@ class Mailbox extends CI_Controller {
     // $name_arr_imp = implode('\|', $name_arr);      // 한번에 명령문 실행시 list_v에서 mail_no와 mail_name이 서로 안맞는 애러생겨서 주석처리
 
     $msg_no_arr = array();
-    foreach($name_arr as $i => $mail_name) {
-      $output = array();  // exec는 반복하면 $output에 array_push 맹키로 계속 배열 요소가 덧붙지기에 반복할 때마다 초기화
+    $cnt = 0;   // idx가 name_arr이 15~29가 넘어오면 30~44가 되어 no_arr로 가기에 페이지 이동시 애러발생하기에 cnt 처리
+    foreach($name_arr as $mail_name) {
+      $output = array();    // exec는 반복하면 $output에 array_push 맹키로 계속 배열 요소가 덧붙지기에 반복할 때마다 초기화
       exec("sudo grep '$mail_name' /home/vmail/'$domain'/'$user_id'/'$src'dovecot-uidlist", $output, $error);
       $uid = explode(' :', $output[0])[0];
       $msg_no = imap_msgno($mails, (int)$uid);
-      $msg_no_arr[$i+$start_i] = $msg_no;
+      $msg_no_arr[$cnt+$start_i] = $msg_no;
+      $cnt++;
     }
     return $msg_no_arr;
   }
@@ -1124,8 +1126,6 @@ class Mailbox extends CI_Controller {
 
     $struct = imap_fetchstructure($mails, $msg_no);
     $data['struct'] = $struct;
-
-
     $body = imap_body($mails, $msg_no);
     $data['body'] = $body;
 
@@ -1135,11 +1135,6 @@ class Mailbox extends CI_Controller {
     $attachments = array();
     if (isset($struct->parts)) {
       $flattenedParts = $this->flattenParts($struct->parts);  // 메일구조 평면화
-
-      // echo '<pre>';
-      // var_dump($flattenedParts);
-      // echo '</pre>';
-      // exit;
 
       // 테스트용
       $data['flattenedParts'] = $flattenedParts;
@@ -1230,13 +1225,10 @@ class Mailbox extends CI_Controller {
            if ($part->ifdisposition == 0 || $part->disposition == "inline") {
 
              $img_data = imap_fetchbody($mails, $msg_no, $partNumber);
-
-             // 리턴, 줄개행코드 제거. $img_data에 이게 있으면 애러발생함(HTML로 보내질때)
-             $img_data = str_replace("\r\n", " ", $img_data);
+             $img_data = str_replace("\r\n", " ", $img_data);   // 리턴, 줄개행코드 제거. $img_data에 이게 있으면 애러발생함(HTML로 보내질때)
 
              // contents의 기존 src 속성값을 이미지 데이터로 교체후 contents 변수에 다시 넣어줌
-             // 삽입된 이미지의 경우 디코딩 안하고 fetchbody으로 추출한 내용을 src에 아래처럼 넣어줌
-
+             //  + 삽입된 이미지의 경우 디코딩 안하고 fetchbody으로 추출한 내용을 src에 아래처럼 넣어줌
              if($part->ifid == 1) {
                $img_name = str_replace(array("<", ">"), array("", ""), $part->id);     // id가 있는경우 id로 아래 이름명보다 더 정확함 (어떤 메일을 메일명 image.png로만 나와서 아래만으로는 처리안됨)
              }else {
@@ -1248,15 +1240,12 @@ class Mailbox extends CI_Controller {
              $matched_arr = $matches[0];
 
              $target = '';
-             // if(count($matched_arr) != 1) {
-               foreach($matched_arr as $e) {
-                 if(strpos($e, $img_name) !== false)    // 이미지 위치 바뀌는 애러처리 (이미지 2개이상일 경우 이미지 파일명으로 찾아감. id있으면 id로 찾아감)
-                    $target = $e;
-               }
-             // }
-             // if(isset($matches[0][0]))
-              $contents = str_replace($target, "src='data:image/png;base64,$img_data'", $contents);
-             break;
+             foreach($matched_arr as $e) {
+               if(strpos($e, $img_name) !== false)    // 이미지 위치 바뀌는 애러처리 (이미지 2개이상일 경우 이미지 파일명으로 찾아감. id있으면 id로 찾아감)
+                  $target = $e;
+             }
+            $contents = str_replace($target, "src='data:image/png;base64,$img_data'", $contents);
+            break;
            }
          case 6: // video
          case 7: // other (첨부파일)
@@ -1502,6 +1491,7 @@ class Mailbox extends CI_Controller {
     return $flattenedParts;
   }
 
+  // 상세페이지에서 목록/상하위메일 이동시
   function get_next_mailno() {
     $mbox = $this->input->post("mbox");
     $mail_no = $this->input->post("mail_no");
