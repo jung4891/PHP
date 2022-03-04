@@ -42,7 +42,7 @@
         echo "해당 여성은 코로나 10부제 예방접종 대상자가 아닙니다.";
       }
     } else {
-      echo "성별을 잘못 입력하셨습니다."
+      echo "성별을 잘못 입력하셨습니다.";
     }
     echo '<br><br>';
 
@@ -58,6 +58,30 @@
     } else {
       echo "실행 안됨";
     }
+    echo '<br><br>';
+
+
+    // 중괄호를 안쓸경우엔 한 줄만 적용된다.
+    if(false)
+      $a = 1;
+      $b = 2;
+    echo $a;    // Undefined variable: a
+    echo $b;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
      ?>
   </body>
 </html>

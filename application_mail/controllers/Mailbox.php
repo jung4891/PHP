@@ -154,7 +154,9 @@ class Mailbox extends CI_Controller {
     return $folders_sorted;
   }
 
-  public function subject_decode($subject) {
+  // 초기에 제목만 디코딩 애러가 많이나서 제목만 처리했는데 추후 보낸사람, 첨부파일명도 다 애러나서 다 이 함수로 처리함
+  // + 원래 함수명은 subject_decode 였음.
+  public function decode($subject) {
     // return 'test';
     if(!isset($subject) || $subject == "") return '(제목 없음)';
 
@@ -173,10 +175,11 @@ class Mailbox extends CI_Controller {
       $ques_mark_2 = strpos($subject, '?', 2);
       $charset = strtolower(substr($subject, 2, $ques_mark_2-2));
       $encoding = substr($subject, 8, 1);
-
       if($charset == "utf-8") {
         if($encoding == "B") {
-          $subject_part_arr = explode('?= ', $subject);
+          $subject_part_arr = explode('?=', $subject);
+          // $subject_part_arr = explode('?= ', $subject);  // 이유는 모르겠는데 '?= '를 strpos로 잡히지 않는 경우도 있어서 공백제거함
+                                                            // 근데 strpos로 '?'를 찾아보면 string(5) '?'로 나옴. 뭔가 줄개행기호가 들어있는건지..
           for($i=0; $i<count($subject_part_arr); $i++) {
             $subject_part_arr[$i] = str_replace(array("=?utf-8?B?", "=?UTF-8?B?", "?="), array("", "", ""), $subject_part_arr[$i]);
             $subject_part_arr[$i] = imap_base64($subject_part_arr[$i]);
@@ -406,7 +409,7 @@ class Mailbox extends CI_Controller {
             if(count($mailno_arr_target) == 0 && $overlap_flag == false) {
               foreach($mailno_arr as $index => $no) {
                 $subject = imap_headerinfo($mails, $no)->subject;
-                $subject_decoded = strtolower($this->subject_decode($subject));
+                $subject_decoded = strtolower($this->decode($subject));
                 if(strpos($subject_decoded, $subject_target) !== false)  {
                   array_push($mailno_arr_target, $no);
                 }
@@ -416,7 +419,7 @@ class Mailbox extends CI_Controller {
             if(count($mailno_arr_target) != 0 && $overlap_flag == true){
               foreach($mailno_arr_target as $index => $no) {
                 $subject = imap_headerinfo($mails, $no)->subject;
-                $subject_decoded = strtolower($this->subject_decode($subject));
+                $subject_decoded = strtolower($this->decode($subject));
                 if(strpos($subject_decoded, $subject_target) === false)  {
                   unset($mailno_arr_target[$index]);
                 }
@@ -573,7 +576,7 @@ class Mailbox extends CI_Controller {
               $from_addr = imap_utf8($from_obj->mailbox).'@'.imap_utf8($from_obj->host);
               $from_name_full = $from_addr;
               if (isset($from_obj->personal)) {
-                $from_name = $this->subject_decode($from_obj->personal);    // 대표님 보낸사람 디코딩 애러처리.  (utf-8/Q)
+                $from_name = $this->decode($from_obj->personal);    // 대표님 보낸사람 디코딩 애러처리.  (utf-8/Q)
                 // $from_name = imap_utf8($from_obj->personal);
                 $from_name_full = $from_name.' <'.$from_addr.'>';
               } else {
@@ -604,7 +607,7 @@ class Mailbox extends CI_Controller {
               $to_name_full = "(이름 없음)";
             }
 
-            $subject_decoded = $this->subject_decode($headerinfo->subject);
+            $subject_decoded = $this->decode($headerinfo->subject);
             $udate = isset($headerinfo->date)? strtotime($headerinfo->date) : (int)$headerinfo->udate;
             $date = date("y.m.d", $udate);
             // 오늘 날짜일 경우 시간으로 출력처리
@@ -848,7 +851,7 @@ class Mailbox extends CI_Controller {
       // $name         = $name[0]->text;
       // $from['name'] = empty($name) ? '' : imap_utf8($name);
 
-      $name         = $this->subject_decode($headerinfos->personal);    // 대표님 보낸사람 디코딩 애러처리 (utf-8/Q)
+      $name         = $this->decode($headerinfos->personal);    // 대표님 보낸사람 디코딩 애러처리 (utf-8/Q)
       // $name         = imap_utf8($headerinfos->personal);
       // $name         = $name[0]->text;
 
@@ -1296,7 +1299,7 @@ class Mailbox extends CI_Controller {
       'date'        => isset($head->date) ? $head->date : '',//date('c', strtotime(substr($header->date, 0, 30))),
       'udate'       => isset($head->date) ? strtotime($head->date) : (int)$head->udate,
       // 'udate'       => (int)$head->udate,
-      'subject'     => $this->subject_decode($head->subject),
+      'subject'     => $this->decode($head->subject),
       // 'subject'     => isset($head->subject) ? imap_utf8($head->subject) : '(제목 없음)',
       'recent'      => strlen(trim($head->Recent)) > 0,
       'read'        => strlen(trim($head->Unseen)) < 1,
@@ -1359,7 +1362,7 @@ class Mailbox extends CI_Controller {
       case 2: return $data; // BINARY
       case 3:   // base64
         $data_decoded = base64_decode($data);
-        if($charset == "euc-kr")
+        if($charset == "euc-kr" || $charset == 'ks_c_5601-1987')
           $data_decoded = iconv('cp949', 'utf-8', $data_decoded);
         // $res = 'encoding: '.$encoding.'<br><br>charset: '.$charset.'<br><br>rawData: <br>'.$data.'<br>decoded: <br>'.$data_decoded;
         return $data_decoded;
@@ -1427,7 +1430,7 @@ class Mailbox extends CI_Controller {
     $filename = '';
     foreach($part->parameters as $object) {
       if(strtolower($object->attribute) == 'name') {
-        $filename = $object->value;
+        $filename = $this->decode($object->value);    // =?utf-8?B? 인코딩된경우 애러처리
       }
     }
     return $filename;   // 한글일 경우 ?ks_c_5601-1987?여서 디코딩 해야함

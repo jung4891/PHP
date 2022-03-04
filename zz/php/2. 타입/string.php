@@ -117,10 +117,21 @@
     $str2 = str_replace('korea', 'china', $str);
     echo $str2.'<br><br>';      // welcome to china!
 
+    echo '<h3>strlen()</h3>';
     // strlen() : 문자열의 글자수
     $str = ' ab cd ';
     echo strlen($str)."<br>";   // 7
-    echo '<br>';
+    $test = 'a';
+    var_dump($test);    // string(1) "a"
+    $test = 'ㄱ';
+    var_dump($test);    // string(3) "ㄱ"
+    $test = '각';
+    var_dump($test);    // string(3) "각"
+    $test = '?=';
+    var_dump($test);    // string(2) "?="
+    $test = '=?utf-8?B?WElPUy0yLjAucjI5Mjc2LTIwMTEzMDE2MjMt7J247LKc6rOE7JaR6rOg6rCd7IS87YSwLg==?= =?utf-8?B?VlBO?=';
+    var_dump($test[82]);  // string(1) "?"
+    echo '<br><br><br>';
 
     // strtoupper(), strtolower()
     $str = "test";
