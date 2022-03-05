@@ -30,7 +30,7 @@ console.log('1'+2+3);   // 123
 console.log(`1`+(2+3)); // 15
 
 
-// 변수
+// 변수 : 값을 저장하는 박스
 let a;
 a = 10;
 let b = 20;
@@ -51,7 +51,7 @@ console.log($a);
 
 // var, let, const
 // - let은 흔히 다른 언어에서 사용하는 변수와 비슷하다.
-//   var는 버그 발생과 메모리 누수의 위험등이 있으므로 let, const를 사용하는게 좋다. var는 머릿속에서 잊어라.
+//   var는 버그 발생과 메모리 누수의 위험등이 있으므로 let, const를 사용하는게 좋다. var는 잊어라.
 // - IE 브라우저는 let을 지원하지 않으므로 var를 사용해야한다.
 //   babel이라고 let으로 작성해도 var로 지원해주는 컴파일러도 존재하기도 함
 
@@ -93,3 +93,46 @@ console.log(const1);
 // const const2;
 // const2 = 10;
 // console.log(const2);  // Uncaught SyntaxError: Missing initializer in const declaration
+
+
+// 함수 : 명령들을 저장하는 박스
+// 함수 선언
+function greetings() {
+  console.log('Hi');
+  console.log('안녕');
+  console.log('こんにちは');
+  console.log('你好');
+};
+// 함수 호출
+greetings();
+greetings();
+
+// Parameter (매개변수)
+// function 함수이름(P){
+//   console.log(P)
+// }
+// 함수이름(값);   -> 함수호출시 값은 파라미터로 들어가 함수내부에서 변수처럼 작동한다.
+function welcome(name) {
+  console.log('안녕하세요, ' + name + '님!');
+};
+welcome('혁중');
+
+function printSquare(x) {
+  console.log(x * x);
+};
+printSquare(5);
+
+function introduce(name, job) {
+  console.log('제 이름은 ' + name + ' 입니다.');
+  console.log('직업은 ' + job + ' 입니다.');
+};
+introduce('송혁중', '개발자');
+
+// prompt : 개신기하군...
+function alertTest(num) {
+  let var1 = 10;
+  alert('당신이 가장 좋아하는 숫자는 ' + num + ' 이군요!');
+  alert(`grave를 사용하면 문자열안에서 파라미터인 ${num}, 변수인 ${var1}을 가지고 올수있군!!`)
+};
+let number = prompt('가장 좋아하는 숫자는 무엇인가요?');
+alertTest(number);
