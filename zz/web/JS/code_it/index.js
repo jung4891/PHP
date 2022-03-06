@@ -136,3 +136,5 @@ function alertTest(num) {
 };
 let number = prompt('가장 좋아하는 숫자는 무엇인가요?');
 alertTest(number);
+
+// return : 함수에서 input이 파라미터라면 output은 return을 통해 나온 반환값이다.
