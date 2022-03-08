@@ -613,8 +613,9 @@ class Mailbox extends CI_Controller {
             // 오늘 날짜일 경우 시간으로 출력처리
             $date = ($date == date("y.m.d", time()))? date("H:i", $udate) : $date;
             if(isset($headerinfo->Size)) {
-            	$size = round(($headerinfo->Size)/1024, 1);
-            	($size < 1000)? $size .= 'KB' : $size = round($size/1000, 1).'MB';
+              $size = $headerinfo->Size * 0.73076;    // 첨부파일이 실제크기보다 bytes가 높게 출력되어 임의로 수정.
+            	$size = round($size / 1024);
+            	($size < 1024)? $size .= 'KB' : $size = round($size/1024).'MB';
             } else {
             	$size = '';
             }
@@ -1397,8 +1398,8 @@ class Mailbox extends CI_Controller {
     $filename = imap_utf8($realname);
     if ($filename) {
       if(isset($part->bytes)) {
-        $size = $part->bytes;
-        $size = ($size < 1024)? $size .= 'B' : (($size < 1024*1024)? $size = round($size/1024, 1).'KB' : $size = round($size/(1024*1024), 1).'MB');
+        $size = $part->bytes * 0.73076;   // 첨부파일 실제크기보다 bytes가 높게 출력되어 임의로 수정.
+        $size = ($size < 1024)? $size .= 'B' : (($size < 1024*1024)? $size = round($size/1024).'KB' : $size = round($size/(1024*1024)).'MB');
       } else {
         $size = '';
       }

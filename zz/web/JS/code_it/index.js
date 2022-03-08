@@ -10,6 +10,7 @@ console.log('a');console.log(1);console.log('2')
 
 // 자료형 (Data Type)
 
+console.log('===========================================================  number');
 // 숫자형 (number)
 // 사칙연산 (연산기호 앞뒤로 띄우는 건 가독성을 위해 암묵적으로 지키는 것이라 함)
 // 우선순위 ( () > ** > *, / > +, - )
@@ -23,8 +24,11 @@ console.log(2 % 5);  // 2   (나머지 연산)
 console.log(2 ** 4); // 16  (거듭제곱)
 console.log(2 * 3 ** 2);  // 18 (거듭제곱이 곱보다 우선순위라고함 ㄷㄷ)
 
+
+console.log('===========================================================  string');
 // 문자열 (String)
 // 따옴표를 사용하지 않은 문자열은 변수명으로 인식이됨
+// 문자열 연산은 +만 있다.
 // 아래 3개중 어떤걸 사용하든 크게 성능차이는 없다고 함. 다만 가독성을 위해 ', "를 권장.
 // + 즉, 안에 따옴표 표시를 할때는 백틱을, 보통때는 편하게 ''를 쓰면 됨
 console.log('test1');
@@ -48,12 +52,115 @@ console.log(`"I'm hyuk"`);  // 아얘 ', " 모두 출력하고 싶으면 백스�
 // 줄바꿈하기
 console.log("줄바꿈은 \\n을 사용하여 \n이렇게 합니다.");
 
+// 문자열 반복하기 (python처럼 *연산 안됨)
+// repeat(0 ~ 무한대이하 정수값) 메소드를 사용함
+console.log('a'.repeat(3));     // aaa
+console.log('a'.repeat(0));     //
+console.log('a'.repeat(1.5));   // a (정수형으로 내림한 값이 적용)
+// console.log('a'.repeat(-1));    // Uncaught RangeError
+
+
+console.log('===========================================================  boolean');
 // 불대수 (Boolean) : 일상적인 논리를 수학적으로 표현한 것, 즉 참과 거짓을 표현하는 자료형
 // + JS에선 true와 false로 표현함. 소문자로.
 // + 일반 수학의 연산은 +, -, *, /이지만 불 대수의 연산은 AND, OR, NOT이 있는 것임.
+console.log(1 > 0);    // true
+console.log(1 >= 0);   // true
+console.log(1 <= 0);   // false
+console.log(3 === 3);  // true
+console.log(3 !== 3);  // false
+console.log('');
+console.log('Codeit' === 'codeit');   // f (자료형까지 비교. 요걸로 주로 사용하33)
+console.log('Codeit' == 'codeit');    // f
+console.log('Codeit' !== 'Codeit');   // f
+console.log(8 == '8');    // t
+console.log(8 === '8');   // f
+console.log('');
+
+// 논리 연산
+// AND : &&, OR : ||, NOT : !
+console.log(true && true);    // true
+console.log(true && false);   // f
+console.log(false && true);   // f
+console.log(false && false);  // f
+console.log(true || true);    // true
+console.log(true || false);   // true
+console.log(false || true);   // true
+console.log(false || false);  // f
+console.log(!true);    // f
+console.log(!false);   // true
+console.log(!!true);   // true
+
+
+console.log('===========================================================  typeof');
+// typeof 연산자 : 어떤 타입인지를 string값으로 출력해줌
+console.log(typeof 10);     // number
+console.log(typeof 10.2);   // number (js는 소수, 정수 모두 number로 취급)
+console.log(typeof '10');   // string
+console.log(typeof `abc`);  // string
+console.log(typeof false);  // boolean
+console.log('');
+let name = 'hyuk';
+function sayHi() {
+  console.log('Hi');
+};
+console.log(typeof name);   // string
+console.log(typeof sayHi);  // function
+console.log(typeof 'my' + 'home');  // stringhome (+보다 우선순위다)
+console.log(typeof 1 - 3);  // NaN
+
+// 연산자 우선순위
+/*
+  1) ()
+  2) !, typeof
+  3) **
+  4) *, /, %
+  5) +, -
+  6) <, <=, >, >=
+  7) ==, ===, !=, !==
+  8) &&
+  9) ||
+  10) =
+*/
+
+console.log('======================================================  Type Conversion');
+// 형 변환(Type Conversion)
+// 함수 String(), Number(), Boolean()을 사용
+console.log(Number('1') + 1);   // 2
+console.log(Number('문자'))     // NaN
+console.log(Number(true));      // 1
+console.log(String(1) + '1');   // 11
+console.log(typeof String(true));   // string
+console.log('');
+console.log(Boolean('문자'));    // true
+console.log(Boolean(123));       // true
+console.log(Boolean(0));         // false
+console.log(Boolean(''));        // false
+console.log(Boolean(' '));       // true (공백은 true!!)
+console.log(Boolean(null));      // false (없거나 비어있거나)
+console.log(Boolean(NaN));       // false (0, '', null, NaN -> falsy값이라 불림)
+if(0 || '' || null )
+  console.log('일로 안오고');
+else
+  console.log('일로 오겠지');
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // ====================================================================================
 
+console.log('===========================================================  variable');
 // 변수 : 값을 저장하는 박스
 let a;
 a = 10;
@@ -78,7 +185,6 @@ console.log($a);
 //   var는 버그 발생과 메모리 누수의 위험등이 있으므로 let, const를 사용하는게 좋다. var는 잊어라.
 // - IE 브라우저는 let을 지원하지 않으므로 var를 사용해야한다.
 //   babel이라고 let으로 작성해도 var로 지원해주는 컴파일러도 존재하기도 함
-
 function scope_test() {   // 둘다 밖에서 호출시 애러남
   var var_test = "나는 var에요. 밖으로 나갈 수 있어요.";
   let let_test = "나는 let에요. 밖으로 못나가요.";
@@ -120,6 +226,7 @@ console.log(const1);
 
 // ====================================================================================
 
+console.log('===========================================================  function');
 // 함수 : 명령들을 저장하는 박스
 // 함수 선언
 function greetings() {
@@ -131,6 +238,7 @@ function greetings() {
 // 함수 호출
 greetings();
 greetings();
+
 
 // Parameter (매개변수)
 // function 함수이름(P){
@@ -161,6 +269,7 @@ function alertTest(num) {
 };
 // let number = prompt('가장 좋아하는 숫자는 무엇인가요?');
 // alertTest(number);
+
 
 // return : 함수에서 input이 파라미터라면 output은 return을 통해 나온 반환값이다.
 function getTwice(number) {
