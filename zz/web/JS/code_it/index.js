@@ -11,21 +11,27 @@ console.log('a');console.log(1);console.log('2')
 // 자료형 (Data Type)
 
 console.log('===========================================================  number');
+
 // 숫자형 (number)
 // 사칙연산 (연산기호 앞뒤로 띄우는 건 가독성을 위해 암묵적으로 지키는 것이라 함)
 // 우선순위 ( () > ** > *, / > +, - )
 console.log(1 + 5);
-console.log(1 / 5);  // 0.2
 console.log(4 / 2);  // 2
+console.log(1 / 5);  // 0.2
 console.log(7 / 3);  // 2.3333333333333335
 const c = Math.trunc(5 / 2);  // 몫 연산 (소수점을 없앰)
 console.log(typeof c, c);     // number 2
+console.log(0 / 3);  // 0
+console.log(3 / 0);  // Infinity
+console.log(typeof (3 / 0));   // number
 console.log(2 % 5);  // 2   (나머지 연산)
 console.log(2 ** 4); // 16  (거듭제곱)
 console.log(2 * 3 ** 2);  // 18 (거듭제곱이 곱보다 우선순위라고함 ㄷㄷ)
 
 
+
 console.log('===========================================================  string');
+
 // 문자열 (String)
 // 따옴표를 사용하지 않은 문자열은 변수명으로 인식이됨
 // 문자열 연산은 +만 있다.
@@ -59,8 +65,21 @@ console.log('a'.repeat(0));     //
 console.log('a'.repeat(1.5));   // a (정수형으로 내림한 값이 적용)
 // console.log('a'.repeat(-1));    // Uncaught RangeError
 
+// 템플릿 문자열 : 일정한 틀, 형식으로 된 문자열
+// 백틱 (``)안에 ${}를 사용하여 만든 문자열 틀
+// + +연산보다 편하게 문자열과 변수를 동시에 사용할 수 있다.
+// + 이때 ${}안에는 변수나 연산식, 함수호출도 사용할 수 있다.
+// + 즉 그 안은 그냥 console.log(여기에 적는거라고 보면 된다. 문자열을 빠져나오는.)
+let num1 = 2;
+console.log(`템플릿 문자열 테스트 -> num1:${num1}, num1*5:${num1 * 5}`)
+function getTwice(x) {
+  return x * 2;
+};
+console.log(getTwice(50) * 2);   // 200
+console.log(`${num1}의 두배는 ${getTwice(num1)}입니다.`);
 
 console.log('===========================================================  boolean');
+
 // 불대수 (Boolean) : 일상적인 논리를 수학적으로 표현한 것, 즉 참과 거짓을 표현하는 자료형
 // + JS에선 true와 false로 표현함. 소문자로.
 // + 일반 수학의 연산은 +, -, *, /이지만 불 대수의 연산은 AND, OR, NOT이 있는 것임.
@@ -93,6 +112,7 @@ console.log(!!true);   // true
 
 
 console.log('===========================================================  typeof');
+
 // typeof 연산자 : 어떤 타입인지를 string값으로 출력해줌
 console.log(typeof 10);     // number
 console.log(typeof 10.2);   // number (js는 소수, 정수 모두 number로 취급)
@@ -124,7 +144,10 @@ console.log(typeof 1 - 3);  // NaN
 */
 
 console.log('======================================================  Type Conversion');
+
 // 형 변환(Type Conversion)
+
+// 명시적 형변환
 // 함수 String(), Number(), Boolean()을 사용
 console.log(Number('1') + 1);   // 2
 console.log(Number('문자'))     // NaN
@@ -143,10 +166,31 @@ if(0 || '' || null )
   console.log('일로 안오고');
 else
   console.log('일로 오겠지');
+console.log('');
 
-
-
-
+// 자동 형변환(암묵적 형변환)
+// 자바스크립트는 다른 언어와 다르게 자동으로 형변환이 되기도 한다.
+console.log('5' - true);        // 4
+// 산술연산(+, -, *, /, %, **)
+// +에선 숫자 + 숫자문자열의 경우 숫자계산이 아닌 문자열연산이 우선시되고
+// 나머지는 Number로 자동형변환 되어 계산된다.
+console.log(4 + '1');     // '41'
+console.log(4 + true);    // 5
+console.log(4 / '2');     // 2
+console.log(5 % '3');     // 2
+console.log(5 % 'one');   // NaN  (NaN은 어떤값과 연산해도 NaN값이 나옴)
+// 비교연산(<, <=, >, >=)
+// 산술연산 맹키로 숫자로 자동 형변환되어 계산됨
+console.log(4 < '1');     // false
+console.log('4' > false); // true
+console.log('one' <= 2);  // false (비교가 불가능한 경우 false출력됨)
+// 같음 비교연산(===, !==, ==, !=)
+// ==, !=는 자동 형변환이 일어나고 ===, !==는 자료형까지 비교하므로 형변환x
+// 두 값이 같은지 비교할때는 형변환이 일어나지 않는 ===를 사용해야 안전하다.
+console.log(1 === '1');   // false
+console.log(1 === true);  // false
+console.log(1 == '1');    // true
+console.log(1 == true);   // true
 
 
 
