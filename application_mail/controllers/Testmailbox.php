@@ -1394,7 +1394,6 @@ class Testmailbox extends CI_Controller {
       'realname' => '',
       'size' => ''
     );
-
     $realname = $this->getFilenameFromPart($part);
     $filename = imap_utf8($realname);
     if ($filename) {
@@ -1430,9 +1429,17 @@ class Testmailbox extends CI_Controller {
   // 첨부파일 다운로드 링크의 파일명 가져오는 부분
   function getFilenameFromPart($part) {
     $filename = '';
-    foreach($part->parameters as $object) {
-      if(strtolower($object->attribute) == 'name') {
-        $filename = $this->decode($object->value);    // =?utf-8?B? 인코딩된경우 애러처리
+    if($part->ifdparameters == 1) {   // 아래 parameters에 파일명이 아닌 charset이 들어가 있는 경우 첨부파일 출력안되는 애러처리.
+      foreach($part->dparameters as $object) {
+        if(strtolower($object->attribute) == 'filename') {
+          $filename = $this->decode($object->value);    // =?utf-8?B? 인코딩된경우 애러처리
+        }
+      }
+    }else {
+      foreach($part->parameters as $object) {
+        if(strtolower($object->attribute) == 'name') {
+          $filename = $this->decode($object->value);    // =?utf-8?B? 인코딩된경우 애러처리
+        }
       }
     }
     return $filename;   // 한글일 경우 ?ks_c_5601-1987?여서 디코딩 해야함
