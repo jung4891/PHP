@@ -28,7 +28,18 @@ console.log(2 % 5);  // 2   (나머지 연산)
 console.log(2 ** 4); // 16  (거듭제곱)
 console.log(2 * 3 ** 2);  // 18 (거듭제곱이 곱보다 우선순위라고함 ㄷㄷ)
 
+// 복합 할당 연산자 (Compound assignment operators)
+let x;
+x += 2;  // x = x + 2;
+x %= 2;  // x = x % 2;
 
+// 증가, 감소연산자 (increment / decrement operator)
+x = 1;
+x++;                // x = x + 1;  // 해당 라인의 코드 실행된 후에 증가됨
+console.log(x);     // 2
+console.log(x++);   // 2
+console.log(x);     // 3
+console.log(++x);   // 4           // 증가하고 해당 라인의 코드 실행됨.
 
 console.log('===========================================================  string');
 
@@ -68,7 +79,7 @@ console.log('a'.repeat(1.5));   // a (정수형으로 내림한 값이 적용)
 // 템플릿 문자열 : 일정한 틀, 형식으로 된 문자열
 // 백틱 (``)안에 ${}를 사용하여 만든 문자열 틀
 // + +연산보다 편하게 문자열과 변수를 동시에 사용할 수 있다.
-// + 이때 ${}안에는 변수나 연산식, 함수호출도 사용할 수 있다.
+// + ${표현식}으로 표현식으로는 변수나 연산식, 함수호출을 사용할 수 있다.
 // + 즉 그 안은 그냥 console.log(여기에 적는거라고 보면 된다. 문자열을 빠져나오는.)
 let num1 = 2;
 console.log(`템플릿 문자열 테스트 -> num1:${num1}, num1*5:${num1 * 5}`)
@@ -110,6 +121,26 @@ console.log(!true);    // f
 console.log(!false);   // true
 console.log(!!true);   // true
 
+console.log('===========================================================  null, undefined');
+
+// null(의도적인 없음)과 undefined(처음부터 없음) -> 값이 없다.
+// null : 사용하는 값 (의도적으로 비어있음을 표현)
+// undefined : 확인하는 값 (값이 없음); null 처럼 의도적으로 표현할 수도 있지만 null과 헷갈리므로 권장하지 않음.
+let codeit;
+console.log(codeit);              // undefined (선언시 초기값을 넣어주지 않으면 undefined 값을 가지고 있다. )
+codeit = null;
+console.log(codeit);              // null
+console.log(null == undefined);   // true  (값이 없다는 의미는 비슷하지만)
+console.log(null === undefined);  // false (자료형은 다르다!)
+let cup;
+console.log(cup);  // undefined
+cup = '우유';
+console.log(cup);  // 우유
+cup = null;        // 컵을 비움
+console.log(cup);  // null
+cup = '';
+console.log(typeof cup);    // string
+// console.log(cup2);  // cup2 is not defined at index.js:342:13
 
 console.log('===========================================================  typeof');
 
@@ -193,18 +224,10 @@ console.log(1 == '1');    // true
 console.log(1 == true);   // true
 
 
-
-
-
-
-
-
-
-
-
 // ====================================================================================
 
-console.log('===========================================================  variable');
+console.log('======================================================  variable');
+
 // 변수 : 값을 저장하는 박스
 let a;
 a = 10;
@@ -223,18 +246,29 @@ console.log($a);
 //   JS는 camelCase방식(penPrice) / Python은 underscore방식(pen_price)을 관습처럼 쓴다.
 //   언어마다 정해진 "스타일 가이드"가 있다고 한다.
 
-
 // var, let, const
 // - let은 흔히 다른 언어에서 사용하는 변수와 비슷하다.
 //   var는 버그 발생과 메모리 누수의 위험등이 있으므로 let, const를 사용하는게 좋다. var는 잊어라.
 // - IE 브라우저는 let을 지원하지 않으므로 var를 사용해야한다.
 //   babel이라고 let으로 작성해도 var로 지원해주는 컴파일러도 존재하기도 함
+
+// 선언과 호출 그리고 scope
+// - 선언을 하면 호이스팅(인터프리터가 변수와 함수의 메모리 공간을 선언 전에 미리 할당하는 것을 의미)이 발생함
+//   초기화는 선언 이후에 해줘야한다.
+// - scope는 아직 잘 모르겠음. 아래 scope_test도 잘 모르겠음..
 function scope_test() {   // 둘다 밖에서 호출시 애러남
   var var_test = "나는 var에요. 밖으로 나갈 수 있어요.";
+  var var_test = "이게 안된다는건가?"
   let let_test = "나는 let에요. 밖으로 못나가요.";
+  console.log(var_test);  // 출력 잘됨.. 뭐지.. 같은 scope에선 재선언 안되는거 아님?
 }
+scope_test();
+// console.log(let_test);
 
 // var는 선언전에 호출해도 undefined으로 뜨고 애러는 안난다. 재선언하면 덮어씌어진다.
+// - var의 경우 호이스팅(메모리 공간 할당)되면서 초기 값이 없으면 자동으로 undefined를 초기값으로 하여 메모리를 할당
+//   그래서 var의 경우 선언 전에 해당 변수를 사용하려고 해도 메모리에 해당 변수가 존재하기 때문에 에러가 발생하지 않습니다.
+// - var는 함수 레벨 scope로 재선언하면 덮어씌어지게 되는거임
 // console.log(v1); // Uncaught ReferenceError: v1 is not defined (애러나면 아래부분 실행 안됨)
 console.log(var1);  // undefined.(애러 안남) hoisting으로 선언되기 전에는 undefined로 초기화됨.
 var var1 = 10;
@@ -245,6 +279,9 @@ var var1 = 1000;    // 재선언해도 덮어씌어지기에 오류발생해서 
 console.log(var1);  // 1000
 
 // let은 선언전에 호출하면 애러발생하고 재선언시에도 애러가 난다.
+// - let, const의 경우 호이스팅이 되면서 초기 값이 없다면 var처럼 자동으로 초기값을 할당하지 않음
+//   (const의 경우 선언시 초기값을 할당하지 않으면 문법 에러가 납니다).
+// - let과 const는 블록 레벨 scope로 동일한 scope 에서는 중복으로 선언할 수가 없숨!
 // console.log(let1);  // Uncaught ReferenceError: Cannot access 'let1' before initialization
 let let1 = 20;
 console.log(let1);  // 20
@@ -254,7 +291,7 @@ console.log(let1);  // 200
 // console.log(let1);  // Uncaught SyntaxError: Identifier 'let1' has already been declared
 
 // let 없이 변수 선언을 하면 예전 javascript 코드와의 호환성을 위해 동작은 하지만 권장하지 않는다.
-// 엄격모드(strict mode)에선 동작하지 않음.
+// 엄격모드(strict mode)에선 동작하지 않음. 무조건 let을 쓰도록!!
 test1 = 77;
 console.log(test1); // 77
 
@@ -271,6 +308,7 @@ console.log(const1);
 // ====================================================================================
 
 console.log('===========================================================  function');
+
 // 함수 : 명령들을 저장하는 박스
 // 함수 선언
 function greetings() {
@@ -310,6 +348,7 @@ function alertTest(num) {
   let var1 = 10;
   alert('당신이 가장 좋아하는 숫자는 ' + num + ' 이군요!');
   alert(`grave를 사용하면 문자열안에서 파라미터인 ${num}, 변수인 ${var1}을 가지고 올수있군!!`)
+  alert(`num * var1 = ${num * var1}  // 이렇게 연산식도됨`);
 };
 // let number = prompt('가장 좋아하는 숫자는 무엇인가요?');
 // alertTest(number);
@@ -319,14 +358,35 @@ function alertTest(num) {
 function getTwice(number) {
   return number * 2;
 };
-let x = getTwice(5);
+let xx = getTwice(5);
 let y = getTwice(2);
-console.log(x * y);
+console.log(xx * y);
 
 function localTest() {
   return var2;
 }
 let var2 = 22;
 console.log(localTest());   // var2를 초기화했기에 되긴하지만 파라미터 지정하는게 좋음.
+
+// ====================================================================================
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // ====================================================================================

@@ -167,7 +167,7 @@ $reply_cc_input = address_text($mail_info["cc"]);
      </tr>
      <tr>
        <pre>
-         <?php var_dump($flattenedParts); ?>
+         <?php // var_dump($flattenedParts); ?>
          <?php // var_dump($struct); ?>
          <?php // var_dump($body); ?>
        </pre>
