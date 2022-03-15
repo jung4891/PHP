@@ -1144,12 +1144,13 @@ class Testmailbox extends CI_Controller {
       // 테스트용
       $data['flattenedParts'] = $flattenedParts;
 
+      $plain_cnt = 0;   // 상대방 메일함 용량초과로 리턴되는 메시지가 plain이 2개인데 첫번쨰가 inline속성이고 다음은 제외시킴.
       $html_cnt = 0;    // 발송실패 메일중 .eml파일은 뒤에 html이 또 나와 첨부파일이 출력되는 오류 처리.
       foreach($flattenedParts as $partNumber => $part) {
        switch($part->type) {
          case 0:    // the HTML or plain text part of the email
-           // parts에 Plain 하나만 있는경우 || 메일 전송때 첨부파일 용량초과시 리턴되는 메일출력
-           if ($part->subtype == "PLAIN" && count($flattenedParts) == 1 || $part->subtype == "PLAIN" && $part->encoding == 0) {
+           // parts에 Plain 하나만 있는경우 || 메일 전송때 첨부파일 용량초과시 리턴되는 메일출력 || plain 하나는 아닌데 inline으로 출력되는경우
+           if ($part->subtype == "PLAIN" && count($flattenedParts) == 1 || $part->subtype == "PLAIN" && $part->encoding == 0 && $part->ifdisposition != 1 &&  $plain_cnt == 0 || $part->subtype == "PLAIN" && $part->ifdisposition == 1 && $part->disposition == "inline" ) {
              foreach($part->parameters as $object) {          // charset이 parameters 배열에 [0] or [1]에 있음
                if(strtolower($object->attribute) == 'charset') {
                  $charset = $object->value;
@@ -1160,11 +1161,12 @@ class Testmailbox extends CI_Controller {
              $message = htmlspecialchars($message); // 내용에 <> 있을경우 그대로 출력(아랫부분과 동일)
              // $message = str_replace(array("<", ">"), array("&lt;", "&gt;"), $message);
              $contents .= $message;
+             $plain_cnt += 1;
              break;
-           }else if ($part->subtype == "PLAIN" && $part->ifdisposition == 0) {
+           }else if($part->subtype == "PLAIN" && $part->ifdisposition == 0) {
              break;   // 그외 일반적인 plain은 출력하지 않음
            // // .txt 첨부파일은 여기 들어있음 + Undelivered Message Headers.txt도 여기로 빠짐
-           }else if(($part->subtype == "PLAIN" || $part->subtype == "RFC822-HEADERS") && $part->ifdisposition == 1) {
+           }else if( ($part->subtype == "PLAIN" || $part->subtype == "RFC822-HEADERS") && $part->ifdisposition == 1 ) {
            // }else if($part->subtype == "PLAIN" && $part->ifdisposition == 1) {   // 이전부분
              // $filename = $this-> getFilenameFromPart($part);
              // if ($filename) {
@@ -1204,8 +1206,8 @@ class Testmailbox extends CI_Controller {
            break;
          case 2:  // attached message headers, can ignore
                   // (.eml 첨부파일은 2로 넘어와서 break 해제하면 되는데 그렇게되면 다른부분 또 애러 생겨서 우선 살려둠)
-           // 첨부파일 용량 초과시 리턴되는 메일의 첨부파일부분 처리
-           if($part->subtype == "DELIVERY-STATUS") {
+           // 첨부파일 용량 초과시 리턴되는 메일의 첨부파일부분 처리 || 상대방 메일함 용량 초과시 리턴되는 첨부파일부분(.txt와 .msg)
+           if($part->subtype == "DELIVERY-STATUS" || $part->subtype == "RFC822") {
               // $filename = $this->getFilenameFromPart($part);
               // if ($filename) {
               //   if(isset($part->bytes)) {
@@ -1399,7 +1401,7 @@ class Testmailbox extends CI_Controller {
     if ($filename) {
       if(isset($part->bytes)) {
         $size = $part->bytes * 0.73076;   // 첨부파일 실제크기보다 bytes가 높게 출력되어 임의로 수정.
-        $size = ($size < 1024)? $size .= 'B' : (($size < 1024*1024)? $size = round($size/1024).'KB' : $size = round($size/(1024*1024)).'MB');
+        $size = ($size < 1024)? $size = round($size).'B' : (($size < 1024*1024)? $size = round($size/1024).'KB' : $size = round($size/(1024*1024)).'MB');
       } else {
         $size = '';
       }
@@ -1413,7 +1415,7 @@ class Testmailbox extends CI_Controller {
         'content_type' => $part->type,
         'encoding' => $part->encoding,
         'subtype' => $part->subtype,
-        'disposition' => $part->disposition,
+        'disposition' => (isset($part->disposition))? $part->disposition : '',
         'filename' => $filename,
         'realname' => $realname,
         'size' => $size
@@ -1441,6 +1443,15 @@ class Testmailbox extends CI_Controller {
           $filename = $this->decode($object->value);    // =?utf-8?B? 인코딩된경우 애러처리
         }
       }
+    }
+    if($filename === '') {
+      if($part->subtype == "DELIVERY-STATUS") {   // 메일함 가득차서 메시지 발송이 안될경우 리턴되는 txt 첨부파일 처리
+        $filename = 'delivery-status.txt';
+      }
+      if($part->subtype == "RFC822") {   // 메일함 가득차서 메시지 발송이 안될경우 리턴되는 .msg(아웃룩 확장자인듯) 첨부파일 처리
+        $filename = 'details.txt';
+      }
+
     }
     return $filename;   // 한글일 경우 ?ks_c_5601-1987?여서 디코딩 해야함
     // return imap_utf8($filename);   // 한글일 경우 ?ks_c_5601-1987?여서 디코딩 해야함

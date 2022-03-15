@@ -310,22 +310,27 @@ console.log(const1);
 console.log('===========================================================  function');
 
 // 함수 : 명령들을 저장하는 박스
+
 // 함수 선언
+//  파이썬에선 함수선언후 아래줄에 호출을 해야만 오류가 안나지만
+//  자바스크립트에선 함수나 변수 선언시 호이스팅에 의해 함수 선언문이 가장 먼저 실행됩니다.
+//  그래서 선언을 호출 아래에 해도 오류가 나진 않지만 보통 선언을 먼저해주고 호출을 함.
 function greetings() {
   console.log('Hi');
   console.log('안녕');
   console.log('こんにちは');
   console.log('你好');
 };
+
 // 함수 호출
 greetings();
 greetings();
 
 
-// Parameter (매개변수)
-// function 함수이름(P){
-//   console.log(P)
-// }
+// Parameter(매개변수)
+//  function 함수이름(P){
+//    console.log(P)
+//  }
 // 함수이름(값);   -> 함수호출시 값은 파라미터로 들어가 함수내부에서 변수처럼 작동한다.
 function welcome(name) {
   console.log('안녕하세요, ' + name + '님!');
@@ -337,11 +342,17 @@ function printSquare(x) {
 };
 printSquare(5);
 
-function introduce(name, job) {
+// 옵셔널 파라미터 (Optional Parameters)
+//  파라미터에 기본값을 할당하여 선택적으로(있어도 되고 없어도 되고) 전달을 받음
+//  다만 여러 파라미터가 있는경우엔 가장 마지막에 넣어줘야 순서가 밀리지 않음!
+function introduce(name, job, nationality = '한국') {
   console.log('제 이름은 ' + name + ' 입니다.');
   console.log('직업은 ' + job + ' 입니다.');
+  console.log(`국적은 ${nationality} 입니다.`);
 };
 introduce('송혁중', '개발자');
+introduce('송환중', '레스토랑 오너', '중국');
+
 
 // prompt : 개신기하군...
 function alertTest(num) {
@@ -355,12 +366,22 @@ function alertTest(num) {
 
 
 // return : 함수에서 input이 파라미터라면 output은 return을 통해 나온 반환값이다.
+//  return은 값을 반환하는 역할도 하고 함수를 종료시키는 역할도 한다.
+//  return문이 없는 함수를 실행했을때 log를 찍으면 undefined값이 리턴됨
 function getTwice(number) {
   return number * 2;
+  console.log('여기는 실행안됨. Dead Code라 함');  // 사용하지 말것.
 };
 let xx = getTwice(5);
 let y = getTwice(2);
 console.log(xx * y);
+
+function return_test() {
+  console.log('하하');
+  return;
+}
+return_test();    // 하하
+console.log(return_test()); // 하하 찍히고 undefined (함수내부에 return;이 없어도 동일)
 
 function localTest() {
   return var2;

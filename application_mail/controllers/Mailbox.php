@@ -1395,10 +1395,7 @@ class Mailbox extends CI_Controller {
       'realname' => '',
       'size' => ''
     );
-
     $realname = $this->getFilenameFromPart($part);
-    // var_dump($realname);
-    // exit;
     $filename = imap_utf8($realname);
     if ($filename) {
       if(isset($part->bytes)) {
