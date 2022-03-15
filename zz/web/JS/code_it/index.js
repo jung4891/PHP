@@ -1,4 +1,5 @@
 
+
 console.log('Hello Codeit! 새로운 시작. 22/03/03')
 
 // 세미콜론(;) : 문장을 구분하기 위해 사용
@@ -6,10 +7,9 @@ console.log('Hello Codeit! 새로운 시작. 22/03/03')
 //   하지만 문장끝엔 ;을 써주는게 좋다.
 console.log('a');console.log(1);console.log('2')
 
-// ====================================================================================
+
 
 // 자료형 (Data Type)
-
 console.log('===========================================================  number');
 
 // 숫자형 (number)
@@ -224,7 +224,6 @@ console.log(1 == '1');    // true
 console.log(1 == true);   // true
 
 
-// ====================================================================================
 
 console.log('======================================================  variable');
 
@@ -252,23 +251,39 @@ console.log($a);
 // - IE 브라우저는 let을 지원하지 않으므로 var를 사용해야한다.
 //   babel이라고 let으로 작성해도 var로 지원해주는 컴파일러도 존재하기도 함
 
+// let 없이 변수 선언을 하면 예전 javascript 코드와의 호환성을 위해 동작은 하지만 권장하지 않는다.
+// 엄격모드(strict mode)에선 동작하지 않음. 무조건 let을 쓰도록!!
+test1 = 77;
+console.log(test1); // 77
+
+// 전역객체 (뭔진 잘 모르겠다.)
+// 전역으로 변수 설정시 var나 키워드 없이 변수 선언시 전역객체인 window 프로퍼티가 된다.
+// 하지만 let은 전역객체 프로퍼티가 아니다.
+let namee = "홍길동e";
+var name2 = "홍길동2";
+name3 = "홍길동3";
+console.log(window.namee);  // undefined
+console.log(window.name2);  // 홍길동2
+console.log(window.name3);  // 홍길동3
+
 // 선언과 호출 그리고 scope
 // - 선언을 하면 호이스팅(인터프리터가 변수와 함수의 메모리 공간을 선언 전에 미리 할당하는 것을 의미)이 발생함
 //   초기화는 선언 이후에 해줘야한다.
-// - scope는 아직 잘 모르겠음. 아래 scope_test도 잘 모르겠음..
-function scope_test() {   // 둘다 밖에서 호출시 애러남
-  var var_test = "나는 var에요. 밖으로 나갈 수 있어요.";
-  var var_test = "이게 안된다는건가?"
-  let let_test = "나는 let에요. 밖으로 못나가요.";
-  console.log(var_test);  // 출력 잘됨.. 뭐지.. 같은 scope에선 재선언 안되는거 아님?
-}
-scope_test();
-// console.log(let_test);
+// - scope : 변수의 유효범위, 즉 변수에는 scope가 있다..
+//   전역변수는 코드 어디에서나 사용가능한 scope를 지니고 지역변수는 블록문 내에서만 사용가능한 scope를 지님
+let let_test = 11;           // 전역변수 (Global Variable) : 블록문 밖에서 선언한 변수
+function scope_test() {      // 블록문 (Block Statement)
+  // console.log(let_test);  // 11 (아래 두줄 주석시) | Cannot access ~ (주석 해제시, 즉, 내부 선언이후에 호출해야)
+  let let_test = 33;         // 지역변수(Local Variable) : 블록문 내에 선언된 변수
+  console.log(let_test);
+};
+scope_test();           // 33 (블록문 내에서 변수 사용시 먼저 지역변수 확인후 전역변수 확인함)
+console.log(let_test);  // 11
 
 // var는 선언전에 호출해도 undefined으로 뜨고 애러는 안난다. 재선언하면 덮어씌어진다.
 // - var의 경우 호이스팅(메모리 공간 할당)되면서 초기 값이 없으면 자동으로 undefined를 초기값으로 하여 메모리를 할당
-//   그래서 var의 경우 선언 전에 해당 변수를 사용하려고 해도 메모리에 해당 변수가 존재하기 때문에 에러가 발생하지 않습니다.
-// - var는 함수 레벨 scope로 재선언하면 덮어씌어지게 되는거임
+//   그래서 var의 경우 선언 전에 해당 변수를 사용하려고 해도 메모리에 해당 변수가 존재하기에 에러가 발생x.
+// - var는 함수 레벨 scope로 재선언하면 덮어씌어지게 되는거임 (완전 이해가 가진 않음..)
 // console.log(v1); // Uncaught ReferenceError: v1 is not defined (애러나면 아래부분 실행 안됨)
 console.log(var1);  // undefined.(애러 안남) hoisting으로 선언되기 전에는 undefined로 초기화됨.
 var var1 = 10;
@@ -290,22 +305,25 @@ console.log(let1);  // 200
 // let let1 = 2000;
 // console.log(let1);  // Uncaught SyntaxError: Identifier 'let1' has already been declared
 
-// let 없이 변수 선언을 하면 예전 javascript 코드와의 호환성을 위해 동작은 하지만 권장하지 않는다.
-// 엄격모드(strict mode)에선 동작하지 않음. 무조건 let을 쓰도록!!
-test1 = 77;
-console.log(test1); // 77
+console.log('===========================================================  constant');
 
+// 상수 : 변하지 않는 일정한 값.
 // const는 선언시 초기값을 할당하지 않으면 문법애러가 난다. 그리고 추후 값 변경이 불가능함.
-let let2;
-let2 = 20;
-console.log(let2);
-const const1 = 10;
-console.log(const1);
-// const const2;
-// const2 = 10;
-// console.log(const2);  // Uncaught SyntaxError: Missing initializer in const declaration
+// 작명시 카멜표기법이 아닌 스네이크 표기법을 따르며 대문자만 사용해서 변수와 구별한다. (MY_NUMBER)
+const PI = 3.14;   // 원주율
+let radius = 0;  // 빈값을 넣고 싶을때 자료형이 정해지지 않은 경우는 null로, string이면 ''
 
-// ====================================================================================
+function calcArea() {
+  return PI * radius * radius;
+};
+function printArea() {
+  return  `반지름이 ${radius}일 때, 원의 넓이는 ${calcArea()}`;
+};
+
+radius = 10;
+console.log(printArea());   // 반지름이 10일 때, 원의 넓이는 314
+
+
 
 console.log('===========================================================  function');
 
@@ -328,10 +346,10 @@ greetings();
 
 
 // Parameter(매개변수)
-//  function 함수이름(P){
-//    console.log(P)
+//  function 함수명(파라미터){
+//    console.log(파라미터)
 //  }
-// 함수이름(값);   -> 함수호출시 값은 파라미터로 들어가 함수내부에서 변수처럼 작동한다.
+// 함수이름(인자(값));   -> 함수호출시 값은 파라미터로 들어가 함수내부에서 변수처럼 작동한다.
 function welcome(name) {
   console.log('안녕하세요, ' + name + '님!');
 };
@@ -388,26 +406,3 @@ function localTest() {
 }
 let var2 = 22;
 console.log(localTest());   // var2를 초기화했기에 되긴하지만 파라미터 지정하는게 좋음.
-
-// ====================================================================================
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// ====================================================================================
