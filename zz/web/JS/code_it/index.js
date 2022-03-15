@@ -406,3 +406,24 @@ function localTest() {
 }
 let var2 = 22;
 console.log(localTest());   // var2를 초기화했기에 되긴하지만 파라미터 지정하는게 좋음.
+
+
+
+// 제어문
+console.log('===========================================================  if');
+
+// if문 (if statement)
+let temp = 140;
+
+if(temp <= 0) {
+  console.log('얼음 꽁꽁');
+}else if(temp < 100) {
+  console.log('얼지도 끓지도 않아요~');
+}else if(temp < 150) {
+  console.log('끓어요');   // 출력됨
+}else {
+  console.log('다 수증기가 되었어요.');
+};
+
+// document.write('<br>이러면 웹페이지에 출력되는군!<br>');
+// document.write(1 === 1);
