@@ -250,8 +250,12 @@ console.log($a);
 //   var는 버그 발생과 메모리 누수의 위험등이 있으므로 let, const를 사용하는게 좋다. var는 잊어라.
 // - IE 브라우저는 let을 지원하지 않으므로 var를 사용해야한다.
 //   babel이라고 let으로 작성해도 var로 지원해주는 컴파일러도 존재하기도 함
+// var - 재선언 가능, 재할당 가능 (사용 x)
+// let - 재선언 불가, 재할당 가능
+// const - 재선언 불가, 재할당 불가
 
 // let 없이 변수 선언을 하면 예전 javascript 코드와의 호환성을 위해 동작은 하지만 권장하지 않는다.
+// 변수 키워드가 비어있으면 실행과정에서 자동으로 전역변수(var)로 지정해줌.
 // 엄격모드(strict mode)에선 동작하지 않음. 무조건 let을 쓰도록!!
 test1 = 77;
 console.log(test1); // 77
@@ -413,6 +417,7 @@ console.log(localTest());   // var2를 초기화했기에 되긴하지만 파라
 console.log('===========================================================  if');
 
 // if문 (if statement)
+// 넓은 범위를 만족하는 조건식을 만들때
 let temp = 140;
 
 if(temp <= 0) {
@@ -427,3 +432,111 @@ if(temp <= 0) {
 
 // document.write('<br>이러면 웹페이지에 출력되는군!<br>');
 // document.write(1 === 1);
+
+console.log('===========================================================  switch');
+
+// switch문
+// 특정한 값에 일치하는 조건을 만들 때는 if문보다 switch문이 효과적!
+// 비교값과 조건값을 비교할때 if에서의 === 연산으로 비교함. 즉 자동형변환 안되므로 '1'은 case '1'이어야함.
+// 반복문이 아닌데 break 사용이 가능하고 continue는 사용불가!
+let myChoice = 2;
+
+switch(myChoice) {
+    case 1:
+      console.log('1을 선택하셨습니다.');
+      break;
+    case 2:
+      console.log('2를 선택하셨습니다.');   // 출력됨
+    case 3:
+      console.log('3을 선택하셨습니다.');   // 출력됨
+      break;
+    case 4: case 5:
+      console.log('4 또는 5를 선택하셨습니다.');  // 여러 조건은 이런식으로 설정!!
+      break;
+    default:
+      console.log('1에서 5사이의 숫자를 선택하세요.');
+}
+
+
+
+// 반복문 (Loop Statement)
+// break : 빠져나옴
+// continue : 건너뛴다
+console.log('===========================================================  for');
+
+// for문
+// for(초기화; 조건; 추가동작) {
+//   동작
+// }
+// 초기화부분에서 생성한 변수는 for문의 로컬변수라서 for문 안에서만 사용할 수 있다.
+// for문의 소괄호 안쪽은 반드시 세미콜론 2개가 필요함
+for(let i = 1; i <= 3; i++) {
+  console.log(`${i} 코드잇 좋아좋아`);   // 1 2 3
+}
+let i = 10;
+for(; i <= 13; i += 2) {
+  console.log(`${i} 코드잇 좋아좋아`);   // 10 12
+}
+for(let i = 100; i <= 103;) {
+  console.log(`${i} 코드잇 좋아좋아`);   // 100 102
+  i=i+2;
+}
+// for(;;) {
+//   console.log('이렇게 하면 무한반복됨');
+// }
+
+console.log('===========================================================  while');
+
+// while문
+// 반복문 내부와 밖에서 모두 변수가 사용될때에는 while을 쓰면 좋다.
+let j = 1;
+while(j <= 3) {
+  console.log(`${j} 코드잇 굿`);
+  j++;
+}
+console.log(j);
+
+let k = 1;
+while(k <= 5) {
+  if(k % 2 === 0) {
+    k++;
+    continue;
+  }
+  console.log(k);   // 1 3 5
+  k++;
+}
+
+// 재귀를 쓰지않은 피보나치 수열 (feat. 이렇게도 되는군 크크);
+let aa = 0;
+let bb = 1;
+for(let i = 1; i <= 10; i++) {
+  console.log(bb);
+  let tmp = aa;
+  aa = bb;
+  bb += tmp;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//
