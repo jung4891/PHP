@@ -518,6 +518,62 @@ for(let i = 1; i <= 10; i++) {
 
 
 
+console.log('===========================================================  객체와 프로퍼티');
+
+// 객체
+// 기존 변수에는 값들이 하나만 넣을 수 있었지만 객체에는 여러개를 넣을 수 있다.
+// 자바스크립트의 모든 것이 다 객체다. 거의 모든 문법에 녹아있다.
+// 객체 역시 값이므로 객체를 사용하기 위해선 변수에 넣어서 사용한다.
+// 객체안에 객체를 넣울 수도 있다.
+
+// brandName을 key(값이름) 혹은 property name, '코드잇'을 value 혹은 property value라 한다.
+// brandName: '코드잇'처럼 key: value 한쌍을 속성(Property)이라 한다.
+//  - key는 String타입이지만 따옴표 생략하더라도 문자열로 형변환되기에 일반적으로 생략을 한다.
+//    다만, 첫글자는 반드시 문자, _, $중 하나로 시작하고 띄어쓰기와 하이픈(-)은 금지.
+//    위 규칙을 벗어나는 경우 따옴표('')로 감싸줘야함!!
+//  - value는 당연히 모든 자료형을 사용할 수 있다.
+
+let code_it = {
+  brandName: '코드잇',
+  'born Year': 2017,
+  'isVeryNice': true,
+  worstCourse: null,
+  bestCourse: {
+    title: '자바스크립트 프로그래밍 기초',
+    language: 'JavaScript'
+  }
+}
+console.log(code_it);
+console.log(typeof code_it);
+
+
+// 객체의 property에 접근하기
+
+// 1) 점 표기법 (objectName.propertyName) : 일반적으로 주로 사용
+console.log(code_it.brandName);         // 코드잇
+console.log(code_it.isVeryNice);        // true
+console.log(code_it.bestCourse.title);  // 자바스크립트 프로그래밍 기초
+console.log(code_it.noProperty);        // undefined (애러나지 않음)
+
+// 2) 대괄효 표기범(objectName['propertyName']) : key의 작명규칙을 벗어난 경우에 사용
+console.log(code_it['born Year']);       // 2017
+console.log(code_it['born' + ' Year']);  // 2017
+let propertyName = 'born Year';
+console.log(code_it[propertyName]);      // 2017
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
