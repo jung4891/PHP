@@ -2,9 +2,9 @@
 include $this->input->server('DOCUMENT_ROOT')."/include/base.php";
  ?>
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
+<html>
   <head>
-    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title></title>
     <link href="<?php echo $misc; ?>css/main.css" type="text/css" rel="stylesheet" >
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.js"></script>
@@ -25,7 +25,7 @@ include $this->input->server('DOCUMENT_ROOT')."/include/base.php";
     }
 
     .container{
-      width:30vw;
+      width:80vw;
     }
 
     /* 각각 input창 div로 감싼 class */
@@ -38,7 +38,7 @@ include $this->input->server('DOCUMENT_ROOT')."/include/base.php";
     /* 아이디 id */
       .login_input{
         width:100%;
-        height: 60px;
+        height: 50px;
         border: 1px solid #DEDEDE;
         border-radius: 5px;
         opacity: 1;
@@ -48,7 +48,7 @@ include $this->input->server('DOCUMENT_ROOT')."/include/base.php";
       /* 로그인버튼 id */
       #loginBtn{
         width:100%;
-        height: 60px;
+        height: 50px;
         font-size: 16px;
         letter-spacing: 5px;
         text-align: center;
@@ -68,16 +68,16 @@ include $this->input->server('DOCUMENT_ROOT')."/include/base.php";
     <div class="login" id="login">
       <div class="container">
       <form class="loginForm" name="loginForm" action="" method="post">
-        <div class="loginClass" style="float: unset;display: flex;justify-content: space-between;
+        <div class="loginClass" style="float: unset;display: flex;justify-content: space-around;
     align-items: center;">
             <span id="mailLogo">D-mail</span>
-            <span>
-              <label><input type="radio" name="login_mode" value="general" checked>사용자 모드</label>
-              <label><input type="radio" name="login_mode" value="admin">관리자 모드<br></label>
-            </span>
         </div>
 
         <div class="loginClass">
+          <span>
+            <label><input type="radio" style="color:#B0B0B0;" name="login_mode" value="general" checked>사용자</label>
+            <label><input type="radio" style="color:#B0B0B0;" name="login_mode" value="admin">관리자<br></label>
+          </span>
           <input type="text" class="login_input" name="inputId" id="inputId" value="" placeholder="아이디를 입력하세요."><br>
         </div>
 
@@ -88,6 +88,10 @@ include $this->input->server('DOCUMENT_ROOT')."/include/base.php";
         <div class="loginClass">
           <!-- <button type="button" name="button" id="loginBtn">로그인</button> -->
           <input type="text" class="login_input" name="button" id="loginBtn" value="로그인" readonly>
+        </div>
+        <div class="loginClass" style="text-align: center;position: relative;
+    top: 70px;">
+          <span style="color:#B0B0B0;font-size: 10px;">Copyright © DurianIT All rights Reserved</span>
         </div>
       </form>
       </div>

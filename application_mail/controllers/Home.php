@@ -14,6 +14,7 @@ class Home extends CI_Controller {
 
 
 		public function index(){
+			$this->load->library('user_agent');
 			if(isset($_SESSION['userid'])){
 				if($_SESSION['userid'] != "" && $_SESSION['roles'] == "admin"){
 
@@ -25,7 +26,11 @@ class Home extends CI_Controller {
 
 			}else{
 				// phpinfo();
-				$this->load->view('login');
+				if ($this->agent->is_mobile()) {
+					$this->load->view('mobile/login');
+				} else {
+					$this->load->view('login');
+				}
 			}
 
 		}
