@@ -27,7 +27,7 @@ class Home extends CI_Controller {
 			}else{
 				// phpinfo();
 				if ($this->agent->is_mobile()) {
-					$this->load->view('mobile/login');
+					$this->load->view('mobile/login_mobile');
 				} else {
 					$this->load->view('login');
 				}

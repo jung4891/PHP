@@ -522,10 +522,10 @@ console.log('===========================================================  object
 
 // 객체
 // 기존 변수에는 값(value)들을 하나만 넣을 수 있었지만 객체에는 여러개(key: value -> 프로퍼티)를 넣을 수 있다.
-// 객체의 프로퍼티에는 어떠한 자료형이든 넣을 수 있다.
+// 객체의 프로퍼티에는 어떠한 자료형이든 넣을 수 있다. 만능 바구니 느낌?
 // 자바스크립트의 모든 것이 다 객체다. 거의 모든 문법에 녹아있다.
 // 객체 역시 값이므로 객체를 사용하기 위해선 변수에 넣어서 사용한다.
-// 객체안에 객체를 넣울 수도 있다.
+// 객체안에 객체를 넣을 수도 있다.
 
 // brandName을 key(값이름) 혹은 property name, '코드잇'을 value 혹은 property value라 한다.
 // brandName: '코드잇'처럼 key: value 한쌍을 속성(Property)이라 한다.
@@ -590,6 +590,8 @@ if('isVeryNice' in code_it) {
 console.log('');
 
 
+console.log('===========================================================  object_method ');
+
 // 객체와 메소드
 // 연관된 여러값들을 하나로 묶고 싶을때 객체를 활용한 것처럼
 // 연관성 있는 여러 함수들을 하나로 묶고 싶을때도 객체를 사용하면 됨.
@@ -620,7 +622,7 @@ console['log']('이렇게도 되는군.');
 function sayHi() {
   console.log('객체 밖의 함수와 객체 안의 메소드와 이름이 중복되도?');
 }
-sayHi();  // 되는군.!
+sayHi();  // 되는군.! 결국 메소드는 객체 안에서만 유효하군
 
 
 // 객체에 메소드를 넣으면 이름 중복도 허용되서 객체만의 고유한 동작들을 정의할 수 있다.
@@ -644,14 +646,63 @@ console.log(area + '.');    // 25.
 console.log(rectAngle);
 
 
+console.log('===========================================================  object_for..in ');
+
+// for...in 반복문
+// 객체의 property name을 가져오는 반복문으로 일반 for문으로는 객체 프로퍼티에 접근할 수 없다.
+// 객체의 property name이 변수로 들어가 프로퍼티 갯수만큼 동작하게 된다
+//  for (변수 in 객체) {
+//   동작
+//  }
+
+for(let key in code_it) {
+  console.log(key);           // key 출력됨 (property name)
+  console.log(code_it[key]);  // value 출력됨 (perperty value)
+}
 
 
+// 프로퍼티 네임 정렬 주의할점!
+// 정수형 프로퍼티 네임을 오름차순으로 정렬하고 나머지 프로퍼티들은 추가한 순서대로 정렬됨!!!
+// 그러므로 일반적으로는 정수형 프로퍼티는 잘 사용되지 않는다.
+//  + 숫자형(양수)사용시 문자열로 형변환되고 value 접근시 대괄호표기법만 사용가능함
+
+let myObject = {
+  10: 10,
+  1: '일',
+  // -1: '빼기일',   // 음수형은 사용할 수 없음
+  '2': '문자2',
+  'test1': '테스트1',
+  1.1: '일점일',
+  '테스트2': '테스트22'
+}
+console.log(myObject);         // {1: '일', 2: '문자2', 10: 10, test1: '테스트1', 1.1: '일점일', 테스트2: '테스트22'}
+// console.log(myObject.10);   // 문자열처럼 점표기법 안됨
+console.log(myObject[10]);     // 10
+console.log(myObject['1']);    // 일
+
+for(let key in myObject) {
+  console.log(key + ' ' + typeof key);                        // 1 string   2 string     10 string   1.1 string
+  console.log(myObject[key] + ' ' + typeof myObject[key]);    // 일 string  문자2 string  10 number  1.1 string
+}
 
 
+console.log('===========================================================  object_Date ');
 
+// 내장 객체 (Standard built-in objects)
+// console처럼 자바스크립트가 미리 가지고 있는 객체
+// '자바스크립트의 모든 것이 다 객체다!' 그래서 다양한 기능을 가진 객체들이 있다.
 
+// Date 객체
+// 자바스크립트에서 날짜는 모두 Date 객체로 다룬다!
 
-
+let myDate = new Date();  // Date객체를 생성한 순간의 시각 (즉 지금 이 순간의 시간을 표현하는 객체임)
+console.log(myDate);      // Tue Mar 22 2022 22:04:16 GMT+0900 (한국 표준시)
+myDate = new Date(1000);  // 70년 1월 1일 0시 0분 0초에서 1초(1000밀리초) 지난 순간의 date 객체 (milliseconds)
+console.log(myDate);      // Thu Jan 01 1970 09:00:01 GMT+0900 (한국 표준시)
+myDate = new Date('2022-03-22');  // 특정 날짜에 대한 date 객체를 생성할 때는 이렇게함 ('YYYY-MM-DD')
+console.log(myDate);              // Tue Mar 22 2022 09:00:00 GMT+0900 (한국 표준시)
+myDate = new Date('2022-03-22T22:18:59'); // ('YYYY-MM-DDThh:mm:ss')
+console.log(myDate);                      // Tue Mar 22 2022 22:18:59 GMT+0900 (한국 표준시)
 
 
 
