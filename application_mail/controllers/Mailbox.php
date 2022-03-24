@@ -26,6 +26,7 @@ class Mailbox extends CI_Controller {
       }
       $this->load->helper(array('url', 'download'));
       $this->load->library('pagination', 'email');
+      $this->load->library('user_agent');
       $this->load->Model('M_account');
 
       $encryp_password = $this->M_account->mbox_conf($_SESSION['userid']);
@@ -33,6 +34,7 @@ class Mailbox extends CI_Controller {
       $key = $this->db->password;
       $key = substr(hash('sha256', $key, true), 0, 32);
 			$decrypted = openssl_decrypt(base64_decode($encryp_password), 'aes-256-cbc', $key, 1, $iv);
+      // ip 변경시 -> mailbox, option, mbox_setting, side 모두 변경!
       // $this->mailserver = "192.168.0.100";
       $this->mailserver = "mail.durianit.co.kr";
       $this->user_id = $_SESSION["userid"];
@@ -662,7 +664,12 @@ class Mailbox extends CI_Controller {
     }
     // var_dump($mailno_arr);
     // exit;
-    $this->load->view('mailbox/mail_list_v', $data);
+    if ($this->agent->is_mobile()) {
+      $this->load->view('mobile/mail_list_v_mobile', $data);
+    } else {
+      $this->load->view('mailbox/mail_list_v', $data);
+    }
+
   } // function(mail_list)
 
   function get_senderip($uid, $mbox){

@@ -88,10 +88,6 @@ class Account extends CI_Controller {
 									echo "<script>location.href='".site_url()."/mailbox/mail_list'</script>";
 									// echo "<script>location.href='".site_url()."/mail/main'</script>";
 								}
-
-
-
-
 							}else{
 								echo "<script>alert('이메일 주소나 패스워드가 정확하지 않습니다.');history.go(-1);</script>";
 							}

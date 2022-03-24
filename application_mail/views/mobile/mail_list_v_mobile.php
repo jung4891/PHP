@@ -1,7 +1,7 @@
 <?php
 include $this->input->server('DOCUMENT_ROOT')."/include/base.php";
-include $this->input->server('DOCUMENT_ROOT')."/include/mail_header.php";
-include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
+// include $this->input->server('DOCUMENT_ROOT')."/include/mail_header.php";
+// include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
 
 // echo 'decode 전:'.$mbox.'<br>';
 // $mbox2 = str_replace(array('#', '&', ' '), array('%23', '%26', '+'), $mbox);   // 아래 함수로 대체함
@@ -14,6 +14,7 @@ $_SESSION['list_page_url_tmp'] = substr($request_url, strpos($request_url, '/', 
 // $_SERVER['REQUEST_URI'] -> /index.php/mailbox/mail_list?curpage=&searchbox=&boxname=INBOX
 
  ?>
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
  <!-- IE에서 input date 입력가능하게 설정 (jQuery에서 제공하는 datepicker 기능) -->
  <!-- jQuery에서 제공하는 css 와 js 파일 -->
@@ -147,7 +148,7 @@ $_SESSION['list_page_url_tmp'] = substr($request_url, strpos($request_url, '/', 
         </colgroup>
           <tr>
             <td>
-<input type="button" class="btn_basic btn_white" id="ip_checkBtn" name="" value="ip확인" onclick ="ip_check();">
+<input type="button" class="btn_basic btn_white" id="ip_checkBtn" name="" value="ip확인(개발중)" onclick ="ip_check();">
 
 
             </td>
