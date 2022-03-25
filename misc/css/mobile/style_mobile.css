@@ -1,0 +1,55 @@
+.btn_basic{
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  border:1px solid #B0B0B0;
+  border-radius: 5px;
+  height: 30px;
+  cursor: pointer;
+}
+
+.btn_blue{
+  border:none;
+  background-color: #0575E6;
+  color: #FFFFFF;
+}
+
+.btn_sky{
+  border:none;
+  background-color: #E7F3FF;
+  color: #1A8DFF;
+}
+
+.btn_white{
+  background-color: #FFFFFF;
+  color: #1C1C1C;
+}
+
+.btn_gray{
+  border:none;
+  background-color: #959595;
+  color: #FFFFFF;
+  /* font-weight: bold; */
+}
+
+.input_basic{
+  /* border:1px solid #B0B0B0; */
+  border: none;
+  height: 25px;
+  font-size: 14px;
+}
+
+.input_search{
+  border:1px solid #B6B6B6;
+  /* border-color: #B6B6B6; */
+  border-radius: 3px;
+}
+
+
+.select_basic{
+  height: 30px;
+  border-color: #B6B6B6;
+  border-radius: 3px;
+  /* color: #B0B0B0; */
+  vertical-align: middle;
+}

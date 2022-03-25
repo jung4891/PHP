@@ -1,7 +1,7 @@
 <?php
 include $this->input->server('DOCUMENT_ROOT')."/include/base.php";
-// include $this->input->server('DOCUMENT_ROOT')."/include/mail_header.php";
-// include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
+include $this->input->server('DOCUMENT_ROOT')."/include/mobile/mail_header_mobile.php";
+include $this->input->server('DOCUMENT_ROOT')."/include/mobile/mail_side_mobile.php";
 
 // echo 'decode 전:'.$mbox.'<br>';
 // $mbox2 = str_replace(array('#', '&', ' '), array('%23', '%26', '+'), $mbox);   // 아래 함수로 대체함
@@ -148,7 +148,7 @@ $_SESSION['list_page_url_tmp'] = substr($request_url, strpos($request_url, '/', 
         </colgroup>
           <tr>
             <td>
-<input type="button" class="btn_basic btn_white" id="ip_checkBtn" name="" value="ip확인(개발중)" onclick ="ip_check();">
+<input type="button" class="btn_basic btn_white" id="ip_checkBtn" name="" value="ip확인" onclick ="ip_check();">
 
 
             </td>
