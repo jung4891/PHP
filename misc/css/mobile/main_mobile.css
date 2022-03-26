@@ -37,8 +37,9 @@ a{
 }
 
 #mailLogo{
-  font-size: 25px;
+  font-size: 10px;
   font-weight: bolder;
+  color: blue;
   cursor: pointer;
 }
 

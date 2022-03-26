@@ -134,7 +134,20 @@
                     echo $mbox_decoded;
                   }
                 ?>
-                <?php var_dump($mailbox_tree); ?>
+              </span>
+
+              <!-- 읽지 않은 메일수 옆에 출력 -->
+              <span style="font-size: 25px; color: red">
+              <?php
+              if(isset($mbox)) {   // 메일쓰기 페이지에서 오류방지
+                $mbox_addslash = addslashes($mbox);
+                $key = array_search($mbox_addslash, array_column($mailbox_tree, "id"));
+                $unseen_cnt = $mailbox_tree[$key]["unseen"];
+                if($unseen_cnt !== 0)  echo '&nbsp'.$unseen_cnt;
+              }else {
+                echo '';
+              }
+               ?>
               </span>
 
           <?php if(isset($_SESSION['roles']) && $_SESSION['roles'] == 'admin') { ?>
