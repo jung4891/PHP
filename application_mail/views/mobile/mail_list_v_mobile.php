@@ -31,7 +31,7 @@ $_SESSION['list_page_url_tmp'] = substr($request_url, strpos($request_url, '/', 
   }
   .mlist_tbl td{
     height: 40px;
-    border-top: solid 1px #DFDFDF;
+    /* border-top: solid 1px #DFDFDF; */
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -246,14 +246,16 @@ $_SESSION['list_page_url_tmp'] = substr($request_url, strpos($request_url, '/', 
   <!-- <?php // echo $test_msg; ?> <br><br> -->
   <table class="mlist_tbl" border="0" cellspacing="0" cellpadding="0" style="table-layout: fixed;">
     <colgroup>
-      <col width="6%" >
-      <col width="3%" >
+      <col width="8%" >
+      <col width="70%">
+      <col width="15%" >
+      <!-- <col width="3%" >
       <col width="3%" >
       <col width="3%" >
       <col width="25%" >
       <col width="*" >
       <col width="10%" >
-      <col width="12%" >
+      <col width="12%" > -->
     </colgroup>
     <tbody>
 
@@ -277,25 +279,11 @@ $_SESSION['list_page_url_tmp'] = substr($request_url, strpos($request_url, '/', 
           <!-- 메일목록 출력 -->
           <!-- <td><?php // echo $head[$mailno_arr[$i]]->Unseen ?></td> -->
           <td name="msg_no_td" style="display:none;"><?php echo $msg_no?></td>
-          <td name="ipcountry_td" style="text-align:center;"></td>
+          <!-- <td name="ipcountry_td" style="text-align:center;"></td> -->
           <td onclick="event.cancelBubble=true">
             <input type="checkbox" name="chk" value=<?php echo $msg_no;?>>
           </td>
-          <td onclick="event.cancelBubble=true">
-            <a href="javascript:void(0);" onclick="starClick(this); " >
-              <?php if($mail_list_info[$i]['flagged'] == "F") {?>
-                <img class="fullStar" src="/misc/img/icon/star2.png" alt="" width="15px">
-              <?php   }else {?>
-                <img class="emptyStar" src="/misc/img/icon/star1.png" alt="" width="15px">
-              <?php   } ?>
-            </a>
-          </td>
-          <td>
-            <!-- 첨부파일 유무 파악 -->
-            <?php if($mail_list_info[$i]['attached']) { ?>
-            <img src="/misc/img/icon/attachment.png" alt="ss">
-            <?php }?>
-          </td>
+
           <?php
           // get방식으로 데이터를 직접 url에 적으면 &가 데이터 구별기호로 인식되서 바꿔줘야함
           // (위에서 아싸리 바꿔줌 함수 사용해서.)
@@ -305,7 +293,7 @@ $_SESSION['list_page_url_tmp'] = substr($request_url, strpos($request_url, '/', 
           $unseen = ($mail_list_info[$i]['unseen'] == "U")? "unseen":"seen";
           ?>
           <td>
-            <a class= <?php echo $unseen ?> href="javascript:void(0);" onclick="event.cancelBubble=true;send_context(this);">
+            <a class= <?php echo $unseen ?> href="javascript:void(0);" onclick="event.cancelBubble=true;send_context(this);" style="font-weight: bold">
               <?php
               $from_name = $mail_list_info[$i]['from']['from_name'];
               $to_name = $mail_list_info[$i]['to']['to_name'];
@@ -331,14 +319,31 @@ $_SESSION['list_page_url_tmp'] = substr($request_url, strpos($request_url, '/', 
               ?>
             </span>
           </td>
-          <td style="text-overflow:ellipsis; overflow:hidden; white-space:nowrap;">
+          <td style="color: darkgray; font-weight: 400; font-size: 10px;" align="center"><?php echo $mail_list_info[$i]['date'];?></td>
+          <!-- <td><?php echo $mail_list_info[$i]['size'] ?></td> -->
+        </tr>
+        <tr>
+          <td></td>
+          <td style="text-overflow:ellipsis; overflow:hidden; white-space:nowrap; font-size: 10px">
             <span id="<?php echo $msg_no.'_span' ?>" ></span>
             <a class=<?php echo $unseen ?> href="javascript:void(0)" title="<?php echo $mail_list_info[$i]['subject']?>">
               <?php echo $mail_list_info[$i]['subject']?>
             </a>
           </td>
-          <td style="color: darkgray; font-weight: 400;"><?php echo $mail_list_info[$i]['date'];?></td>
-          <td><?php echo $mail_list_info[$i]['size'] ?></td>
+          <td>
+            <!-- 첨부파일 유무 파악 -->
+            <?php if($mail_list_info[$i]['attached']) { ?>
+            <img src="/misc/img/icon/attachment.png" alt="ss">
+            <?php }?>
+
+            <a href="javascript:void(0);" onclick="starClick(this); " >
+              <?php if($mail_list_info[$i]['flagged'] == "F") {?>
+                <img class="fullStar" src="/misc/img/icon/star2.png" alt="" width="15px">
+              <?php   }else {?>
+                <img class="emptyStar" src="/misc/img/icon/star1.png" alt="" width="15px">
+              <?php   } ?>
+            </a>
+          </td>
         </tr>
         <?php
         }
