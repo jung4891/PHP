@@ -206,6 +206,7 @@ console.log('5' - true);        // 4
 // +에선 숫자 + 숫자문자열의 경우 숫자계산이 아닌 문자열연산이 우선시되고
 // 나머지는 Number로 자동형변환 되어 계산된다.
 console.log(4 + '1');     // '41'
+console.log(4 - '2');     // 2
 console.log(4 + true);    // 5
 console.log(4 / '2');     // 2
 console.log(5 % '3');     // 2
@@ -692,6 +693,11 @@ console.log('===========================================================  object
 // Date 객체
 // 자바스크립트에서 날짜는 모두 Date 객체로 다룬다!
 // Date는 생성자 함수이지만 Date로 만들어진 값은 객체다.
+// new Date()는 객체로 다양한 함수들을 사용할 수 있다. Date()는 그냥 함수 (근데 실제로 써먹어봐야 제대로 차이 제대로 알듯)
+console.log(typeof Date());       // string
+console.log(Date());              // Mon Mar 28 2022 16:16:45 GMT+0900 (한국 표준시)
+console.log(typeof new Date());   // object
+console.log(new Date());          // Mon Mar 28 2022 16:16:45 GMT+0900 (한국 표준시)
 
 // 시간 넣기 (문자열 방식)
 let myDate = new Date();  // Date객체를 생성한 순간의 시각 (즉 지금 이 순간의 시간을 표현하는 객체임)
@@ -702,6 +708,9 @@ myDate = new Date('2022-03-22');  // 특정 날짜에 대한 date 객체를 생�
 console.log(myDate);              // Tue Mar 22 2022 09:00:00 GMT+0900 (한국 표준시)
 myDate = new Date('2022-03-22T22:18:59'); // ('YYYY-MM-DDThh:mm:ss')
 console.log(myDate);                      // Tue Mar 22 2022 22:18:59 GMT+0900 (한국 표준시)
+myDate = new Date('3/28/2022 16:11:00');  // + ('Dec 15 1999 05:25:30'); ('December 15, 1999 05:25:30');
+console.log(myDate);                      // Mon Mar 28 2022 16:11:00 GMT+0900 (한국 표준시)
+console.log('');
 
 // 시간 넣기 (여러 파라미터를 활용)
 //   new Date(YYYY, MM, DD, hh, mm, ss, ms);
@@ -773,6 +782,16 @@ console.log(new Date());  // Sat Mar 26 2022 18:37:12 GMT+0900 (한국 표준시
 now.setTime(new Date().getTime());
 console.log(now);         // Sat Mar 26 2022 18:38:02 GMT+0900 (한국 표준시)
 
+// Date객체의 형변환
+myDate = new Date(2022, 3, 28);
+console.log(typeof myDate);   // object
+console.log(myDate);          // Thu Apr 28 2022 00:00:00 GMT+0900 (한국 표준시)
+console.log(String(myDate));  // 동일(타입은 문자열)
+console.log(Boolean(myDate)); // true
+console.log(Number(myDate) === myDate.getTime());   // true (즉, 숫자형 형변환시 timestamp값이 됨)
+let myDate1 = new Date(2022, 3, 29);
+timeDiff = myDate1 - myDate;    // 그러므로 Date객체끼리도 바로 사칙연산이 가능해짐
+console.log(timeDiff / 1000 / 60 / 60 / 24 + '일');  // 1일
 
 
 

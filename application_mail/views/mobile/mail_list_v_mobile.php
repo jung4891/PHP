@@ -1,7 +1,7 @@
 <?php
 include $this->input->server('DOCUMENT_ROOT')."/include/base.php";
 include $this->input->server('DOCUMENT_ROOT')."/include/mobile/mail_header_mobile.php";
-include $this->input->server('DOCUMENT_ROOT')."/include/mobile/mail_side_mobile.php";
+// include $this->input->server('DOCUMENT_ROOT')."/include/mobile/mail_side_mobile.php";
 
 // echo 'decode 전:'.$mbox.'<br>';
 // $mbox2 = str_replace(array('#', '&', ' '), array('%23', '%26', '+'), $mbox);   // 아래 함수로 대체함
@@ -132,7 +132,7 @@ $_SESSION['list_page_url_tmp'] = substr($request_url, strpos($request_url, '/', 
   }
  </style>
 
-<div id="main_contents" align="center">
+<div id="main_contents" align="center" style="margin: 0px 0px 80px 0px;">
   <div class="main_div">
   <form name="mform" action="" method="post">
       <table style="width:90%; padding-bottom:10px; " border="0" cellspacing="0" cellpadding="0">
@@ -147,13 +147,11 @@ $_SESSION['list_page_url_tmp'] = substr($request_url, strpos($request_url, '/', 
           <col width="12%" >
         </colgroup>
           <tr>
-            <td>
-<input type="button" class="btn_basic btn_white" id="ip_checkBtn" name="" value="ip확인" onclick ="ip_check();">
-
-
-            </td>
-            <td><input type="checkbox" id="total" onClick="check_all(this);"></td>
-            <td colspan="3">
+            <!-- <td>
+              <input type="button" class="btn_basic btn_white" id="ip_checkBtn" name="" value="ip확인" onclick ="ip_check();">
+            </td> -->
+            <!-- <td><input type="checkbox" id="total" onClick="check_all(this);"></td> -->
+            <!-- <td colspan="3">
             <?php if($mbox == "&ycDGtA- &07jJwNVo-") {  // 휴지통 ?>
             <button type="button" class="top_button" onclick="del_ever();" disabled="disabled"
                     style="width: 70px; height: 29px; border-radius: 3px; font-weight: bold">영구삭제</button>
@@ -174,8 +172,8 @@ $_SESSION['list_page_url_tmp'] = substr($request_url, strpos($request_url, '/', 
                 }
               ?>
             </select>
-            </td>
-            <td>
+            </td> -->
+            <td colspan="7">
               <div style="display: inline-block; width: 190px; height: 27px; border-radius: 5px; border: solid 1px lightgray;">
                 <input type="text" id="search" style="outline: none; margin: 3px; margin-left: 6px; width: 79%; height: 20px; border: none; color: #0575E6; font-size: 16px; font-weight: bold" >
                 <a href="javascript:void(0)" onclick="search_mail(this);">
@@ -193,15 +191,15 @@ $_SESSION['list_page_url_tmp'] = substr($request_url, strpos($request_url, '/', 
                 </a>
               </div>
             </td>
-            <td></td>
-            <td>
+            <!-- <td></td> -->
+            <!-- <td>
             <select id="show_cnt" class="input" onchange="mails_cnt(this);" style="background-color: rgb(220,220,220); width: 85px; height: 28px; border-radius: 5px; font-weight: bold; color: gray; font-size: 12px; cursor: pointer; float:right;"  >
               <option value="" style="text-align: center">보기설정</option>
               <option value="10">10개</option>
               <option value="20">20개</option>
               <option value="30">30개</option>
             </select>
-            </td>
+            </td> -->
           </tr>
           <tr>
             <td colspan="5"></td>

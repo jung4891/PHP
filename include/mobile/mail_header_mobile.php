@@ -115,12 +115,12 @@
   ?>
 
   <body>
-      <div id="header">
+      <div id="header" style="border-bottom: none">
           <!-- <div id="headMenu" style="width:75px;height:75px;text-align:center;cursor:pointer;">
             <span><img src="/misc/img/icon/list.svg" style="width:38px;height:38px;margin-top:18px;"></span>
           </div> -->
           <div id="headLogo" style="cursor:pointer;">
-              <span id="mailLogo">
+              <span id="mailLogo" style="font-size: 20px; color: black">
                 <?php
                   // 메일함명 상단출력
                   $mbox_decoded = mb_convert_encoding($mbox, 'UTF-8', 'UTF7-IMAP');
@@ -137,7 +137,7 @@
               </span>
 
               <!-- 읽지 않은 메일수 옆에 출력 -->
-              <span style="font-size: 25px; color: red">
+              <span style="font-size: 20px; color: red">
               <?php
               if(isset($mbox)) {   // 메일쓰기 페이지에서 오류방지
                 $mbox_addslash = addslashes($mbox);
@@ -157,17 +157,13 @@
           <?php } ?>
           </div>
           <div id="headBtn">
-                <span onclick="myinfo();" style="margin-right:30px;font-weight:bold;cursor:pointer;">
-
+                <!-- <span onclick="myinfo();" style="margin-right:30px;font-weight:bold;cursor:pointer;">
                   <?php if($_SESSION['roles'] == 'admin') { ?>
                         <?php echo $_SESSION['userid']; ?>
                   <?php } else { ?>
                       <?php echo $_SESSION['name']; ?>님 안녕하세요.
                   <?php } ?>
-
-
-
-                </span>
+                </span> -->
             <!-- <button type="button" class="btn_basic btn_gray" id="logoutBtn" name="button">로그아웃</button> -->
             <input type="button" class="btn_basic btn_gray" id="logoutBtn" name="button" style="margin-right:30px;width:90px;height:35px;" value="로그아웃">
           </div>
