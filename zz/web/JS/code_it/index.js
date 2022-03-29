@@ -559,7 +559,7 @@ console.log(code_it.bestCourse.title);  // 자바스크립트 프로그래밍 �
 console.log(code_it.noProperty);        // undefined (애러나지 않음)
 
 // 2) 대괄효 표기범(objectName['propertyName']) : key의 작명규칙을 벗어난 경우에 사용
-// console.log(code_it[brandName]);         // 대괄호 사용시 내부는 String!!
+// console.log(code_it[brandName]);         // 대괄호 사용시 내부는 String 사용해야함!!!!
 console.log(code_it['born Year']);       // 2017
 console.log(code_it['born' + ' Year']);  // 2017
 let propertyName = 'born Year';
@@ -793,6 +793,80 @@ let myDate1 = new Date(2022, 3, 29);
 timeDiff = myDate1 - myDate;    // 그러므로 Date객체끼리도 바로 사칙연산이 가능해짐
 console.log(timeDiff / 1000 / 60 / 60 / 24 + '일');  // 1일
 
+
+
+console.log('===========================================================  Array ');
+
+// 배열 (Array)
+// - 프로퍼티 네임을 순서로만 혹은 그저 값들을 묶을때는 배열을 사용하는게 효율적.
+// - index : 요소별로 각 순서를 나타내주는 숫자. (== propertyName)
+// - 배열에서 반복문은 일반적인 for문을 사용하는게 좋다.
+//   for...in 반복문은 배열보다는 객체에 적합하게 설계된 반복문이라 배열에 쓸 경우 효율성도 떨어집니다. 
+/*
+  기존 객체는 이렇게 선언하지만
+  let object = {
+    course1: '자바스크립트 프로그래밍 기초',
+    course2: 'Git으로 배우는 버전 관리',
+    course3: '컴퓨터 개론',
+    course4: '파이썬 프로그래밍 기초'
+  }
+*/
+// 객체는 대괄호와 ,만으로 표현한다
+let courseArray = [
+  '자바스크립트 프로그래밍 기초', // 배열안의 각 값들은 요소(element)라 부른다
+  'Git으로 배우는 버전 관리',
+  '컴퓨터 개론',
+  '파이썬 프로그래밍 기초'
+];
+let menus = ['짜장', '짬뽕', '탕수육'];
+
+// indexing : 인덱스를 통해 요소에 접근하는 것
+console.log(courseArray[0]);
+console.log(courseArray[1 + 1]);    // 컴퓨터 개론
+
+// 배열도 객체의 한 종류다.
+console.log(typeof menus);    // object
+let date = new Date();
+// date. 을 하면 다양한 메소드들이 나오듯이
+// menus. 을 해도 배열 역시 객체이기에 다양한 프로퍼티(p)와 메소드(f)들을 확인할 수 있다.
+console.log(menus);
+/*
+ (3) ['짜장', '짬뽕', '탕수육']
+    0: "짜장"
+    1: "짬뽕"
+    2: "탕수육"
+    length: 3
+*/
+
+// 배열 다루기
+console.log(menus.length);              // 배열의 요소 갯수 출력
+console.log(menus['length']);           // 프로퍼티이기에 대괄호 표기법으로도 접근가능하다.
+console.log(menus[menus.length - 1]);   // 탕수육 (배열의 마지막 요소에 접근)
+console.log(menus[3]);  // undefined
+menus[3] = "만두";      // 요소 추가 혹은 수정
+console.log(menus[3]);  // 만두
+menus[5] = "깐풍기";     // index를 건너뛴뒤 값을 추가하면 그 사이에 empty값이 들어간 요소로 생성되어 length도 +1.
+console.log(menus);
+/*
+(6) ['짜장', '짬뽕', '탕수육', '만두', empty, '깐풍기']
+  0: "짜장"
+  1: "짬뽕"
+  2: "탕수육"
+  3: "만두"
+  5: "깐풍기"
+  length: 6
+*/
+console.log(menus[4]);    // undefined
+delete menus[0];          // 요소가 완전삭제되진 않고 length는 유지된채 empty로 남아있다.
+console.log(menus);
+/*
+(6) [empty, '짬뽕', '탕수육', '만두', empty, '깐풍기']
+  1: "짬뽕"
+  2: "탕수육"
+  3: "만두"
+  5: "깐풍기"
+  length: 6
+*/
 
 
 
