@@ -1,7 +1,7 @@
 <?php
 include $this->input->server('DOCUMENT_ROOT')."/include/base.php";
 include $this->input->server('DOCUMENT_ROOT')."/include/mail_header.php";
-include $this->input->server('DOCUMENT_ROOT')."/include/test_mail_side.php";
+include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
 
 $mbox_urlencode = urlencode($mbox);
 
@@ -78,12 +78,6 @@ $reply_cc_input = address_text($mail_info["cc"]);
      <button type="button" class="btn_basic btn_blue" name="button" id="submit_button" enctype="multipart/form-data" style="width:80px" onclick="reply_mail(1)">회신</button>
      <button type="button" class="btn_basic btn_white" name="" style="width:80px" onclick="reply_mail(2)">전체회신</button>
      <button type="button" class="btn_basic btn_white" style="width:80px" onclick="reply_mail(3)">전달</button>
-     &nbsp;&nbsp;
-     <?php if($mbox == "&ycDGtA- &07jJwNVo-") {  ?>
-       <button type="button" class="btn_basic btn_white" style="width:80px" onclick="del_ever()">영구삭제</button>
-     <?php }else { ?>
-       <button type="button" class="btn_basic btn_white" style="width:80px" onclick="del_trash()">삭제</button>
-     <?php } ?>
      <hr style="width:110%; border: 1px solid #dedede; margin: 15px 0px 0px -20px">
    </div>
 
@@ -185,41 +179,6 @@ $reply_cc_input = address_text($mail_info["cc"]);
 
 <script type="text/javascript">
 
-function del_trash(){
-  let arr = [];
-  arr.push(`<?php echo $mailno ?>`);
-
-  $.ajax({
-    url : "<?php echo site_url(); ?>/mailbox/mail_move",
-    type : "post",
-    data : {mbox: `<?php echo $mbox ?>`, to_box: '&ycDGtA- &07jJwNVo-', mail_arr: arr},
-    success : function(data){
-      go_list();
-    },
-    // complete : function() {
-    //   location.reload();
-    // }
-  });
-}
-
-function del_ever() {
-    if (confirm("정말 삭제하시겠습니까??") == true) {
-      let arr = [];
-      arr.push(`<?php echo $mailno ?>`);
-
-      $.ajax({
-        url : "<?php echo site_url(); ?>/mailbox/mail_delete",
-        type : "post",
-        data : {mbox: `<?php echo $mbox ?>`, mail_arr: arr},
-        success : function(data){
-          go_list();
-        }
-      });
-    } else {
-      return;
-    }
-}
-
 // 목록으로 이동
 function go_list(mailno) {
 
@@ -259,7 +218,7 @@ function go_list(mailno) {
     // 첨부/대표검색인 경우
     if(mailno.length > 10) {
       $.ajax({
-        url : "<?php echo site_url(); ?>/testmailbox/get_next_no_name",
+        url : "<?php echo site_url(); ?>/mailbox/get_next_no_name",
         type : "post",
         data : {mbox: `<?php echo $mbox_urlencode ?>`, mail_name: mailno, way: 'up'},
         success : function(res){
@@ -269,7 +228,7 @@ function go_list(mailno) {
             var next_arr = res.split(' ');
             var next_no = next_arr[1];
             var mail_name = next_arr[0];
-            location.href = "<?php echo site_url(); ?>/testmailbox/mail_detail?boxname=<?php echo $mbox_urlencode ?>&mailno="+next_no+"&mailname="+mail_name;
+            location.href = "<?php echo site_url(); ?>/mailbox/mail_detail?boxname=<?php echo $mbox_urlencode ?>&mailno="+next_no+"&mailname="+mail_name;
           }
         },
         error : function(request, status, error){
@@ -279,14 +238,14 @@ function go_list(mailno) {
     // 그외 일반적인 경우
     }else {
       $.ajax({
-        url : "<?php echo site_url(); ?>/testmailbox/get_next_mailno",
+        url : "<?php echo site_url(); ?>/mailbox/get_next_mailno",
         type : "post",
         data : {mbox: `<?php echo $mbox_urlencode ?>`, mail_no: mailno, way: 'up'},
         success : function(next_no){
           if(next_no == "x") {
             alert("메일함의 첫번째 메일입니다.");
           }else {
-            location.href = "<?php echo site_url(); ?>/testmailbox/mail_detail?boxname=<?php echo $mbox_urlencode ?>&mailno="+next_no;
+            location.href = "<?php echo site_url(); ?>/mailbox/mail_detail?boxname=<?php echo $mbox_urlencode ?>&mailno="+next_no;
           }
         },
         error : function(request, status, error){
@@ -301,7 +260,7 @@ function go_list(mailno) {
     // 첨부/대표검색인 경우
     if(mailno.length > 10) {
       $.ajax({
-        url : "<?php echo site_url(); ?>/testmailbox/get_next_no_name",
+        url : "<?php echo site_url(); ?>/mailbox/get_next_no_name",
         type : "post",
         data : {mbox: `<?php echo $mbox_urlencode ?>`, mail_name: mailno, way: 'down'},
         success : function(res){
@@ -311,7 +270,7 @@ function go_list(mailno) {
             var next_arr = res.split(' ');
             var next_no = next_arr[1];
             var mail_name = next_arr[0];
-            location.href = "<?php echo site_url(); ?>/testmailbox/mail_detail?boxname=<?php echo $mbox_urlencode ?>&mailno="+next_no+"&mailname="+mail_name;
+            location.href = "<?php echo site_url(); ?>/mailbox/mail_detail?boxname=<?php echo $mbox_urlencode ?>&mailno="+next_no+"&mailname="+mail_name;
           }
         },
         error : function(request, status, error){
@@ -321,14 +280,14 @@ function go_list(mailno) {
     // 그외 일반적인 경우
     }else {
       $.ajax({
-        url : "<?php echo site_url(); ?>/testmailbox/get_next_mailno",
+        url : "<?php echo site_url(); ?>/mailbox/get_next_mailno",
         type : "post",
         data : {mbox: `<?php echo $mbox_urlencode ?>`, mail_no: mailno, way: 'down'},
         success : function(next_no){
           if(next_no == "x") {
             alert("메일함의 마지막 메일입니다.");
           }else {
-            location.href = "<?php echo site_url(); ?>/testmailbox/mail_detail?boxname=<?php echo $mbox_urlencode ?>&mailno="+next_no;
+            location.href = "<?php echo site_url(); ?>/mailbox/mail_detail?boxname=<?php echo $mbox_urlencode ?>&mailno="+next_no;
           }
         },
         error : function(request, status, error){

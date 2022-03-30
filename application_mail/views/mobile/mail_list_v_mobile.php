@@ -30,7 +30,7 @@ $_SESSION['list_page_url_tmp'] = substr($request_url, strpos($request_url, '/', 
     table-layout: fixed;
   }
   .mlist_tbl td{
-    height: 40px;
+    height: 30px;
     /* border-top: solid 1px #DFDFDF; */
     overflow: hidden;
     text-overflow: ellipsis;
@@ -244,7 +244,7 @@ $_SESSION['list_page_url_tmp'] = substr($request_url, strpos($request_url, '/', 
   </form>
 
   <!-- <?php // echo $test_msg; ?> <br><br> -->
-  <table class="mlist_tbl" border="0" cellspacing="0" cellpadding="0" style="table-layout: fixed;">
+  <table class="mlist_tbl" border="0" cellspacing="0" cellpadding="0" style="table-layout: fixed;" >
     <colgroup>
       <col width="8%" >
       <col width="70%">
@@ -293,19 +293,21 @@ $_SESSION['list_page_url_tmp'] = substr($request_url, strpos($request_url, '/', 
           $unseen = ($mail_list_info[$i]['unseen'] == "U")? "unseen":"seen";
           ?>
           <td>
-            <a class= <?php echo $unseen ?> href="javascript:void(0);" onclick="event.cancelBubble=true;send_context(this);" style="font-weight: bold">
-              <?php
-              $from_name = $mail_list_info[$i]['from']['from_name'];
-              $to_name = $mail_list_info[$i]['to']['to_name'];
-              // 보낸메일함은 받는사람 표기
-              if(strpos($mbox, '&vPSwuA- &07jJwNVo-') === 0) {
-                echo (isset($to_name))? $to_name : '(이름 없음)' ;
-              // 그외 메일함은 보낸사람 표기
-              }else {
-                echo (isset($from_name))? $from_name : '(이름 없음)' ;
-              }
-              ?>
-            </a>
+            <div style="position:relative; top:-3px">
+              <a class= <?php echo $unseen ?> href="javascript:void(0);" onclick="event.cancelBubble=true;send_context(this);" style="font-weight: bold">
+                <?php
+                $from_name = $mail_list_info[$i]['from']['from_name'];
+                $to_name = $mail_list_info[$i]['to']['to_name'];
+                // 보낸메일함은 받는사람 표기
+                if(strpos($mbox, '&vPSwuA- &07jJwNVo-') === 0) {
+                  echo (isset($to_name))? $to_name : '(이름 없음)' ;
+                // 그외 메일함은 보낸사람 표기
+                }else {
+                  echo (isset($from_name))? $from_name : '(이름 없음)' ;
+                }
+                ?>
+              </a>
+          </div>
             <span style="display: none">
               <?php
               $from_name_full = $mail_list_info[$i]['from']['from_name_full'];
@@ -319,30 +321,44 @@ $_SESSION['list_page_url_tmp'] = substr($request_url, strpos($request_url, '/', 
               ?>
             </span>
           </td>
-          <td style="color: darkgray; font-weight: 400; font-size: 10px;" align="center"><?php echo $mail_list_info[$i]['date'];?></td>
+          <td style="color: darkgray; font-weight: 400; font-size: 10px;" align="center">
+            <?php echo $mail_list_info[$i]['date'];?>
+          </td>
           <!-- <td><?php echo $mail_list_info[$i]['size'] ?></td> -->
         </tr>
         <tr>
           <td></td>
-          <td style="text-overflow:ellipsis; overflow:hidden; white-space:nowrap; font-size: 10px">
-            <span id="<?php echo $msg_no.'_span' ?>" ></span>
-            <a class=<?php echo $unseen ?> href="javascript:void(0)" title="<?php echo $mail_list_info[$i]['subject']?>">
-              <?php echo $mail_list_info[$i]['subject']?>
-            </a>
+          <td style="text-overflow:ellipsis; overflow:hidden; white-space:nowrap; font-size: 12px;">
+            <div style="position:relative; top:-7px">
+              <span id="<?php echo $msg_no.'_span' ?>" ></span>
+              <a class=<?php echo $unseen ?> href="javascript:void(0)" title="<?php echo $mail_list_info[$i]['subject']?>">
+                <?php
+                  $subject = $mail_list_info[$i]['subject'];
+                  if(strlen($subject) > 45) {
+                    $subject = substr($subject, 0, 45).'...';
+                  }
+                  echo $subject?>
+              </a>
+          </div>
           </td>
-          <td>
-            <!-- 첨부파일 유무 파악 -->
-            <?php if($mail_list_info[$i]['attached']) { ?>
-            <img src="/misc/img/icon/attachment.png" alt="ss">
-            <?php }?>
+          <td align="center">
+            <div style="position:initial; margin:-17px">
 
-            <a href="javascript:void(0);" onclick="starClick(this); " >
-              <?php if($mail_list_info[$i]['flagged'] == "F") {?>
-                <img class="fullStar" src="/misc/img/icon/star2.png" alt="" width="15px">
-              <?php   }else {?>
-                <img class="emptyStar" src="/misc/img/icon/star1.png" alt="" width="15px">
-              <?php   } ?>
-            </a>
+              <?php if($mail_list_info[$i]['attached']) { ?>
+                <img src="/misc/img/icon/첨부(본문)2.svg" alt="ss" width="20px">
+              <?php }else {?>
+                <img src="/misc/img/icon/첨부(본문).svg" alt="ss">
+              <?php } ?>
+
+              <a href="javascript:void(0);" onclick="starClick(this); " >
+                <?php if($mail_list_info[$i]['flagged'] == "F") {?>
+                  <img class="fullStar" src="/misc/img/icon/중요(본문)2.svg" alt="" width="20px">
+                <?php   }else {?>
+                  <img class="emptyStar" src="/misc/img/icon/중요(본문).svg" alt="" width="20px">
+                <?php   } ?>
+              </a>
+
+            </div>
           </td>
         </tr>
         <?php
@@ -560,7 +576,7 @@ $(".mlist_tbl tr").on("mousedown", function(){
    // 방금 전 읽었던 메일 표시처리하기
    var visited_no = '<?php echo isset($visited_no)? $visited_no : 0 ?>'+'_span';
    if(visited_no !== "") {
-     $("#"+visited_no).attr("id","visited");
+     // $("#"+visited_no).attr("id","visited");
    }
  })
 
