@@ -801,7 +801,7 @@ console.log('===========================================================  Array 
 // - 프로퍼티 네임을 순서로만 혹은 그저 값들을 묶을때는 배열을 사용하는게 효율적.
 // - index : 요소별로 각 순서를 나타내주는 숫자. (== propertyName)
 // - 배열에서 반복문은 일반적인 for문을 사용하는게 좋다.
-//   for...in 반복문은 배열보다는 객체에 적합하게 설계된 반복문이라 배열에 쓸 경우 효율성도 떨어집니다. 
+//   for...in 반복문은 배열보다는 객체에 적합하게 설계된 반복문이라 배열에 쓸 경우 효율성도 떨어집니다.
 /*
   기존 객체는 이렇게 선언하지만
   let object = {
@@ -868,12 +868,42 @@ console.log(menus);
   length: 6
 */
 
+// splice : 배열 요소를 삭제하느 메소드
+// splice(index) : index 포함 그 이후 싹다 삭제됨
+// splice(startIndex, deleteCount) : index 포함해서 개수만큼
+// splice(startIndex, deleteCount, item, item..) : 삭제후 그 위치에서 item 값 추가함 (추가/수정도 가능)
+menus.splice(4);
+console.log(menus);   // (4) [empty, '짬뽕', '탕수육', '만두']
+menus.splice(0, 1);
+console.log(menus);   // (3) ['짬뽕', '탕수육', '만두']                      -> 삭제 (첫번째 요소)
+menus.splice(1, 1, '깐풍기', '유린기');
+console.log(menus);   // (4) ['짬뽕', '깐풍기', '유린기', '만두']
+menus.splice(1, 0, '테스트1');
+console.log(menus);   // (5) ['짬뽕', '테스트1', '깐풍기', '유린기', '만두']  -> 추가
+menus.splice(1, 1, '테스트2');
+console.log(menus);   // (5) ['짬뽕', '테스트2', '깐풍기', '유린기', '만두']  -> 수정
+menus.splice(2, 2, '깐풍', '유린');
+console.log(menus);   // (5) ['짬뽕', '테스트2', '깐풍', '유린', '만두']      -> 여러개 수정
+menus.splice(menus.indexOf('테스트2'), 1);
+console.log(menus);   // (4) ['짬뽕', '깐풍', '유린', '만두']                -> 특정요소 찾아 삭제
+menus.splice(menus.length -1);
+console.log(menus);   // (3) ['짬뽕', '깐풍', '유린']                        -> 삭제 (마지막 요소)
 
-
-
-
-
-
+// # splice로 삭제 후 index 되돌리기 문제
+//  1) numbers 배열에 1, 2, 3, 5, 8, 9를 순서대로 추가하시오
+//  2) 요소들 중 홀수는 모두 삭제한후 numbers 배열을 출력하시오.
+//  -> 결과: [2, 8]
+{
+  let numbers = [];
+  numbers.splice(0, 0, 1, 2, 3, 5, 8, 9);
+  for (let i = 0; i < numbers.length; i++) {
+    if (numbers[i] % 2 !== 0) {
+      numbers.splice(i, 1);
+      i--;   // 요게 포인트!!
+    }
+  }
+  console.log(numbers);
+};
 
 
 

@@ -65,11 +65,18 @@
     <script type="text/javascript">
     $(function(){
       $("#modal").click(function(){
-        $(".modal").fadeIn();   // 모달창 서서히 보이게함
+        $(".modal").fadeIn();          // 모달창 서서히 보이게함
       });
-      // $(".modal_content").click(function(){   // 모달창 클릭시
-      //   $(".modal").fadeOut();  // 모달창 서서히 사라지게함
-      // });
+      $(".modal").click(function(e){
+        if($(e.target).is(".modal")) {   // 모달창 바깥부분 클릭시
+          $(".modal").fadeOut();         // 모달창 서서히 사라지게함
+        }
+        // 모달창 클릭시 e.target찍어보면 class명이 modal_content인 div로 한층 아래로 가게되어
+        // 위처럼 e.target에 .modal 선택자가 있는지 판별하여 있다면(true) 모달창 바깥부분에서 클릭시에만 모달창 사라짐.
+        // .modal -> 전체 흐릿해지는 부분
+        // .modal_content -> 모달창
+        // console.log(e.target);
+      });
     });
 
     $('#modal_form').click(function() {

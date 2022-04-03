@@ -185,12 +185,68 @@ $_SESSION['list_page_url_tmp'] = substr($request_url, strpos($request_url, '/', 
                 <img src="<?php echo $misc; ?>/img/icon/loading.svg" alt="loading..">
               </div>
 
-              <div style="display: inline-block; cursor: pointer; width: 60px; height: 27px; border-radius: 5px; position: relative; top: -1px; left: 5px; border: solid 1px lightgray; background-color: rgb(220,220,220); text-align: center">
+              <div style="display: inline-block; cursor: pointer; width: 60px; height: 27px; border-radius: 5px; position: relative; top: -1px; left: 5px; border: solid 1px lightgray; background-color: rgb(220,220,220); text-align: center; z-index: -1">
                 <a onclick="search_detail(this);" style="position: relative; top: 0px; font-weight: 400; color: gray; font-size: 14px">
                   상세 <img style="position: relative; top: 2px; left: 2px; width: 15px" src="<?php echo $misc; ?>/img/icon/아래.svg" alt="">
                 </a>
               </div>
             </td>
+
+
+            <td>
+              <!-- <button id="modal2">모달창</button> -->
+              <input type="button" id="modal" name="" value="모달">
+            </td>
+
+            <div class="modal">
+              <div class="modal_content" title="클릭하면 창이 닫힙니다.">
+                여기에 모달창 내용을 적어줍니다.<br> 이미지여도 좋고 글이어도 좋습니다.<br><br>
+                <form class="" action="#" method="post">
+                  <input type="text" name="name" value="">
+                  <button type="button" name="button" id="modal_form">전송</button>
+                </form>
+                <br>
+                <button type="button" name="button" id="modal_form_close"
+                  style="border-radius: 10px; background-color: lightgreen; border: none; width: 50px; height: 25px" >close</button>
+              </div>
+            </div>
+
+            <style media="screen">
+            .modal{ position:absolute; width:100%; height:100%; background: rgba(0,0,0,0.6); top:0; left:0;
+                    display:none; }
+            .modal_content{
+              width:300px; height:210px;
+              background:#fff; border-radius:10px;
+              position:relative; top:50%; left:50%;
+              margin-top:-100px; margin-left:-200px;
+              text-align:center;
+              box-sizing:border-box; padding:20px 0;
+              line-height:30px; cursor:pointer;
+              z-index: 1;
+            }
+            </style>
+
+            <script type="text/javascript">
+            $(function(){
+              $("#modal").click(function(){
+                $(".modal").fadeIn();          // 모달창 서서히 보이게함
+              });
+              $(".modal").click(function(e){
+                event.preventDefault();
+                if($(e.target).is(".modal")) {   // 모달창 바깥부분 클릭시
+                  $(".modal").fadeOut();         // 모달창 서서히 사라지게함
+                }
+              });
+            });
+
+            $('#modal_form_close').click(function() {
+              $(".modal").fadeOut();
+            })
+            // $('#modal_form').click(function() {
+            //   console.log(this.parentNode.childNodes[1].value);
+            // })
+            </script>
+
             <!-- <td></td> -->
             <!-- <td>
             <select id="show_cnt" class="input" onchange="mails_cnt(this);" style="background-color: rgb(220,220,220); width: 85px; height: 28px; border-radius: 5px; font-weight: bold; color: gray; font-size: 12px; cursor: pointer; float:right;"  >
@@ -201,6 +257,9 @@ $_SESSION['list_page_url_tmp'] = substr($request_url, strpos($request_url, '/', 
             </select>
             </td> -->
           </tr>
+
+
+
           <tr>
             <td colspan="5"></td>
             <td colspan="3">
