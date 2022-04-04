@@ -1323,7 +1323,14 @@ class Mailbox extends CI_Controller {
       // 'body'        => imap_fetchstructure($mails, $msg_no)
     );
     imap_close($mails);
-    $this->load->view('mailbox/mail_detail_v', $data);
+
+    if ($this->agent->is_mobile()) {
+      // echo '<script>alert("뭐야 도대체"); </script>';
+      // $this->load->view('mailbox/mail_detail_v', $data);
+      $this->load->view('mobile/mail_detail_v_mobile', $data);
+    } else {
+      $this->load->view('mailbox/mail_detail_v', $data);
+    }
   }
 
   // 메일함 이동 (휴지통으로 이동 포함)

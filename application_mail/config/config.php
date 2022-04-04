@@ -23,7 +23,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 | a PHP script and you can easily do that on your own.
 |
 */
-$config['base_url'] = 'http://192.168.25.25';
+$config['base_url'] = 'http://119.194.227.95';
 // $config['base_url'] = 'http://211.221.218.235';
 // $config['base_url'] = 'http://dev.mail.durianit.co.kr';
 $config['site_title'] = "Durian Mail";

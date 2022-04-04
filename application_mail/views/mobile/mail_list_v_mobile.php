@@ -195,19 +195,20 @@ $_SESSION['list_page_url_tmp'] = substr($request_url, strpos($request_url, '/', 
 
             <td>
               <!-- <button id="modal2">모달창</button> -->
-              <input type="button" id="modal" name="" value="모달">
+               <input type="button" id="modal" name="" value="test">
             </td>
 
             <div class="modal">
               <div class="modal_content" title="클릭하면 창이 닫힙니다.">
-                여기에 모달창 내용을 적어줍니다.<br> 이미지여도 좋고 글이어도 좋습니다.<br><br>
-                <form class="" action="#" method="post">
+                메일함 목록들
+                <!-- 여기에 모달창 내용을 적어줍니다.<br> 이미지여도 좋고 글이어도 좋습니다.<br><br> -->
+                <!-- <form class="" action="#" method="post">
                   <input type="text" name="name" value="">
                   <button type="button" name="button" id="modal_form">전송</button>
-                </form>
+                </form> -->
                 <br>
                 <button type="button" name="button" id="modal_form_close"
-                  style="border-radius: 10px; background-color: lightgreen; border: none; width: 50px; height: 25px" >close</button>
+                  style="border-radius: 10px; background-color: gray; border: none; width: 50px; height: 25px" >닫기</button>
               </div>
             </div>
 
@@ -333,7 +334,7 @@ $_SESSION['list_page_url_tmp'] = substr($request_url, strpos($request_url, '/', 
           $mail_name = $mail_list_info[$i]['mail_name'];
       ?>
 
-        <tr data-msgno="<?php echo $msg_no; ?>" onclick="detail_mailview(<?php echo $msg_no?>, '<?php echo $mail_name ?>');">
+        <tr data-msgno="<?php echo $msg_no; ?>">
 
           <!-- 메일목록 출력 -->
           <!-- <td><?php // echo $head[$mailno_arr[$i]]->Unseen ?></td> -->
@@ -387,7 +388,7 @@ $_SESSION['list_page_url_tmp'] = substr($request_url, strpos($request_url, '/', 
         </tr>
         <tr>
           <td></td>
-          <td style="text-overflow:ellipsis; overflow:hidden; white-space:nowrap; font-size: 12px;">
+          <td style="text-overflow:ellipsis; overflow:hidden; white-space:nowrap; font-size: 12px;"  onclick="detail_mailview(<?php echo $msg_no?>, '<?php echo $mail_name ?>');">
             <div style="position:relative; top:-7px">
               <span id="<?php echo $msg_no.'_span' ?>" ></span>
               <a class=<?php echo $unseen ?> href="javascript:void(0)" title="<?php echo $mail_list_info[$i]['subject']?>">
