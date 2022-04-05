@@ -26,8 +26,8 @@
   $key = $this->db->password;
   $key = substr(hash('sha256', $key, true), 0, 32);
   $decrypted = openssl_decrypt(base64_decode($encryp_password), 'aes-256-cbc', $key, 1, $iv);
-  // $mailserver = "192.168.0.100";
-  $mailserver = "mail.durianit.co.kr";
+  $mailserver = "192.168.0.100";
+  // $mailserver = "mail.durianit.co.kr";
   $user_id = $_SESSION["userid"];
   $user_pwd = $decrypted;
   $default_folder = array(

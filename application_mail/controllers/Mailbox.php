@@ -34,7 +34,8 @@ class Mailbox extends CI_Controller {
       $key = $this->db->password;
       $key = substr(hash('sha256', $key, true), 0, 32);
 			$decrypted = openssl_decrypt(base64_decode($encryp_password), 'aes-256-cbc', $key, 1, $iv);
-      // ip 변경시 -> mailbox, option, mbox_setting, side 모두 변경!
+      // ip 변경시 -> mailbox, option, mbox_setting, side(모바일은 header) 모두 변경!
+      // 서버에 192.~ 으로 해야지 mail.durianit.으로 하면 버퍼 상상히 심해짐.
       // $this->mailserver = "192.168.0.100";
       $this->mailserver = "mail.durianit.co.kr";
       $this->user_id = $_SESSION["userid"];
