@@ -27,6 +27,7 @@ class Testmailbox extends CI_Controller {
       }
       $this->load->helper(array('url', 'download'));
       $this->load->library('pagination', 'email');
+      $this->load->library('user_agent');
       $this->load->Model('M_account');
 
       $encryp_password = $this->M_account->mbox_conf($_SESSION['userid']);
@@ -663,7 +664,12 @@ class Testmailbox extends CI_Controller {
     }
     // var_dump($mailno_arr);
     // exit;
-    $this->load->view('mailbox/test_mail_list_v', $data);
+    if ($this->agent->is_mobile()) {
+      $this->load->view('mobile/mail_list_v_mobile', $data);
+    } else {
+      $this->load->view('mailbox/test_mail_list_v', $data);
+    }
+
   } // function(mail_list)
 
   function get_senderip($uid, $mbox){
@@ -1317,7 +1323,12 @@ class Testmailbox extends CI_Controller {
       // 'body'        => imap_fetchstructure($mails, $msg_no)
     );
     imap_close($mails);
-    $this->load->view('mailbox/test_mail_detail_v', $data);
+
+    if ($this->agent->is_mobile()) {
+      $this->load->view('mobile/mail_detail_v_mobile', $data);
+    } else {
+      $this->load->view('mailbox/test_mail_detail_v', $data);
+    }
   }
 
   // 메일함 이동 (휴지통으로 이동 포함)

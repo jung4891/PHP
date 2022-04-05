@@ -1325,8 +1325,6 @@ class Mailbox extends CI_Controller {
     imap_close($mails);
 
     if ($this->agent->is_mobile()) {
-      // echo '<script>alert("뭐야 도대체"); </script>';
-      // $this->load->view('mailbox/mail_detail_v', $data);
       $this->load->view('mobile/mail_detail_v_mobile', $data);
     } else {
       $this->load->view('mailbox/mail_detail_v', $data);

@@ -1010,7 +1010,7 @@ $(".mlist_tbl tr").on("mousedown", function(){
 
    function detail_mailview(msg_no, mail_name){
      var mailname_param = (mail_name === "")? "" : "&mailname="+mail_name;  // 상세페이지에서 목록/상위메일이동시 필요
-     location.href="<?php echo site_url(); ?>/mailbox/mail_detail?boxname=<?php echo $mbox_urlencode ?>&mailno="+msg_no+mailname_param;
+     location.href="<?php echo site_url(); ?>/testmailbox/mail_detail?boxname=<?php echo $mbox_urlencode ?>&mailno="+msg_no+mailname_param;
    }
 
  </script>

@@ -839,6 +839,7 @@ console.log(menus);
 */
 
 // 배열 다루기
+// .length : 문자열이나 배열에는 그 길이가 저장되는 프로퍼티
 console.log(menus.length);              // 배열의 요소 갯수 출력
 console.log(menus['length']);           // 프로퍼티이기에 대괄호 표기법으로도 접근가능하다.
 console.log(menus[menus.length - 1]);   // 탕수육 (배열의 마지막 요소에 접근)
@@ -895,7 +896,8 @@ console.log(menus);   // (3) ['짬뽕', '깐풍', '유린']                    
 //  -> 결과: [2, 8]
 {
   let numbers = [];
-  numbers.splice(0, 0, 1, 2, 3, 5, 8, 9);
+  // numbers.splice(0, 0, 1, 2, 3, 5, 8, 9);
+  numbers.push(1, 2, 3, 5, 8, 9);
   for (let i = 0; i < numbers.length; i++) {
     if (numbers[i] % 2 !== 0) {
       numbers.splice(i, 1);
@@ -904,6 +906,26 @@ console.log(menus);   // (3) ['짬뽕', '깐풍', '유린']                    
   }
   console.log(numbers);
 };
+
+// splice과 관련있는 유용한 메소드들
+// 빈 배열에 요소 추가할때는 push()사용. 안에 여러값 들어갈 수 있으니 편함
+let testArr = ['일', '이', 3];
+// 첫 요소로 값 추가
+// testArr.splice(0, 0, 1);
+testArr.unshift(1);
+console.log(testArr);   // (4) [1, '일', '이', 3]
+// 첫 요소를 삭제
+// testArr.splice(0, 1);
+testArr.shift();
+console.log(testArr);   // (3) ['일', '이', 3]
+// 마지막 요소로 값 추가
+// testArr.splice(testArr.length, 0, '3');
+testArr.push('3');
+console.log(testArr);   // (4) ['일', '이', 3, '3']
+// 마지막 요소를 삭제
+// testArr.splice(testArr.length - 1, 1);
+testArr.pop();
+console.log(testArr);   // (3) ['일', '이', 3]
 
 
 
