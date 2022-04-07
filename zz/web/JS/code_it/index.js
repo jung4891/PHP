@@ -559,7 +559,8 @@ console.log(code_it.bestCourse.title);  // 자바스크립트 프로그래밍 �
 console.log(code_it.noProperty);        // undefined (애러나지 않음)
 
 // 2) 대괄효 표기범(objectName['propertyName']) : key의 작명규칙을 벗어난 경우에 사용
-// console.log(code_it[brandName]);         // 대괄호 사용시 내부는 String 사용해야함!!!!
+// console.log(code_it[brandName]);      // 대괄호 사용시 내부는 String 사용해야함!!!!
+console.log(code_it['brandName']);       // 코드잇
 console.log(code_it['born Year']);       // 2017
 console.log(code_it['born' + ' Year']);  // 2017
 let propertyName = 'born Year';
@@ -572,6 +573,12 @@ code_it.user = '혁중';
 console.log(code_it.user);
 code_it.user = '혁중2';
 console.log(code_it.user);
+// code_it.'프로퍼티네임' = '프로퍼티값';      이렇게는 안된다. string이 오면 안된다. 개헷갈리누
+code_it.프로퍼티네임 = '프로퍼티값';
+console.log(code_it.프로퍼티네임);    // 프로퍼티값
+console.log(code_it['프로퍼티네임']); // 프로퍼티값
+code_it['프로퍼티네임2'] = '프로퍼티값2';                // 추가시 대괄호는 문자열만 점표기법은 날것 그대로
+console.log(code_it.프로퍼티네임2);    // 프로퍼티값2
 delete code_it.user;
 console.log(code_it.user);    // undefined (콘솔창에서 바로 code_it치면 console.log맹키로 객체 확인가능)
 code_it['blank test'] = '공백 포함되면 이렇게';
@@ -583,6 +590,7 @@ console.log(code_it['blank test']);
 console.log(code_it.user !== undefined);        // false
 console.log(code_it.brandName !== undefined);   // true (존재함)
 console.log('brandName' in code_it);            // true
+console.log(!'brandName' in code_it);           // false
 // console.log(brandName in code_it);           // in 연산자를 사용할때는 문자열로!!
 if('isVeryNice' in code_it) {
   console.log(`isVeryNice 값은 ${code_it.isVeryNice}입니다.`);   // 출력됨
@@ -797,7 +805,7 @@ console.log(timeDiff / 1000 / 60 / 60 / 24 + '일');  // 1일
 
 console.log('===========================================================  Array ');
 
-// 배열 (Array)
+// 배열 (Array)  https://developer.mozilla.org/ko/docs/Web/JavaScript/Reference/Global_Objects/Array
 // - 프로퍼티 네임을 순서로만 혹은 그저 값들을 묶을때는 배열을 사용하는게 효율적.
 // - index : 요소별로 각 순서를 나타내주는 숫자. (== propertyName)
 // - 배열에서 반복문은 일반적인 for문을 사용하는게 좋다.
@@ -869,7 +877,7 @@ console.log(menus);
   length: 6
 */
 
-// splice : 배열 요소를 삭제하느 메소드
+// splice : 배열 요소를 삭제하는 메소드
 // splice(index) : index 포함 그 이후 싹다 삭제됨
 // splice(startIndex, deleteCount) : index 포함해서 개수만큼
 // splice(startIndex, deleteCount, item, item..) : 삭제후 그 위치에서 item 값 추가함 (추가/수정도 가능)
@@ -926,6 +934,81 @@ console.log(testArr);   // (4) ['일', '이', 3, '3']
 // testArr.splice(testArr.length - 1, 1);
 testArr.pop();
 console.log(testArr);   // (3) ['일', '이', 3]
+
+// indexOf / lastIndexOf : 배열에서 특정값의 index값 리턴
+// 있다면 해당 인덱스, 없다면 -1이 리턴됨
+// 여러번 포함되어 있다면 처음 발견된 인덱스가 리턴됨
+let brands = ['Google', 'Naver', 'Kakao', 'Naver'];
+console.log(brands.indexOf('Naver'));     // 1
+console.log(brands.lastIndexOf('Naver')); // 3
+console.log(brands.indexOf('Daum'));      // -1
+
+// includes : 배열에서 특정 값이 있는지 확인 (true/false)
+console.log(brands.includes('Google'));   // true
+console.log(brands.includes('Daum'));     // false
+
+// reverse : 배열의 순서를 뒤집음
+brands.reverse();
+console.log(brands);    // (4) ['Naver', 'Kakao', 'Naver', 'Google']
+
+
+// for ... of 반복문
+// 변수에 배열의 요소가 할당이 됨
+// for in 반복문과는 다르게 일반 for문으로도 접근이 가능하다. (프로퍼티 네임이 숫자니까!)
+// for in 문이 배열보다는 객체에 적합하게 설계된 반복문이라 배열에 쓸 경우 효율성도 떨어지기에 쓰지말 것
+// for(변수 of 배열) {  // for in 반복문은 for(변수 in 객체)로 변수에 프로퍼티 네임이 할당됨!
+//  동작
+// }
+for(let i = 0; i < brands.length; i++) {    // index 사용시엔 일반 for문으로
+  console.log(brands[i]);
+}
+for(let element of brands) {                // 요소만 사용시엔 for of문이 깔끔
+  console.log(element);
+}
+for(let index in brands) {      // 배열도 객체이기에 for in문이 가능은 하나 특별한 환경에선
+  console.log(brands[index]);   // 배열의 메소드나 length 프로퍼티 같은 애들이 변수에 할당되기도 하기에 권장x
+}
+
+// ## 투표 집계하기
+// 투표 결과 리스트
+let votes = [
+  '이재식', '이재식', '이규하', '이규하', '이규하',
+  '이재식', '이재식', '이규하', '이규하', '이재식',
+  '이규하', '이규하', '이규하', '이규하', '이재식',
+  '이재식', '이규하', '이재식', '이재식', '이재식',
+  '이재식', '이재식', '이규하', '이규하', '이규하',
+  '이규하', '이규하', '이재식', '이규하', '이규하',
+  '이규하', '이규하', '이재식', '이규하', '이규하',
+  '이규하', '이재식', '이재식', '이재식', '이규하',
+];
+
+// 후보별 득표수 객체
+let voteCounter = {};
+
+// votes 배열을 이용해서 voteCounter 객체를 정리하기
+for (let name of votes) {
+  // 코드를 작성하세요.
+  if(name in voteCounter) {
+    voteCounter[name]++;
+  }else {
+    voteCounter[name] = 1;
+  }
+
+}
+
+// 후보별 득표수 출력
+console.log(voteCounter);   // { '이재식': 17, '이규하': 23 }
+
+
+
+
+
+
+
+
+
+
+
 
 
 
