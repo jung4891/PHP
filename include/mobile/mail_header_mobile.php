@@ -26,8 +26,8 @@
   $key = $this->db->password;
   $key = substr(hash('sha256', $key, true), 0, 32);
   $decrypted = openssl_decrypt(base64_decode($encryp_password), 'aes-256-cbc', $key, 1, $iv);
-  $mailserver = "192.168.0.100";
-  // $mailserver = "mail.durianit.co.kr";
+  // $mailserver = "192.168.0.100";
+  $mailserver = "mail.durianit.co.kr";
   $user_id = $_SESSION["userid"];
   $user_pwd = $decrypted;
   $default_folder = array(
@@ -156,7 +156,7 @@
               </span>
           <?php } ?>
           </div>
-          <div id="headBtn">
+          <div id="headBtn" style="padding-right: 10px">
                 <!-- <span onclick="myinfo();" style="margin-right:30px;font-weight:bold;cursor:pointer;">
                   <?php if($_SESSION['roles'] == 'admin') { ?>
                         <?php echo $_SESSION['userid']; ?>
@@ -165,12 +165,35 @@
                   <?php } ?>
                 </span> -->
             <!-- <button type="button" class="btn_basic btn_gray" id="logoutBtn" name="button">로그아웃</button> -->
-            <input type="button" class="btn_basic btn_gray" id="logoutBtn" name="button" style="margin-right:30px;width:90px;height:35px;" value="로그아웃">
+            <input type="button" class="btn_basic btn_gray" id="logoutBtn" name="button" style="margin-right:5px;width:60px;height:35px;" value="로그아웃">
+            <div id="listBtn">
+              <img src="/misc/img/icon/menu_icon.png" style="width:50px; height:50px; vertical-align: middle">
+            </div>
           </div>
       </div>
 
 
 <script type="text/javascript">
+
+  $(function(){
+    $("#listBtn").click(function(){
+      alert('testtt');
+      // $(".modal").fadeIn();          // 모달창 서서히 보이게함
+    });
+    // $(".modal").click(function(e){
+    //   event.preventDefault();
+    //   if($(e.target).is(".modal")) {   // 모달창 바깥부분 클릭시
+    //     $(".modal").fadeOut();         // 모달창 서서히 사라지게함
+    //   }
+    // });
+  });
+
+  $('#modal_form_close').click(function() {
+    $(".modal").fadeOut();
+  })
+
+
+
   // $("#headMenu").on("click", function(){
   //
   //     $("#sideBar, #sideMini").toggle();

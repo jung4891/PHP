@@ -487,6 +487,10 @@ class Testmailbox extends CI_Controller {
       $total_rows = $mails_cnt;                                   // 총 16개 데이터라 가정.
       $per_page = ($mail_cnt_show == "")? 15:$mail_cnt_show;      // 한 페이지에 보여줄 데이터 갯수
       $pagingNum_cnt = 10;                                        // 페이징 블록에서의 페이징 번호 갯수 (5개로 가정하면)
+      if($this->agent->is_mobile()) {
+        $per_page = 8;
+        $pagingNum_cnt = 5;
+      }
       $total_pages = ceil($total_rows/$per_page);                 // 16/15 -> 총 2페이지
       $curpage = ($curpage > $total_pages)? $total_pages : $curpage;    // 보기개수 변경시(10개>30개) 없는 페이지 처리
 
@@ -665,7 +669,7 @@ class Testmailbox extends CI_Controller {
     // var_dump($mailno_arr);
     // exit;
     if ($this->agent->is_mobile()) {
-      $this->load->view('mobile/mail_list_v_mobile', $data);
+      $this->load->view('mobile/test_mail_list_v_mobile', $data);
     } else {
       $this->load->view('mailbox/test_mail_list_v', $data);
     }
@@ -1325,7 +1329,7 @@ class Testmailbox extends CI_Controller {
     imap_close($mails);
 
     if ($this->agent->is_mobile()) {
-      $this->load->view('mobile/mail_detail_v_mobile', $data);
+      $this->load->view('mobile/test_mail_detail_v_mobile', $data);
     } else {
       $this->load->view('mailbox/test_mail_detail_v', $data);
     }

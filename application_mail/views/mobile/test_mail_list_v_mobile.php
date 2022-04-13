@@ -612,7 +612,7 @@ $(".mlist_tbl tr").on("mousedown", function(){
    }else {
      var newForm = $('<form id="search_form"></form>');
      newForm.attr("method","get");
-     newForm.attr("action", "<?php echo site_url(); ?>/mailbox/mail_list");
+     newForm.attr("action", "<?php echo site_url(); ?>/testmailbox/mail_list");
      newForm.append($('<input>', {type: 'hidden', name: 'boxname', value: `<?php echo $mbox ?>`}));
      newForm.append($('<input>', {type: 'hidden', name: 'type', value: 'search' }));
      newForm.append($('<input>', {type: 'hidden', name: 'search_word', value: search_word }));
@@ -637,7 +637,7 @@ $(".mlist_tbl tr").on("mousedown", function(){
      }else {
        var newForm = $('<form id="search_form"></form>');
        newForm.attr("method","get");
-       newForm.attr("action", "<?php echo site_url(); ?>/mailbox/mail_list");
+       newForm.attr("action", "<?php echo site_url(); ?>/testmailbox/mail_list");
        newForm.append($('<input>', {type: 'hidden', name: 'boxname', value: `<?php echo $mbox ?>`}));
        newForm.append($('<input>', {type: 'hidden', name: 'type', value: 'search' }));
        newForm.append($('<input>', {type: 'hidden', name: 'search_word', value: search_word }));
@@ -676,7 +676,7 @@ $(".mlist_tbl tr").on("mousedown", function(){
    var type = 'search_detail';
    var newForm = $('<form id="search_form"></form>');
    newForm.attr("method","get");
-   newForm.attr("action", "<?php echo site_url(); ?>/mailbox/mail_list");
+   newForm.attr("action", "<?php echo site_url(); ?>/testmailbox/mail_list");
    newForm.append($('<input>', {type: 'hidden', name: 'boxname', value: mbox }));
    newForm.append($('<input>', {type: 'hidden', name: 'type', value: type }));
    if($('#from').val() != "") newForm.append($('<input>', {type: 'hidden', name: 'from', value: $('#from').val() }));
@@ -722,7 +722,7 @@ $(".mlist_tbl tr").on("mousedown", function(){
       var type = 'search_detail';
       var newForm = $('<form id="search_form"></form>');
       newForm.attr("method","get");
-      newForm.attr("action", "<?php echo site_url(); ?>/mailbox/mail_list");
+      newForm.attr("action", "<?php echo site_url(); ?>/testmailbox/mail_list");
       newForm.append($('<input>', {type: 'hidden', name: 'boxname', value: mbox }));
       newForm.append($('<input>', {type: 'hidden', name: 'type', value: type }));
       if($('#from').val() != "") newForm.append($('<input>', {type: 'hidden', name: 'from', value: $('#from').val() }));
@@ -796,7 +796,7 @@ $(".mlist_tbl tr").on("mousedown", function(){
    let parent_tr = ths.parentNode.parentNode;
    let mailno = parent_tr.childNodes[5].innerText;
    $.ajax({
-     url : "<?php echo site_url(); ?>/mailbox/set_flag",
+     url : "<?php echo site_url(); ?>/testmailbox/set_flag",
      type : "get",
      data : {boxname: `<?php echo $mbox ?>`, mailno: mailno, state: className},
    });
@@ -816,7 +816,7 @@ $(".mlist_tbl tr").on("mousedown", function(){
   var end_date = '<?php if(isset($end_date)) echo $end_date; else echo ""; ?>';
   var newForm = $('<form></form>');
   newForm.attr("method","get");
-  newForm.attr("action", "<?php echo site_url(); ?>/mailbox/mail_list");
+  newForm.attr("action", "<?php echo site_url(); ?>/testmailbox/mail_list");
   newForm.append($('<input>', {type: 'hidden', name: 'boxname', value: mbox }));
   newForm.append($('<input>', {type: 'hidden', name: 'curpage', value: page }));
   newForm.append($('<input>', {type: 'hidden', name: 'mail_cnt_show', value: per_page }));
@@ -843,7 +843,7 @@ $(".mlist_tbl tr").on("mousedown", function(){
      }
     }
     $.ajax({
-      url : "<?php echo site_url(); ?>/mailbox/mail_move",
+      url : "<?php echo site_url(); ?>/testmailbox/mail_move",
       type : "post",
       data : {mbox: `<?php echo $mbox ?>`, to_box: '&ycDGtA- &07jJwNVo-', mail_arr: arr},
       success : function(data){
@@ -868,7 +868,7 @@ $(".mlist_tbl tr").on("mousedown", function(){
         }
       }
       $.ajax({
-        url : "<?php echo site_url(); ?>/mailbox/mail_delete",
+        url : "<?php echo site_url(); ?>/testmailbox/mail_delete",
         type : "post",
         data : {mbox: `<?php echo $mbox ?>`, mail_arr: arr},
         complete : function() {
@@ -893,7 +893,7 @@ $(".mlist_tbl tr").on("mousedown", function(){
      }
     }
     $.ajax({
-      url : "<?php echo site_url(); ?>/mailbox/mail_move",
+      url : "<?php echo site_url(); ?>/testmailbox/mail_move",
       type : "post",
       data : {mbox: `<?php echo $mbox ?>`, to_box: to_box, mail_arr: arr},
       complete : function() {
@@ -917,7 +917,7 @@ $(".mlist_tbl tr").on("mousedown", function(){
     var end_date = '<?php if(isset($end_date)) echo $end_date; else echo ""; ?>';
     var newForm = $('<form></form>');
     newForm.attr("method","get");
-    newForm.attr("action", "<?php echo site_url(); ?>/mailbox/mail_list");
+    newForm.attr("action", "<?php echo site_url(); ?>/testmailbox/mail_list");
     newForm.append($('<input>', {type: 'hidden', name: 'boxname', value: mbox }));
     newForm.append($('<input>', {type: 'hidden', name: 'curpage', value: curpage }));
     newForm.append($('<input>', {type: 'hidden', name: 'mail_cnt_show', value: cnt }));
@@ -956,7 +956,7 @@ $(".mlist_tbl tr").on("mousedown", function(){
 
    function detail_mailview(msg_no, mail_name){
      var mailname_param = (mail_name === "")? "" : "&mailname="+mail_name;  // 상세페이지에서 목록/상위메일이동시 필요
-     location.href="<?php echo site_url(); ?>/mailbox/mail_detail?boxname=<?php echo $mbox_urlencode ?>&mailno="+msg_no+mailname_param;
+     location.href="<?php echo site_url(); ?>/testmailbox/mail_detail?boxname=<?php echo $mbox_urlencode ?>&mailno="+msg_no+mailname_param;
    }
 
  </script>
