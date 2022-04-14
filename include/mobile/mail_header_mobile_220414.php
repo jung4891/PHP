@@ -3,9 +3,9 @@
   <head>
     <meta charset="utf-8">
     <title><?php echo $this->config->item('site_title');?></title>
+    <link href="/misc/css/mobile/main_mobile.css" type="text/css" rel="stylesheet">
     <link href="/misc/css/jquery-ui.css" type="text/css" rel="stylesheet">
-    <!-- <link href="/misc/css/mobile/main_mobile.css" type="text/css" rel="stylesheet"> -->
-    <!-- <link href="/misc/css/mobile/style_mobile.css" type="text/css" rel="stylesheet"> -->
+    <link href="/misc/css/mobile/style_mobile.css" type="text/css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/themes/default/style.min.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/jstree.min.js"></script>
@@ -112,70 +112,32 @@
     );
     array_push($mailbox_tree, $tree);
   }
-
-
-
-    // 메일함명 상단출력
-    $mbox_decoded = mb_convert_encoding($mbox, 'UTF-8', 'UTF7-IMAP');
-    $mbox_decoded = str_replace('INBOX', '받은 편지함', $mbox_decoded);
-    if(strpos($mbox_decoded, '.')) {
-      $exp_folder = explode(".", $mbox_decoded);
-      $parent =  $exp_folder[0];
-      $last_child = $exp_folder[count($exp_folder)-1];
-      $head_title = "{$last_child} ({$parent})";
-    }else {
-      $head_title = $mbox_decoded;
-    }
-
-
-
   ?>
-  <meta name="viewport" content="width=device-width,height=device-width, initial-scale=1.0">
-  <style media="screen">
-  @import url(//fonts.googleapis.com/earlyaccess/notosanskr.css);
-  html, body {
-    /* max-width: 100%; */
-    /* min-width: 100%; */
-    width:100%;
-    height: 100%;
-    margin: 0;
-  }
 
-  #m_header{
-    height: 75px;
-    width: 100%;
-    display: grid;
-    grid-template-columns: 5px 50px auto 50px 50px 5px;
-    align-items: center;
-    column-gap: 5px;
-    font-family:"Noto Sans KR", sans-serif !important;
-  }
-
-  .img_div img{
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-#mobile_side{
-  display: grid;
-  grid-template-rows: 100px 100px auto 150px;
-}
-  </style>
   <body>
-      <div id="m_header">
-          <div>
-          </div>
-          <div id="historyback_div" class="img_div" onClick="javascript:history.back();">
-            <img src="/misc/img/back.svg" style="width:40px;">
-          </div>
-          <div>
-              <span id="mailLogo" style="font-size: 22px;font-weight: bolder; color: black">
-                <?php echo $head_title; ?>
+      <div id="header" style="border-bottom: none">
+          <!-- <div id="headMenu" style="width:75px;height:75px;text-align:center;cursor:pointer;">
+            <span><img src="/misc/img/icon/list.svg" style="width:38px;height:38px;margin-top:18px;"></span>
+          </div> -->
+          <div id="headLogo" style="cursor:pointer;">
+              <span id="mailLogo" style="font-size: 20px; color: black">
+                <?php
+                  // 메일함명 상단출력
+                  $mbox_decoded = mb_convert_encoding($mbox, 'UTF-8', 'UTF7-IMAP');
+                  $mbox_decoded = str_replace('INBOX', '받은 편지함', $mbox_decoded);
+                  if(strpos($mbox_decoded, '.')) {
+                    $exp_folder = explode(".", $mbox_decoded);
+                    $parent =  $exp_folder[0];
+                    $last_child = $exp_folder[count($exp_folder)-1];
+                    echo "{$last_child} ({$parent})";
+                  }else {
+                    echo $mbox_decoded;
+                  }
+                ?>
               </span>
 
               <!-- 읽지 않은 메일수 옆에 출력 -->
-              <span style="font-size: 22px; color: red">
+              <span style="font-size: 20px; color: red">
               <?php
               if(isset($mbox)) {   // 메일쓰기 페이지에서 오류방지
                 $mbox_addslash = addslashes($mbox);
@@ -187,62 +149,48 @@
               }
                ?>
               </span>
-          </div>
 
-          <div id="" class="img_div">
-            <img src="/misc/img/sideicon/sent.svg" style="width:40px;">
+          <?php if(isset($_SESSION['roles']) && $_SESSION['roles'] == 'admin') { ?>
+              <span style="font-size:24px;font-weight: bolder;color:#0575E6;">
+                  관리자
+              </span>
+          <?php } ?>
           </div>
-
-          <div id="listBtn" class="img_div">
-            <img src="/misc/img/side_list.svg" style="width:40px;">
+          <div id="headBtn" style="padding-right: 10px">
+                <!-- <span onclick="myinfo();" style="margin-right:30px;font-weight:bold;cursor:pointer;">
+                  <?php if($_SESSION['roles'] == 'admin') { ?>
+                        <?php echo $_SESSION['userid']; ?>
+                  <?php } else { ?>
+                      <?php echo $_SESSION['name']; ?>님 안녕하세요.
+                  <?php } ?>
+                </span> -->
+            <!-- <button type="button" class="btn_basic btn_gray" id="logoutBtn" name="button">로그아웃</button> -->
+            <input type="button" class="btn_basic btn_gray" id="logoutBtn" name="button" style="margin-right:5px;width:60px;height:35px;" value="로그아웃">
+            <div id="listBtn">
+              <img src="/misc/img/icon/menu_icon.png" style="width:50px; height:50px; vertical-align: middle">
+            </div>
           </div>
-          <div>
-          </div>
-
-      </div>
-<!-- 사이드바 -->
-      <div id="mobile_nav" style="height: calc(100vh - 75px);width:calc(100vw - 100px);background-color:#ffffff; display:none; border-radius: 30px 0px 0px 0px;">
-        <div id="mobile_side" class="" style="width:100%;height:100%;">
-          <div class="">
-            이름자리
-          </div>
-          <div class="">
-            안읽음중요메일쓰기
-          </div>
-          <div class="">
-            메일함
-          </div>
-          <div class="">
-            설정로그아웃
-          </div>
-        </div>
       </div>
 
 
 <script type="text/javascript">
 
   $(function(){
-
-
-  });
-
-
-  $("#listBtn").click(function(){
-    // alert('testtt');
-    nav_open();
-    // $(".modal").fadeIn();          // 모달창 서서히 보이게함
-  });
-
-  function nav_open(){
-
-    $("#mobile_nav").bPopup({
-      // follow: [false, false], //x, y
-      position: [100, 75], //x, y
-      speed: 500,
-      transition: 'slideBack',
-      transitionClose: 'slideBack'
+    $("#listBtn").click(function(){
+      alert('testtt');
+      // $(".modal").fadeIn();          // 모달창 서서히 보이게함
     });
-}
+    // $(".modal").click(function(e){
+    //   event.preventDefault();
+    //   if($(e.target).is(".modal")) {   // 모달창 바깥부분 클릭시
+    //     $(".modal").fadeOut();         // 모달창 서서히 사라지게함
+    //   }
+    // });
+  });
+
+  $('#modal_form_close').click(function() {
+    $(".modal").fadeOut();
+  })
 
 
 
