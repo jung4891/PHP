@@ -4,8 +4,8 @@
     <meta charset="utf-8">
     <title><?php echo $this->config->item('site_title');?></title>
     <link href="/misc/css/jquery-ui.css" type="text/css" rel="stylesheet">
-    <!-- <link href="/misc/css/mobile/main_mobile.css" type="text/css" rel="stylesheet"> -->
-    <!-- <link href="/misc/css/mobile/style_mobile.css" type="text/css" rel="stylesheet"> -->
+    <link href="/misc/css/mobile/main_mobile.css" type="text/css" rel="stylesheet">
+    <link href="/misc/css/mobile/style_mobile.css" type="text/css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/themes/default/style.min.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/jstree.min.js"></script>
@@ -202,18 +202,94 @@
       </div>
 <!-- 사이드바 -->
       <div id="mobile_nav" style="height: calc(100vh - 75px);width:calc(100vw - 100px);background-color:#ffffff; display:none; border-radius: 30px 0px 0px 0px;">
-        <div id="mobile_side" class="" style="width:100%;height:100%;">
-          <div class="">
-            이름자리
+        <div id="mobile_side" class="" style="width:100%;height:100%;padding:20px;">
+          <div class="" style="margin-top:10px; ">
+            <span onclick="myinfo();" style="font-weight:bold;font-size:18px;">
+              <?php if($_SESSION['roles'] == 'admin') { ?>
+                    <?php echo $_SESSION['userid']; ?>
+              <?php } else { ?>
+                  <?php echo $_SESSION['name'].'님'; ?>
+              <?php } ?>
+            </span>
           </div>
-          <div class="">
+
+          <div class="" style="display:flex;justify-content: center;">
+            <?php
+              if(isset($mbox)) {
+                // $mbox2 = str_replace('&', '%26', $mbox);
+                // $mbox2 = str_replace(' ', '+', $mbox2);
+                $mbox_urlencode = urlencode($mbox);
+              } else {
+                $mbox_urlencode = "INBOX";
+              }
+
+              if(isset($type) && $type == "unseen") {
+                $url_route = $mbox_urlencode;
+                $font_style = "font-weight: bold; color: #0575E6;";
+              }else {
+                $url_route = $mbox_urlencode.'&type=unseen';
+                $font_style = "";
+              }
+             ?>
+            <div class="side_top2" align="center" onclick="location.href='<?php echo site_url(); ?>/mailbox/mail_list?boxname=<?php echo $url_route; ?>'">
+              <!-- <img src="<?php echo $misc;?>img/icon/schedule.svg" width="25"><br> -->
+             <div class="" style="padding-bottom: 3px; font-size: 18px; <?php echo $font_style?>">
+               <?php
+               if(isset($mbox)) {   // 메일쓰기 페이지에서 오류방지
+                 $mbox_addslash = addslashes($mbox);
+                 $key = array_search($mbox_addslash, array_column($mailbox_tree, "id"));
+                 $unseen_cnt = $mailbox_tree[$key]["unseen"];
+                 echo $unseen_cnt;
+               }else {
+                 echo 0;
+               }
+                ?>
+             </div>
+              <span style="<?php if(isset($type) && $type == 'unseen') echo 'font-weight: bold;'?>">안읽음</span>
+            </div>
+            <?php
+            if(isset($type) && $type == "important") {
+              $url_route = $mbox_urlencode;
+              $img_flag = "중요(본문)2.svg";
+            }else {
+              $url_route = $mbox_urlencode.'&type=important';
+              $img_flag = "중요(본문).svg";
+            }
+             ?>
+            <div class="side_top2" align="center" onclick="location.href='<?php echo site_url(); ?>/mailbox/mail_list?boxname=<?php echo $url_route; ?>'">
+              <img src="<?php echo $misc;?>img/icon/<?php echo $img_flag ?>" width="25"><br>
+              <span style="<?php if(isset($type) && $type == 'important') echo 'font-weight: bold;'?>">중&nbsp;요</span>
+            </div>
+            <?php
+            if(isset($type) && $type == "attachments") {
+              $url_route = $mbox_urlencode;
+              $img_attach = "첨부2(사이드바).svg";
+            }else {
+              $url_route = $mbox_urlencode.'&type=attachments';
+              $img_attach = "첨부(본문).svg";
+            }
+             ?>
+            <div class="side_top2" align="center" onclick="location.href='<?php echo site_url(); ?>/mailbox/mail_list?boxname=<?php echo $url_route; ?>'">
+              <img src="<?php echo $misc;?>img/icon/<?php echo $img_attach ?>" width="25"><br>
+              <span style="<?php if(isset($type) && $type == 'attachments') echo 'font-weight: bold;'?>">첨&nbsp;부</span>
+            </div>
+          </div>
+
+          <!-- <div class="">
             안읽음중요메일쓰기
-          </div>
+          </div> -->
+
           <div class="">
             메일함
           </div>
           <div class="">
             설정로그아웃
+          </div>
+          <div class="">
+            설정로그아웃2
+          </div>
+          <div class="">
+            설정로그아웃3
           </div>
         </div>
       </div>
@@ -251,13 +327,14 @@
   //     $("#sideBar, #sideMini").toggle();
   //
   // })
-  function myinfo(){
-    <?php if($_SESSION['roles'] == 'admin') { ?>
-        console.log();
-    <?php } else { ?>
-        location.href='<?php echo site_url(); ?>/option/user'
-    <?php } ?>
-  }
+
+  // function myinfo(){
+  //   <?php if($_SESSION['roles'] == 'admin') { ?>
+  //       console.log();
+  //   <?php } else { ?>
+  //       location.href='<?php echo site_url(); ?>/option/user'
+  //   <?php } ?>
+  // }
 
 
   $("#headLogo").on("click", function(){
