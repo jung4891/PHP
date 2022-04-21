@@ -159,7 +159,7 @@
 
 #mobile_side{
   display: grid;
-  grid-template-rows: 100px 100px auto 150px;
+  grid-template-rows: 60px 60px auto 130px;
 }
   </style>
   <body>
@@ -201,7 +201,7 @@
 
       </div>
 <!-- 사이드바 -->
-      <div id="mobile_nav" style="height: calc(100vh - 75px);width:calc(100vw - 100px);background-color:#ffffff; display:none; border-radius: 30px 0px 0px 0px;">
+      <div id="mobile_nav" style="height: calc(100vh - 130px);width:calc(100vw - 100px);background-color:#ffffff; display:none; border-radius: 30px 0px 0px 0px;">
         <div id="mobile_side" class="" style="width:100%;height:100%;padding:20px;">
           <div class="" style="margin-top:10px; ">
             <span onclick="myinfo();" style="font-weight:bold;font-size:18px;">
@@ -213,7 +213,7 @@
             </span>
           </div>
 
-          <div class="" style="display:flex;justify-content: center;">
+          <div class="" style="display:flex;justify-content: space-evenly; ">
             <?php
               if(isset($mbox)) {
                 // $mbox2 = str_replace('&', '%26', $mbox);
@@ -285,12 +285,12 @@
           <div class="">
             설정로그아웃
           </div>
-          <div class="">
+          <!-- <div class="">
             설정로그아웃2
           </div>
           <div class="">
             설정로그아웃3
-          </div>
+          </div> -->
         </div>
       </div>
 
