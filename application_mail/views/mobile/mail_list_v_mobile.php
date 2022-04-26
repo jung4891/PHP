@@ -299,7 +299,7 @@ $_SESSION['list_page_url_tmp'] = substr($request_url, strpos($request_url, '/', 
           ?>
           <td>
             <div style="position:relative; top:-3px">
-              <a class= <?php echo $unseen ?> href="javascript:void(0);" onclick="event.cancelBubble=true;send_context(this);" style="font-weight: bold">
+              <a class= <?php echo $unseen ?> href="javascript:void(0);" onclick="detail_mailview(<?php echo $msg_no?>, '<?php echo $mail_name ?>');" style="font-weight: bold">
                 <?php
                 $from_name = $mail_list_info[$i]['from']['from_name'];
                 $to_name = $mail_list_info[$i]['to']['to_name'];
@@ -375,7 +375,7 @@ $_SESSION['list_page_url_tmp'] = substr($request_url, strpos($request_url, '/', 
   </table>
 </div>
 
-<div class="" style="text-align: center; margin-top: 13px">
+<div class="" style="text-align: center; margin-top: 3px">
   <?php echo $links; ?>
 </div>
 

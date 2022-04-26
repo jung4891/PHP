@@ -228,7 +228,7 @@
                 $font_style = "";
               }
              ?>
-            <div class="side_top2" align="center" onclick="location.href='<?php echo site_url(); ?>/mailbox/mail_list?boxname=<?php echo $url_route; ?>'">
+            <div class="side_top2" align="center" onclick="location.href='<?php echo site_url(); ?>/testmailbox/mail_list?boxname=<?php echo $url_route; ?>'">
               <!-- <img src="<?php echo $misc;?>img/icon/schedule.svg" width="25"><br> -->
              <div class="" style="padding-bottom: 3px; font-size: 18px; color: red; <?php echo $font_style?>">
                <?php
@@ -253,7 +253,7 @@
               $img_flag = "중요(본문).svg";
             }
              ?>
-            <div class="side_top2" align="center" onclick="location.href='<?php echo site_url(); ?>/mailbox/mail_list?boxname=<?php echo $url_route; ?>'">
+            <div class="side_top2" align="center" onclick="location.href='<?php echo site_url(); ?>/testmailbox/mail_list?boxname=<?php echo $url_route; ?>'">
               <img src="<?php echo $misc;?>img/icon/<?php echo $img_flag ?>" width="25"><br>
               <span style="<?php if(isset($type) && $type == 'important') echo 'font-weight: bold;'?> font-size: small; display: block;">중&nbsp;요</span>
             </div>
@@ -266,7 +266,7 @@
               $img_attach = "첨부(본문).svg";
             }
              ?>
-            <div class="side_top2" align="center" onclick="location.href='<?php echo site_url(); ?>/mailbox/mail_list?boxname=<?php echo $url_route; ?>'">
+            <div class="side_top2" align="center" onclick="location.href='<?php echo site_url(); ?>/testmailbox/mail_list?boxname=<?php echo $url_route; ?>'">
               <img src="<?php echo $misc;?>img/icon/<?php echo $img_attach ?>" width="25"><br>
               <span style="<?php if(isset($type) && $type == 'attachments') echo 'font-weight: bold;'?> font-size: small; display: block;">첨&nbsp;부</span>
             </div>
@@ -471,7 +471,7 @@
     var trid = $(this).attr("id");
     trid = trid.replace(/\\'/g, "'");  // 메일함에 '있는경우 애러처리
     $("#boxname").val(trid);
-    var action = "<?php echo site_url(); ?>/mailbox/mail_list";
+    var action = "<?php echo site_url(); ?>/testmailbox/mail_list";
     $("#boxform").attr("action", action);
     $("#boxform").submit();
   })

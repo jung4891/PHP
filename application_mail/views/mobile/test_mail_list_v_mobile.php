@@ -1,6 +1,6 @@
 <?php
 include $this->input->server('DOCUMENT_ROOT')."/include/base.php";
-include $this->input->server('DOCUMENT_ROOT')."/include/mobile/mail_header_mobile.php";
+include $this->input->server('DOCUMENT_ROOT')."/include/mobile/test_mail_header_mobile.php";
 // include $this->input->server('DOCUMENT_ROOT')."/include/mobile/mail_side_mobile.php";
 
 // echo 'decode 전:'.$mbox.'<br>';
@@ -117,8 +117,8 @@ $_SESSION['list_page_url_tmp'] = substr($request_url, strpos($request_url, '/', 
 
   #loading > img {
   	position: absolute;
-  	top: 30%;
-  	left: 43%;
+  	top: 38%;
+  	left: 33%;
   	z-index: 100;
   }
 
@@ -132,9 +132,9 @@ $_SESSION['list_page_url_tmp'] = substr($request_url, strpos($request_url, '/', 
   }
  </style>
 
-<div id="main_contents" align="center" style="margin: 0px 0px 80px 0px;">
-  <div class="main_div">
-  <form name="mform" action="" method="post">
+<div id="main_contents" align="center" style="height: 100vh; width: 100vw; display: grid; grid-template-rows: 50px auto 125px; ">
+  <div class="search_div">
+  <!-- <form name="mform" action="" method="post"> -->
       <table style="width:90%; padding-bottom:10px; " border="0" cellspacing="0" cellpadding="0">
         <colgroup>
           <col width="6%" >
@@ -182,7 +182,7 @@ $_SESSION['list_page_url_tmp'] = substr($request_url, strpos($request_url, '/', 
               </div>
 
               <div id="loading" style="display:none">
-                <img src="<?php echo $misc; ?>/img/icon/loading.svg" alt="loading..">
+                <img src="<?php echo $misc; ?>/img/icon/loading.svg" alt="loading.." style="width: 130px">
               </div>
 
               <!-- div의 z-index가 이전엔 -1이여서 아래 a태그의 onclick까지 먹통이 되어서 0으로 수정함  -->
@@ -203,8 +203,6 @@ $_SESSION['list_page_url_tmp'] = substr($request_url, strpos($request_url, '/', 
             </select>
             </td> -->
           </tr>
-
-
 
           <tr>
             <td colspan="5"></td>
@@ -246,8 +244,10 @@ $_SESSION['list_page_url_tmp'] = substr($request_url, strpos($request_url, '/', 
             </td>
           </tr>
       </table>
-  </form>
+  <!-- </form> -->
+  </div>
 
+  <div class="main_div">
   <!-- <?php // echo $test_msg; ?> <br><br> -->
   <table class="mlist_tbl" border="0" cellspacing="0" cellpadding="0" style="table-layout: fixed;" >
     <colgroup>
@@ -299,7 +299,7 @@ $_SESSION['list_page_url_tmp'] = substr($request_url, strpos($request_url, '/', 
           ?>
           <td>
             <div style="position:relative; top:-3px">
-              <a class= <?php echo $unseen ?> href="javascript:void(0);" onclick="event.cancelBubble=true;send_context(this);" style="font-weight: bold">
+              <a class= <?php echo $unseen ?> href="javascript:void(0);" onclick="detail_mailview(<?php echo $msg_no?>, '<?php echo $mail_name ?>');" style="font-weight: bold">
                 <?php
                 $from_name = $mail_list_info[$i]['from']['from_name'];
                 $to_name = $mail_list_info[$i]['to']['to_name'];
@@ -375,14 +375,14 @@ $_SESSION['list_page_url_tmp'] = substr($request_url, strpos($request_url, '/', 
   </table>
 </div>
 
-<div class="" style="text-align: center; margin-top: 13px">
+<div class="paging_div" style="text-align: center;">
   <?php echo $links; ?>
 </div>
 
 </div>
 
 
-<div id="move_mbox" style="display:none;position: absolute; background: #000; width: 30px; height: 30px; opacity: 0.4; border-radius: 100%;font-size: 20px;color: white; text-align:center;">
+<!-- <div id="move_mbox" style="display:none;position: absolute; background: #000; width: 30px; height: 30px; opacity: 0.4; border-radius: 100%;font-size: 20px;color: white; text-align:center;">
 <span id="movebox_len"></span>
 </div>
 
@@ -399,14 +399,16 @@ $_SESSION['list_page_url_tmp'] = substr($request_url, strpos($request_url, '/', 
       <td onclick="reply_mail(3)">
         메일쓰기
       </td>
-    </tr>
+    </tr> -->
+
     <!-- <tr>
       <td onclick="reply_mail(1)">
         회신
       </td>
     </tr> -->
-  </table>
-</div>
+
+  <!-- </table>
+</div> -->
 <?php
 include $this->input->server('DOCUMENT_ROOT')."/include/mail_footer.php";
  ?>

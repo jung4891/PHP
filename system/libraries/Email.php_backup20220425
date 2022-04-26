@@ -1470,7 +1470,7 @@ class CI_Email {
 
 			$attachment[$z++] = '--'.$this->_atc_boundary.$this->newline
 				.'Content-type: '.$this->_attachments[$i]['type'].'; '
-				.'name="=?UTF-8?B?'.base64_encode($basename).'?="'.$this->newline
+				.'name="'.$basename.'"'.$this->newline
 				.'Content-Disposition: '.$this->_attachments[$i]['disposition'].';'.$this->newline
 				.'Content-Transfer-Encoding: base64'.$this->newline
 				.(empty($this->_attachments[$i]['cid']) ? '' : 'Content-ID: <'.$this->_attachments[$i]['cid'].'>'.$this->newline);
