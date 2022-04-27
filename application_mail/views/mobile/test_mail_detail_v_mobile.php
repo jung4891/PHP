@@ -368,7 +368,7 @@ function go_list(mailno) {
     from_text = from_text.replace(/</g, '&lt;').replace(/>/g, '&gt;');
     to_text = to_text.replace(/</g, '&lt;').replace(/>/g, '&gt;');
     cc_text = cc_text.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    var title = "<?php echo $mail_info["subject"]; ?>";
+    var title = `<?php echo $mail_info["subject"]; ?>`;
     var plus_content = "";
     plus_content += "<div style='border:none;border-top:solid #E1E1E1 1.0pt;padding:3.0pt 0cm 0cm 0cm'>";
     plus_content += "<p><span style='font-size:10px;'>-----Original Message-----<br>";

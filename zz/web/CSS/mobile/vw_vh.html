@@ -5,34 +5,71 @@
     <meta charset="utf-8">
     <title></title>
   </head>
-  <style media="screen">
-    body {
-      background: #ff5722;
-      color: #64ffda;
-      padding: 1em 0;
-      /* em은 현재의 font-size로 초기 html 상태에선 font-size가 16px로 고정이 되어 있다.*/
-    }
-  </style>
-  <body>
 
-    <!--
-      *  
+   <style media="screen">
+   body {
+     font-size: 10px;    /* 10px이하로는 설정이 안됨(body 뿐만 아니라 다른 태그들도 마찬가지다.) */
+     border: 1px solid gray;
+     height: 100vmin;     /* 설정 안하면 딱 body의 자식들 까지만 높이가 설정된다, 100vh로 설정시 무조건 화면 아랫부분까지 설정됨 */
+   }
+   div {
+     font-size: 1.2em;   /* = 바로 위 부모 폰트사이즈의 1.2배 / 1.2rem일 경우 16px * 1.2로 자식들 모두 동일하다. */
+   }
+   span {
+     font-size: 5vw;
+   }
+   </style>
 
+   <body>
+
+   <!-- em & rem -->
+   <!--
+     - em : 바로 위 부모태그의 font-size. 자식으로 갈수록 계속 가감된다.
+     - rem : 최상위 태그(html 태그)의 font-size(16px). 자식으로 가도 사이즈는 일정하다. (그리드 시스템에서 유용하게 사용가능)
    -->
+   <h4>em & rem</h4>
+   여기는 body
+   <div class="">
+     첫번째 div        <!-- 12px -->
+     <div class="">
+       두번째 div      <!-- 14.4px -->
+       <div class="" style="font-size: 1rem">
+         세번째 div    <!-- 16px -->
+         <div class="" style="font-size: 2rem">
+           네번째 div  <!-- 32px -->
+         </div>
+       </div>
+     </div>
+   </div>
 
-      <p style="font-size: 4vw;">폰트사이즈가 4vw인 경우</p>
-      <span style="font-size: 2vw">
-        폰트사이즈가 2vw인 경우
-        <div style="font-size: 2em">
-          그 자식요소의 폰트사이즈가 2em인 경우(부모의 2배)
-          <div style="font-size: 2em">
-            또 그 자식요소의 폰트사이즈가 2em이면 역시 또 2배
-          </div>
-          <div style="font-size: 2rem">
-            하지만 2rem이라면 최상위 부모의 2배가 된다.
-          </div>
-        </div>
-      </span>
+   <div class="" style="border: 1px solid red">
+     test
+   </div>
+   <div class="" style="border: 1px solid blue; width: 10rem">  <!-- width는 160px가 나온다. -->
+     test2
+   </div>
+   <br><br>
+
+
+   <!-- vw, vh (viewport width, height) -->
+   <!--
+     - viewport: 현재 실행중인 스크린 크기로서 현재 문서 또는 모바일 기기의 스크린을 말함
+     - vw는 뷰포트 너비(즉, 폰 화면 가로길이의)의 1%, vh는 뷰포트 높이의 1% 길이를 일컬음
+       (100vw, 100vh는 전체화면을 말함.)
+    -->
+
+   <!-- vmin, vmax (Viewport Minimum, Maximum) -->
+   <!--
+     - vmax : 뷰포트 너비 또는 높이중 더 큰값의 1%. vmin은 반대. (body에서 내용확인)
+    -->
+   <h4>vw & vh</h4>
+   <span>화면 크기에 따라 바뀌는 글씨크기 (5vw) </span> <br>
+   <span style="font-size: 200%">퍼센트로 설정한 글씨크기 (200% -> 상위부모인 body 10px의 2배)</span>
+   <div style="font-size: 30px">
+     <span style="font-size: 150%">부모인 div의 글자크기가 30px이므로 150%는 45px</span>
+   </div>
+
+
 
 
 
@@ -41,12 +78,3 @@
 
 
 </html>
-
-<!--
-
- * vw, vh (viewport width, height)
-   뷰포트(현재 실행중인 스크린 크기로서 현재 문서 또는 모바일 기기의 스크린을 말함)를 기준으로
-   vw는 뷰포트 너비의 1%, vh는 뷰포트 높이의 1% 길이와 동일함
-   - 100vw, 100vh는 전체화면을 말함.
-
- -->

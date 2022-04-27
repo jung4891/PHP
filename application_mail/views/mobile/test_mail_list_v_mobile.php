@@ -132,7 +132,7 @@ $_SESSION['list_page_url_tmp'] = substr($request_url, strpos($request_url, '/', 
   }
  </style>
 
-<div id="main_contents" align="center" style="height: 100vh; width: 100vw; display: grid; grid-template-rows: 50px auto 125px; ">
+<div id="main_contents" align="center" style="height: 100vh; width: 100vw; display: grid; grid-template-rows: 50px auto 135px; ">
   <div class="search_div">
   <!-- <form name="mform" action="" method="post"> -->
       <table style="width:90%; padding-bottom:10px; " border="0" cellspacing="0" cellpadding="0">
@@ -375,11 +375,37 @@ $_SESSION['list_page_url_tmp'] = substr($request_url, strpos($request_url, '/', 
   </table>
 </div>
 
-<div class="paging_div" style="text-align: center;">
+<div class="paging_div" style="text-align: center; padding-top: 15px">
   <?php echo $links; ?>
 </div>
 
+<div class="choose_div" style="display: none; background-color: black; padding-top: 5%;">
+  <div class="" style="width: 5%">
+  </div>
+  <div class="" style="width: 20%; color: white;" onclick="check_all();">
+    <span style="">전체선택</span>
+  </div>
+  <div class="" style="width: 20%; color: white">
+    이동
+  </div>
+  <div class="" style="width: 20%; color: white">
+    답장
+  </div>
+  <div class="" style="width: 20%; color: white">
+    스팸
+  </div>
+  <div class="" style="width: 20%; color: white">
+    삭제
+  </div>
+  <div class="" style="width: 5%">
+  </div>
 </div>
+
+</div>
+
+<!-- <div id="mobile_footer" style="width: 100vw; height: 8vh; bottom: 0px; border: 1px solid red; background-color: darkgray">
+test
+</div> -->
 
 
 <!-- <div id="move_mbox" style="display:none;position: absolute; background: #000; width: 30px; height: 30px; opacity: 0.4; border-radius: 100%;font-size: 20px;color: white; text-align:center;">
@@ -415,6 +441,17 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_footer.php";
 
 
 <script type="text/javascript">
+
+ // $(function() {
+ //   $("#mobile_footer").bPopup({
+ //     modalClose: false,
+ //     opacity: 0,
+ //     position: [0, 610], //x, y
+ //     speed: 500,
+ //     transition: 'slideBack',
+ //     transitionClose: 'slideBack'
+ //   });
+ // })
 
  var ip_yn = 1;
  function ip_check(){
@@ -750,37 +787,53 @@ $(".mlist_tbl tr").on("mousedown", function(){
 
 
  // 상단 체크박스 클릭시 전체선택/해제 설정
- function check_all(chk_all) {
-   if(chk_all.checked) {
-     $('.top_button').prop('disabled', false);
-     $('.top_button').css('cursor', 'pointer');
-     $('input[type="checkbox"]').prop('checked', true);
-   }else {
-     $('.top_button').prop('disabled', "disabled");
+ function check_all() {
+   chk_cnt = $('input[name="chk"]').length;
+   if($('input[name="chk"]:checked').length == chk_cnt) {
      $('input[type="checkbox"]').prop('checked', false);
-     $('.top_button').css('cursor', '');
+   }else {
+     $('input[type="checkbox"]').prop('checked', true);
    }
+
+   // if(chk_all.checked) {
+   //   $('.top_button').prop('disabled', false);
+   //   $('.top_button').css('cursor', 'pointer');
+   //   $('input[type="checkbox"]').prop('checked', true);
+   // }else {
+   //   $('.top_button').prop('disabled', "disabled");
+   //   $('input[type="checkbox"]').prop('checked', false);
+   //   $('.top_button').css('cursor', '');
+   // }
  };
 
  // 체크박스 하나 클릭시
  $('input[name="chk"]').on('click', function(){
-   chk_cnt = $('input[name="chk"]').length;
-   if($('input[name="chk"]:checked').length == chk_cnt) {
-     $('#total').prop('checked', true);
-   }else {
-     $('#total').prop('checked', false);
-   }
    if(this.checked) {
-     $('.top_button').prop('disabled', false);
-     $('.top_button').css('cursor', 'pointer');
-     // $('.top_button').css({'background-color':'white', 'border':'1px solid lightgray'});
+     $(".paging_div").css('display', 'none');
+     $(".choose_div").css('display', 'flex');
    }else {
-      if($('input[name="chk"]:checked').length == 0) {
-        $('.top_button').prop('disabled', 'disabled');
-        $('.top_button').css('cursor', '');
-        // $('.top_button').css({'background-color':'', 'border':''});
-      }
+     if($('input').is(":checked") == false){    // 하나라도 체크되어있지 않은 경우
+      $(".paging_div").css('display', 'block');
+      $(".choose_div").css('display', 'none');
     }
+   }
+   // chk_cnt = $('input[name="chk"]').length;
+   // if($('input[name="chk"]:checked').length == chk_cnt) {
+   //   $('#total').prop('checked', true);
+   // }else {
+   //   $('#total').prop('checked', false);
+   // }
+   // if(this.checked) {
+   //   $('.top_button').prop('disabled', false);
+   //   $('.top_button').css('cursor', 'pointer');
+   //   // $('.top_button').css({'background-color':'white', 'border':'1px solid lightgray'});
+   // }else {
+   //    if($('input[name="chk"]:checked').length == 0) {
+   //      $('.top_button').prop('disabled', 'disabled');
+   //      $('.top_button').css('cursor', '');
+   //      // $('.top_button').css({'background-color':'', 'border':''});
+   //    }
+   //  }
  })
 
  // 중요메일 체크
@@ -809,13 +862,13 @@ $(".mlist_tbl tr").on("mousedown", function(){
   var mbox = `<?php echo $mbox; ?>`;
   var per_page = '<?php echo $per_page; ?>';
   var type = '<?php if(isset($type)) echo $type; else echo ""; ?>';
-  var search_word = '<?php if(isset($search_word)) echo $search_word; else echo ""; ?>';
-  var from = '<?php if(isset($from)) echo $from; else echo ""; ?>';
-  var to = '<?php if(isset($to)) echo $to; else echo ""; ?>';
-  var subject = '<?php if(isset($subject)) echo $subject; else echo ""; ?>';
-  var contents = '<?php if(isset($contents)) echo $contents; else echo ""; ?>';
-  var start_date = '<?php if(isset($start_date)) echo $start_date; else echo ""; ?>';
-  var end_date = '<?php if(isset($end_date)) echo $end_date; else echo ""; ?>';
+  var search_word = `<?php if(isset($search_word)) echo $search_word; else echo ""; ?>`;
+  var from = `<?php if(isset($from)) echo $from; else echo ""; ?>`;
+  var to = `<?php if(isset($to)) echo $to; else echo ""; ?>`;
+  var subject = `<?php if(isset($subject)) echo $subject; else echo ""; ?>`;
+  var contents = `<?php if(isset($contents)) echo $contents; else echo ""; ?>`;
+  var start_date = `<?php if(isset($start_date)) echo $start_date; else echo ""; ?>`;
+  var end_date = `<?php if(isset($end_date)) echo $end_date; else echo ""; ?>`;
   var newForm = $('<form></form>');
   newForm.attr("method","get");
   newForm.attr("action", "<?php echo site_url(); ?>/testmailbox/mail_list");
