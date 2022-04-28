@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+    <meta charset="utf-8">
+    <title></title>
+  </head>
+  <body><br>
+
+    <button onclick="reload();">전체 새로고침</button> <br><br>
+    <button onclick="reloadTimeout();">3초후 전체 새로고침</button> <br><br><hr><br>
+
+    <button onclick="reloadTimeout2();">특정부분 새로고침</button> <br>
+    <p></p>
+    <p id="reload_part">새로고침된 시각</p> <hr><br>
+
+    <button onclick="reloadAuto();">특정부분 자동 새로고침</button> <br><br>
+    <span id="test">2초간격 카운트 새로고침</span> <br>
+    <span id="test2">2초간격 현재시간 새로고침</span>
+
+  </body>
+  <script type="text/javascript">
+
+    $(function() {
+      // setTimeout('location.reload()', 3000);   // 이렇게 해야 전체페이지 3초마다 새로고침됨
+      var now = new Date();
+      $('p').text(now);
+      // $('p').eq(0).text(now);
+    })
+    function reload() {
+      location.reload();
+    }
+    function reloadTimeout() {
+      setTimeout('location.reload()', 3000);
+    }
+
+    function reloadTimeout2() {
+      $('#reload_part').load(window.location.href + ' #reload_part');  // 빈칸넣어주고 id입력해야함!
+      // setTimeout('location.reload()', 3000);
+    }
+
+    function reloadAuto() {
+      window.setInterval("refreshDiv()", 2000);
+    }
+    var counter = 0;
+    function refreshDiv(){
+      counter = counter + 1;
+      let now = new Date();
+      document.getElementById("test").innerHTML = "Testing " + counter;
+      // document.getElementById("test2").innerHTML = now;
+      $('#test2').text(now);
+    }
+
+  </script>
+</html>

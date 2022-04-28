@@ -488,7 +488,7 @@ class Testmailbox extends CI_Controller {
       $per_page = ($mail_cnt_show == "")? 15:$mail_cnt_show;      // 한 페이지에 보여줄 데이터 갯수
       $pagingNum_cnt = 10;                                        // 페이징 블록에서의 페이징 번호 갯수 (5개로 가정하면)
       if($this->agent->is_mobile()) {
-        $per_page = 8;
+        $per_page = 10;
         $pagingNum_cnt = 5;
       }
       $total_pages = ceil($total_rows/$per_page);                 // 16/15 -> 총 2페이지

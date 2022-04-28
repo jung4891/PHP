@@ -23,6 +23,10 @@ $_SESSION['list_page_url_tmp'] = substr($request_url, strpos($request_url, '/', 
  <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
  <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/i18n/jquery-ui-i18n.min.js"></script>
 
+ <!-- toasr을 사용하기 위해 필요한 css와 js파일 -->
+ <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.css" integrity="sha512-3pIirOrwegjM6erE5gPSwkUzO+3cTjpnV9lexlNZqvupR64iZBnOOTiiLPb9M36zpMScbmUNIcHUqKD47M719g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js" integrity="sha512-VEd+nq25CkR676O+pLBnDW09R7VQX9Mdiij052gVCp5yVH3jGtH70Ho/UUv4mJDsEdTvqRCFZg0NKGiojGnUCw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
  <link rel="stylesheet" href="<?php echo $misc; ?>/css/style.css" type="text/css" charset="utf-8"/>
  <style media="screen">
   .mlist_tbl{
@@ -130,9 +134,21 @@ $_SESSION['list_page_url_tmp'] = substr($request_url, strpos($request_url, '/', 
     position: relative;
     top: 4px;
   }
+
+  /* toast 사이즈 및 투명도 설정*/
+  #toast-container > div {
+      width: 10em;
+      opacity: 1;
+  }
+
+  /* toast 위치 세부설정 */
+  .toast-bottom-right {
+    bottom: 9vh;
+    left: 53vw;
+  }
  </style>
 
-<div id="main_contents" align="center" style="height: 100vh; width: 100vw; display: grid; grid-template-rows: 50px auto 135px; ">
+<div id="main_contents" align="center" style="height: 100vh; width: 100vw; display: grid; grid-template-rows: 6vh auto 20vh; ">
   <div class="search_div">
   <!-- <form name="mform" action="" method="post"> -->
       <table style="width:90%; padding-bottom:10px; " border="0" cellspacing="0" cellpadding="0">
@@ -391,12 +407,24 @@ $_SESSION['list_page_url_tmp'] = substr($request_url, strpos($request_url, '/', 
   <div class="" style="width: 20%; color: white">
     답장
   </div>
-  <div class="" style="width: 20%; color: white">
+  <div class="" style="width: 20%; color: white" onclick="move_spam();">
     스팸
   </div>
-  <div class="" style="width: 20%; color: white">
-    삭제
-  </div>
+  <?php if($mbox == "&ycDGtA- &07jJwNVo-") {  // 휴지통 ?>
+    <div class="" style="width: 20%; color: white" onclick="del_ever();">
+      완전삭제
+    </div>
+  <!-- <button type="button" class="top_button" onclick="del_ever();" disabled="disabled"
+          style="width: 70px; height: 29px; border-radius: 3px; font-weight: bold">영구삭제</button> -->
+  <?php }else {?>
+    <div class="" style="width: 20%; color: white" onclick="del_trash();">
+      삭제
+    </div>
+
+  <!-- <button type="button" class="top_button" onclick="del_trash();" disabled="disabled"
+          style="width: 53px; height: 29px; border-radius: 3px; font-weight: bold; border: 1px solid">삭제</button> -->
+  <?php } ?>
+
   <div class="" style="width: 5%">
   </div>
 </div>
@@ -791,6 +819,8 @@ $(".mlist_tbl tr").on("mousedown", function(){
    chk_cnt = $('input[name="chk"]').length;
    if($('input[name="chk"]:checked').length == chk_cnt) {
      $('input[type="checkbox"]').prop('checked', false);
+     $(".paging_div").css('display', 'block');
+     $(".choose_div").css('display', 'none');
    }else {
      $('input[type="checkbox"]').prop('checked', true);
    }
@@ -889,6 +919,32 @@ $(".mlist_tbl tr").on("mousedown", function(){
   newForm.submit();
 }
 
+// toast창 위치설정
+toastr.options.positionClass = "toast-bottom-right";
+
+// 스팸으로 처리 (우선 정크 메일로 이동. 추후 해당 메일의 보낸사람이 또 보낼경우 스팸메일함으로 자동분류 설정)
+ function move_spam(){
+   let arr = [];
+   for(var i=0; i<document.frm.length; i++) {
+    if(document.frm[i].checked) {
+      arr.push(document.frm[i].value)
+    }
+   }
+   $.ajax({
+     url : "<?php echo site_url(); ?>/testmailbox/mail_move",
+     type : "post",
+     data : {mbox: `<?php echo $mbox ?>`, to_box: '&yBXQbA- &ulTHfA-', mail_arr: arr},
+     success : function(data){
+     },
+     error : function(request, status, error){
+         console.log("AJAX_ERROR");
+     },
+     complete : function() {
+       location.reload();
+     }
+   });
+ }
+
  // 휴지통으로 삭제
   function del_trash(){
     let arr = [];
@@ -908,14 +964,16 @@ $(".mlist_tbl tr").on("mousedown", function(){
           console.log("AJAX_ERROR");
       },
       complete : function() {
-        location.reload();
+        toastr.success('삭제완료');
+        setTimeout('location.reload()', 300);
+        // location.reload();
       }
     });
   }
 
  // 휴지통에서 완전삭제
   function del_ever(){
-    if (confirm("정말 삭제하시겠습니까??") == true) {
+    if (confirm("정말 삭제하시겠습니까?") == true) {
       let arr = [];
       for(var i=0; i<document.frm.length; i++) {
         if(document.frm[i].checked) {
@@ -927,7 +985,9 @@ $(".mlist_tbl tr").on("mousedown", function(){
         type : "post",
         data : {mbox: `<?php echo $mbox ?>`, mail_arr: arr},
         complete : function() {
-          location.reload();
+          toastr.success('완전삭제 완료');
+          setTimeout('location.reload()', 300);
+          // location.reload();
         }
       });
     } else {
@@ -958,37 +1018,37 @@ $(".mlist_tbl tr").on("mousedown", function(){
  }
 
    // 보기개수 설정
-   function mails_cnt(s) {
-    const cnt = s.options[s.selectedIndex].value;
-    var mbox = `<?php echo $mbox; ?>`;
-    var curpage = '<?php echo $curpage; ?>';
-    var type = '<?php if(isset($type)) echo $type; else echo ""; ?>';
-    var search_word = '<?php if(isset($search_word)) echo $search_word; else echo ""; ?>';
-    var from = '<?php if(isset($from)) echo $from; else echo ""; ?>';
-    var to = '<?php if(isset($to)) echo $to; else echo ""; ?>';
-    var subject = '<?php if(isset($subject)) echo $subject; else echo ""; ?>';
-    var contents = '<?php if(isset($contents)) echo $contents; else echo ""; ?>';
-    var start_date = '<?php if(isset($start_date)) echo $start_date; else echo ""; ?>';
-    var end_date = '<?php if(isset($end_date)) echo $end_date; else echo ""; ?>';
-    var newForm = $('<form></form>');
-    newForm.attr("method","get");
-    newForm.attr("action", "<?php echo site_url(); ?>/testmailbox/mail_list");
-    newForm.append($('<input>', {type: 'hidden', name: 'boxname', value: mbox }));
-    newForm.append($('<input>', {type: 'hidden', name: 'curpage', value: curpage }));
-    newForm.append($('<input>', {type: 'hidden', name: 'mail_cnt_show', value: cnt }));
-    if(type != "") newForm.append($('<input>', {type: 'hidden', name: 'type', value: type }));
-    if(search_word != "") newForm.append($('<input>', {type: 'hidden', name: 'search_word', value: search_word }));
-    if(from != "") newForm.append($('<input>', {type: 'hidden', name: 'from', value: from }));
-    if(to != "")   newForm.append($('<input>', {type: 'hidden', name: 'to', value: to }));
-    if(subject != "")  newForm.append($('<input>', {type: 'hidden', name: 'subject', value: subject }));
-    if(contents != "")  newForm.append($('<input>', {type: 'hidden', name: 'contents', value: contents }));
-    if(start_date != "")  newForm.append($('<input>', {type: 'hidden', name: 'start_date', value: start_date }));
-    if(end_date != "")  newForm.append($('<input>', {type: 'hidden', name: 'end_date', value: end_date }));
-    if(type == "attachments" || type == "search" || type == "search_detail")
-      newForm.append($('<input>', {type: 'hidden', name: 'session', value: 'on' }));
-    newForm.appendTo('body');
-    newForm.submit();
-  }
+  //  function mails_cnt(s) {
+  //   const cnt = s.options[s.selectedIndex].value;
+  //   var mbox = `<?php echo $mbox; ?>`;
+  //   var curpage = '<?php echo $curpage; ?>';
+  //   var type = '<?php if(isset($type)) echo $type; else echo ""; ?>';
+  //   var search_word = '<?php if(isset($search_word)) echo $search_word; else echo ""; ?>';
+  //   var from = '<?php if(isset($from)) echo $from; else echo ""; ?>';
+  //   var to = '<?php if(isset($to)) echo $to; else echo ""; ?>';
+  //   var subject = '<?php if(isset($subject)) echo $subject; else echo ""; ?>';
+  //   var contents = '<?php if(isset($contents)) echo $contents; else echo ""; ?>';
+  //   var start_date = '<?php if(isset($start_date)) echo $start_date; else echo ""; ?>';
+  //   var end_date = '<?php if(isset($end_date)) echo $end_date; else echo ""; ?>';
+  //   var newForm = $('<form></form>');
+  //   newForm.attr("method","get");
+  //   newForm.attr("action", "<?php echo site_url(); ?>/testmailbox/mail_list");
+  //   newForm.append($('<input>', {type: 'hidden', name: 'boxname', value: mbox }));
+  //   newForm.append($('<input>', {type: 'hidden', name: 'curpage', value: curpage }));
+  //   newForm.append($('<input>', {type: 'hidden', name: 'mail_cnt_show', value: cnt }));
+  //   if(type != "") newForm.append($('<input>', {type: 'hidden', name: 'type', value: type }));
+  //   if(search_word != "") newForm.append($('<input>', {type: 'hidden', name: 'search_word', value: search_word }));
+  //   if(from != "") newForm.append($('<input>', {type: 'hidden', name: 'from', value: from }));
+  //   if(to != "")   newForm.append($('<input>', {type: 'hidden', name: 'to', value: to }));
+  //   if(subject != "")  newForm.append($('<input>', {type: 'hidden', name: 'subject', value: subject }));
+  //   if(contents != "")  newForm.append($('<input>', {type: 'hidden', name: 'contents', value: contents }));
+  //   if(start_date != "")  newForm.append($('<input>', {type: 'hidden', name: 'start_date', value: start_date }));
+  //   if(end_date != "")  newForm.append($('<input>', {type: 'hidden', name: 'end_date', value: end_date }));
+  //   if(type == "attachments" || type == "search" || type == "search_detail")
+  //     newForm.append($('<input>', {type: 'hidden', name: 'session', value: 'on' }));
+  //   newForm.appendTo('body');
+  //   newForm.submit();
+  // }
 
    // 보낸사람 링크 변경
    function change_href(e, addr) {

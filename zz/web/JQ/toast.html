@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+    <!-- toasr을 사용하기 위해 필요한 css와 js파일 (제이쿼리를 상단에 먼저 선언해야한다.) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.css" integrity="sha512-3pIirOrwegjM6erE5gPSwkUzO+3cTjpnV9lexlNZqvupR64iZBnOOTiiLPb9M36zpMScbmUNIcHUqKD47M719g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js" integrity="sha512-VEd+nq25CkR676O+pLBnDW09R7VQX9Mdiij052gVCp5yVH3jGtH70Ho/UUv4mJDsEdTvqRCFZg0NKGiojGnUCw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <meta charset="utf-8">
+    <title></title>
+  </head>
+  <body><br>
+ 
+    <!-- toastr -->
+    <!-- toastr 은 non-blocking 알람을 띄우는 Javasript 라이브러리 입니다. jQuery 가 필요합니다 -->
+    <div>
+      <button id="alert">alert 테스트</button> <br><br>
+      <button id="toastr">toastr 테스트</button>
+      <button id="toastr2">toastr 테스트(제목+내용)</button>
+    </div>
+
+<!-- <div id="toast-container" class="toast-top-right" style="">
+  <div class="toast toast-success" aria-live="polite" style="">
+    <div class="toast-message">toastr success</div>
+  </div>
+</div> -->
+
+    <style media="screen">
+      /* 위치 및 지정 (개발자도구 창에서 클래스명 확인하면 됨) */
+      .toast-top-right {
+        right: 10%;
+      }
+
+      /* 사이즈 및 투명도 설정*/
+      #toast-container > div {
+          width: 12em;
+          opacity: 1;
+      }
+
+      /* 글자 크기 */
+      .toast-title {
+        font-size: 20px;
+      }
+      .toast-message {
+        font-size: 10px;
+        width: 150px;
+        opacity: 1;
+      }
+    </style>
+
+    <script type="text/javascript">
+      $('#alert').on('click', function() {
+        alert('alertTest');
+      })
+      $('#toastr').on('click', function() {
+        toastr.success('toastr success');
+        toastr.warning('warning');
+        toastr.error('error');
+        toastr.info('info');
+      })
+      $('#toastr2').on('click', function() {
+        toastr.success('여기는 내용', '여기가 제목');
+      })
+
+      toastr.options.timeOut = 3000;
+      //toastr.options.positionClass = "toast-top-right";   // 요게 디폴트값
+    </script>
+  </body>
+</html>
