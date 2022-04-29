@@ -100,6 +100,13 @@ a{
   text-align: center;
 }
 
+#side_mbox{
+  max-height: 60%;
+  width:100%;
+  overflow-y: scroll;
+  border-top:2px solid #dedede;
+  padding: 10px 0px;
+}
 
 /* 수정함 */
 #main_contents{

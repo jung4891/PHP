@@ -154,9 +154,43 @@
     margin-right: auto;
 }
 
-#mobile_side{
+/* #mobile_side{
   display: grid;
   grid-template-rows: 50px 60px 0px auto 110px;
+} */
+#mobile_nav{
+  position: fixed !important;
+}
+#mobile_side{
+  width:100%;
+  height:100%;
+  /* display: grid; */
+  /* grid-template-rows: 60px 60px auto 60px 30px; */
+  display: flex;
+  flex-direction: column;
+}
+
+#side_mbox{
+  /* max-height: 60%; */
+  /* width:100%; */
+  overflow-y: scroll;
+  border-top: 1px solid #dedede;
+  border-bottom: 1px solid #dedede;
+
+}
+.mailbox_div{
+   /* padding: 0px 20px; */
+}
+
+.mbox_tbl{
+  width:90%;
+}
+
+.mbox_tbl td img{
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+
 }
   </style>
   <body>
@@ -198,19 +232,18 @@
 
       </div>
 <!-- 사이드바 -->
-      <div id="mobile_nav" style="height: calc(100vh - 130px);width:calc(100vw - 100px);background-color:#ffffff; display:none; border-radius: 30px 0px 0px 0px;">
-        <div id="mobile_side" class="" style="width:100%;height:100%;padding:15px;">
-          <div class="" style="margin-top:10px; ">
-            <span onclick="myinfo();" style="font-weight:bold;font-size:18px;">
-              <?php if($_SESSION['roles'] == 'admin') { ?>
+      <div id="mobile_nav" style="height: calc(100vh - 75px);width:calc(100vw - 100px);background-color:#ffffff; display:none; border-radius: 30px 0px 0px 0px;">
+        <div id="mobile_side" class="" style="">
+          <div class="" style="height:60px;display: flex;flex-direction: column;justify-content: center;padding-left:20px;" onclick="myinfo();">
+            <span style="font-weight:bold;font-size:18px;">
+                  <?php echo $_SESSION['name']; ?>
+            </span>
+            <span onclick="myinfo();" style="font-weight:bold;font-size:14px;color:grey;">
                     <?php echo $_SESSION['userid']; ?>
-              <?php } else { ?>
-                  <?php echo $_SESSION['name'].'님'; ?>
-              <?php } ?>
             </span>
           </div>
 
-          <div class="" style="display:flex;justify-content: space-around; padding-right: 25px;">
+          <div class="" style="height:60px;display:flex;justify-content: space-around;">
             <?php
               if(isset($mbox)) {
                 // $mbox2 = str_replace('&', '%26', $mbox);
@@ -230,7 +263,7 @@
              ?>
             <div class="side_top2" align="center" onclick="location.href='<?php echo site_url(); ?>/testmailbox/mail_list?boxname=<?php echo $url_route; ?>'">
               <!-- <img src="<?php echo $misc;?>img/icon/schedule.svg" width="25"><br> -->
-             <div class="" style="padding-bottom: 3px; font-size: 18px; color: red; <?php echo $font_style?>">
+             <div class="" style="padding-bottom: 3px; font-size: 18px; color: #F25757; <?php echo $font_style?>">
                <?php
                if(isset($mbox)) {   // 메일쓰기 페이지에서 오류방지
                  $mbox_addslash = addslashes($mbox);
@@ -266,23 +299,18 @@
               $img_attach = "첨부(본문).svg";
             }
              ?>
-            <div class="side_top2" align="center" onclick="location.href='<?php echo site_url(); ?>/testmailbox/mail_list?boxname=<?php echo $url_route; ?>'">
+            <div class="side_top2" align="center" onclick="location.href='<?php echo site_url(); ?>/mailbox/mail_list?boxname=<?php echo $url_route; ?>'">
               <img src="<?php echo $misc;?>img/icon/<?php echo $img_attach ?>" width="25"><br>
               <span style="<?php if(isset($type) && $type == 'attachments') echo 'font-weight: bold;'?> font-size: small; display: block;">첨&nbsp;부</span>
             </div>
             <div class="side_top2" align="center" onclick="location.href='<?php echo site_url(); ?>/mail_write/page'">
               <img src="<?php echo $misc;?>img/sideicon/sent.svg" width="25"><br>
-              <span style="<?php if(isset($type) && $type == 'attachments') echo 'font-weight: bold;'?> font-size: small; display: block;">메일쓰기</span>
+              <span style="font-size: small; display: block;">메일쓰기</span>
             </div>
           </div>
 
-          <form name="boxform" id="boxform" class="" action="" method="get">
-            <!-- <input type="hidden" name="curpage" id="curpage" value="">
-            <input type="hidden" name="searchbox" id="searchbox" value=""> -->
-            <input type="hidden" name="boxname" id="boxname" value="">
-          </form>
 
-          <div class="mailbox_div" id="side_mbox" align="center" style="display: grid; max-height: 90%; border-top: 1px solid #dedede; border-bottom: 1px solid #dedede;">
+          <div class="mailbox_div" id="side_mbox" style="max-height:50%;">
             <?php
             $i = 0;
             if(strpos($_SERVER['REQUEST_URI'],'mailbox/') !== false){
@@ -298,7 +326,7 @@
             }
             foreach ($mailbox_tree as $b) {
               if(isset($sel_box)){
-                $sel_img = ($sel_box == $b["id"])?"2":"";
+                $sel_img = ($sel_box == $b["id"])?"":"";
               }else{
                 $sel_img = "";
               }
@@ -309,15 +337,15 @@
                 ?>
               <table class="mbox_tbl" id="<?php echo $b["id"]; ?>_tbl" border="0" cellspacing="0" cellpadding="0">
               <col width="10%">
-              <col width="60%">
+              <col width="80%">
               <!-- <col width="7%"> -->
-              <col width="30%">
+              <col width="10%">
 
                 <?php
               }
                 ?>
             <tr class="box_tr <?php if($b["folderkey"] == "custom") echo 'context-menu-one2'; else  echo 'context-menu-default'; ?>" id="<?php echo $b["id"]; ?>" child_num="<?php echo $b["child_num"]; ?>">
-              <td height=30 align="left">
+              <td height=30 align="right">
                 <?php if($b["parent"] == "#" && $b["folderkey"] != "custom"){ ?>
                 <img src="<?php echo $misc;?>img/sideicon/<?php echo $b["folderkey"].$sel_img; ?>.svg" style="cursor:pointer; padding-top: 5px">
               <?php } ?>
@@ -330,7 +358,7 @@
                 <?php
                   echo $b['text'];
                 ?>
-                <span style="color: red">
+                <span style="color:#F25757; margin-right:5px;">
                 <?php echo ($b['unseen'] == 0)? "" : ( ($b['unseen'] > 99)? "99+" : $b['unseen'] ) ; ?>
                 </span>
               </td>
@@ -350,15 +378,6 @@
                 ?>
               </td>
             </tr>
-            <tr style="display: none" class="right_click_event">
-                <td></td>
-            <td colspan="2" style="padding-left:<?php echo $padding.'px'; ?>;" >
-              <input type="text" style="width: 70px" class="except_event" id="<?php echo $b["id"].'_text'; ?>"  name="" value="">
-              <input type="button"  value="추가" class="except_event" onclick="add_mbox(this);">
-                  <input type="button" name="" value="취소" class="except_event" onclick="cancel(this);">
-                  <span style="display: none" id="<?php echo $b["parent"] ?>"></span>
-                </td>
-              </tr>
               <?php
               if($i == $box_len){
                 echo "</table>";
@@ -368,31 +387,41 @@
               ?>
             </table>
           </div>
-          <div class="">
-            <div class="" style="" align="center">
-              <table class="mbox_tbl" border="0" cellspacing="0" cellpadding="0">
+          <div class="mailbox_div">
+            <table class="mbox_tbl" border="0" cellspacing="0" cellpadding="0" style="padding-top:10px;">
                 <colgroup>
-                  <col width="1%">
-                  <col width="50%">
+                  <col width="10%">
+                  <col width="80%">
+                  <col width="10%">
                 </colgroup>
                 <tr class="box_tr" onclick="document.location='<?php echo site_url(); ?>/option/user'" id="option_tr">
-                  <td height=30 align="left">
-                    <img id="setting_img" src="<?php echo $misc;?>img/sideicon/setting2.svg" style="cursor:pointer; padding-top: 5px">
+                  <td height=30 align="right">
+                    <img id="setting_img" src="<?php echo $misc;?>img/sideicon/setting2.svg" style="cursor:pointer;">
                   </td>
-                  <td style="padding-left:2px">
+                  <td style="">
                     설정
                   </td>
+                  <td></td>
                 </tr>
                 <tr class="box_tr" onclick="document.location='<?php echo site_url(); ?>/account/logout'" id="logout_tr">
-                  <td height=30 align="left">
+                  <td height=30 align="right">
 
                   </td>
-                  <td style="padding-left:2px">
+                  <td style="">
                     로그아웃
                   </td>
+                  <td></td>
                 </tr>
               </table>
+
             </div>
+          <div class="">
+            <form name="boxform" id="boxform" class="" action="" method="get">
+              <!-- <input type="hidden" name="curpage" id="curpage" value="">
+              <input type="hidden" name="searchbox" id="searchbox" value=""> -->
+              <input type="hidden" name="boxname" id="boxname" value="">
+            </form>
+
           </div>
 
         </div>
