@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSS_basic</title>
+</head>
+<body>
+
+    <!--
+      * 스타일시트
+       - 스타일 시트 적용 우선순위 : 인라인 > 내부 > 외부
+    -->
+
+    <!-- 인라인 스타일(Inline style) -->
+    <h4 style="color:orange">인라인 스타일 -> 될 수 있으면 꼭 필요한 경우에만 사용</h4>
+
+    <!-- 내부 스타일시트 (Internal style sheet) -->
+    <style media="screen">
+      h4 { color: red;}
+    </style>
+    <h4>내부 스타일시트</h4>
+
+    <!-- 외부 스타일 시트(External style sheet) -->
+    <link rel="stylesheet" href="basic.css"> <!-- href에서 /는 web 폴더/를 의미함 -->
+    <h4 id="external">외부 스타일시트</h4>
+    <hr>
+
+
+    <!--
+      * 선택자
+       - 선택자 우선순위 : id > class > 그룹
+    -->
+    <style media="screen">
+      body {font-family:"consolas"; background-color: gray}
+      h2 { color:teal; }
+      #heading { color: yellow; text-decoration: underline;}
+      .headings { color: lime}
+      h3, p { color:blue; text-align:center; background-color:lightgray; }    /* 요게 그룹선택자*/
+
+    </style>
+    <h2>HTML 요소 선택자</h2>
+    <h2 id="heading">id 선택자</h2>
+    <h2 class="headings">class 선택자</h2>
+    <h2 id="heading" class="headings">id선택자가 class 선택자보다 우선한다</h2>
+    <p>group 선택자</p>
+    <h3 class="headings">class선택자가 group선택자보다 우선된다 </h3>
+    <hr>
+
+    <!--
+      * !important
+       - css는 같은 속성을 여러 번 정의했을 때, 나중에 설정한 값이 적용되는데
+         이때 설정되어 있는 값을 적용되지 않게 하기위해 사용
+    -->
+    <style media="screen">
+      #important {
+        color: green !important;
+      }
+      #important {
+        color: red;
+      }
+
+    </style>
+
+    <h2 id="important">important 테스트</h2>
+    <h2 id="important" style="color: blue !important">important 테스트2</h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

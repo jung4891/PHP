@@ -5,27 +5,99 @@
     <title></title>
     <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
   </head>
-  <body>
+  <body><br>
 
-    <h4>select()</h4>
-    <input type="text" id="select_test" value=""> <br><br>
-    <textarea name="select_test2" id="select_test2" idd="idd_test" rows="4" cols="50"></textarea>
+<!--
+  * select() & focus()
+   - select() : 전체 블록설정됨
+   - focus() : 끝에 커서 위치시킴
+-->
+    <input type="text" id="select_test" name="select_test" value=""> <br><br>
+    <textarea id="select_test2" name="select_test2"  iddd="idd_test" rows="4" cols="50"></textarea>
+    <br><br><hr><br>
 
     <script type="text/javascript">
       $(function(){
         $("#select_test").val("select 테스트");
+        $("input[name=select_test]").val('호호');
         $("#select_test").on("click", function(){
-          $(this).select();
+          // $(this).select();        // 요렇게 해도 된다
+          $("#select_test").select();
         })
 
         $("textarea").val("이것도 되나?");
         $("textarea[name=select_test2]").val("이렇게도?");
-        $("textarea[idd=idd_test]").val("이건 안되겠지?");    // 된다..
-        $("#select_test2").focus().select();
+        $("textarea[iddd=idd_test]").val("이건 안되겠지?");    // 된다..
+        $("#select_test2").focus();
         console.log($("#select_test2"));
         console.log($("#select_test2")[0]);
       })
     </script>
+
+
+
+    <link rel="stylesheet" type="text/css" href="http://jqueryui.com/resources/demos/style.css">
+    <link rel="stylesheet" type="text/css"  href="//code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">
+    <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
+    <script src="http://code.jquery.com/ui/1.11.0/jquery-ui.js"></script>
+
+<!-- label -->
+    <p id="tt">테스트</p>
+    <label for="data">데이터선택</label>
+    <select id="dataa" title="데이터선택" name="select_data" >
+      <option value=1>1</option>
+      <option value=2>2</option>
+    </select>
+    <br><br><hr><br>
+
+    <script type="text/javascript">
+      jQuery(document).ready(function(){
+        var select = $("select #data");
+        select.change(function(){
+            var select_name = $(this).children("option:selected").text();
+            $(this).siblings("label").text(select_name);
+        });
+      });
+
+      $('#tt').on('click', function() {
+        // $('#dataa').attr('size', $('option').length);
+        // $('select').attr('size', 4);
+      })
+
+    </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
   </body>
