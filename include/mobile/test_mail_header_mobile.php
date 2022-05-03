@@ -405,7 +405,7 @@
                 </tr>
                 <tr class="box_tr" onclick="document.location='<?php echo site_url(); ?>/account/logout'" id="logout_tr">
                   <td height=30 align="right">
-
+                    <img src="<?php echo $misc;?>img/sideicon/로그아웃.svg" style="cursor:pointer;">
                   </td>
                   <td style="">
                     로그아웃

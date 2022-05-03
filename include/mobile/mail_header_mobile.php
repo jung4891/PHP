@@ -394,7 +394,7 @@
                   <col width="80%">
                   <col width="10%">
                 </colgroup>
-                <tr class="box_tr" onclick="document.location='<?php echo site_url(); ?>/option/user'" id="option_tr">
+                <tr class="" onclick="document.location='<?php echo site_url(); ?>/option/user'" id="option_tr">
                   <td height=30 align="right">
                     <img id="setting_img" src="<?php echo $misc;?>img/sideicon/setting2.svg" style="cursor:pointer;">
                   </td>
@@ -403,9 +403,9 @@
                   </td>
                   <td></td>
                 </tr>
-                <tr class="box_tr" onclick="document.location='<?php echo site_url(); ?>/account/logout'" id="logout_tr">
+                <tr class="" onclick="document.location='<?php echo site_url(); ?>/account/logout'" id="logout_tr">
                   <td height=30 align="right">
-
+                    <img src="<?php echo $misc;?>img/sideicon/로그아웃.svg" style="cursor:pointer;">
                   </td>
                   <td style="">
                     로그아웃

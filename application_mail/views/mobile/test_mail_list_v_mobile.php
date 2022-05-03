@@ -373,7 +373,10 @@ $_SESSION['list_page_url_tmp'] = substr($request_url, strpos($request_url, '/', 
   <div class="" style="width: 5%">
   </div>
   <div class="" style="width: 20%; color: white;" onclick="check_all();">
-    <span style="">전체선택</span>
+    <div height=30 align="center">
+      <img src="<?php echo $misc;?>img/mobile/전체선택.svg" style="cursor:pointer;">
+    </div>
+    <span style="font-size: 0.8em; display: block;">전체선택</span>
   </div>
   <div class="" style="width: 20%; color: white">
     <!-- <span style="" id="tt">이동</span><br> -->
