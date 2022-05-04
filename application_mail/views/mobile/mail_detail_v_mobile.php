@@ -25,8 +25,6 @@ if(strpos($_SESSION['list_page_url_tmp'], $mbox_urlencode) && !strpos($_SESSION[
 #detail_all_div::-webkit-scrollbar {
     display: none; /* Chrome, Safari, Opera*/
 }
-
-
 </style>
  <?php
 function address_text($address){
@@ -63,6 +61,7 @@ $reply_cc_input = address_text($mail_info["cc"]);
   ?>
 
  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
  <link rel="stylesheet" href="<?php echo $misc; ?>/css/style.css" type="text/css" charset="utf-8"/>
  <div id="detail_all_div" style="width:100%; max-height:100%; margin:10px 0px 80px 0px; padding-left: 5px; overflow-x: hidden;overflow-y: auto;">
      <input type="hidden" id="reply_from" name="reply_from" value="<?php echo $mail_info["from"]["email"]; ?>">
@@ -77,16 +76,16 @@ $reply_cc_input = address_text($mail_info["cc"]);
      <input type="hidden" id="reply_file" name="reply_file" value="">
    </form>
    <div id="send_top" align="left" style="width:95%; padding-bottom:10px;">
-     <button type="button" class="btn_basic btn_white" style="width:60px" onclick="go_list(`<?php echo $mailno ?>`)">목록</button>
+     <button type="button" class="btn_basic btn_white" style="width:45px" onclick="go_list(`<?php echo $mailno ?>`)">목록</button>
      &nbsp;
-     <button type="button" class="btn_basic btn_blue" name="button" id="submit_button" enctype="multipart/form-data" style="width:50px" onclick="reply_mail(1)">회신</button>
-     <button type="button" class="btn_basic btn_white" name="" style="width:70px" onclick="reply_mail(2)">전체회신</button>
-     <button type="button" class="btn_basic btn_white" style="width:50px" onclick="reply_mail(3)">전달</button>
+     <button type="button" class="btn_basic btn_blue" name="button" id="submit_button" enctype="multipart/form-data" style="width:40px" onclick="reply_mail(1)">회신</button>
+     <button type="button" class="btn_basic btn_white" name="" style="width:65px" onclick="reply_mail(2)">전체회신</button>
+     <button type="button" class="btn_basic btn_white" style="width:40px" onclick="reply_mail(3)">전달</button>
      &nbsp;&nbsp;
      <?php if($mbox == "&ycDGtA- &07jJwNVo-") {  ?>
-       <button type="button" class="btn_basic btn_white" style="width:50px" onclick="del_ever()">영구삭제</button>
+       <button type="button" class="btn_basic btn_white" style="width:65px" onclick="del_ever()">영구삭제</button>
      <?php }else { ?>
-       <button type="button" class="btn_basic btn_white" style="width:50px" onclick="del_trash()">삭제</button>
+       <button type="button" class="btn_basic btn_white" style="width:40px" onclick="del_trash()">삭제</button>
      <?php } ?>
      <hr style="width:110%; border: 1px solid #dedede; margin: 15px 0px 0px -20px">
    </div>
@@ -202,7 +201,7 @@ function del_trash(){
     data : {mbox: `<?php echo $mbox ?>`, to_box: '&ycDGtA- &07jJwNVo-', mail_arr: arr},
     success : function(data){
       go_list();
-    },
+    }
     // complete : function() {
     //   location.reload();
     // }

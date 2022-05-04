@@ -49,8 +49,17 @@
       <option value=2>2</option>
     </select>
     <br><br><hr><br>
+    <select id="testsel" class="" name="">
+      <option value="">1</option>
+      <option value="">2</option>
+    </select>
+    <button type="button" name="button" onclick="asdf();">asdfasdf</button>
 
     <script type="text/javascript">
+    function asdf(){
+      // alert("123123");
+      $("#testsel").focus();
+    }
       jQuery(document).ready(function(){
         var select = $("select #data");
         select.change(function(){
@@ -63,6 +72,44 @@
         // $('#dataa').attr('size', $('option').length);
         // $('select').attr('size', 4);
       })
+
+    </script>
+
+
+    <!-- jquery.customSelect 플러그인 사용하여 select 태그 외부에서 열게하기 -->
+    <div id="select_open">테스트</div> <br>
+    <span class="zzz">
+      안되나..
+    </span> <br>
+    <select id="someSelectBox">
+      <option value="11" disabled selected></option>
+      <option value="22">22</option>
+      <option value="33">33</option>
+    </select>
+    <span id="abcc">abcc</span>
+    <script src="jquery.customSelect.min.js"></script>
+    <style media="screen">
+      .customSelect{
+        background-color: yellow;
+      }
+      .customSelectInner{
+      }
+    </style>
+    <script type="text/javascript">
+      $(document).ready(function(){
+      	$('#someSelectBox').customSelect();
+      });
+
+      $('#select_open').click(function() {
+        // $('.customSelect').trigger("click");
+        $('.zzz').trigger("click");
+      });
+
+      $('.zzz').click(function() {
+        alert('zz');
+      })
+
+      $('#abcc').html("abc");
 
     </script>
 

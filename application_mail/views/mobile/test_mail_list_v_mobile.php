@@ -379,32 +379,39 @@ $_SESSION['list_page_url_tmp'] = substr($request_url, strpos($request_url, '/', 
     <span style="font-size: 0.8em; display: block;">전체선택</span>
   </div>
   <div class="" style="width: 20%; color: white">
-    <!-- <span style="" id="tt">이동</span><br> -->
-
-    <!-- selectbox css 수정 -->
-    <select id="selected_box" onchange="move();">
-    	<option hidden="" disabled="disabled" selected="selected" value="" >이동</option>
-      <?php
-        foreach($mailbox_tree as $b) {
-          $indent = "";
-          for($i=0; $i<$b['child_num']; $i++) {
-            $indent .= "&nbsp;";
+    <div height=30 align="center">
+      <!-- <img src="<?php echo $misc;?>img/mobile/이동.svg" style="cursor:pointer;"> -->
+    </div>
+    <span>
+      <label for="selected_box">
+        이동
+        <select id="selected_box" onchange="move();" style="font-size: 0.8em; display: block;">
+          <option hidden="" disabled="disabled" selected="selected" value="" >선택</option>
+          <?php
+          foreach($mailbox_tree as $b) {
+            $indent = "";
+            for($i=0; $i<$b['child_num']; $i++) {
+              $indent .= "&nbsp;";
+            }
+            echo "<option value=\"{$b["id"]}\">{$indent}{$b['text']}</option>";
           }
-          echo "<option value=\"{$b["id"]}\">{$indent}{$b['text']}</option>";
-        }
-      ?>
-    </select>
-
-    <style media="screen">
-
+          ?>
+        </select>
+      </label>
+    </span>
+  </div>
+  <style media="screen">
+    #selected_box {
+      height: 100%;
+      width: 100%;
+    }
     select {
       -webkit-appearance:none; /* 크롬 화살표 없애기 */
       -moz-appearance:none; /* 파이어폭스 화살표 없애기 */
       appearance:none; /* 화살표 없애기 */
       background-color: black;
       color: white;
-      height: 50px;
-      width: 90%;
+
       border: none;
       text-align: center;
       font-size: 1em;
@@ -413,38 +420,33 @@ $_SESSION['list_page_url_tmp'] = substr($request_url, strpos($request_url, '/', 
     select:focus {
       outline: none;
     }
-    </style>
+  </style>
 
-
-
-
-
-    <!-- <select class="top_button" id="selected_box" style="display: ; background-color: #ddf428; height: 20px; padding-top: 1px;  border-radius: 10px; " onchange="move();" >
-      <option value="" id="aaa" style="text-align: center;">이동할 메일함</option>
-      <?php
-        foreach($mailbox_tree as $b) {
-          $indent = "";
-          for($i=0; $i<$b['child_num']; $i++) {
-            $indent .= "&nbsp;";
-          }
-          echo "<option value=\"{$b["id"]}\">{$indent}{$b['text']}</option>";
-        }
-      ?>
-    </select> -->
-  </div>
   <div class="" style="width: 20%; color: white">
-    답장
+    <div height=30 align="center">
+      <img src="<?php echo $misc;?>img/mobile/답장.svg" style="cursor:pointer;">
+    </div>
+    <span style="font-size: 0.8em; display: block;">답장</span>
   </div>
   <div class="" style="width: 20%; color: white" onclick="move_spam();">
-    스팸
+    <div height=30 align="center">
+      <img src="<?php echo $misc;?>img/mobile/스팸.svg" style="cursor:pointer;">
+    </div>
+    <span style="font-size: 0.8em; display: block;">스팸</span>
   </div>
   <?php if($mbox == "&ycDGtA- &07jJwNVo-") {  // 휴지통 ?>
     <div class="" style="width: 20%; color: white" onclick="del_ever();">
-      완전삭제
+      <div height=30 align="center">
+        <img src="<?php echo $misc;?>img/mobile/영구삭제.svg" style="cursor:pointer;">
+      </div>
+      <span style="font-size: 0.8em; display: block;">영구삭제</span>
     </div>
   <?php }else {?>
     <div class="" style="width: 20%; color: white" onclick="del_trash();">
-      삭제
+      <div height=30 align="center">
+        <img src="<?php echo $misc;?>img/mobile/휴지통.svg" style="cursor:pointer;">
+      </div>
+      <span style="font-size: 0.8em; display: block;">삭제</span>
     </div>
   <?php } ?>
   <div class="" style="width: 5%">
