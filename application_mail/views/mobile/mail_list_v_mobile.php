@@ -146,10 +146,51 @@ $_SESSION['list_page_url_tmp'] = substr($request_url, strpos($request_url, '/', 
     bottom: 9vh;
     left: 53vw;
   }
+
+  select {
+    -webkit-appearance:none; /* 크롬 화살표 없애기 */
+    -moz-appearance:none; /* 파이어폭스 화살표 없애기 */
+    appearance:none; /* 화살표 없애기 */
+    background-color: black;
+    color: white;
+
+    border: none;
+    text-align: center;
+    font-size: 1em;
+    padding-bottom: 28px;
+
+    font-size: 0.8em;
+    display: block;
+    padding-top: 3px;
+    width: 100%;
+    height: 55px;
+    opacity: 0;
+    position: relative;
+    top: -52px;
+  }
+  select:focus {
+    outline: none;
+  }
+
+  input[type=checkbox] {
+    transform : scale(1.2);
+  }
+
+  .div_footer {
+    width: 20%;
+    color: white;
+  }
+  .div_footer > div {
+    height: 22px;
+    text-align: center;
+  }
+  .div_footer > span {
+    font-size: 0.8em;
+  }
  </style>
 
-<div id="main_contents" align="center" style="height: 100vh; width: 100vw; display: grid; grid-template-rows: 6vh auto 20vh; ">
-  <div class="search_div">
+<div id="main_contents" align="center" style="height: 100vh; width: 100vw; display: grid; grid-template-rows: 6vh auto 7vh 18.5vh; ">
+  <div class="search_div" style="display:flex;align-items: center;justify-content: center;">
   <!-- <form name="mform" action="" method="post"> -->
       <table style="width:90%; padding-bottom:10px; " border="0" cellspacing="0" cellpadding="0">
         <colgroup>
@@ -163,32 +204,6 @@ $_SESSION['list_page_url_tmp'] = substr($request_url, strpos($request_url, '/', 
           <col width="12%" >
         </colgroup>
           <tr>
-            <!-- <td>
-              <input type="button" class="btn_basic btn_white" id="ip_checkBtn" name="" value="ip확인" onclick ="ip_check();">
-            </td> -->
-            <!-- <td><input type="checkbox" id="total" onClick="check_all(this);"></td> -->
-            <!-- <td colspan="3">
-            <?php if($mbox == "&ycDGtA- &07jJwNVo-") {  // 휴지통 ?>
-            <button type="button" class="top_button" onclick="del_ever();" disabled="disabled"
-                    style="width: 70px; height: 29px; border-radius: 3px; font-weight: bold">영구삭제</button>
-            <?php }else {?>
-            <button type="button" class="top_button" onclick="del_trash();" disabled="disabled"
-                    style="width: 53px; height: 29px; border-radius: 3px; font-weight: bold; border: 1px solid">삭제</button>
-            <?php } ?>
-            &nbsp;&nbsp;
-            <select class="top_button" id="selected_box" style="background-color: #F6F6F6; height: 30px; padding-top: 1px;  border-radius: 3px; " disabled="disabled" onchange="move();" >
-              <option value="" style="text-align: center;">이동할 메일함</option>
-              <?php
-                foreach($mailbox_tree as $b) {
-                  $indent = "";
-                  for($i=0; $i<$b['child_num']; $i++) {
-                    $indent .= "&nbsp;";
-                  }
-                  echo "<option value=\"{$b["id"]}\">{$indent}{$b['text']}</option>";
-                }
-              ?>
-            </select>
-            </td> -->
             <td colspan="8" align="center">
               <div style="display: inline-block; width: 240px; height: 29px; border-radius: 5px; border: solid 1px lightgray;">
                 <input type="text" id="search" style="outline: none; margin: 3px; margin-left: 0px; width: 79%; height: 20px; border: none; color: #0575E6; font-size: 16px; font-weight: bold" >
@@ -395,74 +410,66 @@ $_SESSION['list_page_url_tmp'] = substr($request_url, strpos($request_url, '/', 
   <?php echo $links; ?>
 </div>
 
-<div class="choose_div" style="display: none; background-color: black; padding-top: 5%;">
+  <div class="choose_div" style="display: flex; background-color: black; padding-top: 3%;">
   <div class="" style="width: 5%">
 </div>
-  <div class="" style="width: 20%; color: white;" onclick="check_all();">
-    <span style="">전체선택</span>
+    <div class="div_footer" onclick="check_all();">
+      <div>
+        <img src="<?php echo $misc;?>img/mobile/전체선택.svg" style="cursor:pointer;">
   </div>
-  <div class="" style="width: 20%; color: white">
-    이동
+      <span>전체선택</span>
+    </div>
+    <div class="div_footer">
+      <div>
+        <img src="<?php echo $misc;?>img/mobile/이동.svg" style="cursor:pointer;">
   </div>
-  <div class="" style="width: 20%; color: white">
-    답장
+      <span>이동</span>
+        <select id="selected_box" onchange="move();">
+          <option value="" >이동할 메일함 선택</option>
+          <?php
+          foreach($mailbox_tree as $b) {
+            $indent = "";
+            for($i=0; $i<$b['child_num']; $i++) {
+              $indent .= "&nbsp;";
+            }
+            echo "<option value=\"{$b["id"]}\">{$indent}{$b['text']}</option>";
+          }
+          ?>
+        </select>
+    </div>
+
+    <div class="div_footer">
+      <div>
+        <img src="<?php echo $misc;?>img/mobile/답장.svg" style="cursor:pointer;">
   </div>
-  <div class="" style="width: 20%; color: white" onclick="move_spam();">
-    스팸
+      <span>답장</span>
+    </div>
+    <div class="div_footer" onclick="move_spam();">
+      <div>
+        <img src="<?php echo $misc;?>img/mobile/스팸.svg" style="cursor:pointer;">
   </div>
+      <span>스팸</span>
+    </div>
   <?php if($mbox == "&ycDGtA- &07jJwNVo-") {  // 휴지통 ?>
-    <div class="" style="width: 20%; color: white" onclick="del_ever();">
-      완전삭제
+      <div class="div_footer" onclick="del_ever();">
+        <div>
+          <img src="<?php echo $misc;?>img/mobile/영구삭제.svg" style="cursor:pointer;">
     </div>
-  <!-- <button type="button" class="top_button" onclick="del_ever();" disabled="disabled"
-          style="width: 70px; height: 29px; border-radius: 3px; font-weight: bold">영구삭제</button> -->
+        <span>영구삭제</span>
+      </div>
   <?php }else {?>
-    <div class="" style="width: 20%; color: white" onclick="del_trash();">
-      삭제
+      <div class="div_footer" onclick="del_trash();">
+        <div>
+          <img src="<?php echo $misc;?>img/mobile/휴지통.svg" style="cursor:pointer;">
     </div>
-
-  <!-- <button type="button" class="top_button" onclick="del_trash();" disabled="disabled"
-          style="width: 53px; height: 29px; border-radius: 3px; font-weight: bold; border: 1px solid">삭제</button> -->
+        <span>삭제</span>
+      </div>
   <?php } ?>
-
   <div class="" style="width: 5%">
   </div>
 </div>
-
 </div>
 
-<!-- <div id="mobile_footer" style="width: 100vw; height: 8vh; bottom: 0px; border: 1px solid red; background-color: darkgray">
-test
-</div> -->
-
-
-<!-- <div id="move_mbox" style="display:none;position: absolute; background: #000; width: 30px; height: 30px; opacity: 0.4; border-radius: 100%;font-size: 20px;color: white; text-align:center;">
-<span id="movebox_len"></span>
-</div>
-
-<div class="send_context" id="send_context">
-  <table class="context_tbl" border="1" cellspacing="0" cellpadding="5">
-    <form class="" id="reply_form" name="reply_form" action="" method="post">
-      <input type="hidden" id="reply_mode" name="reply_mode" value="">
-      <input type="hidden" id="reply_target_to" name="reply_target_to" value="">
-      <input type="hidden" id="reply_target_cc" name="reply_target_cc" value="">
-      <input type="hidden" id="reply_title" name="reply_title" value="">
-      <input type="hidden" id="reply_content" name="reply_content" value="">
-    </form>
-    <tr>
-      <td onclick="reply_mail(3)">
-        메일쓰기
-      </td>
-    </tr> -->
-
-    <!-- <tr>
-      <td onclick="reply_mail(1)">
-        회신
-      </td>
-    </tr> -->
-
-  <!-- </table>
-</div> -->
 <?php
 include $this->input->server('DOCUMENT_ROOT')."/include/mail_footer.php";
  ?>
@@ -808,51 +815,24 @@ $(".mlist_tbl tr").on("mousedown", function(){
    chk_cnt = $('input[name="chk"]').length;
    if($('input[name="chk"]:checked').length == chk_cnt) {
      $('input[type="checkbox"]').prop('checked', false);
-     $(".paging_div").css('display', 'block');
-     $(".choose_div").css('display', 'none');
+     // $(".paging_div").css('display', 'block');
+     // $(".choose_div").css('display', 'none');
    }else {
      $('input[type="checkbox"]').prop('checked', true);
    }
-
-   // if(chk_all.checked) {
-   //   $('.top_button').prop('disabled', false);
-   //   $('.top_button').css('cursor', 'pointer');
-   //   $('input[type="checkbox"]').prop('checked', true);
-   // }else {
-   //   $('.top_button').prop('disabled', "disabled");
-   //   $('input[type="checkbox"]').prop('checked', false);
-   //   $('.top_button').css('cursor', '');
-   // }
  };
 
  // 체크박스 하나 클릭시
  $('input[name="chk"]').on('click', function(){
    if(this.checked) {
-     $(".paging_div").css('display', 'none');
-     $(".choose_div").css('display', 'flex');
+     // $(".paging_div").css('display', 'none');
+     // $(".choose_div").css('display', 'flex');
    }else {
      if($('input').is(":checked") == false){    // 하나라도 체크되어있지 않은 경우
-      $(".paging_div").css('display', 'block');
-      $(".choose_div").css('display', 'none');
+      // $(".paging_div").css('display', 'block');
+      // $(".choose_div").css('display', 'none');
       }
     }
-   // chk_cnt = $('input[name="chk"]').length;
-   // if($('input[name="chk"]:checked').length == chk_cnt) {
-   //   $('#total').prop('checked', true);
-   // }else {
-   //   $('#total').prop('checked', false);
-   // }
-   // if(this.checked) {
-   //   $('.top_button').prop('disabled', false);
-   //   $('.top_button').css('cursor', 'pointer');
-   //   // $('.top_button').css({'background-color':'white', 'border':'1px solid lightgray'});
-   // }else {
-   //    if($('input[name="chk"]:checked').length == 0) {
-   //      $('.top_button').prop('disabled', 'disabled');
-   //      $('.top_button').css('cursor', '');
-   //      // $('.top_button').css({'background-color':'', 'border':''});
-   //    }
-   //  }
  })
 
  // 중요메일 체크
@@ -919,8 +899,13 @@ toastr.options.positionClass = "toast-bottom-right";
       arr.push(document.frm[i].value)
     }
    }
+
+   if(arr.length === 0) {
+     alert("스팸처리할 메일을 선택해주세요.");
+     return;
+   };
    $.ajax({
-     url : "<?php echo site_url(); ?>/testmailbox/mail_move",
+     url : "<?php echo site_url(); ?>/mailbox/mail_move",
      type : "post",
      data : {mbox: `<?php echo $mbox ?>`, to_box: '&yBXQbA- &ulTHfA-', mail_arr: arr},
      success : function(data){
@@ -929,7 +914,8 @@ toastr.options.positionClass = "toast-bottom-right";
          console.log("AJAX_ERROR");
      },
      complete : function() {
-       location.reload();
+       toastr.success('스팸처리 완료');
+       setTimeout('location.reload()', 300);
      }
    });
  }
@@ -942,6 +928,11 @@ toastr.options.positionClass = "toast-bottom-right";
        arr.push(document.frm[i].value)
      }
     }
+
+    if(arr.length === 0) {
+      alert("삭제할 메일을 선택해주세요.");
+      return;
+    };
     $.ajax({
       url : "<?php echo site_url(); ?>/mailbox/mail_move",
       type : "post",
@@ -962,13 +953,18 @@ toastr.options.positionClass = "toast-bottom-right";
 
  // 휴지통에서 완전삭제
   function del_ever(){
-    if (confirm("정말 삭제하시겠습니까?") == true) {
       let arr = [];
       for(var i=0; i<document.frm.length; i++) {
         if(document.frm[i].checked) {
           arr.push(document.frm[i].value)
         }
       }
+
+    if(arr.length === 0) {
+      alert("영구삭제할 메일을 선택해주세요.");
+      return;
+    };
+    if (confirm("정말 삭제하시겠습니까?") == true) {
       $.ajax({
         url : "<?php echo site_url(); ?>/mailbox/mail_delete",
         type : "post",
@@ -996,12 +992,19 @@ toastr.options.positionClass = "toast-bottom-right";
        arr.push(document.frm[i].value)
      }
     }
+
+    if(arr.length === 0) {
+      alert("이동할 메일을 선택해주세요.");
+      return;
+    };
     $.ajax({
       url : "<?php echo site_url(); ?>/mailbox/mail_move",
       type : "post",
       data : {mbox: `<?php echo $mbox ?>`, to_box: to_box, mail_arr: arr},
       complete : function() {
-        location.reload();
+        toastr.success('이동완료');
+        setTimeout('location.reload()', 300);
+        // location.reload();
       }
     });
  }
