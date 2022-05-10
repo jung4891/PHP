@@ -187,55 +187,71 @@ $_SESSION['list_page_url_tmp'] = substr($request_url, strpos($request_url, '/', 
   .div_footer > span {
     font-size: 0.8em;
   }
+
+  #m_header {s
+    height: 70px;
+  }
+  .main_div {
+    margin-top: 10px;
+  }
  </style>
 
 <div id="main_contents" align="center" style="height: 100vh; width: 100vw; display: grid; grid-template-rows: 6vh auto 7vh 18.5vh; ">
-  <div class="search_div" style="display:flex;align-items: center;justify-content: center;">
-  <!-- <form name="mform" action="" method="post"> -->
-      <table style="width:90%; padding-bottom:10px; " border="0" cellspacing="0" cellpadding="0">
+  <div class="search_div">
+      <table style="width:90%; " border="0" cellspacing="0" cellpadding="0">
         <colgroup>
-          <col width="6%" >
-          <col width="3%" >
-          <col width="3%" >
-          <col width="3%" >
-          <col width="25%" >
-          <col width="*" >
-          <col width="10%" >
-          <col width="12%" >
+          <col width="87%" >
+          <col width="13%" >
         </colgroup>
           <tr>
-            <td colspan="8" align="center">
-              <div style="display: inline-block; width: 240px; height: 29px; border-radius: 5px; border: solid 1px lightgray;">
-                <input type="text" id="search" style="outline: none; margin: 3px; margin-left: 0px; width: 79%; height: 20px; border: none; color: #0575E6; font-size: 16px; font-weight: bold" >
+            <td align="center">
+              <div style="width: 100%; height: 37px; border-radius: 5px 0px 0px 5px; background-color:#F4F4F4;">
                 <a href="javascript:void(0)" onclick="search_mail(this);">
-                <img style="width: 17px; position:relative; top:3px " src="<?php echo $misc; ?>/img/icon/search.png" alt="">
+                  <img style="width: 17px; position: relative; top: 3px;" src="<?php echo $misc; ?>/img/icon/search.png" alt="">
                 </a>
+                <input type="text" id="search" style="outline: none;
+    width: 81%;
+    height: 26px;
+    border: none;
+    font-size: 16px;
+    color: #B0B0B0;
+    background-color: #f4f4f4;
+    padding-top: 6px;
+    padding-left: 7px;"
+    value="이름 또는 내용 검색" >
               </div>
-
               <div id="loading" style="display:none">
                 <img src="<?php echo $misc; ?>/img/icon/loading.svg" alt="loading.." style="width: 130px">
               </div>
-
+            </td>
+            <td align="center">
+              <div style="background-color:#DADADA; height: 37px; border-radius: 0px 5px 5px 0px">
+                <img src="<?php echo $misc;?>img/mobile/설정.svg" style="position: relative; top: 6px;">
+              </div>
               <!-- div의 z-index가 이전엔 -1이여서 아래 a태그의 onclick까지 먹통이 되어서 0으로 수정함  -->
-              <div style="display: inline-block; cursor: pointer; width: 60px; height: 27px; border-radius: 5px; position: relative; top: -1px; left: 5px; border: solid 1px lightgray; background-color: rgb(220,220,220); text-align: center; z-index: 0">
+              <!-- <div style="display: inline-block; cursor: pointer; width: 60px; height: 27px; border-radius: 5px; position: relative; top: -1px; left: 5px; border: solid 1px lightgray; background-color: rgb(220,220,220); text-align: center; z-index: 0">
                 <a onclick="search_detail(this);" style="position: relative; top: 0px; font-weight: 400; color: gray; font-size: 14px">
                   상세 <img style="position: relative; top: 2px; left: 2px; width: 15px" src="<?php echo $misc; ?>/img/icon/아래.svg" alt="">
                 </a>
-              </div>
+              </div> -->
             </td>
-
-            <!-- <td></td> -->
-            <!-- <td>
-            <select id="show_cnt" class="input" onchange="mails_cnt(this);" style="background-color: rgb(220,220,220); width: 85px; height: 28px; border-radius: 5px; font-weight: bold; color: gray; font-size: 12px; cursor: pointer; float:right;"  >
-              <option value="" style="text-align: center">보기설정</option>
-              <option value="10">10개</option>
-              <option value="20">20개</option>
-              <option value="30">30개</option>
-            </select>
-            </td> -->
           </tr>
 
-          <tr>
+          <script type="text/javascript">
+          $(function() {
+              $("#search").focus(function(){
+                $(this).val('');
+                $(this).css({"color":"#000000", "font-weight":"bold"});
+                $("#search_div").css("padding-top", "10px");
+              });
+              $("#search").blur(function(){
+                $(this).css({"color":"#B0B0B0", "font-weight":""});
+                $(this).val('이름 또는 내용 검색');
+            });
+          });
+          </script>
+
+          <!-- <tr>
             <td colspan="5"></td>
             <td colspan="3">
               <div id="search_detail"  style="display:none; position: absolute; left: 80px; margin-top: 4px; background-color: white; border: 2px solid lightgray; width: 254px; z-index: 1">
@@ -267,15 +283,14 @@ $_SESSION['list_page_url_tmp'] = substr($request_url, strpos($request_url, '/', 
                     </tr>
                   </table>
                   <div class="" style="margin: 10px; text-align: center;">
-                    <button type="button" id="search_detail_submit" style="width: 45px; cursor: pointer;">검색</button>
+                    <button type="button" id="search_detail_submit" style="width: 45px; cursor: pointer;">검색</button> -->
                     <!-- <button type="button" id="" style="width: 45px; ">취소</button> -->
-                  </div>
+                  <!-- </div>
                 </form>
               </div>
             </td>
-          </tr>
+          </tr> -->
       </table>
-  <!-- </form> -->
   </div>
 
   <div class="main_div">
@@ -772,42 +787,42 @@ $(".mlist_tbl tr").on("mousedown", function(){
   })
 
   // 상세검색창에 검색어 입력후 엔터키로 검색
-  const input_detail = document.querySelector('#search_detail');
-  input_detail.addEventListener('keyup', function(e){
-    if(e.key === 'Enter') {
-      if($('#from').val() == "" && $('#to').val() == "" && $('#subject').val() == "" && $('#contents').val() == "" && $('#start_date').val() == "" && $('#end_date').val() == "") {
-        alert('검색어를 입력하세요');
-        $('#from').focus();
-        return;
-      }
-      // get방식이므로 주소창에 검색하는 애들만 출력되게끔
-      var mbox = `<?php echo $mbox; ?>`;
-      var type = 'search_detail';
-      var newForm = $('<form id="search_form"></form>');
-      newForm.attr("method","get");
-      newForm.attr("action", "<?php echo site_url(); ?>/testmailbox/mail_list");
-      newForm.append($('<input>', {type: 'hidden', name: 'boxname', value: mbox }));
-      newForm.append($('<input>', {type: 'hidden', name: 'type', value: type }));
-      if($('#from').val() != "") newForm.append($('<input>', {type: 'hidden', name: 'from', value: $('#from').val() }));
-      if($('#to').val() != "")   newForm.append($('<input>', {type: 'hidden', name: 'to', value: $('#to').val() }));
-      if($('#subject').val() != "")  newForm.append($('<input>', {type: 'hidden', name: 'subject', value: $('#subject').val() }));
-      if($('#contents').val() != "")   newForm.append($('<input>', {type: 'hidden', name: 'contents', value: $('#contents').val() }));
-      if($('#start_date').val() != "")   newForm.append($('<input>', {type: 'hidden', name: 'start_date', value: $('#start_date').val() }));
-      if($('#end_date').val() != "") {
-        var end_date = $('#end_date').val().split('-');  // 22-01-10
-        end_date[0] = parseInt(end_date[0]) + 2000;
-        end_date = end_date.join('-');                   // 2022-01-10
-
-        var selectedDate = new Date(end_date);
-        selectedDate.setDate(selectedDate.getDate() + 1);    // 미만으로 검색되어 하루 더하기 (20210110 형태로만 Date객체 형성 가능)
-        selectedDate = selectedDate.getFullYear() + "-" + (selectedDate.getMonth() + 1) + "-" + selectedDate.getDate();
-        newForm.append($('<input>', {type: 'hidden', name: 'end_date', value: selectedDate }));
-      }
-      newForm.appendTo('body');
-      $('#loading').show();
-     newForm.submit();
-    }
-  })
+  // const input_detail = document.querySelector('#search_detail');
+  // input_detail.addEventListener('keyup', function(e){
+  //   if(e.key === 'Enter') {
+  //     if($('#from').val() == "" && $('#to').val() == "" && $('#subject').val() == "" && $('#contents').val() == "" && $('#start_date').val() == "" && $('#end_date').val() == "") {
+  //       alert('검색어를 입력하세요');
+  //       $('#from').focus();
+  //       return;
+  //     }
+  //     // get방식이므로 주소창에 검색하는 애들만 출력되게끔
+  //     var mbox = `<?php echo $mbox; ?>`;
+  //     var type = 'search_detail';
+  //     var newForm = $('<form id="search_form"></form>');
+  //     newForm.attr("method","get");
+  //     newForm.attr("action", "<?php echo site_url(); ?>/testmailbox/mail_list");
+  //     newForm.append($('<input>', {type: 'hidden', name: 'boxname', value: mbox }));
+  //     newForm.append($('<input>', {type: 'hidden', name: 'type', value: type }));
+  //     if($('#from').val() != "") newForm.append($('<input>', {type: 'hidden', name: 'from', value: $('#from').val() }));
+  //     if($('#to').val() != "")   newForm.append($('<input>', {type: 'hidden', name: 'to', value: $('#to').val() }));
+  //     if($('#subject').val() != "")  newForm.append($('<input>', {type: 'hidden', name: 'subject', value: $('#subject').val() }));
+  //     if($('#contents').val() != "")   newForm.append($('<input>', {type: 'hidden', name: 'contents', value: $('#contents').val() }));
+  //     if($('#start_date').val() != "")   newForm.append($('<input>', {type: 'hidden', name: 'start_date', value: $('#start_date').val() }));
+  //     if($('#end_date').val() != "") {
+  //       var end_date = $('#end_date').val().split('-');  // 22-01-10
+  //       end_date[0] = parseInt(end_date[0]) + 2000;
+  //       end_date = end_date.join('-');                   // 2022-01-10
+  //
+  //       var selectedDate = new Date(end_date);
+  //       selectedDate.setDate(selectedDate.getDate() + 1);    // 미만으로 검색되어 하루 더하기 (20210110 형태로만 Date객체 형성 가능)
+  //       selectedDate = selectedDate.getFullYear() + "-" + (selectedDate.getMonth() + 1) + "-" + selectedDate.getDate();
+  //       newForm.append($('<input>', {type: 'hidden', name: 'end_date', value: selectedDate }));
+  //     }
+  //     newForm.appendTo('body');
+  //     $('#loading').show();
+  //    newForm.submit();
+  //   }
+  // })
 
 
  // 상단 체크박스 클릭시 전체선택/해제 설정
@@ -824,6 +839,7 @@ $(".mlist_tbl tr").on("mousedown", function(){
 
  // 체크박스 하나 클릭시
  $('input[name="chk"]').on('click', function(){
+   $("#search").blur();
    if(this.checked) {
      // $(".paging_div").css('display', 'none');
      // $(".choose_div").css('display', 'flex');
