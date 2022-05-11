@@ -192,106 +192,134 @@ $_SESSION['list_page_url_tmp'] = substr($request_url, strpos($request_url, '/', 
     height: 70px;
   }
   .main_div {
-    margin-top: 10px;
+    margin-top: 15px;
   }
- </style>
 
-<div id="main_contents" align="center" style="height: 100vh; width: 100vw; display: grid; grid-template-rows: 6vh auto 7vh 18.5vh; ">
-  <div class="search_div">
-      <table style="width:90%; " border="0" cellspacing="0" cellpadding="0">
-        <colgroup>
-          <col width="87%" >
-          <col width="13%" >
-        </colgroup>
-          <tr>
-            <td align="center">
-              <div style="width: 100%; height: 37px; border-radius: 5px 0px 0px 5px; background-color:#F4F4F4;">
-                <a href="javascript:void(0)" onclick="search_mail(this);">
-                  <img style="width: 17px; position: relative; top: 3px;" src="<?php echo $misc; ?>/img/icon/search.png" alt="">
-                </a>
-                <input type="text" id="search" style="outline: none;
+  #search {
+    outline: none;
     width: 81%;
     height: 26px;
     border: none;
     font-size: 16px;
-    color: #B0B0B0;
+    font-weight: bold;
     background-color: #f4f4f4;
     padding-top: 6px;
-    padding-left: 7px;"
-    value="이름 또는 내용 검색" >
-              </div>
-              <div id="loading" style="display:none">
-                <img src="<?php echo $misc; ?>/img/icon/loading.svg" alt="loading.." style="width: 130px">
-              </div>
-            </td>
-            <td align="center">
-              <div style="background-color:#DADADA; height: 37px; border-radius: 0px 5px 5px 0px">
-                <img src="<?php echo $misc;?>img/mobile/설정.svg" style="position: relative; top: 6px;">
-              </div>
-              <!-- div의 z-index가 이전엔 -1이여서 아래 a태그의 onclick까지 먹통이 되어서 0으로 수정함  -->
-              <!-- <div style="display: inline-block; cursor: pointer; width: 60px; height: 27px; border-radius: 5px; position: relative; top: -1px; left: 5px; border: solid 1px lightgray; background-color: rgb(220,220,220); text-align: center; z-index: 0">
-                <a onclick="search_detail(this);" style="position: relative; top: 0px; font-weight: 400; color: gray; font-size: 14px">
-                  상세 <img style="position: relative; top: 2px; left: 2px; width: 15px" src="<?php echo $misc; ?>/img/icon/아래.svg" alt="">
-                </a>
-              </div> -->
-            </td>
-          </tr>
+    padding-left: 7px;
+  }
+ </style>
 
-          <script type="text/javascript">
-          $(function() {
-              $("#search").focus(function(){
-                $(this).val('');
-                $(this).css({"color":"#000000", "font-weight":"bold"});
-                $("#search_div").css("padding-top", "10px");
-              });
-              $("#search").blur(function(){
-                $(this).css({"color":"#B0B0B0", "font-weight":""});
-                $(this).val('이름 또는 내용 검색');
-            });
-          });
-          </script>
+ <div class="search_div" align="center">
+   <table style="width:90%; " border="0" cellspacing="0" cellpadding="0">
+     <colgroup>
+       <col width="87%" >
+       <col width="13%" >
+     </colgroup>
+     <tr>
+       <td align="center">
+         <div style="width: 100%; height: 37px; border-radius: 5px 0px 0px 5px; background-color:#F4F4F4;">
+           <a href="javascript:void(0)" onclick="search_mail(this);">
+             <img style="width: 17px; position: relative; top: 3px;" src="<?php echo $misc; ?>/img/icon/search.png" alt="">
+           </a>
+           <input type="text" id="search">
+         </div>
+         <div id="loading" style="display:none">
+           <img src="<?php echo $misc; ?>/img/icon/loading.svg" alt="loading.." style="width: 130px">
+         </div>
+       </td>
+       <td align="center">
+         <div id="search_detail" style="background-color:#DADADA; height: 37px; border-radius: 0px 5px 5px 0px">
+           <img src="<?php echo $misc;?>img/mobile/설정2.svg" style="position: relative; top: 6px;">
+         </div>
 
-          <!-- <tr>
-            <td colspan="5"></td>
-            <td colspan="3">
-              <div id="search_detail"  style="display:none; position: absolute; left: 80px; margin-top: 4px; background-color: white; border: 2px solid lightgray; width: 254px; z-index: 1">
-                <form>
-                  <table style="border-spacing: 5px; padding-top: 10px; padding-left: 15px; color: gray;">
-                    <tr>
-                      <td width="31%"></td>
-                      <td width="69%"></td>
-                    </tr>
-                    <tr>
-                      <td>보낸이</td>
-                      <td><input type="text" id="from" class="input" name="from" size="16"></td>
-                    </tr>
-                    <tr>
-                      <td>받는이</td>
-                      <td><input type="text" id="to" class="input" name="to" size="16"></td>
-                    </tr>
-                    <tr>
-                      <td>제목</td>
-                      <td><input type="text" id="subject" class="input" name="subject" size="16"></td>
-                    </tr>
-                    <tr>
-                      <td>내용</td>
-                      <td><input type="text" id="contents" class="input" name="contents" size="16"></td>
-                    </tr>
-                    <tr>
-                      <td>기간</td>
-                      <td><input type="text" id="start_date" class="input" style="width:57px; font-size: 9pt; text-align: center" /> ~ <input type="text" id="end_date" class="input" style="width:57px; font-size: 9pt; text-align: center" /></td>
-                    </tr>
-                  </table>
-                  <div class="" style="margin: 10px; text-align: center;">
-                    <button type="button" id="search_detail_submit" style="width: 45px; cursor: pointer;">검색</button> -->
-                    <!-- <button type="button" id="" style="width: 45px; ">취소</button> -->
-                  <!-- </div>
-                </form>
-              </div>
-            </td>
-          </tr> -->
-      </table>
+         <!-- div의 z-index가 이전엔 -1이여서 아래 a태그의 onclick까지 먹통이 되어서 0으로 수정함  -->
+         <!-- <div style="display: inline-block; cursor: pointer; width: 60px; height: 27px; border-radius: 5px; position: relative; top: -1px; left: 5px; border: solid 1px lightgray; background-color: rgb(220,220,220); text-align: center; z-index: 0">
+         <a onclick="search_detail(this);" style="position: relative; top: 0px; font-weight: 400; color: gray; font-size: 14px">
+         상세 <img style="position: relative; top: 2px; left: 2px; width: 15px" src="<?php echo $misc; ?>/img/icon/아래.svg" alt="">
+       </a>
+     </div> -->
+     </td>
+   </tr>
+
+ <!-- <tr>
+ <td colspan="5"></td>
+ <td colspan="3">
+ <div id="search_detail"  style="display:none; position: absolute; left: 80px; margin-top: 4px; background-color: white; border: 2px solid lightgray; width: 254px; z-index: 1">
+ <form>
+ <table style="border-spacing: 5px; padding-top: 10px; padding-left: 15px; color: gray;">
+ <tr>
+ <td width="31%"></td>
+ <td width="69%"></td>
+</tr>
+<tr>
+<td>보낸이</td>
+<td><input type="text" id="from" class="input" name="from" size="16"></td>
+</tr>
+<tr>
+<td>받는이</td>
+<td><input type="text" id="to" class="input" name="to" size="16"></td>
+</tr>
+<tr>
+  <td>제목</td>
+  <td><input type="text" id="subject" class="input" name="subject" size="16"></td>
+</tr>
+<tr>
+  <td>내용</td>
+  <td><input type="text" id="contents" class="input" name="contents" size="16"></td>
+</tr>
+<tr>
+  <td>기간</td>
+  <td><input type="text" id="start_date" class="input" style="width:57px; font-size: 9pt; text-align: center" /> ~ <input type="text" id="end_date" class="input" style="width:57px; font-size: 9pt; text-align: center" /></td>
+</tr>
+</table>
+<div class="" style="margin: 10px; text-align: center;">
+  <button type="button" id="search_detail_submit" style="width: 45px; cursor: pointer;">검색</button> -->
+  <!-- <button type="button" id="" style="width: 45px; ">취소</button> -->
+  <!-- </div>
+  </form>
+</div>
+</td>
+</tr> -->
+  </table>
+  <style media="screen">
+    .search_detail_input {
+      padding-left: 20px; height: 15%
+    }
+    .search_detail_input > p {
+      margin-bottom: 4px;
+    }
+  </style>
+  <div id="search_footer" style="width:100vw; height: 65vh; background-color:#ffffff; display:none; border-radius: 20px 20px 0px 0px;">
+    <div id="search_inner">
+      <div class="search_detail_input" style="margin-top: 20px;">
+        <p>보낸사람</p>
+        <input type="text">
+      </div>
+      <div class="search_detail_input">
+        <p>받는사람</p>
+        <input type="text">
+      </div>
+      <div class="search_detail_input">
+        <p>제목</p>
+        <input type="text">
+      </div>
+      <div class="search_detail_input">
+        <p>내용</p>
+        <input type="text">
+      </div>
+      <div class="search_detail_input">
+        <p>기간</p>
+        <input type="text">
+      </div>
+      <div style="display: flex;  justify-content: center; height: 15%; padding: 40px 15px;">
+        <button class="btn_basic btn_blue" type="button" name="button" style="width:45%; height:40px; font-size: 1em">검색</button>
+        <button class="btn_basic btn_sky" type="button" name="button" style="width:45%; height:40px; font-size: 1em; margin-left: 15px; ">취소</button>
+      </div>
+
+    </div>
   </div>
+</div>
+
+<div id="main_contents" align="center" style="height: 100vh; width: 100vw; display: grid; grid-template-rows: auto 8vh 24vh; ">
 
   <div class="main_div">
   <!-- <?php // echo $test_msg; ?> <br><br> -->
@@ -491,6 +519,30 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_footer.php";
 
 
 <script type="text/javascript">
+
+$(function() {
+
+  // $("#search").focus(function(){
+  //   $(this).val('');
+  //   $(this).css({"color":"#000000", "font-weight":"bold"});
+  //   $("#search_div").css("padding-top", "10px");
+  // });
+  //
+  // $("#search").blur(function(){
+  //   $(this).css({"color":"#B0B0B0", "font-weight":""});
+  //   $(this).val('이름 또는 내용 검색');
+  // });
+
+  $("#search_detail").click(function(){
+    $("#search_footer").bPopup({
+      position: [0, 205], //x, y
+      speed: 500,
+      transition: 'slideUp',
+      transitionClose: 'slideUp'
+    });
+
+  });
+});
 
  var ip_yn = 1;
  function ip_check(){

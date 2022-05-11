@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24" height="22.5" viewBox="0 0 24 22.5">
+  <defs>
+    <filter id="패스_644" x="0" y="0" width="24" height="22.5" filterUnits="userSpaceOnUse">
+      <feOffset dx="1" dy="1" input="SourceAlpha"/>
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feFlood flood-opacity="0.161"/>
+      <feComposite operator="in" in2="blur"/>
+      <feComposite in="SourceGraphic"/>
+    </filter>
+  </defs>
+  <g id="그룹_2082" data-name="그룹 2082" transform="translate(-3365 -1804.75)">
+    <rect id="ZIP_아이콘" data-name="ZIP 아이콘" width="20" height="20" rx="4" transform="translate(3366 1805)" fill="#0575e6"/>
+    <g id="image-fill" transform="translate(3369.995 1807.5)">
+      <g transform="matrix(1, 0, 0, 1, -5, -2.75)" filter="url(#패스_644)">
+        <path id="패스_644-2" data-name="패스 644" d="M0,3.75a1.5,1.5,0,0,1,1.5-1.5h9A1.5,1.5,0,0,1,12,3.75v7.5a1.5,1.5,0,0,1-1.5,1.5h-9a1.5,1.5,0,0,1-1.5-1.5V3.75Zm.75,6.75L2.74,8.735a.375.375,0,0,1,.472-.047l2,1.33L7.99,7.235a.375.375,0,0,1,.433-.07l2.833,1.46V11.25a.75.75,0,0,1-.75.75h-9a.75.75,0,0,1-.75-.75V10.5Zm3.75-4.875A1.125,1.125,0,1,1,3.38,4.5,1.125,1.125,0,0,1,4.505,5.625Z" transform="translate(5 2.75)" fill="#fff" fill-rule="evenodd"/>
+      </g>
+    </g>
+  </g>
+</svg>

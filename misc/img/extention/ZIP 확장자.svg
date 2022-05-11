@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="22.286" height="24" viewBox="0 0 22.286 24">
+  <defs>
+    <filter id="패스_648" x="0" y="0" width="22.286" height="24" filterUnits="userSpaceOnUse">
+      <feOffset dx="1" dy="1" input="SourceAlpha"/>
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feFlood flood-opacity="0.161"/>
+      <feComposite operator="in" in2="blur"/>
+      <feComposite in="SourceGraphic"/>
+    </filter>
+  </defs>
+  <g id="그룹_2080" data-name="그룹 2080" transform="translate(-3335.857 -1763)">
+    <rect id="ZIP_아이콘" data-name="ZIP 아이콘" width="20" height="20" rx="4" transform="translate(3336 1764)" fill="#ff9408"/>
+    <g id="file-earmark-zip-fill" transform="translate(3336.357 1765.75)">
+      <g transform="matrix(1, 0, 0, 1, -0.5, -2.75)" filter="url(#패스_648)">
+        <path id="패스_648-2" data-name="패스 648" d="M4.5,3.964A1.714,1.714,0,0,1,6.214,2.25h.429v.857H7.5v.857H6.643v.857H7.5v.857H6.643v.857H7.5v.857H8.786V6.536H7.929V5.679h.857V4.821H7.929V3.964h.857V3.107H7.929V2.25h2.822a.857.857,0,0,1,.606.251l3.178,3.178a.857.857,0,0,1,.251.606v6.251a1.714,1.714,0,0,1-1.714,1.714H6.214A1.714,1.714,0,0,1,4.5,12.536Zm6,1.714V3.107l3.429,3.429H11.357A.857.857,0,0,1,10.5,5.679Zm-3,2.143a.857.857,0,0,0-.857.857v.8L6.3,10.853a.857.857,0,0,0,.357.921l.8.531a.857.857,0,0,0,.95,0l.8-.531a.857.857,0,0,0,.356-.921L9.215,9.483v-.8a.857.857,0,0,0-.857-.857H7.5Zm0,1.661v-.8h.857v.8a.857.857,0,0,0,.026.208l.343,1.37-.8.531-.8-.531.343-1.37A.857.857,0,0,0,7.5,9.483Z" transform="translate(0.5 2.75)" fill="#fff" fill-rule="evenodd"/>
+      </g>
+    </g>
+  </g>
+</svg>

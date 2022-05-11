@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24" height="23.91" viewBox="0 0 24 23.91">
+  <defs>
+    <filter id="패스_645" x="0" y="6.734" width="24" height="17.176" filterUnits="userSpaceOnUse">
+      <feOffset dx="1" dy="1" input="SourceAlpha"/>
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feFlood flood-opacity="0.161"/>
+      <feComposite operator="in" in2="blur"/>
+      <feComposite in="SourceGraphic"/>
+    </filter>
+    <filter id="패스_646" x="3.373" y="0.772" width="20.627" height="21.413" filterUnits="userSpaceOnUse">
+      <feOffset dx="1" dy="1" input="SourceAlpha"/>
+      <feGaussianBlur stdDeviation="2" result="blur-2"/>
+      <feFlood flood-opacity="0.161"/>
+      <feComposite operator="in" in2="blur-2"/>
+      <feComposite in="SourceGraphic"/>
+    </filter>
+    <filter id="패스_647" x="3.373" y="0" width="20.627" height="14.498" filterUnits="userSpaceOnUse">
+      <feOffset dx="1" dy="1" input="SourceAlpha"/>
+      <feGaussianBlur stdDeviation="2" result="blur-3"/>
+      <feFlood flood-opacity="0.161"/>
+      <feComposite operator="in" in2="blur-3"/>
+      <feComposite in="SourceGraphic"/>
+    </filter>
+  </defs>
+  <g id="그룹_2079" data-name="그룹 2079" transform="translate(-3394 -1804.025)">
+    <rect id="ZIP_아이콘" data-name="ZIP 아이콘" width="20" height="20" rx="4" transform="translate(3396 1805)" fill="#d64d29"/>
+    <g id="music-note-beamed" transform="translate(3396.75 1806.539)">
+      <g transform="matrix(1, 0, 0, 1, -2.75, -2.51)" filter="url(#패스_645)">
+        <path id="패스_645-2" data-name="패스 645" d="M6.536,23.7a1.969,1.969,0,0,1-2.143,1.725A1.969,1.969,0,0,1,2.25,23.7a1.969,1.969,0,0,1,2.143-1.725A1.969,1.969,0,0,1,6.536,23.7Zm7.714-1.725A1.969,1.969,0,0,1,12.107,23.7a1.969,1.969,0,0,1-2.143-1.725,1.969,1.969,0,0,1,2.143-1.725A1.969,1.969,0,0,1,14.25,21.975Z" transform="translate(2.75 -8.52)" fill="#fff"/>
+      </g>
+      <g transform="matrix(1, 0, 0, 1, -2.75, -2.51)" filter="url(#패스_646)">
+        <path id="패스_646-2" data-name="패스 646" d="M19.014,12.2V4.5h.863v7.7Zm-6.9-6.845v8.557H11.25V5.356Z" transform="translate(-2.88 1.27)" fill="#fff" fill-rule="evenodd"/>
+      </g>
+      <g transform="matrix(1, 0, 0, 1, -2.75, -2.51)" filter="url(#패스_647)">
+        <path id="패스_647-2" data-name="패스 647" d="M11.25,4.039a.863.863,0,0,1,.777-.858l6.9-.69a.863.863,0,0,1,.949.858v.772l-8.627.863Z" transform="translate(-2.88 2.51)" fill="#fff"/>
+      </g>
+    </g>
+  </g>
+</svg>
