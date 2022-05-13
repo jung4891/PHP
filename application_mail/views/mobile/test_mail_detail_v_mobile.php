@@ -75,10 +75,10 @@ $reply_cc_input = address_text($mail_info["cc"]);
      <input type="hidden" id="reply_content" name="reply_content" value="">
      <input type="hidden" id="reply_file" name="reply_file" value="">
    </form>
-   <div id="send_top" align="left" style="width:95%; padding-bottom:10px;">
-     <span onClick="javascript:history.back();">
+   <div id="send_top" align="left" style="width:95%; height:6%; padding-bottom:10px; margin-left: 5px">
+     <div onClick="javascript:history.back();" style="position:relative; width:10%; height:5% ">
        <img src="/misc/img/back.svg" style="width:25px;">
-     </span>
+     </div>
      <!-- <button type="button" class="btn_basic btn_white" style="width:45px" onclick="go_list(`<?php echo $mailno ?>`)">목록</button> -->
      &nbsp;
      <!-- <button type="button" class="btn_basic btn_blue" name="button" id="submit_button" enctype="multipart/form-data" style="width:40px" onclick="reply_mail(1)">회신</button>
@@ -90,38 +90,44 @@ $reply_cc_input = address_text($mail_info["cc"]);
      <?php }else { ?>
        <button type="button" class="btn_basic btn_white" style="width:40px" onclick="del_trash()">삭제</button>
      <?php } ?> -->
-     <hr style="width:110%; border: 1px solid #dedede; margin: 15px 0px 0px -20px">
+     <hr style="width:108%; border: 1px solid #dedede; margin: 15px 0px 0px -20px">
    </div>
 
-     <div class="" style="max-height: 100%; overflow-y: auto; overflow-x: auto; width: 97%;">
-     <table width="98%" border="0" cellpadding="0" cellspacing="3">
+   <div class="" style="max-height: 100%; overflow-y: auto; overflow-x: auto; width: 97%; margin: 0 5px;">
+     <table width="98%">
        <tr align="left">
-         <th style="font-size: 18px; padding-bottom: 10px; width: 80%">
+         <th style="font-size: 18px; padding-bottom: 10px; width: 86%">
            <?php
            echo $mail_info["subject"];
            ?>
          </th>
-         <td align="right">
+         <td align="right" rowspan="2" style="vertical-align: top">
            <?php // echo 'mbox: '.$mbox.'<br>'; ?>
            <?php $mailno = isset($mailname)? $mailname : $mailno;   // 첨부/대표검색은 mailname으로 스크립트에서 처리함 ?>
            <!-- <?php // var_dump($mailno); ?> -->
-           <img src="<?php echo $misc;?>img/icon/위2.svg" style="position:relative; width:28px; top:0px; cursor:pointer;" onclick="go_up(`<?php echo $mailno; ?>`)">
-           <img src="<?php echo $misc;?>img/icon/아래2.svg" style="position:relative; width:28px; top:0px; cursor:pointer;" onclick="go_down(`<?php echo $mailno; ?>`)">
+           <img src="<?php echo $misc;?>img/icon/위2.svg" style="position:relative; width:25px; cursor:pointer;" onclick="go_up(`<?php echo $mailno; ?>`)">
+           <img src="<?php echo $misc;?>img/icon/아래2.svg" style="position:relative; width:25px; top:3px; cursor:pointer;" onclick="go_down(`<?php echo $mailno; ?>`)">
          </td>
        </tr>
        <tr>
-         <td style="color: gray; text-align: left">
-         <div class="" style="position:relative; top:-8px">
+        <td style="color: gray; text-align: left">
+         <div class="" style="position:relative; top:-5px; padding-bottom: 6px">
              <?php
              $day_arr = [ "일" , "월" , "화" , "수" , "목" , "금" , "토" ];
              $day = $day_arr[date("w", $mail_info["udate"])];
              echo date("y.m.d ($day) H:i", $mail_info["udate"]);
              ?>
          </div>
-       </td>
+        </td>
+        <td></td>
        </tr>
+     </table>
+     <table width="98%" style="word-break:break-all; border-spacing:0 3px;">
        <tr>
-         <td><span style="font-size: 15px; color: silver">보낸사람 &nbsp;</span>
+         <td style="width: 23%">
+           <span style="font-size: 15px; color: silver">보낸사람 &nbsp;</span>
+         </td>
+         <td>
            <?php
             // 보낸사람에서 ks_c_5601-1987 출력 애러 제거
             if(strpos($mail_info["from"]["email"], 'ks_c_5601-1987')) {
@@ -131,7 +137,7 @@ $reply_cc_input = address_text($mail_info["cc"]);
               $mail_info["from"]["email"] = $target.$rest;
             };
             ?>
-           <span id="from_td" style="font-size: 15px">
+           <span id="from_td" style="font-size: 15px;">
              <?php if($mail_info["from"]["email"] == "")
                       echo "(이름 없음)";
                    else
@@ -142,54 +148,55 @@ $reply_cc_input = address_text($mail_info["cc"]);
        <tr>
          <td>
            <span style="font-size: 15px; color: silver">받는사람 &nbsp;</span>
+         </td>
+         <td>
            <span id="to_td" style="font-size: 15px"><?php echo $reply_to_input["text"]; ?></span>
          </td>
        </tr>
        <tr>
-        <td>
+         <td>
            <span style="font-size: 15px; color: silver">참&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;조 &nbsp;</span>
-           <span id="cc_td" style="font-size: 15px"><?php echo $reply_cc_input["text"]; ?></span>
-        </td>
-       </tr>
-
-      <?php if (!empty($attachments)) { ?>
-       <tr>
-         <td colspan="2">
-           <hr style="width: 98%; border: 1px solid #dedede; margin-left: -5px;">
+         </td>
+         <td>
+          <span id="cc_td" style="font-size: 15px"><?php echo $reply_cc_input["text"]; ?></span>
          </td>
        </tr>
+      </table>
+      <table>
+      <?php if (!empty($attachments)) { ?>
+      <hr style="width: 96%; border: 1px solid #dedede; margin: 7px 0px">
        <tr><td style="font-size: 15px; color: silver; padding-bottom: 3px; ">첨부파일</td></tr>
        <?php foreach ($attachments as $att) {
          $param = "'{$att['mbox']}','{$att['msgno']}','{$att['part_num']}','{$att['encoding']}','".addslashes($att['filename'])."'";
-
          ?>
          <tr>
-          <td>
-            <a href="JavaScript:download(<?php echo $param; ?>);"><?php echo $att["filename"]; ?></a><span style='color: silver;margin-left:10px;'><?php echo $att["size"]; ?></span>
+          <td style="font-size: 15px;">
+            <a href="JavaScript:download(<?php echo $param; ?>);"><?php echo $att["filename"]; ?></a>
+            <span style='color: silver;margin-left:10px;'><?php echo $att["size"]; ?></span>
           </td>
         </tr>
        <?php
        } ?>
      <?php } ?>
      </table>
-   <hr style="width: 97%; border: 1px solid #dedede; margin-left: -10px; margin-bottom: 30px">
+     <hr style="width: 96%; border: 1px solid #dedede; margin: 7px 0px">
 
-   <table class="" width="100%" border="0" cellpadding="0" cellspacing="0">
-     <tr>
-       <td id="mail_contents">
-         <?php echo $contents; ?>
-       </td>
-     </tr>
-     <tr>
-       <!-- <pre>
-         <?php // var_dump($flattenedParts); ?>
-         <?php // var_dump($struct); ?>
-         <?php // var_dump($body); ?>
-       </pre> -->
-     </tr>
-   </table>
- </div>
-</div>
+     <table width="98%" style="margin-top: 22px;">
+       <tr>
+         <td id="mail_contents">
+           <?php echo $contents; ?>
+         </td>
+       </tr>
+       <tr>
+         <!-- <pre>
+           <?php // var_dump($flattenedParts); ?>
+           <?php // var_dump($struct); ?>
+           <?php // var_dump($body); ?>
+         </pre> -->
+       </tr>
+     </table>
+   </div>
+  </div>
 
 
 <script type="text/javascript">
