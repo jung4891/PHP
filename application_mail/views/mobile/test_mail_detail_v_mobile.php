@@ -76,9 +76,12 @@ $reply_cc_input = address_text($mail_info["cc"]);
      <input type="hidden" id="reply_file" name="reply_file" value="">
    </form>
    <div id="send_top" align="left" style="width:95%; padding-bottom:10px;">
-     <button type="button" class="btn_basic btn_white" style="width:45px" onclick="go_list(`<?php echo $mailno ?>`)">목록</button>
+     <span onClick="javascript:history.back();">
+       <img src="/misc/img/back.svg" style="width:25px;">
+     </span>
+     <!-- <button type="button" class="btn_basic btn_white" style="width:45px" onclick="go_list(`<?php echo $mailno ?>`)">목록</button> -->
      &nbsp;
-     <button type="button" class="btn_basic btn_blue" name="button" id="submit_button" enctype="multipart/form-data" style="width:40px" onclick="reply_mail(1)">회신</button>
+     <!-- <button type="button" class="btn_basic btn_blue" name="button" id="submit_button" enctype="multipart/form-data" style="width:40px" onclick="reply_mail(1)">회신</button>
      <button type="button" class="btn_basic btn_white" name="" style="width:65px" onclick="reply_mail(2)">전체회신</button>
      <button type="button" class="btn_basic btn_white" style="width:40px" onclick="reply_mail(3)">전달</button>
      &nbsp;&nbsp;
@@ -86,7 +89,7 @@ $reply_cc_input = address_text($mail_info["cc"]);
        <button type="button" class="btn_basic btn_white" style="width:65px" onclick="del_ever()">영구삭제</button>
      <?php }else { ?>
        <button type="button" class="btn_basic btn_white" style="width:40px" onclick="del_trash()">삭제</button>
-     <?php } ?>
+     <?php } ?> -->
      <hr style="width:110%; border: 1px solid #dedede; margin: 15px 0px 0px -20px">
    </div>
 

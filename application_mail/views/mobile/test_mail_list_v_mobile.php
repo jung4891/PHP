@@ -102,10 +102,6 @@ $_SESSION['list_page_url_tmp'] = substr($request_url, strpos($request_url, '/', 
     border-top:1px solid #dedede;
   }
 
-  .input{
-    border: 1px solid lightgray;
-  }
-
   #loading {
   	width: 100%;
   	height: 100%;
@@ -115,7 +111,7 @@ $_SESSION['list_page_url_tmp'] = substr($request_url, strpos($request_url, '/', 
   	display: block;
   	opacity: 0.8;
   	background: white;
-  	z-index: 99;
+  	z-index: 9998;
   	text-align: center;
   }
 
@@ -123,7 +119,7 @@ $_SESSION['list_page_url_tmp'] = substr($request_url, strpos($request_url, '/', 
   	position: absolute;
   	top: 38%;
   	left: 33%;
-  	z-index: 100;
+  	z-index: 9999;
   }
 
   #visited {
@@ -206,6 +202,45 @@ $_SESSION['list_page_url_tmp'] = substr($request_url, strpos($request_url, '/', 
     padding-top: 6px;
     padding-left: 7px;
   }
+
+  #search_detail {
+    display:none;
+    width:100%;
+    height: 285px;
+    background-color:#ffffff;
+    border-radius: 20px 20px 20px 20px;
+  }
+  #search_tbl {
+    width:100%;
+    border-spacing: 5px;
+    padding-top: 10px;
+    padding-left: 25px;
+    color: gray;
+  }
+  #search_tbl input[type="text"]{
+    width: 85%;
+    height: 18px;
+    border: none;
+    border-bottom: 1px solid rgb(212, 213, 219);
+    outline: none;
+  }
+  #search_tbl tr>td:nth-child(2) {
+    padding-bottom: 5px;
+  }
+  input[type="date"] {
+    width: 37%;
+    border: none;
+    border-bottom: 1px solid rgb(212, 213, 219);
+    font-size: 8pt;
+    text-align: center;
+    background-color: white;
+  }
+
+  .btn_basic {
+    width:43%;
+    height:36px;
+    font-size: 1em
+  }
  </style>
 
  <div class="search_div" align="center">
@@ -216,7 +251,7 @@ $_SESSION['list_page_url_tmp'] = substr($request_url, strpos($request_url, '/', 
      </colgroup>
      <tr>
        <td align="center">
-         <div style="width: 100%; height: 37px; border-radius: 5px 0px 0px 5px; background-color:#F4F4F4;">
+         <div style="width: 100%; height: 37px; background-color:#F4F4F4;  border-radius: 5px 0px 0px 5px;">
            <a href="javascript:void(0)" onclick="search_mail(this);">
              <img style="width: 17px; position: relative; top: 3px;" src="<?php echo $misc; ?>/img/icon/search.png" alt="">
            </a>
@@ -227,291 +262,244 @@ $_SESSION['list_page_url_tmp'] = substr($request_url, strpos($request_url, '/', 
          </div>
        </td>
        <td align="center">
-         <div id="search_detail" style="background-color:#DADADA; height: 37px; border-radius: 0px 5px 5px 0px">
+         <div id="search_detail_pop" style="height: 37px; background-color:#DADADA; border-radius: 0px 5px 5px 0px">
            <img src="<?php echo $misc;?>img/mobile/설정2.svg" style="position: relative; top: 6px;">
          </div>
-
-         <!-- div의 z-index가 이전엔 -1이여서 아래 a태그의 onclick까지 먹통이 되어서 0으로 수정함  -->
-         <!-- <div style="display: inline-block; cursor: pointer; width: 60px; height: 27px; border-radius: 5px; position: relative; top: -1px; left: 5px; border: solid 1px lightgray; background-color: rgb(220,220,220); text-align: center; z-index: 0">
-         <a onclick="search_detail(this);" style="position: relative; top: 0px; font-weight: 400; color: gray; font-size: 14px">
-         상세 <img style="position: relative; top: 2px; left: 2px; width: 15px" src="<?php echo $misc; ?>/img/icon/아래.svg" alt="">
-       </a>
-     </div> -->
      </td>
    </tr>
-
- <!-- <tr>
- <td colspan="5"></td>
- <td colspan="3">
- <div id="search_detail"  style="display:none; position: absolute; left: 80px; margin-top: 4px; background-color: white; border: 2px solid lightgray; width: 254px; z-index: 1">
- <form>
- <table style="border-spacing: 5px; padding-top: 10px; padding-left: 15px; color: gray;">
- <tr>
- <td width="31%"></td>
- <td width="69%"></td>
-</tr>
-<tr>
-<td>보낸이</td>
-<td><input type="text" id="from" class="input" name="from" size="16"></td>
-</tr>
-<tr>
-<td>받는이</td>
-<td><input type="text" id="to" class="input" name="to" size="16"></td>
-</tr>
-<tr>
-  <td>제목</td>
-  <td><input type="text" id="subject" class="input" name="subject" size="16"></td>
-</tr>
-<tr>
-  <td>내용</td>
-  <td><input type="text" id="contents" class="input" name="contents" size="16"></td>
-</tr>
-<tr>
-  <td>기간</td>
-  <td><input type="text" id="start_date" class="input" style="width:57px; font-size: 9pt; text-align: center" /> ~ <input type="text" id="end_date" class="input" style="width:57px; font-size: 9pt; text-align: center" /></td>
-</tr>
-</table>
-<div class="" style="margin: 10px; text-align: center;">
-  <button type="button" id="search_detail_submit" style="width: 45px; cursor: pointer;">검색</button> -->
-  <!-- <button type="button" id="" style="width: 45px; ">취소</button> -->
-  <!-- </div>
-  </form>
-</div>
-</td>
-</tr> -->
   </table>
-  <style media="screen">
-    .search_detail_input {
-      padding-left: 20px; height: 15%
-    }
-    .search_detail_input > p {
-      margin-bottom: 4px;
-    }
-  </style>
-  <div id="search_footer" style="width:100vw; height: 65vh; background-color:#ffffff; display:none; border-radius: 20px 20px 0px 0px;">
-    <div id="search_inner">
-      <div class="search_detail_input" style="margin-top: 20px;">
-        <p>보낸사람</p>
-        <input type="text">
-      </div>
-      <div class="search_detail_input">
-        <p>받는사람</p>
-        <input type="text">
-      </div>
-      <div class="search_detail_input">
-        <p>제목</p>
-        <input type="text">
-      </div>
-      <div class="search_detail_input">
-        <p>내용</p>
-        <input type="text">
-      </div>
-      <div class="search_detail_input">
-        <p>기간</p>
-        <input type="text">
-      </div>
-      <div style="display: flex;  justify-content: center; height: 15%; padding: 40px 15px;">
-        <button class="btn_basic btn_blue" type="button" name="button" style="width:45%; height:40px; font-size: 1em">검색</button>
-        <button class="btn_basic btn_sky" type="button" name="button" style="width:45%; height:40px; font-size: 1em; margin-left: 15px; ">취소</button>
-      </div>
+  <div id="search_detail">
+    <table id="search_tbl">
+      <tr>
+        <td width="25%"></td>
+        <td width="75%"></td>
+      </tr>
+      <tr>
+        <td>보낸사람</td>
+        <td><input type="text" id="from" name="from" placeholder="보낸사람 입력"></td>
+      </tr>
+      <tr>
+        <td>받는사람</td>
+        <td><input type="text" id="to" name="to" placeholder="받는사람 입력"></td>
+      </tr>
+      <tr>
+        <td>제목</td>
+        <td><input type="text" id="subject" name="subject" placeholder="제목 입력"></td>
+      </tr>
+      <tr>
+        <td>내용</td>
+        <td><input type="text" id="contents" name="contents" placeholder="내용 입력"></td>
+      </tr>
+      <tr>
+        <td>기간</td>
+        <td>
+          <input type="date" id="start_date">
+          <span style="margin: 3px; position: relative; vertical-align: sub;">~</span>
+          <input type="date" id="end_date">
+        </td>
+      </tr>
+    </table>
 
+      <div style="display: flex;  justify-content: center; padding: 15px;">
+        <button id="search_detail_submit" class="btn_basic btn_blue" type="button" name="button">검색</button>
+        <button id="pop_close_btn" class="btn_basic btn_sky"  type="button" name="button" style="margin-left: 15px;">
+          취소
+        </button>
+      </div>
     </div>
   </div>
-</div>
 
-<div id="main_contents" align="center" style="height: 100vh; width: 100vw; display: grid; grid-template-rows: auto 8vh 24vh; ">
+  <div id="main_contents" align="center" style="height: 100vh; width: 100vw; display: grid; grid-template-rows: auto 8vh 24vh; ">
+    <div class="main_div">
+      <table class="mlist_tbl" border="0" cellspacing="0" cellpadding="0" style="table-layout: fixed;" >
+        <colgroup>
+          <col width="8%" >
+          <col width="70%">
+          <col width="15%" >
+          <!-- <col width="3%" >
+          <col width="3%" >
+          <col width="3%" >
+          <col width="25%" >
+          <col width="*" >
+          <col width="10%" >
+          <col width="12%" > -->
+        </colgroup>
+        <tbody>
 
-  <div class="main_div">
-  <!-- <?php // echo $test_msg; ?> <br><br> -->
-  <table class="mlist_tbl" border="0" cellspacing="0" cellpadding="0" style="table-layout: fixed;" >
-    <colgroup>
-      <col width="8%" >
-      <col width="70%">
-      <col width="15%" >
-      <!-- <col width="3%" >
-      <col width="3%" >
-      <col width="3%" >
-      <col width="25%" >
-      <col width="*" >
-      <col width="10%" >
-      <col width="12%" > -->
-    </colgroup>
-    <tbody>
-
-      <form name="frm" method="post">
-
-      <?php
-        // 메일이 없는 경우
-        if(count($mailno_arr) == 0)
-          echo '<tr><td colspan="7" style="text-align: center;"><br>메일함에 메일이 없습니다.<br><br></td></tr>'
-       ?>
-
-      <?php
-        for($i=$start_row; $i<$start_row+$per_page; $i++) {
-          if(!isset($mail_list_info[$i])) break;        // offset 애러처리
-          $msg_no = trim($mail_list_info[$i]['mail_no']);
-          $mail_name = $mail_list_info[$i]['mail_name'];
-      ?>
-
-        <tr data-msgno="<?php echo $msg_no; ?>">
-
-          <!-- 메일목록 출력 -->
-          <!-- <td><?php // echo $head[$mailno_arr[$i]]->Unseen ?></td> -->
-          <td name="msg_no_td" style="display:none;"><?php echo $msg_no?></td>
-          <!-- <td name="ipcountry_td" style="text-align:center;"></td> -->
-          <td onclick="event.cancelBubble=true">
-            <input type="checkbox" name="chk" value=<?php echo $msg_no;?>>
-          </td>
+          <form name="frm" method="post">
 
           <?php
-          // get방식으로 데이터를 직접 url에 적으면 &가 데이터 구별기호로 인식되서 바꿔줘야함
-          // (위에서 아싸리 바꿔줌 함수 사용해서.)
-          // $mbox2 = str_replace(array('#', '&', ' '), array('%23', '%26', '+'), $mbox);
+            // 메일이 없는 경우
+            if(count($mailno_arr) == 0)
+              echo '<tr><td colspan="7" style="text-align: center;"><br>메일함에 메일이 없습니다.<br><br></td></tr>'
+           ?>
 
-          // 메일 읽은경우/읽지 않은경우 class명 지정하여 색 변경 (메일 읽으면 "U" -> ""로 바뀜)
-          $unseen = ($mail_list_info[$i]['unseen'] == "U")? "unseen":"seen";
+          <?php
+            for($i=$start_row; $i<$start_row+$per_page; $i++) {
+              if(!isset($mail_list_info[$i])) break;        // offset 애러처리
+              $msg_no = trim($mail_list_info[$i]['mail_no']);
+              $mail_name = $mail_list_info[$i]['mail_name'];
           ?>
-          <td>
-            <div style="position:relative; top:-3px">
-              <a class= <?php echo $unseen ?> href="javascript:void(0);" onclick="detail_mailview(<?php echo $msg_no?>, '<?php echo $mail_name ?>');" style="font-weight: bold">
-                <?php
-                $from_name = $mail_list_info[$i]['from']['from_name'];
-                $to_name = $mail_list_info[$i]['to']['to_name'];
-                // 보낸메일함은 받는사람 표기
-                if(strpos($mbox, '&vPSwuA- &07jJwNVo-') === 0) {
-                  echo (isset($to_name))? $to_name : '(이름 없음)' ;
-                // 그외 메일함은 보낸사람 표기
-                }else {
-                  echo (isset($from_name))? $from_name : '(이름 없음)' ;
-                }
-                ?>
-              </a>
-          </div>
-            <span style="display: none">
+
+            <tr data-msgno="<?php echo $msg_no; ?>">
+
+              <!-- 메일목록 출력 -->
+              <!-- <td><?php // echo $head[$mailno_arr[$i]]->Unseen ?></td> -->
+              <td name="msg_no_td" style="display:none;"><?php echo $msg_no?></td>
+              <!-- <td name="ipcountry_td" style="text-align:center;"></td> -->
+              <td onclick="event.cancelBubble=true">
+                <input type="checkbox" name="chk" value=<?php echo $msg_no;?>>
+              </td>
+
               <?php
-              $from_name_full = $mail_list_info[$i]['from']['from_name_full'];
-              $to_name_full = $mail_list_info[$i]['to']['to_name_full'];
-              // 요부분은 회신할때 보낸사람 받는사람 이름<주소> 형식으로 출력되도록 처리함
-              if(strpos($mbox, '&vPSwuA- &07jJwNVo-') === 0) {
-                echo htmlspecialchars($to_name_full);
-              }else {
-                echo htmlspecialchars($from_name_full);
-              }
+              // get방식으로 데이터를 직접 url에 적으면 &가 데이터 구별기호로 인식되서 바꿔줘야함
+              // (위에서 아싸리 바꿔줌 함수 사용해서.)
+              // $mbox2 = str_replace(array('#', '&', ' '), array('%23', '%26', '+'), $mbox);
+
+              // 메일 읽은경우/읽지 않은경우 class명 지정하여 색 변경 (메일 읽으면 "U" -> ""로 바뀜)
+              $unseen = ($mail_list_info[$i]['unseen'] == "U")? "unseen":"seen";
               ?>
-            </span>
-          </td>
-          <td style="color: darkgray; font-weight: 400; font-size: 10px;" align="center">
-            <?php echo $mail_list_info[$i]['date'];?>
-          </td>
-          <!-- <td><?php echo $mail_list_info[$i]['size'] ?></td> -->
-        </tr>
-        <tr>
-          <td></td>
-          <td style="text-overflow:ellipsis; overflow:hidden; white-space:nowrap; font-size: 12px;"  onclick="detail_mailview(<?php echo $msg_no?>, '<?php echo $mail_name ?>');">
-            <div style="position:relative; top:-7px">
-              <span id="<?php echo $msg_no.'_span' ?>" ></span>
-              <a class=<?php echo $unseen ?> href="javascript:void(0)" title="<?php echo $mail_list_info[$i]['subject']?>">
-                <?php
-                  $subject = $mail_list_info[$i]['subject'];
-                  if(strlen($subject) > 45) {
-                    $subject = iconv_substr($subject, 0, 20, "utf-8").'...';  // 한글깨짐 방지해서 잘라내기
-                    // $subject = substr($subject, 0, 45).'...';        // 그냥 영문/한글/띄어쓰기 모두 1임
+              <td>
+                <div style="position:relative; top:-3px">
+                  <a class= <?php echo $unseen ?> href="javascript:void(0);" onclick="detail_mailview(<?php echo $msg_no?>, '<?php echo $mail_name ?>');" style="font-weight: bold">
+                    <?php
+                    $from_name = $mail_list_info[$i]['from']['from_name'];
+                    $to_name = $mail_list_info[$i]['to']['to_name'];
+                    // 보낸메일함은 받는사람 표기
+                    if(strpos($mbox, '&vPSwuA- &07jJwNVo-') === 0) {
+                      echo (isset($to_name))? $to_name : '(이름 없음)' ;
+                    // 그외 메일함은 보낸사람 표기
+                    }else {
+                      echo (isset($from_name))? $from_name : '(이름 없음)' ;
+                    }
+                    ?>
+                  </a>
+              </div>
+                <span style="display: none">
+                  <?php
+                  $from_name_full = $mail_list_info[$i]['from']['from_name_full'];
+                  $to_name_full = $mail_list_info[$i]['to']['to_name_full'];
+                  // 요부분은 회신할때 보낸사람 받는사람 이름<주소> 형식으로 출력되도록 처리함
+                  if(strpos($mbox, '&vPSwuA- &07jJwNVo-') === 0) {
+                    echo htmlspecialchars($to_name_full);
+                  }else {
+                    echo htmlspecialchars($from_name_full);
                   }
-                  echo $subject?>
-              </a>
-          </div>
-          </td>
-          <td align="center">
-            <div style="position:initial; margin:-17px">
+                  ?>
+                </span>
+              </td>
+              <td style="color: darkgray; font-weight: 400; font-size: 10px;" align="center">
+                <?php echo $mail_list_info[$i]['date'];?>
+              </td>
+              <!-- <td><?php echo $mail_list_info[$i]['size'] ?></td> -->
+            </tr>
+            <tr>
+              <td></td>
+              <td style="text-overflow:ellipsis; overflow:hidden; white-space:nowrap; font-size: 12px;"  onclick="detail_mailview(<?php echo $msg_no?>, '<?php echo $mail_name ?>');">
+                <div style="position:relative; top:-7px">
+                  <span id="<?php echo $msg_no.'_span' ?>" ></span>
+                  <a class=<?php echo $unseen ?> href="javascript:void(0)" title="<?php echo $mail_list_info[$i]['subject']?>">
+                    <?php
+                      $subject = $mail_list_info[$i]['subject'];
+                      if(strlen($subject) > 45) {
+                        $subject = iconv_substr($subject, 0, 20, "utf-8").'...';  // 한글깨짐 방지해서 잘라내기
+                        // $subject = substr($subject, 0, 45).'...';        // 그냥 영문/한글/띄어쓰기 모두 1임
+                      }
+                      echo $subject?>
+                  </a>
+              </div>
+              </td>
+              <td align="center">
+                <div style="position:initial; margin:-17px">
 
-              <?php if($mail_list_info[$i]['attached']) { ?>
-                <img src="/misc/img/icon/첨부(본문)2.svg" alt="ss" width="20px">
-              <?php }else {?>
-                <img src="/misc/img/icon/첨부(본문).svg" alt="ss">
-              <?php } ?>
+                  <?php if($mail_list_info[$i]['attached']) { ?>
+                    <img src="/misc/img/icon/첨부(본문)2.svg" alt="ss" width="20px">
+                  <?php }else {?>
+                    <img src="/misc/img/icon/첨부(본문).svg" alt="ss">
+                  <?php } ?>
 
-              <a href="javascript:void(0);" onclick="starClick(this); " >
-                <?php if($mail_list_info[$i]['flagged'] == "F") {?>
-                  <img class="fullStar" src="/misc/img/icon/중요(본문)2.svg" alt="" width="20px">
-                <?php   }else {?>
-                  <img class="emptyStar" src="/misc/img/icon/중요(본문).svg" alt="" width="20px">
-                <?php   } ?>
-              </a>
+                  <a href="javascript:void(0);" onclick="starClick(this); " >
+                    <?php if($mail_list_info[$i]['flagged'] == "F") {?>
+                      <img class="fullStar" src="/misc/img/icon/중요(본문)2.svg" alt="" width="20px">
+                    <?php   }else {?>
+                      <img class="emptyStar" src="/misc/img/icon/중요(본문).svg" alt="" width="20px">
+                    <?php   } ?>
+                  </a>
 
-            </div>
-          </td>
-        </tr>
-        <?php
-        }
-        ?>
-      </form>
-    </tbody>
-  </table>
-  </div>
-
-  <div class="paging_div" style="text-align: center; padding-top: 15px">
-    <?php echo $links; ?>
-  </div>
-
-  <div class="choose_div" style="display: flex; background-color: black; padding-top: 3%;">
-    <div class="" style="width: 5%">
-    </div>
-    <div class="div_footer" onclick="check_all();">
-      <div>
-        <img src="<?php echo $misc;?>img/mobile/전체선택.svg" style="cursor:pointer;">
-      </div>
-      <span>전체선택</span>
-    </div>
-    <div class="div_footer">
-      <div>
-        <img src="<?php echo $misc;?>img/mobile/이동.svg" style="cursor:pointer;">
-      </div>
-      <span>이동</span>
-        <select id="selected_box" onchange="move();">
-          <option value="" >이동할 메일함 선택</option>
-          <?php
-          foreach($mailbox_tree as $b) {
-            $indent = "";
-            for($i=0; $i<$b['child_num']; $i++) {
-              $indent .= "&nbsp;";
+                </div>
+              </td>
+            </tr>
+            <?php
             }
-            echo "<option value=\"{$b["id"]}\">{$indent}{$b['text']}</option>";
-          }
-          ?>
-        </select>
+            ?>
+          </form>
+        </tbody>
+      </table>
     </div>
 
-    <div class="div_footer">
-      <div>
-        <img src="<?php echo $misc;?>img/mobile/답장.svg" style="cursor:pointer;">
-      </div>
-      <span>답장</span>
+    <div class="paging_div" style="text-align: center; padding-top: 15px">
+      <?php echo $links; ?>
     </div>
-    <div class="div_footer" onclick="move_spam();">
-      <div>
-        <img src="<?php echo $misc;?>img/mobile/스팸.svg" style="cursor:pointer;">
+
+    <div class="choose_div" style="display: flex; background-color: black; padding-top: 3%;">
+      <div class="" style="width: 5%">
       </div>
-      <span>스팸</span>
-    </div>
-    <?php if($mbox == "&ycDGtA- &07jJwNVo-") {  // 휴지통 ?>
-      <div class="div_footer" onclick="del_ever();">
+      <div class="div_footer" onclick="check_all();">
         <div>
-          <img src="<?php echo $misc;?>img/mobile/영구삭제.svg" style="cursor:pointer;">
+          <img src="<?php echo $misc;?>img/mobile/전체선택.svg" style="cursor:pointer;">
         </div>
-        <span>영구삭제</span>
+        <span>전체선택</span>
       </div>
-    <?php }else {?>
-      <div class="div_footer" onclick="del_trash();">
+      <div class="div_footer">
         <div>
-          <img src="<?php echo $misc;?>img/mobile/휴지통.svg" style="cursor:pointer;">
+          <img src="<?php echo $misc;?>img/mobile/이동.svg" style="cursor:pointer;">
         </div>
-        <span>삭제</span>
+        <span>이동</span>
+          <select id="selected_box" onchange="move();">
+            <option value="" >이동할 메일함 선택</option>
+            <?php
+            foreach($mailbox_tree as $b) {
+              $indent = "";
+              for($i=0; $i<$b['child_num']; $i++) {
+                $indent .= "&nbsp;";
+              }
+              echo "<option value=\"{$b["id"]}\">{$indent}{$b['text']}</option>";
+            }
+            ?>
+          </select>
       </div>
-    <?php } ?>
-    <div class="" style="width: 5%">
+
+      <div class="div_footer">
+        <div>
+          <img src="<?php echo $misc;?>img/mobile/답장.svg" style="cursor:pointer;">
+        </div>
+        <span>답장</span>
+      </div>
+      <div class="div_footer" onclick="move_spam();">
+        <div>
+          <img src="<?php echo $misc;?>img/mobile/스팸.svg" style="cursor:pointer;">
+        </div>
+        <span>스팸</span>
+      </div>
+      <?php if($mbox == "&ycDGtA- &07jJwNVo-") {  // 휴지통 ?>
+        <div class="div_footer" onclick="del_ever();">
+          <div>
+            <img src="<?php echo $misc;?>img/mobile/영구삭제.svg" style="cursor:pointer;">
+          </div>
+          <span>영구삭제</span>
+        </div>
+      <?php }else {?>
+        <div class="div_footer" onclick="del_trash();">
+          <div>
+            <img src="<?php echo $misc;?>img/mobile/휴지통.svg" style="cursor:pointer;">
+          </div>
+          <span>삭제</span>
+        </div>
+      <?php } ?>
+      <div class="" style="width: 5%">
+      </div>
     </div>
   </div>
-</div>
 
 <?php
 include $this->input->server('DOCUMENT_ROOT')."/include/mail_footer.php";
@@ -521,27 +509,21 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_footer.php";
 <script type="text/javascript">
 
 $(function() {
-
-  // $("#search").focus(function(){
-  //   $(this).val('');
-  //   $(this).css({"color":"#000000", "font-weight":"bold"});
-  //   $("#search_div").css("padding-top", "10px");
-  // });
-  //
-  // $("#search").blur(function(){
-  //   $(this).css({"color":"#B0B0B0", "font-weight":""});
-  //   $(this).val('이름 또는 내용 검색');
-  // });
-
-  $("#search_detail").click(function(){
-    $("#search_footer").bPopup({
-      position: [0, 205], //x, y
+  $("#search_detail_pop").click(function(){
+    $("#search_detail").bPopup({
+      position: [0, 0], //x, y
       speed: 500,
-      transition: 'slideUp',
-      transitionClose: 'slideUp'
+      transition: 'slideDown',
+      transitionClose: 'slideDown'
     });
-
   });
+
+  $("#pop_close_btn").click(function(){
+    $("#search_detail").bPopup().close();
+  });
+
+  $('input')
+
 });
 
  var ip_yn = 1;
@@ -717,21 +699,21 @@ $(".mlist_tbl tr").on("mousedown", function(){
  })
 
  // jquery datepicker 설정
- $.datepicker.setDefaults($.datepicker.regional['ko']); //한국어 설정
- $(function() {
-    $('#start_date').datepicker({    // #input 태그 아이디와 동일해야 함. 여러개 구분사용 가능
-      showOtherMonths: true,
-      selectOtherMonths: true,
-      dateFormat:"y-mm-dd",    // 날짜 출력폼 설정(y: 22, yy: 2022)
-    });
-    $('#end_date').datepicker({
-      showOtherMonths: true,
-      selectOtherMonths: true,
-      dateFormat:"y-mm-dd",
-      // onSelect:function(selectedDate){    // 날짜가 선택되었을때 실행하는 함수
-      // }
-    });
- });
+ // $.datepicker.setDefaults($.datepicker.regional['ko']); //한국어 설정
+ // $(function() {
+ //    $('#start_date').datepicker({    // #input 태그 아이디와 동일해야 함. 여러개 구분사용 가능
+ //      showOtherMonths: true,
+ //      selectOtherMonths: true,
+ //      dateFormat:"y-mm-dd",    // 날짜 출력폼 설정(y: 22, yy: 2022)
+ //    });
+ //    $('#end_date').datepicker({
+ //      showOtherMonths: true,
+ //      selectOtherMonths: true,
+ //      dateFormat:"y-mm-dd",
+ //      // onSelect:function(selectedDate){    // 날짜가 선택되었을때 실행하는 함수
+ //      // }
+ //    });
+ // });
 
  // 검색
  function search_mail(ths) {
@@ -783,18 +765,6 @@ $(".mlist_tbl tr").on("mousedown", function(){
  })
 
  // 상세검색
- function search_detail(ths) {
-   if ($('#search_detail').css('display') == 'block') {
-       $('#search_detail').css('display', 'none');
-       $(ths).children()[0].src = '<?php echo $misc; ?>img/icon/아래.svg';
-       ths.childNodes[0].nodeValue = " 상세 ";
-   }else {
-       $('#search_detail').css('display', 'block');
-       $(ths).children()[0].src = '<?php echo $misc; ?>img/icon/위.svg';
-       ths.childNodes[0].nodeValue = " 접기 ";
-    }
- }
-
  $('#search_detail_submit').click(function() {
    if($('#from').val() == "" && $('#to').val() == "" && $('#subject').val() == "" && $('#contents').val() == "" && $('#start_date').val() == "" && $('#end_date').val() == "") {
      alert('검색어를 입력하세요');
@@ -815,26 +785,19 @@ $(".mlist_tbl tr").on("mousedown", function(){
    if($('#contents').val() != "")   newForm.append($('<input>', {type: 'hidden', name: 'contents', value: $('#contents').val() }));
    if($('#start_date').val() != "")   newForm.append($('<input>', {type: 'hidden', name: 'start_date', value: $('#start_date').val() }));
    if($('#end_date').val() != "") {
-     var end_date = $('#end_date').val().split('-');  // 22-01-10
-     end_date[0] = parseInt(end_date[0]) + 2000;
-     end_date = end_date.join('-');                   // 2022-01-10
+     // var end_date = $('#end_date').val().split('-');  // 22-01-10
+     // end_date[0] = parseInt(end_date[0]) + 2000;
+     // end_date = end_date.join('-');                   // 2022-01-10
 
-     var selectedDate = new Date(end_date);
+     var selectedDate = new Date($('#end_date').val());
      selectedDate.setDate(selectedDate.getDate() + 1);    // 미만으로 검색되어 하루 더하기 (20210110 형태로만 Date객체 형성 가능)
      selectedDate = selectedDate.getFullYear() + "-" + (selectedDate.getMonth() + 1) + "-" + selectedDate.getDate();
      newForm.append($('<input>', {type: 'hidden', name: 'end_date', value: selectedDate }));
    }
    newForm.appendTo('body');
+   $('#search_detail').hide();
+   $('.b-modal').css("opacity", "0.4");
    $('#loading').show();
-  //  setTimeout(function() {
-  //   alert('검색결과가 너무 많습니다.\n페이지가 새로고침됩니다.');
-  //   location.href = location.href;
-  //   // location.href = "" + $(location).attr('href')+ "";
-  //   // location.reload();
-  //   // location.href = "https://mail.durianict.co.kr/index.php/mailbox/mail_list";
-  //   // history.back();
-  //   // location.href = "<?php echo site_url(); ?>/mailbox/mail_list?boxname=INBOX";
-  // }, 3000);
   newForm.submit();
   })
 
@@ -871,6 +834,7 @@ $(".mlist_tbl tr").on("mousedown", function(){
   //       newForm.append($('<input>', {type: 'hidden', name: 'end_date', value: selectedDate }));
   //     }
   //     newForm.appendTo('body');
+  //     $('#search_detail').hide();
   //     $('#loading').show();
   //    newForm.submit();
   //   }
