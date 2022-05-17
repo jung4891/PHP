@@ -126,7 +126,26 @@
       $head_title = $mbox_decoded;
     }
 
+
+    if(strpos($_SERVER['REQUEST_URI'],'option/list_mobile') !== false){
+      $head_title = "설정";
+    }
+
+    if(strpos($_SERVER['REQUEST_URI'],'option/user') !== false){
+      $head_title = "계정설정";
+    }
+
+    if(strpos($_SERVER['REQUEST_URI'],'option/mailbox') !== false){
+      $head_title = "메일함 설정";
+    }
+
+    if(strpos($_SERVER['REQUEST_URI'],'option/address_book') !== false){
+      $head_title = "주소록 관리";
+    }
+
   ?>
+
+
   <meta name="viewport" content="width=device-width,height=device-width, initial-scale=1.0">
   <style media="screen">
   @import url(//fonts.googleapis.com/earlyaccess/notosanskr.css);
@@ -310,7 +329,7 @@
           </div>
 
 
-          <div class="mailbox_div" id="side_mbox" style="max-height:50%;">
+          <div class="mailbox_div" id="side_mbox" style="max-height:50%;margin-left:20px;">
             <?php
             $i = 0;
             if(strpos($_SERVER['REQUEST_URI'],'mailbox/') !== false){
@@ -387,14 +406,14 @@
               ?>
             </table>
           </div>
-          <div class="mailbox_div">
+          <div class="mailbox_div" style="margin-left:20px;">
             <table class="mbox_tbl" border="0" cellspacing="0" cellpadding="0" style="padding-top:10px;">
                 <colgroup>
                   <col width="10%">
                   <col width="80%">
                   <col width="10%">
                 </colgroup>
-                <tr class="" onclick="document.location='<?php echo site_url(); ?>/option/user'" id="option_tr">
+                <tr class="" onclick="document.location='<?php echo site_url(); ?>/option/list_mobile'" id="option_tr">
                   <td height=30 align="right">
                     <img id="setting_img" src="<?php echo $misc;?>img/sideicon/setting2.svg" style="cursor:pointer;">
                   </td>
@@ -413,7 +432,6 @@
                   <td></td>
                 </tr>
               </table>
-
           </div>
           <div class="">
             <form name="boxform" id="boxform" class="" action="" method="get">
@@ -438,8 +456,8 @@
     <?php
   if(strpos($_SERVER['REQUEST_URI'],'option/') !== false){
   ?>
-    $("#option_tr").addClass("select_side");
-    $("#setting_img").attr("src", "<?php echo $misc;?>img/sideicon/setting.svg");
+    // $("#option_tr").addClass("select_side");
+    // $("#setting_img").attr("src", "<?php echo $misc;?>img/sideicon/setting.svg");
   <?php
   }
   ?>

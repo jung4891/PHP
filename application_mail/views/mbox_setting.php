@@ -8,9 +8,8 @@ $iv = chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0)
 $key = $this->db->password;
 $key = substr(hash('sha256', $key, true), 0, 32);
 $decrypted = openssl_decrypt(base64_decode($encryp_password), 'aes-256-cbc', $key, 1, $iv);
-// $mailserver = "192.168.0.100";
+$mailserver = "192.168.0.100";
 // $mailserver = "192.168.0.50";
-$this->mailserver = "mail.durianit.co.kr";
 $user_id = $_SESSION["userid"];
 $user_pwd = $decrypted;
 $default_folder = array(
@@ -144,6 +143,7 @@ for ($i=0; $i < count($folders); $i++) {
         <button type="button" name="button" class="nav_btn select_btn" onclick="location.href='<?php echo site_url(); ?>/option/mailbox'">메일함설정</button>
         <button type="button" name="button" class="nav_btn" onclick="location.href='<?php echo site_url(); ?>/option/address_book'">주소록관리</button>
         <button type="button" name="button" class="nav_btn" onclick="location.href='<?php echo site_url(); ?>/option/singnature'">서명관리</button>
+        <button type="button" name="button" class="nav_btn" onclick="location.href='<?php echo site_url(); ?>/option/categorize'">메일분류</button>
       </div>
     </form>
 

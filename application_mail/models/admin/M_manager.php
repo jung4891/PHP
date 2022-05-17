@@ -25,7 +25,7 @@ ORDER BY FIELD(domain, 'durianit.com', 'durianit.co.kr') DESC";
 
 
   function admin_list(){
-    $sql = "SELECT a.username, a.created, a.modified, a.active, b.domain
+    $sql = "SELECT a.username, a.created, a.modified, a.active, a.superadmin, b.domain
 FROM admin a
 JOIN domain_admins b
 ON a.username = b.username";

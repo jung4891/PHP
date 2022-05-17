@@ -11,7 +11,7 @@ class M_mailbox extends CI_Model {
 
 
   function domain_list(){
-    $sql = "SELECT distinct domain FROM mailbox
+    $sql = "SELECT distinct domain FROM domain WHERE domain != 'ALL'
 ORDER BY FIELD(domain, 'durianit.com', 'durianit.co.kr') DESC";
     $query = $this->db->query($sql);
     if ($query->num_rows() <= 0) {
@@ -102,7 +102,7 @@ WHERE 1=1 {$searchdomain}{$searchkeyword}";
 
 
 	function dupl_mailbox($id){
-		$sql = "SELECT username FROM mailbox WHERE username ='{$id}'";
+		$sql = "SELECT address FROM alias WHERE address ='{$id}'";
 		$query = $this->db->query($sql);
 		if ($query->num_rows() > 0) {
 			return "dupl";

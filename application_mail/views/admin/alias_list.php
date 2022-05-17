@@ -61,8 +61,11 @@ include $this->input->server('DOCUMENT_ROOT')."/include/admin_side.php";
  </script>
 
 <div id="main_contents" align="center">
+  <div class="sub_div" align="left" style="">
+    <span style="font-size:20px;font-weight:bold;">그룹메일 리스트</span>
+  </div>
   <form name="mform" action="<?php echo site_url(); ?>/admin/alias/alias_list" method="get">
-  <div class="main_div">
+  <div class="" style="height:80%;">
     <div id="search_div" align="left" style="width:95%;">
       <input type="hidden" name="cur_page" value="<?php echo $cur_page; ?>">
       <select class="select_basic" name="searchdomain">
@@ -78,18 +81,16 @@ $selected = $search_domain == $dl->domain ? "selected" : "" ;
 
 			  <input  type="text" size="25" class="input_basic input_search" name="searchkeyword" placeholder="검색하세요." value="<?php echo str_replace('"', '&uml;', $search_keyword );?>"/>
 			  <input type="button" class="btn_basic btn_gray" style="height:30px;width:50px;" value="검색" onClick="return GoSearch();">
-
-        <button type="button" class="btn_basic btn_blue" name="button" style="float:right;height:30px;width:50px;" onclick="mailbox_add();">등록</button>
     </div>
-    <div class="" >
+    <div class="" style="overflow-y:scroll;max-height:50vh;min-height:300px;">
       <table class="contents_tbl"  border="0" cellspacing="0" cellpadding="0">
         <colgroup>
-          <col width="25%">
-          <col width="25%">
+          <col width="30%">
+          <col width="30%">
           <col width="10%">
           <col width="20%">
-          <col width="10%">
-          <col width="10%">
+          <col width="5%">
+          <col width="5%">
           <!-- <col width="10%">
           <col width="10%"> -->
         </colgroup>
@@ -120,7 +121,7 @@ foreach ($alias_list as $al) {
 <tr onMouseOver="this.style.backgroundColor='#FAFAFA'" onMouseOut="this.style.backgroundColor='#fff'" style="">
   <td align="center" height="100"><?php echo $al->address; ?></td>
   <td name="gotolist" align="center" height="100" title="<?php echo $goto_list; ?>">
-    <div class="" style="height:100%;overflow-y:scroll;">
+    <div class="" style="height:100%;">
       <?php echo $goto_list; ?>
 
     </div>
@@ -128,8 +129,12 @@ foreach ($alias_list as $al) {
   <!-- <td align="center"><?php echo $al->domain; ?></td> -->
   <td align="center"><?php echo $active; ?></td>
   <td align="center"><?php echo $al->modified; ?></td>
-  <td align="right"><button type="button" class="btn_basic btn_blue" name="button" onclick="alias_modify('<?php echo $al->address; ?>', 'update');">수정</button></td>
-  <td align="left"><button type="button" class="btn_basic btn_sky" name="button" onclick="alias_modify('<?php echo $al->address; ?>', 'del');">삭제</button></td>
+  <td align="center">
+    <input type="button" class="admin_btn white_btn" style="width:80%;" name="button" onclick="alias_modify('<?php echo $al->address; ?>', 'update');" value="수정">
+  </td>
+  <td align="center" style="border-left:unset;">
+    <input type="button" class="admin_btn grey_btn" name="button" style="width:80%;" onclick="alias_modify('<?php echo $al->address; ?>', 'del');" value="삭제">
+  </td>
 </tr>
 
 <?php
@@ -145,7 +150,7 @@ $icounter++;
       </table>
     </div>
 
-    <div class="paging_div">
+    <div class="paging_div" style="margin-top:30px;">
       <?php if ($count > 0) {?>
         <table width="400" border="0" cellspacing="0" cellpadding="0">
             <tr>
@@ -174,9 +179,9 @@ $icounter++;
         }
 
         if  ( $i == $cur_page ) {
-          echo "<a href=\"JavaScript:GoPage( '".$i."' )\" class=\"alink\"><font color=\"#33ccff\">".$i."</font></a>".$strSection;
+          echo "<a href=\"JavaScript:GoPage( '".$i."' )\" class=\"alink\"><font color=\"#6C6C6C\">".$i."</font></a>".$strSection;
         } else {
-          echo "<a href=\"JavaScript:GoPage( '".$i."' )\" class=\"alink\">".$i."</a>".$strSection;
+          echo "<a href=\"JavaScript:GoPage( '".$i."' )\" class=\"alink\"><font color=\"#B0B0B0\">".$i."</font></a>".$strSection;
         }
         }
         ?></td>
@@ -200,6 +205,17 @@ $icounter++;
           </table>
         <?php }?>
     </div>
+    <div class="sub_div" style="margin-top:20px;" align="center">
+      <table style="width:100%;" border="0" cellspacing="0" cellpadding="0">
+        <tr>
+          <td align="right">
+            <input type="button" style="width:70px;height:40px;" class="admin_btn blue_btn" name="button" onclick="mailbox_add();" value="등록">
+
+          </td>
+        </tr>
+    </table>
+    </div>
+
   </div>
   </form>
 </div>

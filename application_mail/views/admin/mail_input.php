@@ -8,26 +8,23 @@ include $this->input->server('DOCUMENT_ROOT')."/include/admin_side.php";
 
 
  <div id="main_contents" align="center">
+   <div class="sub_div" align="left" style="">
+     <span style="font-size:20px;font-weight:bold;">메일박스 등록</span>
+   </div>
    <form id="mform" name="mform" method="post">
      <input type="hidden" id="cert_id" value="">
      <input type="hidden" id="cert_pass" value="">
 
   <div class="main_div">
-    <table class="contents_tbl"  border="0" cellspacing="0" cellpadding="0" style="width:50%;">
+    <table class="add_tbl"  border="0" cellspacing="0" cellpadding="0" style="width:90%;">
       <colgroup>
-        <col width="30%">
-        <col width="40%">
-        <col width="30%">
+        <col width="10%">
+        <col width="90%">
       </colgroup>
       <tr>
-        <th colspan="3">메일박스 등록</th>
-      </tr>
-      <tr>
-        <td align="right">계정이름</td>
-        <td align="center">
-          <input type="text" class="input_basic input_search" id="mail_id" name="mail_id" value="" style="width:90%">
-        </td>
-        <td align="left">
+        <th align="left">&nbsp;&nbsp;&nbsp;계정 이름</th>
+        <td align="left">&nbsp;&nbsp;&nbsp;
+          <input type="text" class="input_basic input_search" id="mail_id" name="mail_id" value="" style="width:300px">
           @
           <select class="select_basic" id="mail_domain" name="mail_domain">
   <?php foreach ($domain_list as $dl) { ?>
@@ -38,52 +35,45 @@ include $this->input->server('DOCUMENT_ROOT')."/include/admin_side.php";
         </td>
       </tr>
       <tr id="IdSpanTd" style="display:none;">
-        <td></td>
         <td colspan="2">
           <span id="id_span"></span>
         </td>
       </tr>
       <tr>
-        <td align="right">패스워드</td>
-        <td align="center">
-          <input type="password" class="input_basic input_search" id="mail_password" name="mail_password" value="" style="width:90%">
+        <th align="left">&nbsp;&nbsp;&nbsp;패스워드</th>
+        <td align="left">&nbsp;&nbsp;&nbsp;
+          <input type="password" class="input_basic input_search" id="mail_password" name="mail_password" value="" style="width:300px">
         </td>
-        <td></td>
       </tr>
       <tr>
-        <td align="right">패스워드 확인</td>
-        <td align="center">
-          <input type="password" class="input_basic input_search" id="chk_password" name="chk_password" value="" style="width:90%">
+        <th align="left">&nbsp;&nbsp;&nbsp;패스워드 확인</th>
+        <td align="left">&nbsp;&nbsp;&nbsp;
+          <input type="password" class="input_basic input_search" id="chk_password" name="chk_password" value="" style="width:300px">
         </td>
         <td></td>
       </tr>
       <tr id="PassSpanTd" style="display:none;">
-        <td></td>
         <td colspan="2">
           <span id="password_span"></span>
         </td>
       </tr>
       <tr>
-        <td align="right">이름</td>
-        <td align="center">
-          <input type="text" class="input_basic input_search" name="user_name" value="" style="width:90%">
+        <th align="left">&nbsp;&nbsp;&nbsp;이름</th>
+        <td align="left">&nbsp;&nbsp;&nbsp;
+          <input type="text" class="input_basic input_search" name="user_name" value="" style="width:300px;">
         </td>
-        <td></td>
       </tr>
       <tr>
-        <td align="right">용량</td>
-        <td align="center">
-          <input type="number" class="input_basic input_search" name="quota" value="30000" min='10000' max='100000' step='10000' style="width:90%">
-        </td>
-        <td>mb</td>
-      </tr>
-      <tr>
-        <td colspan="3" align="center">
-          <button type="button" class="btn_basic btn_blue" style="width:60px;height:30px;" name="button" onclick="mailbox_submit();">등록</button>
-          <button type="button"class="btn_basic btn_sky"  style="width:60px;height:30px;" onclick="history.back();">취소</button>
+        <th align="left">&nbsp;&nbsp;&nbsp;용량</th>
+        <td align="left">&nbsp;&nbsp;&nbsp;
+          <input type="number" class="input_basic input_search" name="quota" value="30000" min='10000' max='100000' step='10000' style="width:300px;">&nbsp;MB
         </td>
       </tr>
     </table>
+  </div>
+  <div class="" align="right" style="width:90%;margin-top:30px;">
+    <button type="button" class="btn_basic btn_blue" style="width:60px;height:30px;" name="button" onclick="mailbox_submit();">등록</button>
+    <button type="button"class="btn_basic btn_sky"  style="width:60px;height:30px;" onclick="history.back();">취소</button>
   </div>
   </form>
 </div>

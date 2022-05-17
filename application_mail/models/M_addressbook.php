@@ -45,13 +45,19 @@ class M_addressbook extends CI_Model {
 	}
 
 
-	function get_address($id, $keyword = ""){
+	function get_address($id, $keyword = "", $mygroup = ""){
 		if($keyword == ""){
 			$search = "";
 		} else {
 			$search = " AND (name LIKE '%{$keyword}%' OR email LIKE '%{$keyword}%')";
 		}
-		$sql = "SELECT seq, name, email FROM address_book a WHERE id = '{$id}'{$search}  ORDER BY seq DESC";
+
+		if($mygroup == "" || $mygroup == "all"){
+			$group_search = "";
+		} else {
+			$group_search = " AND group_seq = '{$mygroup}'";
+		}
+		$sql = "SELECT seq, name, email FROM address_book a WHERE id = '{$id}'{$search}{$group_search} ORDER BY seq DESC";
 		$query = $this->db->query($sql);
 		$result = $query->result();
 		return $result;

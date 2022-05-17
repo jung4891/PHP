@@ -5,6 +5,9 @@ include $this->input->server('DOCUMENT_ROOT')."/include/admin_side.php";
  ?>
  <link rel="stylesheet" href="<?php echo $misc; ?>css/style.css" type="text/css" charset="utf-8"/>
  <link rel="stylesheet" href="<?php echo $misc; ?>css/admin.css" type="text/css" charset="utf-8"/>
+  <link rel="stylesheet" href="<?php echo $misc; ?>css/jquery.tag-editor.css" type="text/css" charset="utf-8"/>
+ <script src="<?php echo $misc; ?>js/jquery.caret.min.js" type="text/javascript" charset="utf-8"></script>
+ <script src="<?php echo $misc; ?>js/jquery.tag-editor.js" type="text/javascript" charset="utf-8"></script>
 <style>
 #selected_div li{
   list-style: none;
@@ -18,6 +21,14 @@ include $this->input->server('DOCUMENT_ROOT')."/include/admin_side.php";
 
 #select_tbl tr:hover {
   background-color: #f5ffff;
+}
+
+#select_tbl td{
+  border-bottom: 1px solid #DFDFDF;
+}
+
+#select_tbl td:not(:first-child){
+  border-left: 1px solid #DFDFDF;
 }
 /* .mail_selected{
   background-color:#c9f2f5;
@@ -84,6 +95,32 @@ input:checked + .slider:before {
   border-radius: 50%;
 }
 
+/* input.ui-autocomplete-input{
+  outline: 1px solid black;
+} */
+
+/* color tags */
+.tag-editor .red-tag .tag-editor-tag { color: #c65353; background: #ffd7d7; }
+.tag-editor .red-tag .tag-editor-delete { background-color: #ffd7d7; }
+.tag-editor .green-tag .tag-editor-tag { color: #45872c; background: #e1f3da; }
+.tag-editor .green-tag .tag-editor-delete { background-color: #e1f3da; }
+
+.ui-autocomplete {
+max-height: 200px;
+overflow-y: auto;
+/* prevent horizontal scrollbar */
+overflow-x: hidden;
+}
+/* IE 6 doesn't support max-height
+* we use height instead, but this forces the menu to always be this tall
+*/
+* html .ui-autocomplete {
+height: 200px;
+}
+
+.tag-editor{
+  border: 1px solid #DFDFDF;
+}
 
 </style>
 
@@ -91,32 +128,30 @@ input:checked + .slider:before {
 isset($mail_address)?$input_mode="modify" : $input_mode = "insert";
  ?>
  <div id="main_contents" align="center">
+   <div class="sub_div" align="left" style="">
+     <span style="font-size:20px;font-weight:bold;"><?php echo ($input_mode=="modify") ? "그룹메일 수정" : "그룹메일 등록"; ?></span>
+   </div>
    <form id="mform" name="mform" method="post">
      <input type="hidden" id="cert_id" value="">
      <input type="hidden" name="input_mode" value="<?php echo $input_mode; ?>">
   <div class="main_div">
-    <table class="contents_tbl"  border="0" cellspacing="0" cellpadding="0" style="width:70%;">
+    <table class="add_tbl"  border="0" cellspacing="0" cellpadding="0" style="width:90%;">
       <colgroup>
-        <col width="30%">
-        <col width="40%">
-        <col width="30%">
+        <col width="10%">
+        <col width="90%">
       </colgroup>
       <tr>
-        <th colspan="3">
-          <?php echo ($input_mode=="modify") ? "그룹메일 수정" : "그룹메일 등록"; ?>
-        </th>
-      </tr>
-      <tr>
-        <td colspan="3" align="left">계정이름
+        <th align="left">&nbsp;&nbsp;&nbsp;계정 이름</th>
+        <td align="left">&nbsp;&nbsp;&nbsp;
 <?php
   if($input_mode == "modify"){
-      echo " : ".$mail_address;
+      echo $mail_address;
 
       ($alias_active == 1) ? $check_active = " checked" : $check_active = "";
 
 ?>
   <input type="hidden" name="mail_id" value="<?php echo $mail_address; ?>">
-  <span style="margin-left:20px;">활성화 :</span>
+  <span style="margin-left:20px;">활성화 :&nbsp;&nbsp;</span>
   <label class="switch">
   <input type="checkbox" id="check_active" name="check_active" value="" <?php echo $check_active ?>>
   <span class="slider round"></span>
@@ -139,95 +174,56 @@ isset($mail_address)?$input_mode="modify" : $input_mode = "insert";
 
         </td>
       </tr>
-      <!-- <tr id="IdSpanTd" style="display:none;">
-        <td></td>
-        <td colspan="2">
-        </td>
-      </tr> -->
-
-      <!-- <tr>
-        <td align="right">이름</td>
-        <td align="center">
-          <input type="text" name="user_name" value="" style="width:90%">
-        </td>
-        <td></td>
-      </tr> -->
-      <tr>
-        <td colspan="3">
-            <table width="100%" border="1" cellspacing="0" cellpadding="0">
-              <colgroup>
-                <col width="47%">
-                <col width="47%">
-              </colgroup>
-            <tr>
-              <td>
-                <button type="button" class="btn_basic btn_white" name="button">MailBox</button>
-                <!-- <button type="button" name="button">Biz</button> -->
-                <input type="text" class="input_basic input_search" id ="serarch_input" name="" value="" placeholder="검색하세요">
-                <div style="max-height:30vh;min-height:30vh; overflow-y:scroll;" id="selecting_div">
-                  <table id="select_tbl" cellspacing="0">
-                    <colgroup>
-                      <col width="80%">
-                      <col width="20%">
-                    </colgroup>
-<?php foreach ($goto_list as $gl) { ?>
-                      <tr>
-                        <td style="height:30px;"><?php echo $gl->address; ?></td>
-                        <td style="height:30px;"><?php echo $gl->name; ?></td>
-                      </tr>
-<?php } ?>
-
-                  </table>
-                </div>
-              </td>
-              <td style="vertical-align:top;">
-                <div class="">
-                <button type="button" class="btn_basic btn_white" name="button" style="cursor:default;">대상</button>
-                </div>
-                <div style="max-height:30vh; width:100%;overflow-y:scroll;" id="selected_div">
-<?php
-if($input_mode == "modify"){
-  foreach ($goto as $go) {
-?>
-                    <input type="text" name="selected_input[]" value="<?php echo $go; ?>">
-<?php
-  }
-  ?>
-                    <input type="text" name="selected_input[]" value="">
-  <?php
-}else{
-?>
-                    <input type="text" name="selected_input[]" value="">
-<?php } ?>
-
-                </div>
-              </td>
-            </tr>
-          </table>
-        </td>
-      </tr>
-      <tr>
-        <td colspan="3" align="center">
-          <button type="button" class="btn_basic btn_blue" name="button" style="width:60px;" onclick="mailbox_submit();">
-            <?php echo ($input_mode=="modify") ? "수정" : "등록"; ?>
-          </button>
-          <button type="button" style="width:60px;" class="btn_basic btn_sky" onclick="history.back();">취소</button>
-        </td>
-      </tr>
     </table>
+  </div>
+  <div class="">
+    <table width="90%" border="0" cellspacing="0" cellpadding="0" style="width:90%;border-bottom:1px solid #DFDFDF;">
+      <colgroup>
+        <col width="47%">
+        <col width="47%">
+      </colgroup>
+    <tr>
+      <td>
+        <button type="button" class="btn_basic btn_white" name="button">MailBox</button>
+        <!-- <button type="button" name="button">Biz</button> -->
+        <input type="text" class="input_basic input_search" id ="serarch_input" name="" value="" placeholder="검색하세요" autocomplete="off">
+        <div style="max-height:30vh;min-height:30vh; overflow-y:scroll;" id="selecting_div">
+          <table id="select_tbl" cellspacing="0" style="width:100%;">
+            <colgroup>
+              <col width="70%">
+              <col width="30%">
+            </colgroup>
+<?php foreach ($goto_list as $gl) { ?>
+              <tr>
+                <td style="height:30px;"><?php echo $gl->address; ?></td>
+                <td style="height:30px;"><?php echo $gl->name; ?></td>
+              </tr>
+<?php } ?>
+
+          </table>
+        </div>
+      </td>
+      <td style="vertical-align:top;">
+        <div class="">
+        <button type="button" class="btn_basic btn_white" name="button" style="cursor:default;">대상</button>
+        </div>
+        <div style="max-height:30vh; width:100%;overflow-y:scroll;" id="selected_div">
+          <input type="text" name="goto_mail" id="goto_mail" value="<?php echo ($input_mode=="modify") ? $goto_text : ""; ?>">
+        </div>
+      </td>
+    </tr>
+  </table>
+  </div>
+  <div class="" align="right" style="width:90%;margin-top:30px;">
+    <button type="button" class="btn_basic btn_blue" name="button" style="width:60px;" onclick="mailbox_submit();">
+      <?php echo ($input_mode=="modify") ? "수정" : "등록"; ?>
+    </button>
+    <button type="button" style="width:60px;" class="btn_basic btn_sky" onclick="history.back();">취소</button>
   </div>
   </form>
 </div>
 <script type="text/javascript">
-<?php if($input_mode == "modify"){ ?>
-$(function(){
-  $("input[name='selected_input[]']").each(function(){
-    $(this).keydown();
-  });
-});
-<?php
-}
-?>
+
 
 $("#mail_id").keyup(function(){
   var inputVal = $(this).val();
@@ -250,6 +246,7 @@ function dupl_mailcheck(){
     var mail = $("#mail_id").val().trim();
     var domain = $("#mail_domain option:selected").val();
     var mailadress = mail+"@"+domain;
+    console.log(mailadress);
     $.ajax({
         type: "POST",
         dataType : "json",
@@ -258,6 +255,7 @@ function dupl_mailcheck(){
           username: mailadress
         },
         success: function(result){
+          console.log(result);
           if(result == "dupl"){
             $("#id_span").show();
             $("#id_span").html("이미 사용 중인 메일입니다.");
@@ -329,25 +327,37 @@ function mailbox_submit(){
     alert("계정이름을 확인해주세요.")
     return false;
   }
-  var mail_length = $("input[name='selected_input[]']").length;
-  if(mail_length <= 1 && $("input[name='selected_input[]']").val() == ""){
-    alert("수신메일을 입력해주세요.");
+  // var mail_length = $("input[name='selected_input[]']").length;
+  // if(mail_length <= 1 && $("input[name='selected_input[]']").val() == ""){
+  //   alert("수신메일을 입력해주세요.");
+  //   return false;
+  // }
+
+  // $("input[name='selected_input[]']").each(function(){
+  //    var address = $(this).val();
+  //    if(address ==""){
+  //      $(this).val(null);
+  //    }else{
+  //      var mail_regexp = /^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*.[a-zA-Z]{2,3}$/i;
+  //      if(!mail_regexp.test(address)){
+  //        alert("수신메일을 확인해주세요.");
+  //        $(this).focus();
+  //        return false;
+  //      }
+  //    }
+  // })
+  var red_length = $(".red-tag").length;
+  if(red_length > 0){
+    alert("대상 메일 주소를 확인해주세요.");
+    return false;
+  }
+  var goto_mail = $('#goto_mail').tagEditor('getTags')[0].tags;
+  $("#goto_mail").val(goto_mail);
+  if(goto_mail == ""){
+    alert("대상 메일 주소를 입력해주세요.");
     return false;
   }
 
-  $("input[name='selected_input[]']").each(function(){
-     var address = $(this).val();
-     if(address ==""){
-       $(this).val(null);
-     }else{
-       var mail_regexp = /^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*.[a-zA-Z]{2,3}$/i;
-       if(!mail_regexp.test(address)){
-         alert("수신메일을 확인해주세요.");
-         $(this).focus();
-         return false;
-       }
-     }
-  })
 <?php if($input_mode == "modify"){ ?>
   var checked = $("#check_active").is(":checked");
   if(checked){
@@ -362,78 +372,15 @@ function mailbox_submit(){
   $("#mform").submit();
 }
 
-$(document).on("keydown", "#selected_div input", function (){
-    var value = $(this).val();
-    $("#mform").append('<div id="virtual_dom" style="display: inline-block">' + value + '</div>');
 
-      var inputWidth =  $('#virtual_dom').width() + 10;
-      if(inputWidth > 50){
-        $(this).css('width', inputWidth);
 
-      }
-      $('#virtual_dom').remove();
 
-});
 
-$(document).on("blur", "#selected_div input", function () {
-  // var value = $(this).val();
-  // if(value != ""){
-  //   var input = "<li><input type='text' name='selected_input' value=''></li>"
-  //
-  //   var par = $(this).closest("div");
-  //   par.append(input);
-  //   $("input[name=selected_input]").last().focus();
-  // }else{
-  //
-  // }
-  input_check();
-})
-
-function input_check(){
-  var input_val = $("input[name='selected_input[]']").last().val();
-
-  if(input_val !=""){
-    var input = "<input type='text' name='selected_input[]' value=''>";
-    $("#selected_div").append(input);
-    $("input[name='selected_input[]']").last().focus();
-  }
-
-}
-
-$(document).on("keyup", "#selected_div input:not(:first)", function (event) {
-  var value = $(this).val();
-  if(value == ""){
-        if(event.keycode == 8 || event.which == 8){
-          var prev = $(this).prev();
-          var prevval = prev.val();
-          $(this).remove();
-
-          prev.focus();
-          prev.val("");
-          prev.val(prevval);
-          // $("input[name=selected_input]").last().focus();
-
-    }
-
-  }
-})
-
-$(document).on("keydown", "#selected_div input", function (event) {
-
-  if(event.keycode == 13 || event.which == 13 || event.keycode == 188 || event.which == 188){
-    input_check();
-  }
-})
 
 $(document).on("click", "#select_tbl tr", function () {
-    var mailaddress = $(this).find("td:first-child").html();
-    $("#mform").append('<div id="virtual_dom" style="display: inline-block">' + mailaddress + '</div>');
-    var inputWidth =  $('#virtual_dom').width() + 10;
-    $('#virtual_dom').remove();
-    var input = "<input type='text' name='selected_input[]' value='"+mailaddress+"' style='width:"+inputWidth+"px;' autofocus>";
-    var lastinput = $("#selected_div input:last");
-    lastinput.before(input);
-    lastinput.focus();
+  var mailaddress = $(this).find("td:first-child").html();
+
+$('#goto_mail').tagEditor('addTag', mailaddress);
   });
 
 $("#serarch_input").keyup(function(){
@@ -458,6 +405,116 @@ $("#serarch_input").keyup(function(){
       }
     })
 })
+
+const lmtp_mail = ["durianit.co.kr", "durianit.com", "durianict.co.kr", "the-mango.co.kr", "the-mango.com"];
+const mailRegExp = /^[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*.[a-zA-Z]{2,3}$/i;
+<?php
+ $mailbox_arr = array();
+ foreach ($goto_list as $gl) {
+   array_push($mailbox_arr, $gl->address);
+} ?>
+var addtag = $('#goto_mail').tagEditor({
+    autocomplete: {
+        delay: 0, // show suggestions immediately
+        position: { collision: 'flip' }, // automatic menu position up/down
+        // source: ['bhkim@durianit.co.kr', 'test2@durianict.co.kr', 'test3@durianict.co.kr', 'asf', 'test']
+        source: <?php echo json_encode($mailbox_arr); ?>
+
+    },
+    forceLowercase: false,
+    removeDuplicates: false,
+//     onChange: function(field, editor, tags, val) {
+//       console.log(field);
+//       console.log(editor);
+//       console.log(tags);
+//       console.log($(this));
+//       // $(editor).find('.tag-editor-tag').addClass('red-tag');
+//     //   $(editor).each(function(){
+//     //     var li = $(this);
+//     //     li.addClass('red-tag');
+//     // });
+//     // $('#response').prepend(
+//     //     'Tags changed to: ' + (tags.length ? tags.join(', ') : '----') + '<hr>'
+//     // );
+//       alert("zzzz");
+// },
+    onChange: email_check
+    // beforeTagSave: function(field, editor, tags, tag, val) {
+    //   if(tag != ""){
+    //     $(editor).find('.active').addClass('red-tag');
+    //   }
+    // }
+});
+
+$(".tag-editor").on("focus", "input", function () {
+  $(this).closest("li").removeClass('check-y');
+});
+
+function email_check(field, editor, tags) {
+    const err1 = "메일 형식에 맞지 않습니다.";
+    const err2 = "해당 메일박스가 존재하지 않습니다.";
+    $(editor).find('li:not(".check-y")').each(function(index){
+        if(index == 0){
+          return true;
+        }
+        var li = $(this);
+        var li_val = li.find('.tag-editor-tag').text();
+        if (li_val.indexOf("<") !== -1){
+          li_val = li_val.split("<")[1];
+          li_val = li_val.substr(0, li_val.length-1);
+        }
+
+        if (li_val.match(mailRegExp) != null) {
+          var split = li_val.split("@")[1].trim();
+          if (lmtp_mail.indexOf(split) !== -1) {
+            console.log(li_val);
+            $.ajax({
+                 url: "<?php echo site_url(); ?>/mail_write/lmtp_valid",
+                 type: 'post',
+                 dataType: 'json',
+                 data: {
+                   mail : li_val
+                 },
+                 async: false,
+                 success: function (result) {
+                   // console.log(result);
+                   // console.log(`cnt는 ${result}`);
+                    if (result == 1) {
+                      li.removeClass('red-tag');
+                      li.addClass('check-y');
+
+
+                    } else {
+                      li.removeClass('check-y');
+                      li.addClass('red-tag');
+                      li.attr('title', err2);
+                    }
+                 }
+              });
+
+          } else {
+            li.removeClass('red-tag');
+            li.addClass('check-y');
+          }
+        } else {
+          li.removeClass('check-y');
+          li.addClass('red-tag');
+          li.attr('title', err1);
+        }
+
+    });
+}
+
+//jquery ui type MSIE 에러 잡는 코드
+jQuery.browser = {};
+  (function () {
+      jQuery.browser.msie = false;
+      jQuery.browser.version = 0;
+      if (navigator.userAgent.match(/MSIE ([0-9]+)\./)) {
+          jQuery.browser.msie = true;
+          jQuery.browser.version = RegExp.$1;
+      }
+  })();
 
 </script>
 

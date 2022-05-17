@@ -87,6 +87,7 @@ class Alias extends CI_Controller {
 			$alias_info = $this->M_alias->alias_info($modify_id);
 			$goto = $alias_info->goto;
 			$data["goto"] = explode(",", $goto);
+			$data["goto_text"] = $alias_info->goto;
 			$data["mail_address"] = $alias_info->address;
 			$data["alias_active"] = $alias_info->active;
 		}
@@ -97,10 +98,10 @@ class Alias extends CI_Controller {
 		$input_mode = $this->input->post("input_mode");
 
 		$id = $this->input->post('mail_id');
-		$goto = $this->input->post('selected_input');
-		$goto = array_filter($goto);
-		$goto = implode(",",$goto);
-
+		// $goto = $this->input->post('selected_input');
+		// $goto = array_filter($goto);
+		// $goto = implode(",",$goto);
+		$goto = $this->input->post('goto_mail');
 
 		if($input_mode == "insert"){
 			$domain = $this->input->post('mail_domain');

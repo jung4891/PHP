@@ -107,7 +107,6 @@ include $this->input->server('DOCUMENT_ROOT')."/include/base.php";
       // var request_url = "<?php echo site_url();?>/account/login";
       //
       // }else{
-        // var request_url = "http://121.190.106.237/account/login";
         var request_url = "<?php echo site_url();?>/account/login";
         let input_id = $("#inputId").val();
         let input_pass = $("#inputPass").val();

@@ -13,6 +13,8 @@ class Option extends CI_Controller {
 			$this->load->Model('M_option');
 			$this->load->Model('M_account');
 			$this->load->Model('M_group');
+			$this->load->Model('M_categori');
+			$this->load->library('user_agent');
 			if(!isset($_SESSION['userid']) && ($_SESSION['userid'] == "")){
 				redirect("");
 			}
@@ -22,16 +24,32 @@ class Option extends CI_Controller {
       $key = $this->db->password;
       $key = substr(hash('sha256', $key, true), 0, 32);
 			$decrypted = openssl_decrypt(base64_decode($encryp_password), 'aes-256-cbc', $key, 1, $iv);
-			// $this->mailserver = "192.168.0.100";
-			$this->mailserver = "mail.durianit.co.kr";
+			$this->mailserver = "192.168.0.100";
+      // $this->mailserver = "mail.durianit.co.kr";
       $this->user_id = $_SESSION["userid"];
       $this->user_pwd = $decrypted;
+	}
+
+	function list_mobile(){
+		if ($this->agent->is_mobile()) {
+			$this->load->view('mobile/option_list_mobile');
+		} else {
+
+			$this->user();
+		}
 	}
 
 
 	function user() {
 		if(isset($_SESSION['userid']) && ($_SESSION['userid'] != "")){
-			$this->load->view('account_info');
+
+			if ($this->agent->is_mobile()) {
+				$this->load->view('mobile/mobile_account_info');
+			} else {
+
+				$this->load->view('account_info');
+
+			}
 		}else{
 			// $this->load->view('login');
 			redirect("");
@@ -142,7 +160,14 @@ class Option extends CI_Controller {
 			$data['start_page'] = $start_page;
 			$data['end_page'] = $end_page;
 
-			$this->load->view('address_book_view', $data);
+			if ($this->agent->is_mobile()) {
+				$this->load->view('mobile/addressbook_mobile', $data);
+			} else {
+
+				$this->load->view('address_book_view', $data);
+
+			}
+
 		}else{
 			// $this->load->view('login');
 			redirect("");
@@ -226,7 +251,14 @@ class Option extends CI_Controller {
 				$length = count($mbox_info);
 				// $mbox_info[$length]['boxname_kor'] = "";		// 메일함 관리에서 배열 마지막 임시데이터
 				$data['mbox_info'] = $mbox_info;
-				$this->load->view('mbox_setting', $data);
+
+				if ($this->agent->is_mobile()) {
+					$this->load->view('mobile/mailbox_setting_mobile', $data);
+				} else {
+
+					$this->load->view('mbox_setting', $data);
+
+				}
 			}else{
 				// $this->load->view('login');
 				redirect("");
@@ -371,6 +403,156 @@ class Option extends CI_Controller {
 			$result = $this->M_option->sign_del($seq);
 			echo json_encode($result);
 		}
+
+		function categorize() {
+
+
+			if(isset($_SESSION['userid']) && ($_SESSION['userid'] != "")){
+				$user_id = $_SESSION['userid'];
+				if(isset($_GET['group_name'])) {
+					$group_name = $_GET['group_name'];
+				} else {
+					$group_name = 'all';
+				}
+				$data['group_name'] = $group_name;
+
+				if(isset($_GET['cur_page'])) {
+					$cur_page = $_GET['cur_page'];
+				} else {
+					$cur_page = 0;
+				}
+
+																		//	현재 페이지
+				$no_page_list = 10;										//	한페이지에 나타나는 목록 개수
+
+				if  ( $cur_page <= 0 ){
+					$cur_page = 1;
+				}
+
+				$data['cur_page'] = $cur_page;
+				$data['count'] = $this->M_categori->category_list_count($user_id)->totalCount;
+				$data['category_list'] = $this->M_categori->category_list($user_id , ( $cur_page - 1 ) * $no_page_list, $no_page_list); // 값을 보내는  것, 아규먼트
+
+				$total_page = 1;
+				if  ( $data['count'] % $no_page_list == 0 )
+					$total_page = floor( ( $data['count'] / $no_page_list ) );
+				else
+					$total_page = floor( ( $data['count'] / $no_page_list + 1 ) );			//	전체 페이지 개수
+
+				$start_page =  floor(($cur_page - 1 ) / 10) * 10  + 1 ;
+				$end_page = 0;
+				if  ( floor( ( $cur_page - 1 ) / 10 ) < floor( ( $total_page - 1 ) / 10 ) )
+					$end_page = ( floor( ( $cur_page - 1 ) / 10 ) + 1 ) * 10;
+				else
+					$end_page = $total_page;
+
+				$data['no_page_list'] = $no_page_list;
+				$data['total_page'] = $total_page;
+				$data['start_page'] = $start_page;
+				$data['end_page'] = $end_page;
+
+				$this->load->view('categori_list', $data);
+			}else{
+				// $this->load->view('login');
+				redirect("");
+			}
+		}
+
+		function categorize_add(){
+			if(isset($_SESSION['userid']) && ($_SESSION['userid'] != "")){
+
+				$this->load->view('categori_input');
+			}else{
+				// $this->load->view('login');
+				redirect("");
+			}
+
+		}
+
+		function categorize_input_action(){
+			if(isset($_SESSION['userid']) && ($_SESSION['userid'] != "")){
+				$user_id = $_SESSION["userid"];
+				$user_type = $this->input->post("usertype");
+				$send_type = $this->input->post("senttype");
+				$address = $this->input->post("user_name");
+				$domain = $this->input->post("domain_name");
+				$mailbox = $this->input->post("save_box");
+				if($user_type == 0){
+					$address = $address."@".$domain;
+				} else {
+					$address = $domain;
+				}
+				$insert_data = array(
+					"userid" => $user_id,
+					"usertype" => $user_type,
+					"sendtype" => $send_type,
+					"address" => $address,
+					"mailbox" => $mailbox
+				);
+				$result = $this->M_categori->add_category_act($insert_data);
+				if($result){
+					echo "<script>alert('등록되었습니다.');location.href='".site_url()."/option/categorize';</script>";
+				}
+
+			}else{
+
+				redirect("");
+			}
+		}
+
+		function categorize_delete(){
+			$seq = $this->input->get("id");
+			$result = $this->M_categori->category_delete($seq);
+			if($result){
+				echo "<script>alert('삭제되었습니다.');window.history.back();</script>";
+			}
+		}
+
+		function categorize_modify(){
+			if(isset($_SESSION['userid']) && ($_SESSION['userid'] != "")){
+				$seq = $this->input->get("seq");
+				$data["modify_data"] = $this->M_categori->get_detail_category($seq);
+
+				$this->load->view('categori_modify',$data);
+			}else{
+				// $this->load->view('login');
+				redirect("");
+			}
+
+		}
+
+		function categorize_modify_action(){
+			if(isset($_SESSION['userid']) && ($_SESSION['userid'] != "")){
+				$user_id = $_SESSION["userid"];
+				$seq = $this->input->post("seq");
+				$user_type = $this->input->post("usertype");
+				$send_type = $this->input->post("senttype");
+				$address = $this->input->post("user_name");
+				$domain = $this->input->post("domain_name");
+				$mailbox = $this->input->post("save_box");
+				if($user_type == 0){
+					$address = $address."@".$domain;
+				} else {
+					$address = $domain;
+				}
+				$modify_data = array(
+					"userid" => $user_id,
+					"usertype" => $user_type,
+					"sendtype" => $send_type,
+					"address" => $address,
+					"mailbox" => $mailbox
+				);
+				$result = $this->M_categori->modify_category_act($modify_data, $seq);
+				if($result){
+					echo "<script>alert('수정되었습니다.');location.href='".site_url()."/option/categorize';</script>";
+				}
+
+			}else{
+
+				redirect("");
+			}
+		}
+
 
 }
 

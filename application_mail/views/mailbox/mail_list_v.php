@@ -129,6 +129,11 @@ $_SESSION['list_page_url_tmp'] = substr($request_url, strpos($request_url, '/', 
     position: relative;
     top: 4px;
   }
+
+  input[type=checkbox] {
+    transform : scale(1.5);
+  }
+
  </style>
 
 <div id="main_contents" align="center">
@@ -279,8 +284,8 @@ $_SESSION['list_page_url_tmp'] = substr($request_url, strpos($request_url, '/', 
           <!-- <td><?php // echo $head[$mailno_arr[$i]]->Unseen ?></td> -->
           <td name="msg_no_td" style="display:none;"><?php echo $msg_no?></td>
           <td name="ipcountry_td" style="text-align:center;"></td>
-          <td onclick="event.cancelBubble=true">
-            <input type="checkbox" name="chk" value=<?php echo $msg_no;?>>
+          <td onclick="event.cancelBubble=true" onmousedown="event.cancelBubble=true" id="check_td">
+              <input type="checkbox" name="chk" value=<?php echo $msg_no;?>>
           </td>
           <td onclick="event.cancelBubble=true">
             <a href="javascript:void(0);" onclick="starClick(this); " >
@@ -414,7 +419,7 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_footer.php";
        $("td[name=ipcountry_td]").each(function(){
          var country = result[i].country;
          var ip = result[i].ip;
-         var img = "<img width='25' src='<?php echo $misc; ?>/img/flag/"+country+".png' alt='"+country+"'>";
+         var img = "<img width='25' src='<?php echo $misc; ?>/img/flag/"+country+".png' alt='"+country+"' title='"+ip+"'>";
          $(this).append(img);
          i++;
        });

@@ -282,7 +282,7 @@ class Dbmailtest2 extends CI_Controller {
     $mbox = "INBOX";
     $user_id = "test2@durianict.co.kr";
     // $user_id = "hjsong@durianit.co.kr";
-    $search_word = "테스트";
+    $search_word = "durianit";
 
     $mails= $this->connect_mailserver($mbox);
     $domain = substr($user_id, strpos($user_id, '@')+1);

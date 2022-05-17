@@ -69,46 +69,37 @@ input:checked + .slider:before {
 </style>
 
  <div id="main_contents" align="center">
+   <div class="sub_div" align="left" style="">
+     <span style="font-size:20px;font-weight:bold;">메일박스 수정</span>
+   </div>
    <form id="mform" name="mform" method="post">
 
 
   <div class="main_div">
-    <table class="contents_tbl"  border="0" cellspacing="0" cellpadding="0" style="width:50%;">
+    <table class="add_tbl"  border="0" cellspacing="0" cellpadding="0" style="width:90%;">
       <colgroup>
-        <col width="30%">
-        <col width="40%">
-        <col width="30%">
+        <col width="10%">
+        <col width="90%">
       </colgroup>
       <tr>
-        <th colspan="3">메일박스 수정</th>
-      </tr>
-      <tr>
-        <td align="right">계정이름</td>
-        <td align="center" conspan="2">
+        <th align="left">&nbsp;&nbsp;&nbsp;계정 이름</th>
+        <td align="left">&nbsp;&nbsp;&nbsp;
           <input type="hidden" id="modify_id" name="modify_id" value="<?php echo $modify_data->username; ?>">
           <?php echo $modify_data->username; ?>
         </td>
       </tr>
       <tr>
-        <td></td>
-        <td align="center">
-          <button type="button" class="btn_basic btn_gray" name="button" style="width:95%" onclick="password_popup();">비밀번호 재발급</button>
+        <th align="left">&nbsp;&nbsp;&nbsp;이름</th>
+        <td align="left">&nbsp;&nbsp;&nbsp;
+          <input type="text" class="input_basic input_search" name="user_name" value="<?php echo $modify_data->name; ?>" style="width:300px;">
         </td>
         <td></td>
       </tr>
       <tr>
-        <td align="right">이름</td>
-        <td align="center">
-          <input type="text" class="input_basic input_search" name="user_name" value="<?php echo $modify_data->name; ?>" style="width:90%">
+        <th align="left">&nbsp;&nbsp;&nbsp;용량</th>
+        <td align="left">&nbsp;&nbsp;&nbsp;
+          <input type="number" class="input_basic input_search" id="quota" name="quota" min='10000' max='100000' step='10000' value="<?php echo $modify_data->quota / 1024000; ?>" style="width:300px;">&nbsp;MB
         </td>
-        <td></td>
-      </tr>
-      <tr>
-        <td align="right">용량</td>
-        <td align="center">
-          <input type="number" class="input_basic input_search" id="quota" name="quota" min='10000' max='100000' step='10000' value="<?php echo $modify_data->quota / 1024000; ?>" style="width:90%">
-        </td>
-        <td>mb</td>
       </tr>
       <tr>
         <?php if($modify_data->active == 1){
@@ -116,22 +107,22 @@ input:checked + .slider:before {
         } else {
           $active ="";
         }?>
-        <td align="right">활성화</td>
-        <td>
+        <th align="left">&nbsp;&nbsp;&nbsp;활성화</th>
+        <td>&nbsp;
           <label class="switch" style="margin-left:10px;">
   <input type="checkbox" id="chk_active" name="chk_active" value="" <?php echo $active; ?>>
           <span class="slider round"></span>
           </label>
-        <td>
+        </td>
 
       </tr>
-      <tr>
-        <td colspan="3" align="center">
-          <button type="button" name="button" class="btn_basic btn_blue"  style="width:60px;height:30px;" onclick="mailbox_submit();">수정</button>
-          <button type="button" class="btn_basic btn_sky"  style="width:60px;height:30px;" onclick="history.back();">뒤로</button>
-        </td>
-      </tr>
+
     </table>
+  </div>
+    <div class="" align="right" style="width:90%;margin-top:30px;">
+    <button type="button" class="btn_basic btn_gray" name="button" style="width:120px;" onclick="password_popup();">비밀번호 재발급</button>
+    <button type="button" name="button" class="btn_basic btn_blue"  style="width:60px;height:30px;" onclick="mailbox_submit();">수정</button>
+    <button type="button" class="btn_basic btn_sky"  style="width:60px;height:30px;" onclick="history.back();">뒤로</button>
   </div>
   </form>
 </div>

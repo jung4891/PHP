@@ -60,17 +60,18 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
   <div id="main_contents" align="center">
     <form name="mform" action="" method="post">
       <div class="" align="left" width=100% style="border-bottom:1px solid #1A8DFF;margin:-10px 40px 10px 40px;">
-        <!-- <button type="button" name="button" class="nav_btn" style="margin-left:10px;"onclick="location.href='<?php echo site_url(); ?>/option/account'">계정설정</button> -->
+        <button type="button" name="button" class="nav_btn" style="margin-left:10px;"onclick="location.href='<?php echo site_url(); ?>/option/user'">계정설정</button>
         <button type="button" name="button" class="nav_btn" onclick="location.href='<?php echo site_url(); ?>/option/mailbox'">메일함설정</button>
         <button type="button" name="button" class="nav_btn" onclick="location.href='<?php echo site_url(); ?>/option/address_book'">주소록관리</button>
         <button type="button" name="button" class="nav_btn select_btn" onclick="location.href='<?php echo site_url(); ?>/option/singnature'">서명관리</button>
+        <button type="button" name="button" class="nav_btn" onclick="location.href='<?php echo site_url(); ?>/option/categorize'">메일분류</button>
       </div>
     </form>
       <div class="main_div">
 
 
 <form action="" method="post" enctype="multipart/form-data" id="tx_editor_form" name="tx_editor_form">
-<table>
+<table style="width:90%;">
   <colgroup>
     <col width="80%">
     <col width="20%">
@@ -99,6 +100,7 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
   <tr>
     <td colspan="2">
 				<textarea name="content" id="content" style="display:none;"></textarea>
+        <!-- <input type="text" name="content" id="content" value=""> -->
         <input type="hidden" name="contents" id="contents" value="">
         <?php include $this->input->server('DOCUMENT_ROOT')."/misc/daumeditor-7.4.9/editor.php"; ?>
     </td>
@@ -142,10 +144,10 @@ function sign_list(){
         if(result[i].active == "Y"){
           var content = result[i].sign_content;
           if(content == null){
-            // content = "";
-            $("#content").html("<p><br></p>");
+            content = "<p><br></p>";
+            // $("#content").text("").html();
           }
-          $("#content").html(content);
+          $("#content").text(content).html();
           loadContent();
 
           var select_class = " sign_selected";
@@ -176,7 +178,10 @@ function change_sign(ths){
       if(content == null){
         content = "<p><br></p>";
       }
-      $("#content").html(content);
+      // content = content.replaceAll("\u0020", "&nbsp;");
+      // console.log(content);
+      $("#content").text(content).html();
+      // console.log($("#content").val());
       loadContent();
     }
   });

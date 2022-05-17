@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20">
+  <g id="그룹_824" data-name="그룹 824" transform="translate(-366 -329)">
+    <g id="그룹_370" data-name="그룹 370" transform="translate(366 349) rotate(-90)">
+      <g id="사각형_1076" data-name="사각형 1076" fill="#fff" stroke="#c2c2c2" stroke-width="1">
+        <rect width="20" height="20" rx="2" stroke="none"/>
+        <rect x="0.5" y="0.5" width="19" height="19" rx="1.5" fill="none"/>
+      </g>
+    </g>
+    <g id="download" transform="translate(369.067 333.367)">
+      <path id="패스_575" data-name="패스 575" d="M.433,18a.433.433,0,0,1,.433.433v3.033a.867.867,0,0,0,.867.867h10.4A.867.867,0,0,0,13,21.467V18.433a.433.433,0,0,1,.867,0v3.033A1.733,1.733,0,0,1,12.133,23.2H1.733A1.733,1.733,0,0,1,0,21.467V18.433A.433.433,0,0,1,.433,18Z" transform="translate(0 -11.933)" fill="#565656" fill-rule="evenodd"/>
+      <path id="패스_576" data-name="패스 576" d="M11.047,16.672a.433.433,0,0,1,.613,0l1.987,1.987,1.987-1.987a.433.433,0,0,1,.613.613l-2.293,2.294a.433.433,0,0,1-.614,0l-2.293-2.294A.433.433,0,0,1,11.047,16.672Z" transform="translate(-6.714 -11.039)" fill="#565656" fill-rule="evenodd"/>
+      <path id="패스_577" data-name="패스 577" d="M17.308,2.25a.433.433,0,0,1,.433.433V9.617a.433.433,0,1,1-.867,0V2.683A.433.433,0,0,1,17.308,2.25Z" transform="translate(-10.375 -2.25)" fill="#565656" fill-rule="evenodd"/>
+    </g>
+  </g>
+</svg>

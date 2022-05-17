@@ -15,18 +15,6 @@ if(strpos($_SESSION['list_page_url_tmp'], $mbox_urlencode) && !strpos($_SESSION[
   $_SESSION['list_page_url'] = $_SESSION['list_page_url_tmp'];
 }
 
- ?>
-<style media="screen">
-#detail_all_div {
-    -ms-overflow-style: none; /* IE and Edge */
-    scrollbar-width: none; /* Firefox */
-}
-
-#detail_all_div::-webkit-scrollbar {
-    display: none; /* Chrome, Safari, Opera*/
-}
-</style>
- <?php
 function address_text($address){
   if(!empty($address) || count($address)!=0){
     $address_text = "";
@@ -55,14 +43,133 @@ function address_text($address){
 $reply_to_input = address_text($mail_info["to"]);
 $reply_cc_input = address_text($mail_info["cc"]);
 
-// echo '<pre>';
-// var_dump($mail_info);
-// echo '</pre>';
+// mailbox_tree 가져오기
+$encryp_password = $this->M_account->mbox_conf($_SESSION['userid']);
+$iv = chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0);
+$key = $this->db->password;
+$key = substr(hash('sha256', $key, true), 0, 32);
+$decrypted = openssl_decrypt(base64_decode($encryp_password), 'aes-256-cbc', $key, 1, $iv);
+$mailserver = "192.168.0.100";
+// $mailserver = "mail.durianit.co.kr";
+$user_id = $_SESSION["userid"];
+$user_pwd = $decrypted;
+$default_folder = array(
+  "INBOX",
+  "&vPSwuA- &07jJwNVo-",
+  "&x4TC3A- &vPStANVo-",
+  "&yBXQbA- &ulTHfA-",
+  "&ycDGtA- &07jJwNVo-"
+);
+// $defalt_fkey = array(
+//   "inbox",
+//   "sent",
+//   "draft",
+//   "spam",
+//   "trash"
+// );
+
+$host = "{" . $mailserver . ":143/imap/novalidate-cert}";
+$mails = @imap_open($host, $user_id, $user_pwd);
+$folders = imap_list($mails, "{" . $mailserver . "}", '*');
+$folders = str_replace("{" . $mailserver . "}", "", $folders);
+sort($folders);
+
+$folders_root = $default_folder;
+$folders_sub = array();
+
+foreach($folders as $f) {
+  if(substr_count($f, '.') == 0) {
+    if(in_array($f,$folders_root )){
+        continue;
+    }
+    array_push($folders_root, $f);
+  } else {
+    array_push($folders_sub, $f);
+  }
+}
+$folders_sorted = array();
+foreach($folders_root as $root) {
+  array_push($folders_sorted, $root);
+  foreach($folders_sub as $sub) {
+    $pos_dot = strpos($sub, '.');
+    $sub_root = substr($sub, 0, $pos_dot);
+    if($sub_root == $root) {
+      array_push($folders_sorted, $sub);
+    }
+  }
+}
+$folders = $folders_sorted;
+$mailbox_tree = array();
+for ($i=0; $i < count($folders); $i++) {
+  $fid = $folders[$i];
+  $mbox_status = imap_status($mails, "{" . $mailserver . "}".$fid, SA_UNSEEN);
+  $exp_folder = explode(".", $folders[$i]);
+  $length = count($exp_folder);
+  $text = mb_convert_encoding($exp_folder[$length-1], 'UTF-8', 'UTF7-IMAP');
+  $folderkey = "custom";
+  switch($text) {
+    case "INBOX":  $text="받은 편지함"; $folderkey="inbox";  break;
+    case "보낸 편지함": $folderkey="sent"; break;
+    case "임시 보관함": $folderkey="draft";  break;
+    case "정크 메일":   $folderkey="spam";  break;
+    case "지운 편지함": $folderkey="trash";  break;
+  }
+
+  $substr_count = substr_count($folders[$i], ".");
+  if($substr_count > 1){
+    $parent_folder = implode(".", explode(".", $folders[$i], -1));
+  }elseif ($substr_count == 1) {
+    $parent_folder = $exp_folder[0];
+  }else{
+    $parent_folder = "#";
+  }
+  $tree = array(
+    // "name" => $folders[$i],
+    "id" => addslashes($fid),
+    "parent" => addslashes($parent_folder),
+    "text" => $text,
+    "child_num" => $substr_count,
+    "unseen" => $mbox_status->unseen,
+    "folderkey" => $folderkey
+    // "state" => array("opened" => true)
+  );
+  array_push($mailbox_tree, $tree);
+}
   ?>
 
  <meta name="viewport" content="width=device-width, initial-scale=1.0">
  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
  <link rel="stylesheet" href="<?php echo $misc; ?>/css/style.css" type="text/css" charset="utf-8"/>
+ <style media="screen">
+ #detail_all_div {
+     -ms-overflow-style: none; /* IE and Edge */
+     scrollbar-width: none; /* Firefox */
+ }
+
+ #detail_all_div::-webkit-scrollbar {
+     display: none; /* Chrome, Safari, Opera*/
+ }
+   select {
+     -webkit-appearance:none; /* 크롬 화살표 없애기 */
+     -moz-appearance:none; /* 파이어폭스 화살표 없애기 */
+     appearance:none; /* 화살표 없애기 */
+     background-color: black;
+     color: white;
+     border: none;
+     text-align: center;
+     font-size: 0.8em;
+     width: 30px;
+     height: 30px;
+     opacity: 0;
+     position: relative;
+     top: -27px;
+     margin-bottom: -30px
+   }
+   select:focus {
+     outline: none;
+   }
+ </style>
+
  <div id="detail_all_div" style="width:100%; max-height:100%; margin:10px 0px 80px 0px; padding-left: 5px; overflow-x: hidden;overflow-y: auto;">
      <input type="hidden" id="reply_from" name="reply_from" value="<?php echo $mail_info["from"]["email"]; ?>">
      <input type="hidden" id="reply_to" name="reply_to" value="<?php echo $reply_to_input["input"]; ?>">
@@ -75,23 +182,83 @@ $reply_cc_input = address_text($mail_info["cc"]);
      <input type="hidden" id="reply_content" name="reply_content" value="">
      <input type="hidden" id="reply_file" name="reply_file" value="">
    </form>
-   <div id="send_top" align="left" style="width:95%; height:6%; padding-bottom:10px; margin-left: 5px">
-     <div onClick="javascript:history.back();" style="position:relative; width:10%; height:5% ">
-       <img src="/misc/img/back.svg" style="width:25px;">
+   <div id="send_top" style="display:flex; width:95%; margin-left: 5px; justify-content: flex-end">
+     <div onClick="go_list(`<?php echo $mailno ?>`)" style="position:absolute; left: 15px;">
+       <img src="/misc/img/back.svg" style="width:28px; ">
      </div>
-     <!-- <button type="button" class="btn_basic btn_white" style="width:45px" onclick="go_list(`<?php echo $mailno ?>`)">목록</button> -->
-     &nbsp;
+     <div onClick="" style="">
+         <div>
+           <img src="<?php echo $misc;?>img/mobile/메일확인_이동.svg" style="width:28px">
+         </div>
+         <select id="selected_box" onchange="move();">
+           <option value="" >이동할 메일함 선택</option>
+           <?php
+           foreach($mailbox_tree as $b) {
+             $indent = "";
+             for($i=0; $i<$b['child_num']; $i++) {
+               $indent .= "&nbsp;";
+             }
+             echo "<option value=\"{$b["id"]}\">{$indent}{$b['text']}</option>";
+           }
+           ?>
+         </select>
+     </div>
+
+     <div onClick="show_reply_div();" style="">
+       <img src="/misc/img/mobile/메일확인_답장.svg" style="width:28px; margin-left: 20px">
+     </div>
+     <div id="reply_div" style="
+     display: none;
+     width: 74px;
+    height: 125px;
+    padding-left: 8px;
+    position: absolute;
+    left: 61%;
+    top: 9%;
+    background-color: white;
+    border: 1px solid gray;
+    z-index: 1;">
+       <p enctype="multipart/form-data" onclick="reply_mail(1)">답장</p>
+       <p onclick="reply_mail(2)">전체답장</p>
+       <p onclick="reply_mail(3)">전달</p>
+     </div>
+
+     <script type="text/javascript">
+       function show_reply_div() {
+         if($("#reply_div").css("display") == "none"){
+             $("#reply_div").show();
+         } else {
+             $("#reply_div").hide();
+         }
+       }
+     </script>
+
+     <?php if($mbox == "&yBXQbA- &ulTHfA-") {  ?>
+       <div onClick="" style="">
+         <img src="/misc/img/mobile/스팸해제2.svg" style="width:28px; margin-left: 20px;">
+       </div>
+     <?php }else { ?>
+       <div onClick="move_spam();" style="">
+         <img src="/misc/img/mobile/스팸_이동.svg" style="width:28px; margin-left: 20px;">
+       </div>
+     <?php } ?>
+
+     <?php if($mbox == "&ycDGtA- &07jJwNVo-") {  ?>
+       <div onClick="del_ever()" style="">
+         <img src="/misc/img/mobile/영구삭제2.svg" style="width:28px; margin-left: 15px; margin-right:7px">
+       </div>
+     <?php }else { ?>
+       <div onClick="del_trash()" style="">
+         <img src="/misc/img/mobile/휴지통_이동.svg" style="width:28px; margin-left: 15px; margin-right: 7px">
+       </div>
+     <?php } ?>
+
      <!-- <button type="button" class="btn_basic btn_blue" name="button" id="submit_button" enctype="multipart/form-data" style="width:40px" onclick="reply_mail(1)">회신</button>
      <button type="button" class="btn_basic btn_white" name="" style="width:65px" onclick="reply_mail(2)">전체회신</button>
      <button type="button" class="btn_basic btn_white" style="width:40px" onclick="reply_mail(3)">전달</button>
-     &nbsp;&nbsp;
-     <?php if($mbox == "&ycDGtA- &07jJwNVo-") {  ?>
-       <button type="button" class="btn_basic btn_white" style="width:65px" onclick="del_ever()">영구삭제</button>
-     <?php }else { ?>
-       <button type="button" class="btn_basic btn_white" style="width:40px" onclick="del_trash()">삭제</button>
-     <?php } ?> -->
-     <hr style="width:108%; border: 1px solid #dedede; margin: 15px 0px 0px -20px">
+     &nbsp;&nbsp;-->
    </div>
+   <hr style="width: 98%; border: 1px solid #dedede; margin: 8px 0px 15px">
 
    <div class="" style="max-height: 100%; overflow-y: auto; overflow-x: auto; width: 97%; margin: 0 5px;">
      <table width="98%">
@@ -201,6 +368,40 @@ $reply_cc_input = address_text($mail_info["cc"]);
 
 <script type="text/javascript">
 
+// 메일함 이동
+function move() {
+  const s = document.getElementById('selected_box');
+  let to_box = s.options[s.selectedIndex].value;
+  to_box = to_box.split("\\").join("");
+
+  let arr = [];
+  arr.push(`<?php echo $mailno ?>`);
+  $.ajax({
+    url : "<?php echo site_url(); ?>/testmailbox/mail_move",
+    type : "post",
+    data : {mbox: `<?php echo $mbox ?>`, to_box: to_box, mail_arr: arr},
+    success : function() {
+      alert('메일이 이동되었습니다.');
+      go_list();
+    }
+  });
+}
+
+function move_spam(){
+  let arr = [];
+  arr.push(`<?php echo $mailno ?>`);
+
+  $.ajax({
+    url : "<?php echo site_url(); ?>/testmailbox/mail_move",
+    type : "post",
+    data : {mbox: `<?php echo $mbox ?>`, to_box: '&yBXQbA- &ulTHfA-', mail_arr: arr},
+    success : function(data){
+      alert('스팸메일로 처리되었습니다.');
+      go_list();
+    }
+  });
+}
+
 function del_trash(){
   let arr = [];
   arr.push(`<?php echo $mailno ?>`);
@@ -210,6 +411,7 @@ function del_trash(){
     type : "post",
     data : {mbox: `<?php echo $mbox ?>`, to_box: '&ycDGtA- &07jJwNVo-', mail_arr: arr},
     success : function(data){
+      alert('삭제되었습니다.');
       go_list();
     }
     // complete : function() {
@@ -228,6 +430,7 @@ function del_ever() {
         type : "post",
         data : {mbox: `<?php echo $mbox ?>`, mail_arr: arr},
         success : function(data){
+          alert('영구삭제 되었습니다.');
           go_list();
         }
       });

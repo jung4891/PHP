@@ -28,12 +28,12 @@ class Dbmailtest extends CI_Controller {
       $this->load->Model('M_account');
       // $this->load->Model('M_dbmail');
 
-      // $this->mail = $this->input->get("mail_address");
-      // $this->password = $this->input->get("password");
-      // $this->mailbox = $this->input->get("mailbox");
-      $this->mail = "bhkim@durianict.co.kr";
-      $this->password = "durian12#";
-      $this->mailbox = "INBOX";
+      $this->mail = $this->input->post("mail_address");
+      $this->password = $this->input->post("password");
+      $this->mailbox = $this->input->post("mailbox");
+      // $this->mail = "bhkim@durianict.co.kr";
+      // $this->password = "durian12#";
+      // $this->mailbox = "INBOX";
       $this->mailserver = "192.168.0.50";
 
       // $encryp_password = $this->M_account->mbox_conf($_SESSION['userid']);
@@ -248,6 +248,19 @@ class Dbmailtest extends CI_Controller {
     // var_dump($structure);
 		// return $items;
 	// }
+  function imap_ping(){
+    // $imap = $this->connect_mailserver();
+    $mailserver = $this->mailserver;
+    $host = "{" . $mailserver . ":143/imap/novalidate-cert}";
+    $user_id = $this->mail;
+    $user_pwd = $this->password;
+    $imap = @imap_open($host, $user_id, $user_pwd, OP_HALFOPEN, 1);
+    if ($imap) {
+      echo json_encode("true");
+    } else {
+      echo json_encode("false");
+    }
+  }
 
 
   public function connect_mailserver($mbox="") {
@@ -262,6 +275,16 @@ class Dbmailtest extends CI_Controller {
     // imap_open() : 메일서버에 접속하기 위한 함수 (접속에 성공하면 $mailbox에 IMAP 스트림(mailstream)이 할당됨)
     // (@ : 오류메시지를 무효로 처리하여 경고 문구가 표시되지 않게함)
     return @imap_open($host, $user_id, $user_pwd);
+  }
+
+  function get_mail(){
+    $mailserver = $this->mailserver;
+    $host = "{" . $mailserver . ":143/imap/novalidate-cert}";
+    $user_id = $this->mail;
+    $user_pwd = $this->password;
+    $imap = @imap_open($host, $user_id, $user_pwd, OP_HALFOPEN, 1);
+    $mbox_status = imap_status($imap, "{" . $mailserver . "}", SA_ALL);
+    echo json_encode($mbox_status);
   }
 
   function insert_test(){
@@ -355,11 +378,24 @@ class Dbmailtest extends CI_Controller {
     // }
     // echo json_encode($mail);
   }
+  protected function _set_date()
+  {
+    $timezone = date('Z');
+    $operator = ($timezone[0] === '-') ? '-' : '+';
+    $timezone = abs($timezone);
+    $timezone = floor($timezone/3600) * 100 + ($timezone % 3600) / 60;
+
+    return sprintf('%s %s%04d', date('D, j M Y H:i:s'), $operator, $timezone);
+  }
+
+
 
   function testtest(){
     $output = array();
     exec("sudo grep '=BE=F7=B9=AB' /home/vmail/durianict.co.kr/bhkim/cur/*",$output, $return_var);
     echo "<pre>";print_r($output);echo "</pre>";
+    echo $_SERVER['REMOTE_ADDR'];
+    echo $this->_set_date();
   }
 
   function get_senderip(){

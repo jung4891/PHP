@@ -8,14 +8,17 @@ include $this->input->server('DOCUMENT_ROOT')."/include/admin_side.php";
 
 
 <div id="main_contents" align="center">
+  <div class="sub_div" align="left" style="">
+    <span style="font-size:20px;font-weight:bold;">관리자 리스트</span>
+  </div>
   <div class="main_div">
-  <table class="contents_tbl" style="width:70%;" border="0" cellspacing="0" cellpadding="0">
+  <table class="contents_tbl" border="0" cellspacing="0" cellpadding="0">
 			<colgroup>
         <col width="5%">
         <col width="30%">
         <col width="10%">
-        <col width="8%">
         <col width="27%">
+        <col width="8%">
         <col width="5%">
         <col width="5%">
       </colgroup>
@@ -23,8 +26,8 @@ include $this->input->server('DOCUMENT_ROOT')."/include/admin_side.php";
         <th height="40" align="center">No.</th>
         <th align="center">관리자</th>
         <th align="center">도메인</th>
+        <th align="center">마지막 변경일</th>
         <th align="center">활성화</th>
-        <th align="center">최종수정일</th>
         <th colspan="2" align="center"></th>
 			</tr>
       <?php
@@ -49,14 +52,20 @@ include $this->input->server('DOCUMENT_ROOT')."/include/admin_side.php";
           <td height="40" align="center"><?php echo $i;?></td>
           <td style="padding-left:10px;" align="center"><?php echo $item->username;?></td>
           <td align="center"><?php echo $domain;?></td>
-          <td align="center"><?php echo $active;?></td>
           <td align="center"><?php echo $item->modified;?></td>
-          <td align="right">
-            <button type="button" class="btn_basic btn_blue" name="button" onclick="admin_modify('<?php echo $item->username;?>', 'modi')">수정</button>
+          <td align="center"><?php echo $active;?></td>
+          <td align="center">
+            <button type="button" class="admin_btn white_btn" name="button" onclick="admin_modify('<?php echo $item->username;?>', 'modi')" style="width:80%;">수정</button>
           </td>
-          <td align="left">
+          <td align="center" style="border-left:unset;">
+            <?php
+            if ($item->superadmin != 1) {
+            ?>
+              <button type="button" class="admin_btn grey_btn" name="button" onclick="admin_modify('<?php echo $item->username;?>', 'del')" style="width:80%;">삭제</button>
 
-             <button type="button" class="btn_basic btn_sky" name="button" onclick="admin_modify('<?php echo $item->username;?>', 'del')">삭제</button>
+            <?php
+            }
+            ?>
 
           </td>
         </tr>
@@ -72,12 +81,17 @@ include $this->input->server('DOCUMENT_ROOT')."/include/admin_side.php";
       <?php
         }
        ?>
-       <tr>
-         <td colspan="7" align="center">
-           <button type="button" class="btn_basic btn_blue" name="button" onclick="manager_add();">등록</button>
-         </td>
-       </tr>
       </table>
+    </div>
+
+    <div class="sub_div" style="margin-top:20px;" align="center">
+      <table style="width:100%;" border="0" cellspacing="0" cellpadding="0">
+        <tr>
+          <td align="right">
+            <input type="button" style="width:70px;height:40px;" class="admin_btn blue_btn" name="button" onclick="manager_add();" value="등록">
+          </td>
+        </tr>
+    </table>
     </div>
 </div>
 

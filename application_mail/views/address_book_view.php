@@ -5,11 +5,20 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
  ?>
   <style>
   #group_view tr:hover {
-    background-color: #e4f6f7;
+    background-color: #e7f3ff;
   }
 
   #group_view td {
     border-top:1px solid #dedede;
+  }
+
+  #address_group_tbl tr:not(:first-child):hover{
+    background-color: #e7f3ff;
+  }
+
+  .select_group{
+    color:#0575E6;
+    font-weight: bold;
   }
 
   .td_input{
@@ -88,6 +97,13 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
      document.mform.submit();
   }
 
+  $(document).on("click", "#address_group_tbl tr", function(){
+    var group_seq = $(this).attr("data-groupseq");
+    document.mform.group_name.value = group_seq;
+    document.mform.cur_page.value = "";
+    document.mform.submit();
+  })
+
 
   </script>
 
@@ -95,161 +111,192 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
 <div id="main_contents" align="center">
     <form name="" action="" method="post">
       <div class="" align="left" width=100% style="border-bottom:1px solid #1A8DFF;margin:-10px 40px 10px 40px;">
-        <!-- <button type="button" name="button" class="nav_btn" style="margin-left:10px;"onclick="location.href='<?php echo site_url(); ?>/option/account'">계정설정</button> -->
+        <button type="button" name="button" class="nav_btn" style="margin-left:10px;"onclick="location.href='<?php echo site_url(); ?>/option/user'">계정설정</button>
         <button type="button" name="button" class="nav_btn" onclick="location.href='<?php echo site_url(); ?>/option/mailbox'">메일함설정</button>
         <button type="button" name="button" class="nav_btn select_btn" onclick="location.href='<?php echo site_url(); ?>/option/address_book'">주소록관리</button>
         <button type="button" name="button" class="nav_btn" onclick="location.href='<?php echo site_url(); ?>/option/singnature'">서명관리</button>
+        <button type="button" name="button" class="nav_btn" onclick="location.href='<?php echo site_url(); ?>/option/categorize'">메일분류</button>
       </div>
     </form>
+    <div style="width:90%;margin:20px 0px 20px 0px;">
 
-  <form name="mform" action="<?php echo site_url(); ?>/group/address_book_view" method="get">
-  <input type="hidden" name="cur_page" value="<?php echo $cur_page; ?>">
-  <div style="width:80%;margin:20px 0px 20px 0px;">
-    <button type="button" id="address_addBtn" class="btn_basic btn_blue" name="button" style="float:right" onclick="address_open();">주소록 추가</button>
-    <!-- <button type="button" id="" name="button" style="float:right">수정</button> -->
-    <button type="button" id="address_deletetBtn" class="btn_basic btn_sky" name="button" style="float:right" onclick="address_delete();">삭제</button>
-  </div>
-  <div class="main_div" style="margin-top:20px;">
-      <table id="" border="0" cellspacing="0" cellpadding="0" style="width:80%">
-        <colgroup>
-          <col width="5%">
-          <col width="5%">
-          <col width="15%">
-          <col width="20%">
-          <col width="15%">
-          <col width="10%">
-          <col width="15%">
-          <col width="15%">
-        </colgroup>
-        <tr onclick="detail_address_click();">
-          <th></th>
-          <th>No.</th>
-          <th>이름</th>
-          <th>이메일</th>
-          <th>회사</th>
-          <th>부서</th>
-          <th>코멘트</th>
-          <th>최종수정일</th>
-        </tr>
-
-
-         <tbody id="group_view">
-
-         <?php
-       if ($count > 0) {
-         $i = $count - $no_page_list * ( $cur_page - 1 );
-         $icounter = 0;
-         foreach ($group_list as $gl) {
-           ?>
-         <tr onclick="address_detail_open(<?php echo $gl['seq']; ?>);">
-
-           <td height="40" align="center" onclick='event.cancelBubble=true;'>
-             <input type="checkbox" name="checked_address" value="<?php echo $gl['seq']; ?>">
-           </td>
-
-           <td align="center">
-             <?php echo $i; ?>
-           </td>
-
-           <td align="center">
-             <?php echo $gl["name"]; ?>
-           </td>
-
-           <td align="center">
-             <?php echo $gl["email"]; ?>
-           </td>
-
-           <td align="center">
-             <?php echo $gl["department"]; ?>
-           </td>
-
-           <td align="center">
-             <?php echo $gl["group"]; ?>
-           </td>
-
-           <td align="center">
-             <?php echo $gl["comment"]; ?>
-           </td>
-
-           <td align="center">
-             <?php echo $gl["insert_date"]; ?>
-           </td>
-
-          </tr>
-       <?php
-       $i--;
-       $icounter++;
-     }
-   }else{
-    ?>
-    <tr>
-     <td width="100%" height="40" align="center" colspan="8">등록된 주소가 없습니다.</td>
-    </tr>
-
-    <?php
-   }
-     ?>
-
-        </tbody>
-      </table>
+      <input type="button" id="address_addBtn" class="btn_basic btn_blue" name="button" style="float:right" onclick="address_open();" value="연락처 추가">
+      <!-- <button type="button" id="" name="button" style="float:right">수정</button> -->
+      <button type="button" id="address_deletetBtn" class="btn_basic btn_sky" name="button" style="float:right" onclick="address_delete();">삭제</button>
     </div>
-    <div class="paging_div">
-      <?php if ($count > 0) {?>
-        <table width="400" border="0" cellspacing="0" cellpadding="0">
-            <tr>
-        <?php
-        if ($cur_page > 10){
-        ?>
-              <td width="19"><a href="JavaScript:GoFirstPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_first.png" width="20" height="20"/></a></td>
-              <td width="2"></td>
-              <td width="19"><a href="JavaScript:GoPrevPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_left.png" width="20" height="20"/></a></td>
-        <?php
-        } else {
-        ?>
-        <td width="19"></td>
-              <td width="2"></td>
-              <td width="19"></td>
-        <?php
-        }
-        ?>
-              <td align="center">
-        <?php
-        for  ( $i = $start_page; $i <= $end_page ; $i++ ){
-        if( $i == $end_page ) {
-          $strSection = "";
-        } else {
-          $strSection = "&nbsp;<span class=\"section\">&nbsp&nbsp</span>&nbsp;";
-        }
+    <table border="0" cellspacing="0" cellpadding="0" style="width:90%;height:90%;">
+      <colgroup>
+        <col width="15%">
+        <col width="85%">
+      </colgroup>
+      <tbody>
+        <tr>
+          <td style="height:100%;border-right:1px solid #dedede;" valign="top">
+            <table id="address_group_tbl" border="0" cellspacing="0" cellpadding="5" style="width:100%;">
+              <tr onclick="event.cancelBubble=true">
+                <td>
+                  <input type="button" class="btn_basic btn_sky" name="" value="그룹 추가" onclick="add_group();" style="width:90%;">
+                </td>
+              </tr>
+              <?php $select_group = ($group_name == 'all')?"select_group":""; ?>
 
-        if  ( $i == $cur_page ) {
-          echo "<a href=\"JavaScript:GoPage( '".$i."' )\" class=\"alink\"><font color=\"#33ccff\">".$i."</font></a>".$strSection;
-        } else {
-          echo "<a href=\"JavaScript:GoPage( '".$i."' )\" class=\"alink\">".$i."</a>".$strSection;
-        }
-        }
-        ?></td>
+              <tr class="<?php echo $select_group; ?>" data-groupseq="all">
+                <td>
+                  전체
+                </td>
+              </tr>
               <?php
-        if   ( floor( ( $cur_page - 1 ) / 10 ) < floor( ( $total_page - 1 ) / 10 ) ){
-        ?>
-        <td width="19"><a href="JavaScript:GoNextPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_right.png" width="20" height="20"/></a></td>
-              <td width="2"></td>
-              <td width="19"><a href="JavaScript:GoLastPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_last.png" width="20" height="20"/></a></td>
-        <?php
-        } else {
-        ?>
-        <td width="19"></td>
-              <td width="2"></td>
-              <td width="19"></td>
-        <?php
-        }
-        ?>
+              foreach ($address_group as $group) {
+                $select_group = ($group['seq'] == $group_name)?"select_group":"";
+              ?>
+              <tr height=30 class="group_tr <?php echo $select_group; ?>" data-groupseq = "<?php echo $group['seq']; ?>">
+                <td>
+                  <?php echo $group["group_name"]; ?>
+                </td>
+              </tr>
+              <?php
+              }
+               ?>
+            </table>
 
-            </tr>
-          </table>
-        <?php } ?>
-    </div>
+          </td>
+          <td valign="top">
+            <form name="mform" action="<?php echo site_url(); ?>/option/address_book" method="get" style="width:100%;height:100%;overflow-y:scroll;">
+            <input type="hidden" name="cur_page" value="<?php echo $cur_page; ?>">
+            <input type="hidden" name="group_name" value="<?php echo $group_name; ?>">
+                <table id="" border="0" cellspacing="0" cellpadding="0" style="width:100%">
+                  <colgroup>
+                    <col width="5%">
+                    <col width="15%">
+                    <col width="20%">
+                    <col width="15%">
+                    <col width="10%">
+                    <col width="15%">
+                  </colgroup>
+                  <tr onclick="detail_address_click();">
+                    <th></th>
+                    <th>이름</th>
+                    <th>이메일</th>
+                    <th>회사</th>
+                    <th>부서</th>
+                    <th>코멘트</th>
+                  </tr>
 
-  </form>
+
+                   <tbody id="group_view">
+
+                   <?php
+                 if ($count > 0) {
+                   $i = $count - $no_page_list * ( $cur_page - 1 );
+                   $icounter = 0;
+                   foreach ($address_list as $gl) {
+                     ?>
+                   <tr onclick="address_detail_open(<?php echo $gl['seq']; ?>);">
+
+                     <td height="40" align="center" onclick='event.cancelBubble=true;'>
+                       <input type="checkbox" name="checked_address" value="<?php echo $gl['seq']; ?>">
+                     </td>
+
+
+                     <td align="center">
+                       <?php echo $gl["name"]; ?>
+                     </td>
+
+                     <td align="center">
+                       <?php echo $gl["email"]; ?>
+                     </td>
+
+                     <td align="center">
+                       <?php echo $gl["department"]; ?>
+                     </td>
+
+                     <td align="center">
+                       <?php echo $gl["group"]; ?>
+                     </td>
+
+                     <td align="center">
+                       <?php echo $gl["comment"]; ?>
+                     </td>
+                    </tr>
+                 <?php
+                 $i--;
+                 $icounter++;
+               }
+             }else{
+              ?>
+              <tr>
+               <td width="100%" height="40" align="center" colspan="6">등록된 주소가 없습니다.</td>
+              </tr>
+
+              <?php
+             }
+               ?>
+
+                  </tbody>
+                </table>
+
+              <div class="paging_div" align="center">
+                <?php if ($count > 0) {?>
+                  <table width="400" border="0" cellspacing="0" cellpadding="0">
+                      <tr>
+                  <?php
+                  if ($cur_page > 10){
+                  ?>
+                        <td width="19"><a href="JavaScript:GoFirstPage()"><img src="<?php echo $misc;?>img/icon/처음.svg" width="20" height="20"/></a></td>
+                        <td width="2"></td>
+                        <td width="19"><a href="JavaScript:GoPrevPage()"><img src="<?php echo $misc;?>img/icon/왼쪽.svg" width="20" height="20"/></a></td>
+                  <?php
+                  } else {
+                  ?>
+                  <td width="19"></td>
+                        <td width="2"></td>
+                        <td width="19"></td>
+                  <?php
+                  }
+                  ?>
+                        <td align="center">
+                  <?php
+                  for  ( $i = $start_page; $i <= $end_page ; $i++ ){
+                  if( $i == $end_page ) {
+                    $strSection = "";
+                  } else {
+                    $strSection = "&nbsp;<span class=\"section\">&nbsp&nbsp</span>&nbsp;";
+                  }
+
+                  if  ( $i == $cur_page ) {
+                    echo "<a href=\"JavaScript:GoPage( '".$i."' )\" class=\"alink\"><font color=\"#33ccff\">".$i."</font></a>".$strSection;
+                  } else {
+                    echo "<a href=\"JavaScript:GoPage( '".$i."' )\" class=\"alink\">".$i."</a>".$strSection;
+                  }
+                  }
+                  ?></td>
+                        <?php
+                  if   ( floor( ( $cur_page - 1 ) / 10 ) < floor( ( $total_page - 1 ) / 10 ) ){
+                  ?>
+                  <td width="19"><a href="JavaScript:GoNextPage()"><img src="<?php echo $misc;?>img/icon/오른쪽.svg" width="20" height="20"/></a></td>
+                        <td width="2"></td>
+                        <td width="19"><a href="JavaScript:GoLastPage()"><img src="<?php echo $misc;?>img/icon/끝.svg" width="20" height="20"/></a></td>
+                  <?php
+                  } else {
+                  ?>
+                  <td width="19"></td>
+                        <td width="2"></td>
+                        <td width="19"></td>
+                  <?php
+                  }
+                  ?>
+
+                      </tr>
+                    </table>
+                  <?php } ?>
+              </div>
+
+            </form>
+
+          </td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 
   <div id="address_modal" style="display:none;background-color: white; width: auto; height: auto;">
@@ -274,6 +321,23 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
           </td>
           <td>
             <input type="text" name="address_email" id="address_email" value="">
+          </td>
+        </tr>
+        <tr>
+          <td align="right">
+            그룹  :
+          </td>
+          <td>
+            <select class="" name="group_seq" id="group_seq" style="width:100%;">
+              <option value="">선택없음</option>
+              <?php
+              foreach ($address_group as $group) {
+              ?>
+              <option value="<?php echo $group['seq']; ?>"><?php echo $group["group_name"]; ?></option>
+              <?php
+              }
+               ?>
+            </select>
           </td>
         </tr>
         <tr>
@@ -401,6 +465,23 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
               </tr>
               <tr>
                 <td align="right">
+                  그룹  :
+                </td>
+                <td>
+                  <select class="" name="detail_group_seq" id="detail_group_seq" style="width:100%;">
+                    <option value="">선택없음</option>
+                    <?php
+                    foreach ($address_group as $group) {
+                    ?>
+                    <option value="<?php echo $group['seq']; ?>"><?php echo $group["group_name"]; ?></option>
+                    <?php
+                    }
+                     ?>
+                  </select>
+                </td>
+              </tr>
+              <tr>
+                <td align="right">
                   회사  :
                 </td>
                 <td>
@@ -434,7 +515,94 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
      </div>
 
       <script>
-      // 모든페이지에서 주소록추가 모달창이 띄워져야하기때문에 footer에 넣기 -> footer include된다
+        function add_group(){
+          var html = "<tr class='group_tr'><td>";
+          html += "<input type='text' name='add_group_input' style='width:90%' value='새 그룹' onblur='add_group_act(this);' onclick='event.cancelBubble=true'>";
+          html += "</td></tr>";
+          $("#address_group_tbl").append(html);
+          $("input[name=add_group_input]").select();
+        }
+
+        function add_group_act(ths){
+          var group_name = ths.value;
+          $.ajax({
+            url: "<?php echo site_url(); ?>/group/add_group_action",
+            data: {
+              group_name :group_name
+            },
+            type: 'POST',
+            dataType: 'json',
+            success: function (result) {
+              // console.log(result);
+              // ths.closest('td').append(group_name);
+              // ths.remove();
+              location.reload();
+            }
+          });
+
+        }
+
+        $(function(){
+          $.contextMenu({
+            selector: ".group_tr",
+            items:{
+              modify: {
+                name: "이름 변경",
+                callback: function(key, opt){
+                  var group_seq = $(this).attr("data-groupseq");
+                  var group_name = $(this).find('td').text().trim();
+                  $(this).find('td').text("");
+                  console.log(group_name);
+                  var html = "<input type='text' name='add_rename_input' style='width:90%' value='"+group_name+"' onclick='event.cancelBubble=true' onblur='rename_group_act("+group_seq+", this);'>";
+
+                  $(this).find('td').append(html);
+                  $("input[name=add_rename_input]").select();
+                }
+              },
+
+              delete: {
+                name: "삭제",
+                callback: function(key, opt){
+                  if (confirm("그룹을 삭제하시겠습니까?")) {
+                    var group_seq = $(this).attr("data-groupseq");
+                    $.ajax({
+                      url: "<?php echo site_url(); ?>/group/del_group_action",
+                      data: {
+                        group_seq :group_seq
+                      },
+                      type: 'POST',
+                      dataType: 'json',
+                      success: function (result) {
+
+                        location.reload();
+                      }
+                    });
+                  }
+                }
+              }//delete
+
+
+            }
+          })
+        })
+
+        function rename_group_act(seq, ths){
+
+          $.ajax({
+            url: "<?php echo site_url(); ?>/group/rename_group",
+            data: {
+              group_seq :seq,
+              group_name : $(ths).val()
+            },
+            type: 'POST',
+            dataType: 'json',
+            success: function (result) {
+
+              location.reload();
+            }
+          });
+        }
+
         function address_open(){
           $("#address_modal").bPopup();
         }
@@ -446,6 +614,7 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
           var addressGroup = $("#address_group").val();
           var addressId = $("#address_id").val();
           var addressComment = $("#address_comment").val();
+          var group_seq = $("#group_seq").val();
           if(addressName==""){
             alert("사용자의 이름을 입력해주세요.");
             $("#address_name").focus();
@@ -463,6 +632,7 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
               data: {
                 name:addressName,
                 email:addressEmail,
+                group_seq:group_seq,
                 department:addressDepartment,
                 group:addressGroup,
                 id:addressId,
@@ -511,6 +681,7 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
                   $("#detail_address_comment").html(result.comment);
 
                   //수정 input창
+                  $("#detail_group_seq").val(result.group_seq).prop("selected", true);
                   $("#detail_address_modify_name").val(result.name);
                   $("#detail_address_modify_email").val(result.email);
                   $("#detail_address_modify_department").val(result.department);
@@ -568,6 +739,7 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
        var email = $("#detail_address_modify_email").val();
        var department = $("#detail_address_modify_department").val();
        var group = $("#detail_address_modify_group").val();
+       var group_seq = $("#detail_group_seq").val();
        // var id = $("#detail_address_modify_id").val();
        var comment = $("#detail_address_modify_comment").val();
        if(name==""){
@@ -590,6 +762,7 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
                 email:email,
                 department:department,
                 group:group,
+                group_seq: group_seq,
                 // id:id,
                 comment:comment
               },
@@ -597,7 +770,7 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
                 if(result){
                   $("#modal_seq").val();
                   alert("수정되었습니다.");
-                  location.reload(); // 비동기식이랑서 화면 새로고침 해준다
+                  location.reload();
 
                 }else{
                   alert("실패하였습니다.");

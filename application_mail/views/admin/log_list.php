@@ -61,6 +61,9 @@ include $this->input->server('DOCUMENT_ROOT')."/include/admin_side.php";
  </script>
 
 <div id="main_contents" align="center">
+  <div class="sub_div" align="left" style="">
+    <span style="font-size:20px;font-weight:bold;">로그</span>
+  </div>
   <form name="mform" action="<?php echo site_url(); ?>/admin/main/viewlog" method="get">
   <div class="main_div">
     <div id="search_div" align="left" style="width:95%;">
@@ -79,21 +82,21 @@ $selected = $search_domain == $dl->domain ? "selected" : "" ;
 			  <input  type="text" size="25" class="input_basic input_search" name="searchkeyword" placeholder="검색하세요." value="<?php echo str_replace('"', '&uml;', $search_keyword );?>"/>
 			  <input type="button" class="btn_basic btn_gray" style="height:30px;width:50px;" value="검색" onClick="return GoSearch();">
     </div>
-    <div class="" >
-      <table class="contents_tbl"  border="0" cellspacing="0" cellpadding="0">
+    <div class="" style="overflow-y:scroll;max-height:50vh;min-height:400px;">
+      <table class="contents_tbl"  border="0" cellspacing="0" cellpadding="0" style="table-layout: fixed">
         <colgroup>
           <col width="20%">
+          <col width="20%">
+          <col width="20%">
+          <col width="10%">
           <col width="30%">
-          <col width="20%">
-          <col width="20%">
-          <!-- <col width="30%"> -->
         </colgroup>
         <tr>
           <th>시간</th>
           <th>관리자</th>
           <th>도메인</th>
           <th>Action</th>
-          <!-- <th>Data</th> -->
+          <th>Data</th>
         </tr>
 <?php
 if ($count > 0) {
@@ -102,17 +105,14 @@ if ($count > 0) {
 foreach ($log_list as $ll) {
 ?>
 
-<tr onMouseOver="this.style.backgroundColor='#FAFAFA'" onMouseOut="this.style.backgroundColor='#fff'" style="">
+<tr onMouseOver="this.style.backgroundColor='#FAFAFA'" onMouseOut="this.style.backgroundColor='#fff'" style="" onclick="showdata(this);">
   <td align="center" height="100"><?php echo $ll->timestamp; ?></td>
   <td align="center" height="100"><?php echo $ll->username; ?></td>
   <td align="center"><?php echo $ll->domain; ?></td>
   <td align="center"><?php echo $ll->action; ?></td>
-  <!-- <td align="left" height="100" width="100">
-    <div class="" style="height:100%;overflow:hidden;">
+  <td name="data_td" align="center" height="100" title="<?php echo $ll->data; ?>" style="overflow:hidden;text-overflow: ellipsis;">
       <?php echo $ll->data; ?>
-
-    </div>
-  </td> -->
+  </td>
 </tr>
 
 <?php
@@ -128,7 +128,7 @@ $icounter++;
       </table>
     </div>
 
-    <div class="paging_div">
+    <div class="paging_div" style="margin-top:10px;">
       <?php if ($count > 0) {?>
         <table width="400" border="0" cellspacing="0" cellpadding="0">
             <tr>
@@ -157,9 +157,9 @@ $icounter++;
         }
 
         if  ( $i == $cur_page ) {
-          echo "<a href=\"JavaScript:GoPage( '".$i."' )\" class=\"alink\"><font color=\"#33ccff\">".$i."</font></a>".$strSection;
+          echo "<a href=\"JavaScript:GoPage( '".$i."' )\" class=\"alink\"><font color=\"#6C6C6C\">".$i."</font></a>".$strSection;
         } else {
-          echo "<a href=\"JavaScript:GoPage( '".$i."' )\" class=\"alink\">".$i."</a>".$strSection;
+          echo "<a href=\"JavaScript:GoPage( '".$i."' )\" class=\"alink\"><font color=\"#B0B0B0\">".$i."</font></a>".$strSection;
         }
         }
         ?></td>
@@ -192,7 +192,11 @@ $icounter++;
   <input type="hidden" name="cur_page" value="<?php echo $cur_page; ?>">
 </form>
 <script type="text/javascript">
-
+  function showdata(ths){
+    var datatext = $(ths).find("td[name='data_td']").attr('title');
+    var datatext = datatext.trim();
+    alert(datatext);
+  }
  function mailbox_add(){
    location.href = "<?php echo site_url(); ?>/admin/alias/alias_add";
  }

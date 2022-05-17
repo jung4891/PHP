@@ -36,7 +36,7 @@ class Biz_mail extends CI_Controller {
       // $this->password = "durian12#";
       // $this->mailbox = "INBOX";
       $this->mailserver = "192.168.0.100";
-
+      // $this->mailserver = "mail.durianit.co.kr";
       // $encryp_password = $this->M_account->mbox_conf($_SESSION['userid']);
 			$iv = chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0);
       $key = $this->db->password;
@@ -198,7 +198,7 @@ class Biz_mail extends CI_Controller {
            // 'date' => $head_info->date,
            // 'udate' => date("Y-m-d H:i:s", $head_info->udate),
            'udate' => $date,
-           'subject' => isset($head_info->subject) ? $this->subject_decode($head_info->subject) : '(제목 없음)',
+           'subject' => isset($head_info->subject) ? $this->decode($head_info->subject) : '(제목 없음)',
            'size' => (int)$head_info->Size,
 					 // 'read' => $head_info->Unseen
            'read' => (strlen(trim($head_info->Unseen)) < 1)?1:0
@@ -217,6 +217,56 @@ class Biz_mail extends CI_Controller {
     }
 
 
+  }
+
+  public function decode($subject) {
+    // return 'test';
+    if(!isset($subject) || $subject == "") return '(제목 없음)';
+
+    $utf8_decoded = imap_utf8($subject);
+    if(strpos($utf8_decoded, '=?') === false) {
+      // 가끔 광고성메일의 제목 인코딩이 EUC-KR이라 ��으로 뜨는 경우가 있다.
+      // + mb_detect_encoding 함수가 이게 좀 확실하진 않는데 실험해보니 EUC-KR은 반드시 잡아낸다.
+      // + 반면 UTF-8로 인코딩된 애들은 ASCII로 나온다.
+      $charset = strtolower(mb_detect_encoding("$utf8_decoded", array('ASCII','EUC-KR','UTF-8')));
+      if($charset == "euc-kr")
+        $utf8_decoded = iconv("euc-kr", "utf-8", $utf8_decoded);
+      else
+        $utf8_decoded = ($utf8_decoded == "")? "(제목 없음)" : $utf8_decoded;
+      return $utf8_decoded;
+    }else {   // =?utf-8?B?, 2개이상 있는 경우 인코딩부분 디코딩 안된채로 그대로 출력됨.
+      $ques_mark_2 = strpos($subject, '?', 2);
+      $charset = strtolower(substr($subject, 2, $ques_mark_2-2));
+      $encoding = substr($subject, 8, 1);
+      if($charset == "utf-8") {
+        if($encoding == "B") {
+          $subject_part_arr = explode('?=', $subject);
+          // $subject_part_arr = explode('?= ', $subject);  // 이유는 모르겠는데 '?= '를 strpos로 잡히지 않는 경우도 있어서 공백제거함
+                                                            // 근데 strpos로 '?'를 찾아보면 string(5) '?'로 나옴. 뭔가 줄개행기호가 들어있는건지..
+          for($i=0; $i<count($subject_part_arr); $i++) {
+            $subject_part_arr[$i] = str_replace(array("=?utf-8?B?", "=?UTF-8?B?", "?="), array("", "", ""), $subject_part_arr[$i]);
+            $subject_part_arr[$i] = imap_base64($subject_part_arr[$i]);
+          }
+        }else {   // Q인경우 (간혹 Q로 디코딩 된경우 골때리게 imap_utf8이 안통하는 경우가 있음)
+          $subject_part_arr = explode('?= ', $subject);
+          for($i=0; $i<count($subject_part_arr); $i++) {
+            $subject_part_arr[$i] = str_replace(array("=?utf-8?Q?", "=?UTF-8?Q?", "?=", "_"), array("", "", "", " "), $subject_part_arr[$i]);
+            $subject_part_arr[$i] = quoted_printable_decode($subject_part_arr[$i]);
+          }
+        }
+        $subject_merge = implode('', $subject_part_arr);
+      }else {   // "euc-kr"  =?euc-kr?B?의 경우는 아예 출력이 안되서 따로처리함
+        $subject_part_arr = explode('?= ', $subject);
+        for($i=0; $i<count($subject_part_arr); $i++) {
+          $subject_part_arr[$i] = str_replace(array("=?euc-kr?B?", "=?EUC-KR?B?", "?="), array("", "", ""), $subject_part_arr[$i]);
+          $subject_part_arr[$i] = imap_base64($subject_part_arr[$i]);
+          $subject_part_arr[$i] = mb_convert_encoding($subject_part_arr[$i], 'CP949', 'euc-kr');    // Notice iconv(): Detected an incomplete multibyte character in input string 애러처리
+          $subject_part_arr[$i] = iconv('CP949', 'UTF-8', $subject_part_arr[$i]);
+        }
+        $subject_merge = implode('', $subject_part_arr);
+      }
+      return $subject_merge;
+    }
   }
 
   public function subject_decode($subject) {

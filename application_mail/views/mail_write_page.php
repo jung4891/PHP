@@ -8,7 +8,8 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
  <link rel="stylesheet" href="<?php echo $misc; ?>daumeditor-7.4.9/css/editor.css" type="text/css" charset="utf-8"/>
  <link rel="stylesheet" href="<?php echo $misc; ?>css/style.css" type="text/css" charset="utf-8"/>
  <link rel="stylesheet" href="<?php echo $misc; ?>css/jquery.tag-editor.css" type="text/css" charset="utf-8"/>
-
+<link rel="stylesheet" type="text/css" href="https://mail.durianit.co.kr/misc/daumeditor-7.4.9/css/uploadifive.css">
+<script src="https://mail.durianit.co.kr/misc/daumeditor-7.4.9/js/jquery.uploadifive.js" type="text/javascript"></script>
  <script src="<?php echo $misc; ?>daumeditor-7.4.9/js/editor_loader.js" type="text/javascript" charset="utf-8"></script>
  <script src="<?php echo $misc; ?>js/jquery.caret.min.js" type="text/javascript" charset="utf-8"></script>
  <script src="<?php echo $misc; ?>js/jquery.tag-editor.js" type="text/javascript" charset="utf-8"></script>
@@ -24,6 +25,17 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
   #group_table td {
     border-bottom:1px solid #DFDFDF;
     height: 30px;
+  }
+
+  #my_grouptbl td{
+    border-bottom:1px solid #DFDFDF;
+    height: 30px;
+    cursor: pointer;
+    color: #B0B0B0;
+  }
+
+  .select_mygroup td{
+    color: black !important;
   }
 
   #group_table tr:hover {
@@ -81,8 +93,9 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
     background-color: white;
     min-width: 400px;
     min-height: 500px;
-    width:40vw;
+    width:50vw;
     height: 70vh;
+    max-width: 60vw;
   }
 
   #adress_modal input {
@@ -174,6 +187,54 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
 .tag-editor .green-tag .tag-editor-tag { color: #45872c; background: #e1f3da; }
 .tag-editor .green-tag .tag-editor-delete { background-color: #e1f3da; }
 
+.ui-autocomplete {
+  max-height: 200px;
+  overflow-y: auto;
+  /* prevent horizontal scrollbar */
+  overflow-x: hidden;
+}
+/* IE 6 doesn't support max-height
+ * we use height instead, but this forces the menu to always be this tall
+ */
+* html .ui-autocomplete {
+  height: 200px;
+}
+
+#my_groupdiv{ -ms-overflow-style: none; }
+#my_groupdiv::-webkit-scrollbar{ display:none; }
+
+
+.uploadifive-button {
+	background-image:none !important;
+  border:1px solid #B0B0B0 !important;
+  background-color: #FFFFFF !important;
+  color: #1C1C1C !important;
+  border-radius: 5px !important;
+  width: 100px !important;
+  padding-left: 20px;
+  text-shadow: unset !important;
+  font: unset !important;
+  height: 30px !important;
+  line-height: 30px !important;
+  cursor: pointer;
+  font-size: 16px !important;
+  font-family: "Noto Sans KR", sans-serif !important;
+  position: relative;
+  left:-17px;
+}
+.uploadifive-button input{
+  cursor: pointer;
+}
+
+#queue {
+	border: 1px solid #B0B0B0;
+	height: 177px;
+	overflow: auto;
+	/* margin-bottom: 10px; */
+	/* padding: 0 3px 3px; */
+	width: 100%;
+}
+
    </style>
    <?php
    $reply_to = (isset($reply_to))?$reply_to:"";
@@ -217,7 +278,7 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
                 <!-- <span style="font-size:8px;float:right;padding-right:10px;">아래</span> -->
               </td>
               <td>
-                <input type="text" class="input_basic inputsender" id="cc" name="cc" value="<?php echo $reply_cc; ?>" placeholder="" style="width:100%">
+                <input type="text" class="input_basic inputsender" id="cc" name="cc" value="<?php echo $reply_cc; ?>" placeholder="참조" style="width:100%">
               </td>
               <td>
 
@@ -227,7 +288,7 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
           <tr class="mail_bcc sender-tr">
               <td>숨은 참조</td>
               <td>
-                <input type="text" class="input_basic inputsender" id="bcc" name="bcc" value="" placeholder="" style="width:100%">
+                <input type="text" class="input_basic inputsender" id="bcc" name="bcc" value="" placeholder="숨은 참조" style="width:100%">
               </td>
               <td></td>
           </tr>
@@ -242,19 +303,31 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
             <td></td>
           </tr>
           <tr class="attachment sender-tr">
-              <td>첨부파일</td>
-              <td>
-                <label class="btn_basic btn_white" for="file_up" style="cursor:pointer;display:block;width:100px;text-align:center;">
-                  <span style="color: #1C1C1C; font-size:14px;">파일첨부</span>
+              <td>첨부
+<img id="toggle_topimg" style="width: 20px;cursor:pointer;position:relative;top: 5px;" src="<?php echo $misc; ?>/img/toggle_top.svg" alt="" onclick="hide_filediv();">
+<img id="toggle_downimg"  style="width: 20px;cursor:pointer;display:none;position:relative;top:5px;" src="<?php echo $misc; ?>/img/toggle_down.svg" alt="" onclick="show_filediv();">
+              </td>
+              <td style="display: flex;align-items: center;line-height: 30px;">
+                <label id="genenal_filebtn" class="btn_basic btn_white" for="file_up" style="cursor:pointer;display:block;width:100px;text-align:center;">
+                  <img style="width: 17px;" src="<?php echo $misc; ?>/img/upload_btn.svg" alt="">
+                  <span style="color: #1C1C1C; font-size:16px;">일반 첨부</span>
                 </label>
 							  <input type="file" id="file_up" class="file-input" style="display:none;" multiple>
               </td>
               <td></td>
           </tr>
           <tr>
+            <td></td>
+            <td>
+              <!-- <div id="hiddenFile" style="display:none;">
+                대용량 첨부파일
+              </div> -->
+            </td>
+          </tr>
+          <tr class="">
             <td valign="bottom">
-              서명<br>
-              <select class="" name="" id="signature_list" style="width:95%" onchange="sign_select(this.value)">
+
+              <select class="" name="" id="signature_list" style="width:100%" onchange="sign_select(this.value)">
                 <option value="no">서명없음</option>
 <?php
 foreach ($sign_list as $sl) {
@@ -267,6 +340,9 @@ foreach ($sign_list as $sl) {
               </select>
             </td>
             <td colspan="2">
+              <div id="file_div" class="">
+
+
               <table class="basic_table" width="100%" height="auto" style="min-height: 60px;border:solid 1px #B0B0B0;">
      							 <tbody id="fileTableTbody">
      									<tr>
@@ -301,9 +377,66 @@ foreach ($sign_list as $sl) {
             </table>
             <?php
              } ?>
+             <table class="" width="100%" height="auto" style="min-height: 30px; margin-top:3px;" border="0" cellspacing="0" cellpadding="0">
+               <tr>
+                 <td style="">
+                   <!-- <label class="btn_basic btn_white" for="" style="cursor:pointer;display:block;width:100px;text-align:center;">
+                     <span style="color: #1C1C1C; font-size:14px; vertical-align:middle;" onclick="bigfileopen();">대용량 첨부</span>
+                   </label> -->
+                   <div class="" style="display:flex;">
+                     <img style="width: 17px;position: relative;z-index:2;left:8px;" src="<?php echo $misc; ?>/img/upload_btn.svg" alt="">
+                     <input id="file_upload" name="file_upload" type="file" multiple="true" style="cursor:pointer;">
+                   </div>
+                 </td>
+               </tr>
+               <tr>
+                 <td>
+                   <div id="bigfilediv" style="background-color:white;width:100%;height:auto;margin-top:3px;">
+                     <div class="" style="display: flex;
+                   justify-content: space-between;align-items: center;">
+                       <!-- <p>대용량 파일첨부</p> -->
+                     </div>
+                     <form>
+                       <div class="" style="display:flex;">
+
+                         <div id="queue" style="width:100%;height:auto;min-height:60px;">
+                           <p style="color: #B0B0B0;text-align: center;">마우스로 첨부 할 파일을 끌어오세요.</p>
+                           <div id="hiddenFile" class="" style="">
+
+                           </div>
+                         </div>
+                         <div class="" style="display: flex;flex-direction: column;">
+                           <!-- <a style="position: relative; top: 8px;" href="javascript:$('#file_upload').uploadifive('upload')">&nbsp;&nbsp;&nbsp;파일 업로드</a> -->
+                           <span id="bigfile_info" style="color:#B0B0B0;"></span>
+
+                         </div>
+                       </div>
+
+                       <!-- <div class="" style="display: flex;justify-content: center;">
+                         <input class="btn-common btn-color2" type="button" name="" value="확인" onclick="complete_bigfile();">
+                         <input class="btn-common btn-style3" type="button" name="" value="닫기" onclick="$('#bigfilediv').bPopup().close();">
+                       </div> -->
+                       <?php
+                       $expiration = strtotime("+2 months");
+                       $expiration_date = date("Y-m-d", $expiration);
+                       ?>
+                       <span id="expiration_span" style="color: #B0B0B0; font-size:14px; vertical-align:middle; float:right;z-index: 1;">대용량 첨부파일 다운로드 만료기간 : ~<?php echo $expiration_date; ?></span>
+
+                     </form>
+                   </div>
+                 </td>
+               </tr>
+               <tr>
+                 <td>
+                   <!-- <div id="hiddenFile" class="" style="">
+
+                   </div> -->
+                 </td>
+               </tr>
+            </table>
+            </div>
             </td>
           </tr>
-
           <tr>
             <td colspan="3">
               <textarea name="content" id="content" style="display:none;"></textarea>
@@ -336,15 +469,43 @@ foreach ($sign_list as $sl) {
             </select>
         </div> -->
 
-        <div style="width:100%;height:100%;overflow:auto;border:thin solid #DFDFDF;">
-          <table id="group_table" border="0" cellspacing="0" cellpadding="0" style="width:100%;max-height:100%;">
-            <colgroup>
-              <col width="35%">
-              <col width="65%">
-            </colgroup>
-            <tbody>
-            </tbody>
-          </table>
+        <div style="width:100%;height:80%;border:thin solid #DFDFDF;display: flex;
+    align-items: flex-start;">
+      <div class="" id="my_groupdiv" style="overflow:auto;width:30%;height:100%;border-right:1px solid #DFDFDF;">
+        <table id="my_grouptbl" border="0" cellspacing="0" cellpadding="0" style="width:100%;max-height:100%;">
+          <colgroup>
+            <col width="35%">
+          </colgroup>
+          <tbody>
+            <tr class="select_mygroup" onclick="select_mygroup('all', this);">
+              <td>
+                <input type="hidden" id="select_group_input" name="" value="">
+                전체
+              </td>
+            </tr>
+          <?php
+foreach ($mygroup_list as $gl) {
+?>
+<tr onclick="select_mygroup('<?php echo $gl->seq; ?>', this);">
+  <td><?php echo $gl->group_name; ?></td>
+</tr>
+
+<?php
+}
+            ?>
+          </tbody>
+        </table>
+      </div>
+      <div class="" id="address_div" style="overflow:auto;width:70%;height:100%;">
+        <table id="group_table" border="0" cellspacing="0" cellpadding="0" style="width:100%;">
+          <colgroup>
+            <col width="35%">
+            <col width="65%">
+          </colgroup>
+          <tbody>
+          </tbody>
+        </table>
+      </div>
         </div>
       </div>
       <div style="float:left;width:7%;height:90%;display:flex;flex-direction:column;">
@@ -490,12 +651,114 @@ foreach ($sign_list as $sl) {
         <button type="button" onclick="register_button();" name="button">확인</button>
       </div>
     </div> -->
+    <!-- <div id="bigfilediv" style="display:none;background-color:white;width:420px;height:300px;padding-left:20px;">
+      <div class="" style="display: flex;
+    justify-content: space-between;align-items: center;">
+        <h3>대용량 파일첨부</h3>
+      </div>
+    	<form>
+        <div class="" style="display:flex;">
+          <div id="queue"></div>
+          <div class="" style="display: flex;flex-direction: column;">
+            <input id="file_upload" name="file_upload" type="file" multiple="true">
+            <a style="position: relative; top: 8px;" href="javascript:$('#file_upload').uploadifive('upload')">&nbsp;&nbsp;&nbsp;파일 업로드</a>
 
+          </div>
+        </div>
+        <div class="" style="display: flex;justify-content: center;">
+          <input class="btn-common btn-color2" type="button" name="" value="확인" onclick="complete_bigfile();">
+          <input class="btn-common btn-style3" type="button" name="" value="닫기" onclick="$('#bigfilediv').bPopup().close();">
+        </div>
+    	</form>
+    </div> -->
+
+    	<script type="text/javascript">
+
+      function hide_filediv(){
+        $('#file_div').hide();
+        $('#toggle_topimg').hide();
+        $('#genenal_filebtn').hide();
+        $('#toggle_downimg').show();
+      }
+
+      function show_filediv(){
+        $('#file_div').show();
+        $('#genenal_filebtn').show();
+        $('#toggle_topimg').show();
+        $('#toggle_downimg').hide();
+      }
+      // function complete_bigfile(){
+      //   var wait_file = $('.wait_file').length;
+      //   var complete_file = $('.complete').length;
+      //   alert(complete_file);
+      //   alert(wait_file);
+      //   if (wait_file > 0) {
+      //     $('#hiddenFile').show();
+      //   }
+      //   $('#bigfilediv').bPopup().close();
+      // }
+    		<?php $timestamp = time();?>
+    		$(function() {
+          // $('#file_upload').clearQueue();
+    			$('#file_upload').uploadifive({
+    				'auto'             : true,
+            'removeCompleted' : true,
+    				// 'checkScript'      : 'check-exists.php',
+    				'formData'         : {
+    									   'timestamp' : '<?php echo $timestamp;?>',
+    									   'token'     : '<?php echo md5('unique_salt' . $timestamp);?>'
+    				                     },
+    				'queueID'          : 'queue',
+    				'uploadScript' : "https://mail.durianit.co.kr/misc/module/biguploadifive.php",
+    				'onUploadComplete' : function(file, data) {
+              var filesize = Number(file.size);
+              // console.log(filesize);
+              // if(file_size < 1024){
+              //
+              // }
+              if (filesize >= 1073741824) {
+                var file_size = (Number(filesize) / Number(1073741824));
+                file_size = file_size.toFixed(2) + "GB";
+              }else if (filesize >= 1048576) {
+                var file_size = (Number(filesize) / Number(1048576));
+                file_size = file_size.toFixed(2) + "MB";
+              }else if (filesize >= 1024) {
+                var file_size = (Number(filesize) / Number(1024));
+                file_size = file_size.toFixed(2) + "KB";
+              } else {
+                var file_size = Number(filesize);
+                file_size = file_size.toFixed(2) + "Byte";
+              }
+              var fileData = "<div class='wait_file'>"
+                              + "<input type='hidden' name='bigfileName[]' value='" + file.name + "'/>"
+                              + "<input type='hidden' name='bigfileUpName[]' value='<?= $timestamp; ?>_" + file.name + "'/>"
+                              + "<input type='hidden' name='orgSize[]' value='" +filesize+"'/>"
+                              + "<input type='hidden' name='bigfileSize[]' value='" +file_size+"'/>"
+                              + "<a href='https://mail.durianit.co.kr/misc/upload/bigfile/<?php echo $timestamp; ?>_"+file.name+"' download='"+file.name+"'>" +file.name+" <img src='https://mail.durianit.co.kr/misc/img/download.svg' style='width:15px;vertical-align:middle;cursor:pointer;margin:5px 0px 5px 10px;'></a>"+"<span style='color:#B0B0B0;margin-left:5px;'>"+ file_size+"</span>"
+                              +"<img src='<?php echo $misc;?>/img/btn_del2.jpg' style='cursor:pointer;margin-left:5px;vertical-align:middle;' onclick='bigfile_del(this)'>"
+                              + "</div>";
+
+              jQuery("#hiddenFile").append(fileData);
+
+            }
+            // $("#bigfilediv").bpopup().close();
+    			});
+    		});
+        function bigfile_del(el){
+          // console.log(el);
+          el.closest(".wait_file").remove();
+        }
+        // $(document).on("click", "a[class='close']", function(){
+        //   alert("123123");
+        //   console.log("1243124bb");
+        // })
+    	</script>
     <div id="loading_div" style="display:none;">
       <img src="<?php echo $misc; ?>/img/loading.gif" alt="" style="width:100px;">
     </div>
 <!-- main_contents 끝 -->
  </div>
+
   <script>
 
   // $(".inputsender").keyup(function(){
@@ -543,22 +806,23 @@ function sign_select(seq){
        $("#bcc_tbl tr").remove();
        var select_recipient = $('#recipient').tagEditor('getTags')[0].tags;
        select_recipient.each(function(idx){
-
-         var add_tr = "<tr><td>"+idx+"</tr><td>";
+         var escape_idx = idx.replace(/>/g,"&gt;").replace(/</g,"&lt;");
+         // escape_idx = escape_idx.replace(/</g,"&lt;");
+         var add_tr = "<tr><td>"+escape_idx+"</tr><td>";
          $("#recipients_tbl").append(add_tr);
        })
 
        var select_recipient = $('#cc').tagEditor('getTags')[0].tags;
        select_recipient.each(function(idx){
-
-         var add_tr = "<tr><td>"+idx+"</tr><td>";
+         var escape_idx = idx.replace(/>/g,"&gt;").replace(/</g,"&lt;");
+         var add_tr = "<tr><td>"+escape_idx+"</tr><td>";
          $("#cc_tbl").append(add_tr);
        })
 
        var select_recipient = $('#bcc').tagEditor('getTags')[0].tags;
        select_recipient.each(function(idx){
-
-         var add_tr = "<tr><td>"+idx+"</tr><td>";
+         var escape_idx = idx.replace(/>/g,"&gt;").replace(/</g,"&lt;");
+         var add_tr = "<tr><td>"+escape_idx+"</tr><td>";
          $("#bcc_tbl").append(add_tr);
        })
 
@@ -594,11 +858,28 @@ function sign_select(seq){
            // $("#adress_modal input").click(function(){
            //   console.log("1234141");
            // })
+      function select_mygroup(seq, el){
+        $(".select_mygroup").each(function(){
+          $(this).removeClass("select_mygroup");
+        })
+        $(el).addClass("select_mygroup");
+        $("#select_group_input").val(seq);
+        var type = $("#adress_modal .selected");
+        // console.log(type);
 
+        group_button_click("address", type);
+      }
 
       function group_button_click(mode, el){
-
+        if (mode == 'address') {
+          $("#my_groupdiv").show();
+          $("#address_div").css("width","70%");
+        } else {
+          $("#my_groupdiv").hide();
+          $("#address_div").css("width","100%");
+        }
         var search_keyword = $("#address_search").val();
+        var my_group = $("#select_group_input").val();
         $("#adress_modal .selected").removeClass("selected");
         $(el).addClass("selected");
 
@@ -609,7 +890,8 @@ function sign_select(seq){
               dataType : 'json',
               data:{
                 mode:mode,
-                search_keyword: search_keyword
+                search_keyword: search_keyword,
+                my_group: my_group
               },
               success: function(result){
                 // console.log(result.length);
@@ -697,7 +979,7 @@ function sign_select(seq){
             $("#recipients_tbl td").each(function(){
               var td_val = $(this).html(); //$(this).text랑 이양, each반복문으로 하나하나 가져옴
               // td_val = td_val.split(" ")[2];
-
+              td_val = td_val.replace(/&gt;/g,">").replace(/&lt;/g,"<");
               // recipient_mail.push(td_val);
               $("#recipient").tagEditor('addTag', td_val);
             })
@@ -706,6 +988,7 @@ function sign_select(seq){
                 var cc_td_val = $(this).html();
                 // cc_td_val = cc_td_val.split(" ")[2];
                 // console.log(cc_td_val);
+                cc_td_val = cc_td_val.replace(/&gt;/g,">").replace(/&lt;/g,"<");
                 cc_mail.push(cc_td_val);
                 $("#cc").tagEditor('addTag', cc_td_val);
             })
@@ -714,6 +997,7 @@ function sign_select(seq){
                 var bcc_td_val = $(this).html();
                 // bcc_td_val = bcc_td_val.split(" ")[2];
                 // console.log(cc_td_val);
+                bcc_td_val = bcc_td_val.replace(/&gt;/g,">").replace(/&lt;/g,"<");
                 bcc_mail.push(bcc_td_val);
                 $("#bcc").tagEditor('addTag', bcc_td_val);
             });

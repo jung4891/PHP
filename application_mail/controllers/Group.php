@@ -11,8 +11,8 @@ class Group extends CI_Controller {
 			$this->load->helper('url');
 			// $this->load->helper('form');
 			// $this->load->helper('url');
-			// $this->load->Model('m_login');
 			$this->load->Model('M_group');
+			$this->load->Model('M_addressbook');
 			$this->load->library('email');
 
 			//url Heler 로딩
@@ -30,6 +30,30 @@ class Group extends CI_Controller {
 
     	}
 
+			function add_group_action(){
+				$group_name = $this->input->post("group_name");
+				$user_id = $_SESSION['userid'];
+				$add_data = array(
+					'group_name' => $group_name,
+					'user' => $user_id
+				);
+				$result = $this->M_group->add_group_act($add_data);
+				echo json_encode($result);
+			}
+
+			function del_group_action(){
+				$group_seq = $this->input->post("group_seq");
+				// $user_id = $_SESSION['userid'];
+				$result = $this->M_group->group_del($group_seq);
+				echo json_encode($result);
+			}
+
+			function rename_group(){
+				$group_seq = $this->input->post("group_seq");
+				$group_name = $this->input->post("group_name");
+				$result = $this->M_group->rename_group($group_seq, $group_name);
+				echo json_encode($result);
+			}
 
 		// '주소록 추가' 버튼에서 주소록 정보 insert
 		function address_action(){
@@ -40,11 +64,13 @@ class Group extends CI_Controller {
 			$user_id=$_SESSION['userid']; // session값 가져온다
 			$user_comment=$this->input->post("comment");
 			$user_date=$this->input->post("date");
+			$group_seq = $this->input->post("group_seq");
 			// $_SESSION['userid']
 
 			$data = array(
 				'name' => $user_name,
 				'email' => $user_email,
+				'group_seq' =>$group_seq,
 				'department' => $user_department,
 				'group' => $user_group,
 				'id' => $user_id,
@@ -129,6 +155,7 @@ class Group extends CI_Controller {
 			$user_department=$this->input->post("department");
 			$user_group=$this->input->post("group");
 			$user_id=$_SESSION['userid']; // session값 가져온다
+			$group_seq = $this->input->post("group_seq");
 			$user_comment=$this->input->post("comment");
 			$user_date=$this->input->post("date");
 			// $_SESSION['userid']
@@ -138,11 +165,27 @@ class Group extends CI_Controller {
 				'department' => $user_department,
 				'group' => $user_group,
 				'id' => $user_id,
+				'group_seq' => $group_seq,
 				'comment' => $user_comment,
-				'insert_date' => date('Y-m-d H:i:s')
+				'modify_date' => date('Y-m-d H:i:s')
 			);
 			$result = $this->M_group->address_modify_action($update_data, $seq);
 	  	echo json_encode($result);
+		}
+
+		function get_user_address(){
+			$user_id = $_SESSION['userid'];
+			$mode = $this->input->get('mode');
+			$search_keyword = $this->input->get('search_keyword');
+			$mygroup = $this->input->get('my_group');
+			if($mode == "address"){
+				$result = $this->M_addressbook->get_address($user_id, $search_keyword, $mygroup);
+				echo json_encode($result);
+			} else {
+				$result = $this->M_addressbook->get_mailbox($user_id, $search_keyword);
+				echo json_encode($result);
+			}
+
 		}
 
 }

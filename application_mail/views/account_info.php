@@ -59,10 +59,11 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
   <div id="main_contents" align="center">
     <form name="mform" action="" method="post">
       <div class="" align="left" width=100% style="border-bottom:1px solid #1A8DFF;margin:-10px 40px 10px 40px;">
-        <!-- <button type="button" name="button" class="nav_btn select_btn" style="margin-left:10px;"onclick="location.href='<?php echo site_url(); ?>/option/account'">계정설정</button> -->
+        <button type="button" name="button" class="nav_btn select_btn" style="margin-left:10px;"onclick="location.href='<?php echo site_url(); ?>/option/user'">계정설정</button>
         <button type="button" name="button" class="nav_btn" onclick="location.href='<?php echo site_url(); ?>/option/mailbox'">메일함설정</button>
         <button type="button" name="button" class="nav_btn" onclick="location.href='<?php echo site_url(); ?>/option/address_book'">주소록관리</button>
         <button type="button" name="button" class="nav_btn" onclick="location.href='<?php echo site_url(); ?>/option/singnature'">서명관리</button>
+        <button type="button" name="button" class="nav_btn" onclick="location.href='<?php echo site_url(); ?>/option/categorize'">메일분류</button>
       </div>
     </form>
       <div class="main_div">
@@ -79,10 +80,10 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
             <td align="right">이름</td>
             <td align="center">
               <input type="hidden" id="modify_id" name="modify_id" value="<?php echo $_SESSION["userid"]; ?>">
-              <input type="text" name="" style="width:90%;height: 25px;" value="<?php echo $_SESSION['name']; ?>">
+              <input type="text" id="modify_name" name="modify_name" style="width:90%;height: 25px;" value="<?php echo $_SESSION['name']; ?>">
             </td>
             <td>
-              <button type="button" name="button" class="btn_basic btn_blue"  style="width:60px;height:30px;" onclick="mailbox_submit();">변경</button>
+              <button type="button" name="button" class="btn_basic btn_blue"  style="width:60px;height:30px;" onclick="name_update();">변경</button>
             </td>
           </tr>
           <tr>
@@ -141,6 +142,27 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
 // $(function (){
 //
 // })
+function name_update(){
+  var id = $("#modify_id").val();
+  var name = $("#modify_name").val();
+
+  $.ajax({
+      url: "<?php echo site_url(); ?>/option/change_name",
+      type: "POST",
+      dataType : "json",
+      data: {
+        id: id,
+        name: name
+      },
+      success: function(result){
+        if(result == "true"){
+          alert("변경되었습니다.");
+          location.reload();
+        }
+      }
+    })
+}
+
 function password_change(){
   var id = $("#modify_id").val();
   var password = $("#mail_password").val();
@@ -154,25 +176,25 @@ function password_change(){
       $("#cert_pass").val("false");
       return false;
     }else{
-      $("#password_change_form").attr("action","<?php echo site_url(); ?>/account/password_change");
-      $("#password_change_form").submit();
-        // $.ajax({
-        //     url: "<?php echo site_url(); ?>/account/password_change",
-        //     type: "POST",
-        //     dataType : "json",
-        //     data: {
-        //       username: id,
-        //       password: password,
-        //       chk_pass: chk_pass
-        //     },
-        //     success: function(result){
-        //       console.log(result);
-        //       if(result){
-        //         alert("변경되었습니다.");
-        //         close_div();
-        //       }
-        //     }
-        //   })
+      // var act = "<?php echo site_url(); ?>/account/password_change";
+      // $("#password_change_form").attr("action",act);
+      // $("#password_change_form").submit();
+        $.ajax({
+            url: "<?php echo site_url(); ?>/option/change_password",
+            type: "POST",
+            dataType : "json",
+            data: {
+              username: id,
+              password: password,
+              chk_pass: chk_pass
+            },
+            success: function(result){
+              if(result == "true"){
+                alert("변경되었습니다.");
+                close_div();
+              }
+            }
+          })
     }
   }
 }

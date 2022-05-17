@@ -1,0 +1,107 @@
+<?php
+header("Content-type: text/html; charset=utf-8");
+
+class M_domain extends CI_Model {
+
+	function __construct() {
+
+		parent::__construct();
+
+	}
+
+
+  function domain_list($start_limit = 0, $offset = 0){
+    $sql = "SELECT * FROM domain WHERE domain !='ALL'
+ORDER BY FIELD(domain, 'durianit.com', 'durianit.co.kr') DESC";
+
+if  ( $offset <> 0 ) {
+  $sql = $sql." LIMIT {$start_limit}, {$offset}";
+}
+
+    $query = $this->db->query($sql);
+    if ($query->num_rows() <= 0) {
+        return false;
+    } else {
+        return $query->result();
+    }
+
+  }
+
+
+	function domain_list_count(){
+
+		$sql = "SELECT COUNT(*) as ucount
+FROM domain WHERE domain !='ALL'";
+
+
+		$query = $this->db->query($sql);
+ 		return $query->row();
+			return $result;
+		}
+
+
+	function dupl_domain($id){
+		$sql = "SELECT domain FROM domain WHERE domain ='{$id}'";
+		$query = $this->db->query($sql);
+		if ($query->num_rows() > 0) {
+			return "dupl";
+		}else{
+			return "ok";
+		}
+	}
+// 50 test
+	// function insert_mailbox($user, $aliases){
+  //   $admin_add = $this->db->insert('virtual_users', $user);
+  //   $domain_add = $this->db->insert('virtual_aliases', $aliases);
+  //   if($admin_add && $domain_add){
+  //     return true;
+  //   }
+  // }
+
+	function insert_domain($domain){
+
+	  $domain_add = $this->db->insert('domain', $domain);
+	  if($domain_add){
+	    return true;
+	  }
+	}
+
+	function del_mailbox($id, $log){
+		$admin_del = $this->db->delete('mailbox', array('username' => $id));
+		$domain_del = $this->db->delete('alias', array('address' => $id));
+		$quota_del = $this->db->delete('quota2', array('username' => $id));
+		$log_add = $this->db->insert('log', $log);
+		if($admin_del && $domain_del && $quota_del){
+			return true;
+		}
+	}
+
+	function mailbox_info($id){
+		$sql = "SELECT * FROM mailbox WHERE username = '{$id}'";
+		$query = $this->db->query($sql);
+		if ($query->num_rows() > 0) {
+			return $query->row();
+		}else{
+			return false;
+		}
+	}
+
+	function update_mailbox($mailbox, $id, $log){
+    // $this->db->where('username', $id);
+    // $admin_update = $this->db->update('admin', $admin);
+    // $admin_update = $this->db->update('domain_admins', $domain);
+
+
+    $mailbox_update = $this->db->update('mailbox', $mailbox, array('username' => $id));
+		if($log != "password"){
+
+			$log_add = $this->db->insert('log', $log);
+		}
+    if($mailbox_update){
+      return true;
+    }
+  }
+
+
+}
+?>

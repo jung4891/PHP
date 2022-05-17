@@ -4,7 +4,34 @@
 		등록하기 위한 Form으로 상황에 맞게 수정하여 사용한다. Form 이름은 에디터를 생성할 때 설정값으로 설정한다.
 	-->
 	<!-- <form name="tx_editor_form" id="tx_editor_form" action="http://posttestserver.com/post.php" method="post" accept-charset="utf-8"> -->
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Dongle&display=swap');
+@import url('http://fonts.googleapis.com/earlyaccess/nanumgothic.css');
+
+@font-face {
+
+font-family: 'Nanum Gothic';
+
+font-style: normal;
+
+font-weight: 400;
+
+src: url(//themes.googleusercontent.com/static/fonts/earlyaccess/nanumgothic/v3/NanumGothic-Regular.eot);
+
+src: url(//themes.googleusercontent.com/static/fonts/earlyaccess/nanumgothic/v3/NanumGothic-Regular.eot?#iefix) format('embedded-opentype'),
+
+		 url(//themes.googleusercontent.com/static/fonts/earlyaccess/nanumgothic/v3/NanumGothic-Regular.woff2) format('woff2'),
+
+		 url(//themes.googleusercontent.com/static/fonts/earlyaccess/nanumgothic/v3/NanumGothic-Regular.woff) format('woff'),
+
+		 url(//themes.googleusercontent.com/static/fonts/earlyaccess/nanumgothic/v3/NanumGothic-Regular.ttf) format('truetype');
+
+}
+</style>
 		<!-- 에디터 컨테이너 시작 -->
+
+
 		<div id="tx_trex_container" class="tx-editor-container">
 			<!-- 사이드바 -->
 
@@ -219,6 +246,11 @@
 							<a href="javascript:;" class="tx-icon" title="다시실행 (Ctrl+Y)">다시실행</a>
 						</div>
 					</li>
+					<li class="tx-list">
+						<div unselectable="on" id="tx_image" class="tx-image tx-btn-trans">
+							<a href="javascript:;" title="사진" class="tx-text">사진</a>
+						</div>
+					</li>
 				</ul>
 				<ul class="tx-bar tx-bar-right">
 					<li class="tx-list">
@@ -374,50 +406,77 @@
 	<!-- </form> -->
 <!-- 에디터 끝 -->
 <script type="text/javascript">
-	var config = {
-		txHost: '', /* 런타임 시 리소스들을 로딩할 때 필요한 부분으로, 경로가 변경되면 이 부분 수정이 필요. ex) http://xxx.xxx.com */
-		txPath: '', /* 런타임 시 리소스들을 로딩할 때 필요한 부분으로, 경로가 변경되면 이 부분 수정이 필요. ex) /xxx/xxx/ */
-		txService: 'sample', /* 수정필요없음. */
-		txProject: 'sample', /* 수정필요없음. 프로젝트가 여러개일 경우만 수정한다. */
-		initializedId: "", /* 대부분의 경우에 빈문자열 */
-		wrapper: "tx_trex_container", /* 에디터를 둘러싸고 있는 레이어 이름(에디터 컨테이너) */
-		form: 'tx_editor_form'+"", /* 등록하기 위한 Form 이름 */
-		txIconPath: "/misc/daumeditor-7.4.9/images/icon/editor/", /*에디터에 사용되는 이미지 디렉터리, 필요에 따라 수정한다. */
-		txDecoPath: "/misc/daumeditor-7.4.9/images/deco/contents/", /*본문에 사용되는 이미지 디렉터리, 서비스에서 사용할 때는 완성된 컨텐츠로 배포되기 위해 절대경로로 수정한다. */
-		toolbar: {
-			table: {
-				tableWidth: "50%"
-			}
-		},
-		canvas: {
-			styles: {
-			color: "#123456", /* 기본 글자색 */
-			fontFamily: "굴림", /* 기본 글자체 */
-			fontSize: "10pt", /* 기본 글자크기 */
-			backgroundColor: "#fff", /*기본 배경색 */
-			lineHeight: "1.5", /*기본 줄간격 */
-			padding: "8px" /* 위지윅 영역의 여백 */
-
-			},
-		showGuideArea: true
-
-		},
-		events: {
-			preventUnload: false
-		},
-		sidebar: {
-			attachbox: {
-				show: true,
-				confirmForDeleteAll: true
-			}
-		},
-		size: {
-			// contentWidth: 700
-			 /* 지정된 본문영역의 넓이가 있을 경우에 설정 */
-		}
-	};
 
 	EditorJSLoader.ready(function(Editor) {
+		// new Editor 와 config 선언 전에 아래와 같이 정의
+		TrexMessage.addMsg({
+        '@fontfamily.nanumgothic': '나눔고딕',
+				'@fontfamily.Dongle': 'Dongle',
+    });
+
+		var config = {
+			txHost: '', /* 런타임 시 리소스들을 로딩할 때 필요한 부분으로, 경로가 변경되면 이 부분 수정이 필요. ex) http://xxx.xxx.com */
+			txPath: '', /* 런타임 시 리소스들을 로딩할 때 필요한 부분으로, 경로가 변경되면 이 부분 수정이 필요. ex) /xxx/xxx/ */
+			txService: 'sample', /* 수정필요없음. */
+			txProject: 'sample', /* 수정필요없음. 프로젝트가 여러개일 경우만 수정한다. */
+			initializedId: "", /* 대부분의 경우에 빈문자열 */
+			wrapper: "tx_trex_container", /* 에디터를 둘러싸고 있는 레이어 이름(에디터 컨테이너) */
+			form: 'tx_editor_form'+"", /* 등록하기 위한 Form 이름 */
+			txIconPath: "/misc/daumeditor-7.4.9/images/icon/editor/", /*에디터에 사용되는 이미지 디렉터리, 필요에 따라 수정한다. */
+			txDecoPath: "/misc/daumeditor-7.4.9/images/deco/contents/", /*본문에 사용되는 이미지 디렉터리, 서비스에서 사용할 때는 완성된 컨텐츠로 배포되기 위해 절대경로로 수정한다. */
+			toolbar: {
+				table: {
+					tableWidth: "80%"
+				},
+
+				fontfamily: {
+			options: [
+				{ label: ' 맑은고딕 (<span class="tx-txt">가나다라</span>)', title: '맑은고딕', data: '"맑은 고딕",AppleGothic,sans-serif', klass: 'tx-cleanGothic' },
+				{ label: ' 굴림 (<span class="tx-txt">가나다라</span>)', title: '굴림', data: 'Gulim,굴림,AppleGothic,sans-serif', klass: 'tx-gulim' },
+				{ label: ' 바탕 (<span class="tx-txt">가나다라</span>)', title: '바탕', data: 'Batang,바탕', klass: 'tx-batang' },
+				{ label: ' 돋움 (<span class="tx-txt">가나다라</span>)', title: '돋움', data: 'Dotum,돋움', klass: 'tx-dotum' },
+				{ label: ' 궁서 (<span class="tx-txt">가나다라</span>)', title: '궁서', data: 'Gungsuh,궁서', klass: 'tx-gungseo' },
+				{ label: ' Arial (<span class="tx-txt">abcde</span>)', title: 'Arial', data: 'Arial', klass: 'tx-arial' },
+				{ label: ' Verdana (<span class="tx-txt">abcde</span>)', title: 'Verdana', data: 'Verdana', klass: 'tx-verdana' },
+				{ label: ' Arial Black (<span class="tx-txt">abcde</span>)', title: 'Arial Black', data: 'Arial Black', klass: 'tx-arial-black' },
+				{ label: ' Comic Sans MS (<span class="tx-txt">abcde</span>)', title: 'Comic Sans MS', data: 'Comic Sans MS', klass: 'tx-comic-sans-ms' },
+				{ label: ' Courier New (<span class="tx-txt">abcde</span>)', title: 'Courier New', data: 'Courier New', klass: 'tx-courier-new' },
+				{ label: ' Georgia (<span class="tx-txt">abcde</span>)', title: 'Georgia', data: 'Georgia', klass: 'tx-georgia' },
+				{ label: ' Times New Roman (<span class="tx-txt">abcde</span>)', title: 'Times New Roman', data: 'Times New Roman', klass: 'tx-times-new-roman' }
+
+			]
+	}
+
+
+			},
+			canvas: {
+				styles: {
+				color: "#000000", /* 기본 글자색 */
+				fontFamily: "맑은고딕", /* 기본 글자체 */
+				fontSize: "10pt", /* 기본 글자크기 */
+				backgroundColor: "#fff", /*기본 배경색 */
+				lineHeight: "1.5", /*기본 줄간격 */
+				padding: "8px" /* 위지윅 영역의 여백 */
+
+				},
+			showGuideArea: true
+
+			},
+			events: {
+				preventUnload: false
+			},
+			sidebar: {
+				attachbox: {
+					show: true,
+					confirmForDeleteAll: true
+				}
+			},
+			size: {
+				// contentWidth: 700
+				 /* 지정된 본문영역의 넓이가 있을 경우에 설정 */
+			}
+		};
+
 		var editor = new Editor(config);
 		// Editor.getConfig().toolbar.table.tableWidth = "50%";
 	});

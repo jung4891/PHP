@@ -56,15 +56,30 @@ WHERE a.username = '{$uid}' AND a.active = 1";
 		$num_rows = $query->row();
 		if($num_rows->ucount > 0){
 			$sql = "UPDATE aes_key SET pkey = '{$password}' WHERE uid = '${uid}'";
-			$query = $this->db->query($sql);
 		}else{
 			$sql = "INSERT INTO aes_key (uid, pkey) VALUES ('{$uid}','{$password}')";
-			$query = $this->db->query($sql);
 		}
 
+		$query = $this->db->query($sql);
 		if($query){
 			return true;
 		}
+ }
+
+ function check_key($uid, $pkey){
+	 $sql = "SELECT COUNT(*) AS ucount FROM aes_key WHERE uid = '{$uid}'";
+	 $query = $this->db->query($sql);
+	 $num_rows = $query->row();
+	 if($num_rows->ucount > 0){
+		 $sql = "SELECT COUNT(*) AS ucount FROM aes_key WHERE uid = '{$uid}' AND pkey = '{$pkey}'";
+		 $query = $this->db->query($sql);
+		 $rows = $query->row();
+		 return ($rows->ucount > 0) ? true : false;
+	 }else{
+		 $sql = "INSERT INTO aes_key (uid, pkey) VALUES ('{$uid}','{$pkey}')";
+		 $query = $this->db->query($sql);
+		 return ($query) ? true : false;
+	 }
  }
 
 
@@ -125,6 +140,7 @@ WHERE a.username = '{$uid}' AND a.active = 1";
 		 return 'default';
 	 }
  }
+
 
 
 }

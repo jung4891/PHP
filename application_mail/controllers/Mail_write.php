@@ -16,7 +16,7 @@ class Mail_write extends CI_Controller {
 				 $this->load->Model('M_account');
          $this->load->Model('M_write');
          $this->load->library('email');
-
+         $this->load->library('user_agent');
 				 $encryp_password = $this->M_account->mbox_conf($_SESSION['userid']);
 	 		 	 $iv = chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0);
 	       $key = $this->db->password;
@@ -78,6 +78,7 @@ class Mail_write extends CI_Controller {
        }
        $uid = $_SESSION["userid"];
        $data['sign_list'] = $this->M_write->get_signlist($uid);
+       $data['mygroup_list'] = $this->M_write->get_mygroup($uid);
 
        $recent_arr = $this->M_write->get_recentmail($uid);
        $recent_list = array();
@@ -88,8 +89,26 @@ class Mail_write extends CI_Controller {
        $data['mode'] = 0;
        if(isset($_POST["reply_mode"])){
          $data['mode'] = $this->input->post("reply_mode");
-         $data['reply_to'] = $this->input->post("reply_target_to");
-         $data['reply_cc'] = $this->input->post("reply_target_cc");
+         if ($_POST["reply_mode"] == 2) {
+           // code...
+           $reply_to = explode(",", $this->input->post("reply_target_to"));
+           $reply_cc = explode(",", $this->input->post("reply_target_cc"));
+           $reply_cc = array_diff($reply_cc, $reply_to);
+           // $reply_to = array_unique($reply_to);
+           // $result_search = array_search($uid, $reply_to);
+           //
+           // if($result_search || $result_search == 0){
+           //   array_splice( $reply_to, $result_search, 1 );
+           // }
+           $data['reply_to'] = implode( ',', $reply_to );
+           $data['reply_cc'] = implode( ',', $reply_cc );
+
+           // $data['reply_cc'] = $this->input->post("reply_target_cc");
+         } else {
+           $data['reply_to'] = $this->input->post("reply_target_to");
+           $data['reply_cc'] = $this->input->post("reply_target_cc");
+
+         }
          $data['reply_title'] = $this->input->post("reply_title");
          $data['reply_content'] = htmlspecialchars($this->input->post("reply_content"));
          $reply_file = $this->input->post("reply_file");
@@ -109,7 +128,12 @@ class Mail_write extends CI_Controller {
 
        }
 
-       $this->load->view('mail_write_page', $data);
+       if ($this->agent->is_mobile()) {
+         $this->load->view('mobile/mail_write_mobile', $data);
+       } else {
+
+         $this->load->view('mail_write_page', $data);
+       }
      }
 
 
@@ -134,9 +158,34 @@ class Mail_write extends CI_Controller {
 				 $config['newline'] = "\r\n";
 				 $config['bcc_batch_mode'] = FALSE;
 				 $config['bcc_batch_size'] = 200;
+         $contents = "";
+         $bigfile_name = $this->input->post("bigfileName");
+         $bigfile_upname = $this->input->post("bigfileUpName");
+         $bigfile_size = $this->input->post("bigfileSize");
+         $expiration = strtotime("+2 months");
+         $expiration_date = date("Y-m-d", $expiration);
+         if (isset($bigfile_name)) {
+           $bigfiletable = "<table>";
+           $bigfiletable.= "<tr><td colspan='2' style='font-weight:bold;border-bottom:1px solid black;'>대용량 첨부파일</td></tr>";
+           for ($i=0; $i < count($bigfile_name); $i++) {
+             $insert_arr = array(
+               "filename" => $bigfile_upname[$i],
+               "insert_date" => date("Y-m-d"),
+               "insert_id" => $_SESSION['userid']
+             );
+             $this->M_write->insert_bigfile($insert_arr);
+             $bigfiletable.= "<tr><td>";
+             $bigfiletable.= "<a href='https://mail.durianit.co.kr/misc/upload/bigfile/{$bigfile_upname[$i]}' download='{$bigfile_name[$i]}'>";
+             $bigfiletable.= "{$bigfile_name[$i]}<img src='https://mail.durianit.co.kr/misc/img/download.svg' style='width:15px;vertical-align:middle;cursor:pointer;margin:5px 0px 5px 10px;'></td>";
+             $bigfiletable.= "<td>{$bigfile_size[$i]}</td></tr>";
+           }
+           $bigfiletable.= "<tr><td colspan='2' style='border-top:1px solid black;'>다운로드 만료기간 : ~{$expiration_date}</td></tr>";
+           $bigfiletable.="</table>";
+           $contents .= $bigfiletable;
+         }
 
+         $contents .= $this->input->post("contents"); //뷰에서 ck에디터 textarea의 name값 가져온다!!!!!!!
 		     $recipient=$this->input->post("recipient");
-		     $contents=$this->input->post("contents"); //뷰에서 ck에디터 textarea의 name값 가져온다!!!!!!!
 
 		     $title=$this->input->post("title");
          $title = trim($title);
@@ -230,7 +279,7 @@ class Mail_write extends CI_Controller {
                $insert_data = array(
                  'goto' => $re,
                  'uid' => $_SESSION["userid"],
-                 'insert_date' => date("Y-m-d h:i:s")
+                 'insert_date' => date("Y-m-d H:i:s")
                );
                array_push($recentmail, $insert_data);
              }
@@ -239,7 +288,7 @@ class Mail_write extends CI_Controller {
                $insert_data = array(
                  'goto' => $c,
                  'uid' => $_SESSION["userid"],
-                 'insert_date' => date("Y-m-d h:i:s")
+                 'insert_date' => date("Y-m-d H:i:s")
                );
                array_push($recentmail, $insert_data);
              }
@@ -250,7 +299,14 @@ class Mail_write extends CI_Controller {
              $this->email->clear(TRUE);
              $dmy = date("Y-m-d h:i:s");
              $mailserver = "192.168.0.100";
-             $host = "{" . $mailserver . ":143/imap/novalidate-cert}&vPSwuA- &07jJwNVo-";
+             $sendmail_classify = $this->M_write->sendmail_classify($to_address);
+             // var_dump($sendmail_classify);
+             if($sendmail_classify == "default"){
+               $send_dir = "&vPSwuA- &07jJwNVo-";
+             }else{
+               $send_dir = $sendmail_classify;
+             }
+             $host = "{" . $mailserver . ":143/imap/novalidate-cert}".$sendmail_classify;
              $imap = @imap_open($host, $_SESSION["userid"], $this->decrypted);
              $mail_msg = "From: {$_SESSION["userid"]}\r\n"
              . "Date:{$dmy}\r\n"
