@@ -469,12 +469,17 @@ $_SESSION['list_page_url_tmp'] = substr($request_url, strpos($request_url, '/', 
           </select>
       </div>
 
+      <form class="" id="reply_form" name="reply_form" action="<?php echo site_url(); ?>/mail_write/page" method="post">
+        <input type="hidden" id="reply_mode" name="reply_mode" value="">
+        <input type="hidden" id="reply_target_to" name="reply_target_to" value="">
+      </form>
       <div class="div_footer" onclick="reply_mail();">
         <div>
           <img src="<?php echo $misc;?>img/mobile/답장.svg" style="cursor:pointer;">
         </div>
         <span>회신</span>
       </div>
+
 
       <?php if($mbox == "&yBXQbA- &ulTHfA-") {  ?>
         <div class="div_footer" onclick="">
@@ -1098,13 +1103,34 @@ toastr.options.positionClass = "toast-bottom-right";
    };
 
    function reply_mail(){
-     location.href = "<?php echo site_url(); ?>/mail_write/page";
+     let arr = [];
+     for(var i=0; i<document.frm.length; i++) {
+      if(document.frm[i].checked) {
+        arr.push(document.frm[i].value)
+      }
+     }
+
+     if(arr.length == 0) {
+       alert('회신할 메일주소를 선택해주세요.');
+       return;
+     }else if(arr.length > 1) {
+       alert('회신할 메일주소 하나만 선택해주세요');
+       return;
+     }
+
+     let msg_no = arr[0];
+     let target_tr = $(`tr[data-msgno="${msg_no}"]`);
+     let mail_address = target_tr.find("span").text();
+
+     $("#reply_mode").val("1");
+     $("#reply_target_to").val(mail_address);
+     $("#reply_form").submit();
+     // location.href = "<?php echo site_url(); ?>/mail_write/page";
 
      // $("#reply_form").attr("method","post");
      // $("#reply_target_to").attr("value", $('#reply_target')[0].innerText.trim());
      // // $("#reply_target_to").val($('#reply_target')[0].innerText);
      // $("#reply_form").attr("action", "<?php echo site_url(); ?>/mail_write/page");
-     // $("#reply_form").submit();
    }
 
    function detail_mailview(msg_no, mail_name){
