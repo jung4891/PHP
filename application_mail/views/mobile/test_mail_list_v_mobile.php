@@ -448,7 +448,7 @@ $_SESSION['list_page_url_tmp'] = substr($request_url, strpos($request_url, '/', 
         <div>
           <img src="<?php echo $misc;?>img/mobile/전체선택.svg" style="cursor:pointer;">
         </div>
-        <span>전체선택</span>
+        <span>전체</span>
       </div>
       <div class="div_footer">
         <div>
@@ -477,9 +477,8 @@ $_SESSION['list_page_url_tmp'] = substr($request_url, strpos($request_url, '/', 
         <div>
           <img src="<?php echo $misc;?>img/mobile/답장.svg" style="cursor:pointer;">
         </div>
-        <span>회신</span>
+        <span>발신</span>
       </div>
-
 
       <?php if($mbox == "&yBXQbA- &ulTHfA-") {  ?>
         <div class="div_footer" onclick="">
@@ -1111,10 +1110,10 @@ toastr.options.positionClass = "toast-bottom-right";
      }
 
      if(arr.length == 0) {
-       alert('회신할 메일주소를 선택해주세요.');
+       alert('발신할 메일주소를 선택해주세요.');
        return;
      }else if(arr.length > 1) {
-       alert('회신할 메일주소 하나만 선택해주세요');
+       alert('발신할 메일주소 하나만 선택해주세요');
        return;
      }
 
