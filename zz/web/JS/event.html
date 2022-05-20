@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+  <title>이벤트 전파 방지</title>
+  <head>
+    <style>
+    #one
+    {
+       width: 100px; height: 100px; background-color: #0f0;
+    }
+    #two {
+       width: 50px; height: 50px; background-color: #f00;
+    }
+    #stop
+    {
+      display: block;
+    }
+    </style>
+    <script>
+
+    // 이벤트 전파 방지
+    // 이벤트를 걸고 싶은데 이미 다른 이벤트가 걸려 있는경우
+    // 다른 이벤트 막고 내 이벤트만 작동하게끔 하고자 할때 사용
+
+    // 전파 취소 여부를 가리키는 전역변수
+    var stopPropagation = false;
+
+    // 재사용 가능한 이벤트 처리함수
+    function listenEvent(eventTarget, eventType, eventHandler) {
+       if (eventTarget.addEventListener) {
+          eventTarget.addEventListener(eventType, eventHandler,false);
+       } else if (eventTarget.attachEvent) {
+          eventType = "on" + eventType;
+          eventTarget.attachEvent(eventType, eventHandler);
+       } else {
+          eventTarget["on" + eventType] = eventHandler;
+       }
+    }
+
+    // 이벤트 전파 취소
+    // 크롬, 사파리, 파이어폭스는 stopPropagation 메서드를 지원하지만
+    // IE8에서는 cancelBubble 속성을 true로 설정해야 작동한다.
+    function  cancelPropagation (event) {
+       if (event.stopPropagation) {
+          event.stopPropagation();
+       } else {
+          event.cancelBubble = true;
+       }
+    }
+
+    // 이벤트 등록
+    listenEvent(window, "load", function() {
+       listenEvent(document.getElementById("one"), "click", clickBoxOne);
+       listenEvent(document.getElementById("two"), "click", clickBoxTwo);
+       listenEvent(document.getElementById("stop"), "click", stopProp);
+      });
+
+    function stopProp() {
+        stopPropagation = true;
+    }
+
+    function clickBoxOne(evt) {
+      alert("Hello from One");
+    }
+
+    function clickBoxTwo(evt) {
+      alert("Hi from Two");
+      if (stopPropagation) {
+         cancelPropagation(evt);
+      }
+    }
+    </script>
+  </head>
+
+  <body>
+      <div id="one">
+          <div id="two">
+              <p>Inner</p>
+          </div>
+      </div>
+      <button id="stop">Stop Propagation</button>
+  </body>
+
+</html>
