@@ -130,7 +130,7 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
         <col width="85%">
       </colgroup>
       <tbody>
-        <tr>
+        <tr> 
           <td style="height:100%;border-right:1px solid #dedede;" valign="top">
             <table id="address_group_tbl" border="0" cellspacing="0" cellpadding="5" style="width:100%;">
               <tr onclick="event.cancelBubble=true">
