@@ -161,9 +161,72 @@ class Option extends CI_Controller {
 			$data['end_page'] = $end_page;
 
 			if ($this->agent->is_mobile()) {
+				$data['address_list'] = $this->M_group->address_book_view($user_id ,$group_name);
 				$this->load->view('mobile/addressbook_mobile', $data);
 			} else {
+				$this->load->view('address_book_view', $data);
 
+			}
+
+		}else{
+			// $this->load->view('login');
+			redirect("");
+		}
+	}
+
+
+	function address_book_test() {
+
+
+		if(isset($_SESSION['userid']) && ($_SESSION['userid'] != "")){
+			$user_id = $_SESSION['userid'];
+			if(isset($_GET['group_name'])) {
+				$group_name = $_GET['group_name'];
+			} else {
+				$group_name = 'all';
+			}
+			$data['group_name'] = $group_name;
+
+			if(isset($_GET['cur_page'])) {
+				$cur_page = $_GET['cur_page'];
+			} else {
+				$cur_page = 0;
+			}
+
+																	//	현재 페이지
+			$no_page_list = 10;										//	한페이지에 나타나는 목록 개수
+
+			if  ( $cur_page <= 0 ){
+				$cur_page = 1;
+			}
+
+			$data['cur_page'] = $cur_page;
+			$data['count'] = $this->M_group->address_book_count($user_id, $group_name)->totalCount;
+
+			$data['address_group'] = $this->M_group->group_list($user_id);
+			$data['address_list'] = $this->M_group->address_book_view($user_id ,$group_name, ( $cur_page - 1 ) * $no_page_list, $no_page_list); // 값을 보내는  것, 아규먼트
+
+			$total_page = 1;
+			if  ( $data['count'] % $no_page_list == 0 )
+				$total_page = floor( ( $data['count'] / $no_page_list ) );
+			else
+				$total_page = floor( ( $data['count'] / $no_page_list + 1 ) );			//	전체 페이지 개수
+
+			$start_page =  floor(($cur_page - 1 ) / 10) * 10  + 1 ;
+			$end_page = 0;
+			if  ( floor( ( $cur_page - 1 ) / 10 ) < floor( ( $total_page - 1 ) / 10 ) )
+				$end_page = ( floor( ( $cur_page - 1 ) / 10 ) + 1 ) * 10;
+			else
+				$end_page = $total_page;
+
+			$data['no_page_list'] = $no_page_list;
+			$data['total_page'] = $total_page;
+			$data['start_page'] = $start_page;
+			$data['end_page'] = $end_page;
+
+			if ($this->agent->is_mobile()) {
+				$this->load->view('mobile/addressbook_mobile_test', $data);
+			} else {
 				$this->load->view('address_book_view', $data);
 
 			}

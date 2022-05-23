@@ -538,8 +538,6 @@ $(function() {
     $("#search_detail").bPopup().close();
   });
 
-  $('input')
-
 });
 
  var ip_yn = 1;

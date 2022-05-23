@@ -93,6 +93,27 @@ class M_group extends CI_Model {
 		return $result;
 	}
 
+	function address_mobile_view($address_data="", $group_seq = 'all'){
+		if($address_data == ""){
+			$where = "";
+		} else{
+			$where = " where id='{$address_data}'";
+		}
+
+		if($group_seq != 'all'){
+			$where .= " AND group_seq = '{$group_seq}'";
+		}
+		$sql = "select * from address_book{$where} ORDER BY insert_date DESC";
+		// if  ( $offset <> 0 ) {
+		// 	$sql = $sql." LIMIT {$start_limit}, {$offset}";
+		// }
+
+
+		$query = $this->db->query($sql);
+		$result = $query->result_array();
+		return $result;
+	}
+
 
 
 	// 주소록 수정
