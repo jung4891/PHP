@@ -35,7 +35,7 @@ class Mailbox extends CI_Controller {
       $key = substr(hash('sha256', $key, true), 0, 32);
 			$decrypted = openssl_decrypt(base64_decode($encryp_password), 'aes-256-cbc', $key, 1, $iv);
       // ip 변경시 -> mailbox, option, mbox_setting, side(모바일은 header) 모두 변경!
-      // 서버에 192.~ 으로 해야지 mail.durianit.으로 하면 버퍼 상상히 심해짐.
+      // 서버에 192.~ 으로 해야지 mail.durianit.으로 하면 버퍼 상당히 심해짐.
       $this->mailserver = "192.168.0.100";
       // $this->mailserver = "mail.durianit.co.kr";
       $this->user_id = $_SESSION["userid"];
@@ -122,7 +122,6 @@ class Mailbox extends CI_Controller {
     echo json_encode($mailbox_tree);
   }
 
-
   public function get_folders2(){
     $mails= $this->connect_mailserver();
     $mailserver = $this->mailserver;
@@ -160,19 +159,18 @@ class Mailbox extends CI_Controller {
   // 초기에 제목만 디코딩 애러가 많이나서 제목만 처리했는데 추후 보낸사람, 첨부파일명도 다 애러나서 다 이 함수로 처리함
   // + 원래 함수명은 subject_decode 였음.
   public function decode($subject) {
-    // return 'test';
     if(!isset($subject) || $subject == "") return '(제목 없음)';
-
     $utf8_decoded = imap_utf8($subject);
     if(strpos($utf8_decoded, '=?') === false) {
       // 가끔 광고성메일의 제목 인코딩이 EUC-KR이라 ��으로 뜨는 경우가 있다.
       // + mb_detect_encoding 함수가 이게 좀 확실하진 않는데 실험해보니 EUC-KR은 반드시 잡아낸다.
       // + 반면 UTF-8로 인코딩된 애들은 ASCII로 나온다.
       $charset = strtolower(mb_detect_encoding("$utf8_decoded", array('ASCII','EUC-KR','UTF-8')));
-      if($charset == "euc-kr")
+      if($charset == "euc-kr") {
         $utf8_decoded = iconv("euc-kr", "utf-8", $utf8_decoded);
-      else
+      }else {
         $utf8_decoded = ($utf8_decoded == "")? "(제목 없음)" : $utf8_decoded;
+      }
       return $utf8_decoded;
     }else {   // =?utf-8?B?, 2개이상 있는 경우 인코딩부분 디코딩 안된채로 그대로 출력됨.
       $ques_mark_2 = strpos($subject, '?', 2);

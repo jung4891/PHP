@@ -4,10 +4,10 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mobile/mail_header_mobil
  ?>
 <style media="screen">
 
-.address_footer select {
-  -webkit-appearance:none; /* 크롬 화살표 없애기 */
-  -moz-appearance:none; /* 파이어폭스 화살표 없애기 */
-  appearance:none; /* 화살표 없애기 */
+/* select {
+  -webkit-appearance:none;
+  -moz-appearance:none;
+  appearance:none;
   background-color: black;
   color: white;
 
@@ -24,10 +24,10 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mobile/mail_header_mobil
   opacity: 0;
   position: relative;
   top: -52px;
-}
-.address_footer select:focus {
+} */
+/* select:focus {
   outline: none;
-}
+} */
 
 input[type=checkbox] {
   transform : scale(1.2);
@@ -138,9 +138,9 @@ input[type=checkbox] {
             foreach ($address_list as $addr) {
               if($group['seq'] === $addr['group_seq']) {
           ?>
-                <tr height=30 addr-groupseq="<?php echo $group['seq']; ?>"  onclick="show_modify_addr(this);">
+                <tr height=30 addr-groupseq="<?php echo $group['seq']; ?>" onclick="show_modify_addr(this);">
                   <td style="height:40px;" onclick="event.cancelBubble=true">
-                    <input type="checkbox" id="" name="chk_adress" value="<?php echo $addr['seq']; ?>">
+                    <input type="checkbox" id="" name="" value="">
                   </td>
                   <td style="font-size:16px;font-weight:bold;padding-left:10px;">
                     <?php echo $addr['name']; ?>
@@ -163,8 +163,8 @@ input[type=checkbox] {
             }
           }
            ?>
-          <tr height=30  data-groupseq="all">
 
+          <tr height=30  data-groupseq="all">
             <td colspan="2" style="font-weight: bold;font-size:20px;">
               기타
             </td>
@@ -179,7 +179,7 @@ input[type=checkbox] {
           ?>
                 <tr height=30 addr-groupseq="all" onclick="show_modify_addr(this);">
                   <td style="height:40px;">
-                    <input type="checkbox" id="" name="chk_adress" value="<?php echo $addr['seq']; ?>">
+                    <input type="checkbox" id="" name="" value="">
                   </td>
                   <td style="font-size:16px;font-weight:bold;padding-left:10px;">
                     <?php echo $addr['name']; ?>
@@ -214,7 +214,7 @@ input[type=checkbox] {
           </div>
           <div class="div_footer" onclick="check_all();">
             <div>
-              <img src="<?php echo $misc;?>img/mobile/전체선택.svg">
+              <img src="<?php echo $misc;?>img/mobile/전체선택.svg" style="cursor:pointer;">
             </div>
             <span>전체선택</span>
           </div>
@@ -226,19 +226,19 @@ input[type=checkbox] {
           </div>
           <div id="add_address_pop"  class="div_footer">
             <div>
-              <img src="<?php echo $misc;?>img/mobile/주소추가2.svg" >
+              <img src="<?php echo $misc;?>img/mobile/주소추가2.svg" style="cursor:pointer;">
             </div>
             <span>주소추가</span>
           </div>
-          <div class="div_footer" onclick="show_move_div();" style="width: 16%;">
+          <div class="div_footer" style="width: 16%;">
             <div>
-              <img src="<?php echo $misc;?>img/mobile/이동.svg">
+              <img src="<?php echo $misc;?>img/mobile/이동.svg" style="cursor:pointer;">
             </div>
             <span>이동</span>
           </div>
           <div class="div_footer" style="width: 16%;">
             <div>
-              <img src="<?php echo $misc;?>img/mobile/휴지통.svg" >
+              <img src="<?php echo $misc;?>img/mobile/휴지통.svg" style="cursor:pointer;">
             </div>
             <span>삭제</span>
           </div>
@@ -271,37 +271,12 @@ input[type=checkbox] {
     </div>
     <div class="" align="center">
       그룹명을 입력하세요.<br>
-      <input type="hidden" id="rename_group_seq" name="" value="">
       <input type="text" id="rename_group_input" name="" value="" style="width:90%;height:40px;">
     </div>
     <div class="" align="center" style="margin-top:10px;">
-      <button type="button" name="button" class="btn_basic btn_blue" style="width:70px;" onclick="rename_group_act()">이름변경</button>
-      <button type="button" name="button" class="btn_basic btn_blue" style="width:70px;" onclick="del_group_act();">그룹삭제</button>
+      <button type="button" name="button" class="btn_basic btn_blue" style="width:70px;" onclick="add_group_act()">이름변경</button>
+      <button type="button" name="button" class="btn_basic btn_blue" style="width:70px;" onclick="">그룹삭제</button>
       <button type="button" name="button" class="btn_basic btn_sky" style="width:70px;" onclick="$('#group_modify_div').bPopup().close();">취소</button>
-    </div>
-  </div>
-
-  <div class="" id="move_address_div" style="background:white;width:100%;height:220px;display:none;">
-    <div class="">
-      <h2 id="modal_title" align="center">그룹 이동</h2>
-    </div>
-    <div class="" align="center">
-      이동 시킬 그룹을 선택하세요.
-      <br>
-      <select class="" id="move_select" name="" style="width:90%;height:40px;">
-        <option value="">선택없음</option>
-<?php
-foreach ($group_name_list as $gnl) {
-?>
-  <option value="<?php echo $gnl['seq']; ?>"><?php echo $gnl['group_name']; ?></option>
-<?php
-}
-?>
-      </select>
-    </div>
-    <div class="" align="center" style="margin-top:10px;">
-      <button type="button" name="button" class="btn_basic btn_blue" style="width:70px;" onclick="address_move();">이동</button>
-      <button type="button" name="button" class="btn_basic btn_sky" style="width:70px;" onclick="$('#move_address_div').bPopup().close();">취소</button>
     </div>
   </div>
 
@@ -473,17 +448,7 @@ foreach ($group_name_list as $gnl) {
 
   });
 
-  function check_all() {
-    chk_cnt = $('input[name="chk_adress"]').length;
-    if($('input[name="chk_adress"]:checked').length == chk_cnt) {
-      $('input[type="checkbox"]').prop('checked', false);
-      // $(".paging_div").css('display', 'block');
-      // $(".choose_div").css('display', 'none');
-    }else {
-      $('input[type="checkbox"]').prop('checked', true);
-    }
-  };
-  
+
   function updown(el, type) {
     if(type === "down") {
       $(el).attr("src", "<?php echo $misc;?>img/icon/오른쪽.svg");
@@ -564,17 +529,6 @@ foreach ($group_name_list as $gnl) {
     // 버튼 누르면 값 updade하고 저장되는 로직 짜면 된답니다
   }
 
-  function show_move_div() {
-    var check_address_lenth = $("input[name=chk_adress]:checked").length;
-    if (check_address_lenth == 0) {
-      alert("이동시킬 주소를 선택해주세요.");
-      return false;
-    }
-    $("#move_address_div").bPopup({
-      position: [0, 0] //x, y
-    });
-  }
-
     function show_addgroup() {
 
       $("#group_add_div").bPopup({
@@ -583,10 +537,6 @@ foreach ($group_name_list as $gnl) {
     }
 
     function show_modifygroup(ths) {
-      var before_name = $(ths).text().trim();
-      $("#rename_group_input").val(before_name);
-      var group_seq = $(ths).closest("tr").attr("data-groupseq");
-      $("#rename_group_seq").val(group_seq);
       $("#group_modify_div").bPopup({
         position: [0, 0] //x, y
       });
@@ -614,103 +564,53 @@ foreach ($group_name_list as $gnl) {
 
     }
 
-    function rename_group_act(seq, ths){
 
-      var group_seq = $("#rename_group_seq").val();
-      var group_name = $("#rename_group_input").val();
-      if(group_name == ""){
-        return false;
-      }
-      $.ajax({
-        url: "<?php echo site_url(); ?>/group/rename_group",
-        data: {
-          group_seq :group_seq,
-          group_name : group_name
-        },
-        type: 'POST',
-        dataType: 'json',
-        success: function (result) {
-
-          location.reload();
-        }
-      });
-    }
-
-    function del_group_act(){
-      if (confirm("그룹을 삭제하시겠습니까?")) {
-        var group_seq = $("#rename_group_seq").val();
-        $.ajax({
-          url: "<?php echo site_url(); ?>/group/del_group_action",
-          data: {
-            group_seq :group_seq
-          },
-          type: 'POST',
-          dataType: 'json',
-          success: function (result) {
-
-            location.reload();
-          }
-        });
-      }
-    }
-
-    function address_move(){
-      var checkboxArr = [];
-      var group_seq = $("#move_select").val();
-      $("input[name=chk_adress]:checked").each(function(){
-        var check_seq = $(this).val();
-        checkboxArr.push(check_seq);
-      })
-      $.ajax({
-             url:"<?php echo site_url();?>/group/address_move_act",
-             type:"post",
-             data:{
-               checkboxArr:checkboxArr,
-               group_seq:group_seq
-             },
-             success: function(result){
-               if(result){
-                 // console.log(result);
-                 location.reload();
-
-               }else{
-                 alert("실패하였습니다.");
-                 return false;
-               }
-              }
-            });
-    }
-
-
-    function address_del(){
-      var checkboxArr = [];
-      var check_len = $("input[name=chk_adress]:checked").length;
-      if (check_len == 0) {
-        alert("주소를 선택해주세요.");
-        return false;
-      }
-      $("input[name=chk_adress]:checked").each(function(){
-        var check_seq = $(this).val();
-        checkboxArr.push(check_seq);
-      })
-      if (confirm(check_len + "개의 주소를 삭제하시겠습니까?")) {
-        $.ajax({
-               url:"<?php echo site_url();?>/group/address_delete",
-               type:"post",
-               data:{checkboxArr:checkboxArr},
-               success: function(result){
-                 if(result){
-                   console.log(result);
-                   location.reload();
-
-                 }else{
-                   alert("실패하였습니다.");
-                   return false;
-                 }
-                }
-              });
-      }
-    }
-
+    // var mboxtoggle = sessionStorage.getItem("mboxtoggle");
+    // if(mboxtoggle != null && mboxtoggle !=""){
+    //   var downarr = mboxtoggle.split(",");
+    // }else{
+    //   var downarr = [];
+    //
+    // }
+    // var tr = $(el).closest('tr');
+    // var child_num = $(el).closest('tr').attr('child_num');
+    // var id = $(el).closest('tr').attr('id');
+    //
+    // if(type == 'down') {
+    //   $('.box_tr').each(function() {
+    //     var box_id = $(this).attr('id');
+    //     if(box_id.indexOf(id+'.') != -1) {
+    //       $(this).hide();
+    //     }
+    //   })
+    //
+    //   if(downarr.indexOf(id) == -1) {
+    //     downarr.push(id);
+    //   }
+    //   sessionStorage.setItem("mboxtoggle", downarr);
+    //   tr.find('.up_btn').show();
+    //   tr.find('.down_btn').hide();
+    // }
+    // else {
+    //   $('.box_tr').each(function() {
+    //     var box_id = $(this).attr('id');
+    //     if(box_id.indexOf(id+'.') != -1) {
+    //       $(this).show();
+    //     }
+    //   })
+    //
+    //   if(downarr.indexOf(id) != -1) {
+    //     for(let i = 0; i < downarr.length; i++) {
+    //       if(downarr[i] === id)  {
+    //         downarr.splice(i, 1);
+    //         i--;
+    //       }
+    //     }
+    //   }
+    //
+    //   tr.find('.down_btn').show();
+    //   tr.find('.up_btn').hide();
+    //   sessionStorage.setItem("mboxtoggle", downarr);
+    // }
   </script>
 </html>

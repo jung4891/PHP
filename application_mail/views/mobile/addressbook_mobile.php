@@ -114,6 +114,7 @@ input[type=checkbox] {
 
       </div>
       <div class="address_div" align="center" style="">
+       <form name="frm" method="post">
 
         <table id="" border="0" cellspacing="0" cellpadding="0" style="width:90%;">
           <colgroup>
@@ -156,6 +157,7 @@ input[type=checkbox] {
                     <input type="hidden" name="addr_dept" value="<?php echo $addr['department']; ?>">
                     <input type="hidden" name="addr_dept_group" value="<?php echo $addr['group']; ?>">
                     <input type="hidden" name="addr_comment" value="<?php echo $addr['comment']; ?>">
+                    <input type="hidden" name="addr_name_email" value="<?php echo $addr['name'].' <'.$addr['email'].'>'; ?>">
                   </td>
                 </tr>
           <?php
@@ -178,7 +180,7 @@ input[type=checkbox] {
               if($addr['group_seq'] == NULL || $addr['group_seq'] == 0) {
           ?>
                 <tr height=30 addr-groupseq="all" onclick="show_modify_addr(this);">
-                  <td style="height:40px;">
+                  <td style="height:40px;" onclick="event.cancelBubble=true">
                     <input type="checkbox" id="" name="chk_adress" value="<?php echo $addr['seq']; ?>">
                   </td>
                   <td style="font-size:16px;font-weight:bold;padding-left:10px;">
@@ -195,6 +197,7 @@ input[type=checkbox] {
                     <input type="hidden" name="addr_dept" value="<?php echo $addr['department']; ?>">
                     <input type="hidden" name="addr_dept_group" value="<?php echo $addr['group']; ?>">
                     <input type="hidden" name="addr_comment" value="<?php echo $addr['comment']; ?>">
+                    <input type="hidden" name="addr_name_email" value="<?php echo $addr['name'].' <'.$addr['email'].'>'; ?>">
                   </td>
                 </tr>
 
@@ -202,8 +205,8 @@ input[type=checkbox] {
               }
             }
           ?>
-       </table>
-
+        </table>
+       </form>
       </div>
       <div class="paging_div">
 
@@ -212,31 +215,41 @@ input[type=checkbox] {
 
           <div class="" style="width: 5%">
           </div>
-          <div class="div_footer" onclick="check_all();">
+          <!-- <div class="div_footer" onclick="check_all();">
             <div>
               <img src="<?php echo $misc;?>img/mobile/전체선택.svg">
             </div>
             <span>전체선택</span>
-          </div>
+          </div> -->
           <div class="div_footer" onclick="show_addgroup();">
             <div>
               <img src="<?php echo $misc;?>img/mobile/플러스2.svg" style="width:20px; margin-top: 2px;">
             </div>
             <span>그룹추가</span>
           </div>
-          <div id="add_address_pop"  class="div_footer">
+          <div class="div_footer" id="add_address_pop">
             <div>
               <img src="<?php echo $misc;?>img/mobile/주소추가2.svg" >
             </div>
             <span>주소추가</span>
           </div>
-          <div class="div_footer" onclick="show_move_div();" style="width: 16%;">
+          <form class="" id="reply_form" name="reply_form" action="<?php echo site_url(); ?>/mail_write/page" method="post">
+            <input type="hidden" id="reply_mode" name="reply_mode" value="">
+            <input type="hidden" id="reply_target_to" name="reply_target_to" value="">
+          </form>
+          <div class="div_footer" onclick="reply_mail();">
+            <div>
+              <img src="<?php echo $misc;?>img/mobile/답장.svg" style="cursor:pointer;">
+            </div>
+            <span>발신</span>
+          </div>
+          <div class="div_footer" onclick="show_move_div();">
             <div>
               <img src="<?php echo $misc;?>img/mobile/이동.svg">
             </div>
             <span>이동</span>
           </div>
-          <div class="div_footer" style="width: 16%;">
+          <div class="div_footer" onclick="address_del();">
             <div>
               <img src="<?php echo $misc;?>img/mobile/휴지통.svg" >
             </div>
@@ -473,6 +486,32 @@ foreach ($group_name_list as $gnl) {
 
   });
 
+  function reply_mail(){
+    let arr = [];
+    for(var i=0; i<document.frm.length; i++) {
+     if(document.frm[i].checked) {
+       let element = document.frm[i];
+       let nameEmail = element.parentNode.parentNode.querySelector('input[name="addr_name_email"]').value;
+       arr.push(nameEmail)
+     }
+    }
+
+    let addrJoin = arr.join('; ');
+
+    $("#reply_mode").val("1");
+    $("#reply_target_to").val(addrJoin);
+    $("#reply_form").submit();
+
+
+
+    // location.href = "<?php echo site_url(); ?>/mail_write/page";
+
+    // $("#reply_form").attr("method","post");
+    // $("#reply_target_to").attr("value", $('#reply_target')[0].innerText.trim());
+    // // $("#reply_target_to").val($('#reply_target')[0].innerText);
+    // $("#reply_form").attr("action", "<?php echo site_url(); ?>/mail_write/page");
+  }
+
   function check_all() {
     chk_cnt = $('input[name="chk_adress"]').length;
     if($('input[name="chk_adress"]:checked').length == chk_cnt) {
@@ -483,7 +522,7 @@ foreach ($group_name_list as $gnl) {
       $('input[type="checkbox"]').prop('checked', true);
     }
   };
-  
+
   function updown(el, type) {
     if(type === "down") {
       $(el).attr("src", "<?php echo $misc;?>img/icon/오른쪽.svg");
