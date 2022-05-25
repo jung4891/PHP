@@ -2,23 +2,18 @@
 include $this->input->server('DOCUMENT_ROOT')."/include/base.php";
 include $this->input->server('DOCUMENT_ROOT')."/include/mail_header.php";
 include $this->input->server('DOCUMENT_ROOT')."/include/mail_side.php";
-
-// echo 'decode 전:'.$mbox.'<br>';
 // $mbox2 = str_replace(array('#', '&', ' '), array('%23', '%26', '+'), $mbox);   // 아래 함수로 대체함
 $mbox_urlencode = urlencode($mbox);
-// echo 'decode 후:'.$mbox_urlencode.'<br>';
 
 $request_url = $_SERVER['REQUEST_URI'];
-if(!strpos($request_url, 'boxname')) $request_url .= '?boxname=INBOX';   // 로그인한후에는 뒤에 파라미터가 없어서 넣어줌
+if(!strpos($request_url, 'boxname')) $request_url .= '?boxname=INBOX';   // 로그인한 후에는 뒤에 파라미터가 없어서 넣어줌
 $_SESSION['list_page_url_tmp'] = substr($request_url, strpos($request_url, '/', 1));    // url에서 /index.php 부분 제외시킴
 // $_SERVER['REQUEST_URI'] -> /index.php/mailbox/mail_list?curpage=&searchbox=&boxname=INBOX
-
  ?>
 
  <!-- IE에서 input date 입력가능하게 설정 (jQuery에서 제공하는 datepicker 기능) -->
  <!-- jQuery에서 제공하는 css 와 js 파일 -->
  <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css"/>
- <!-- <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script> -->
  <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
  <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/i18n/jquery-ui-i18n.min.js"></script>
 

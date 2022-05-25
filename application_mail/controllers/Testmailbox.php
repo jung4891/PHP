@@ -35,6 +35,8 @@ class Testmailbox extends CI_Controller {
       $key = $this->db->password;
       $key = substr(hash('sha256', $key, true), 0, 32);
 			$decrypted = openssl_decrypt(base64_decode($encryp_password), 'aes-256-cbc', $key, 1, $iv);
+      // ip 변경시 -> mailbox, option, mbox_setting, side(모바일은 header) 모두 변경!
+      // 서버에 192.~ 으로 해야지 mail.durianit.으로 하면 버퍼 상당히 심해짐.
       $this->mailserver = "192.168.0.100";
       // $this->mailserver = "mail.durianit.co.kr";
       $this->user_id = $_SESSION["userid"];
@@ -60,6 +62,7 @@ class Testmailbox extends CI_Controller {
     return @imap_open($host, $user_id, $user_pwd);
   }
 
+  // 모든 메일함들 가져옴
   public function get_folders(){
     $mails= $this->connect_mailserver();
     $mailserver = $this->mailserver;
@@ -81,6 +84,41 @@ class Testmailbox extends CI_Controller {
       elseif($f == "&yBXQbA- &ulTHfA-") continue;
       elseif($f == "&ycDGtA- &07jJwNVo-") continue;
       array_push($folders_sorted, $f);
+    }
+    return $folders_sorted;
+  }
+
+  // 모든 메일함을 가져오는데 부모메일함.자식메일함 형태로 가져옴
+  public function get_folders2(){
+    $mails= $this->connect_mailserver();
+    $mailserver = $this->mailserver;
+    $folders = imap_list($mails, "{" . $mailserver . "}", '*');
+    $folders = str_replace("{" . $mailserver . "}", "", $folders);
+    sort($folders);
+
+    $folders_root = $this->defalt_folder;
+    $folders_sub = array();
+
+    foreach($folders as $f) {
+      if(substr_count($f, '.') == 0) {
+        if(in_array($f,$folders_root )){
+            continue;
+        }
+        array_push($folders_root, $f);
+      } else {
+        array_push($folders_sub, $f);
+      }
+    }
+    $folders_sorted = array();
+    foreach($folders_root as $root) {
+      array_push($folders_sorted, $root);
+      foreach($folders_sub as $sub) {
+        $pos_dot = strpos($sub, '.');
+        $sub_root = substr($sub, 0, $pos_dot);
+        if($sub_root == $root) {
+          array_push($folders_sorted, $sub);
+        }
+      }
     }
     return $folders_sorted;
   }
@@ -121,57 +159,21 @@ class Testmailbox extends CI_Controller {
     echo json_encode($mailbox_tree);
   }
 
-
-  public function get_folders2(){
-    $mails= $this->connect_mailserver();
-    $mailserver = $this->mailserver;
-    $folders = imap_list($mails, "{" . $mailserver . "}", '*');
-    $folders = str_replace("{" . $mailserver . "}", "", $folders);
-    sort($folders);
-
-    $folders_root = $this->defalt_folder;
-    $folders_sub = array();
-
-    foreach($folders as $f) {
-      if(substr_count($f, '.') == 0) {
-        if(in_array($f,$folders_root )){
-            continue;
-        }
-        array_push($folders_root, $f);
-      } else {
-        array_push($folders_sub, $f);
-      }
-    }
-    $folders_sorted = array();
-    foreach($folders_root as $root) {
-      array_push($folders_sorted, $root);
-      foreach($folders_sub as $sub) {
-        $pos_dot = strpos($sub, '.');
-        $sub_root = substr($sub, 0, $pos_dot);
-        if($sub_root == $root) {
-          array_push($folders_sorted, $sub);
-        }
-      }
-    }
-    return $folders_sorted;
-  }
-
   // 초기에 제목만 디코딩 애러가 많이나서 제목만 처리했는데 추후 보낸사람, 첨부파일명도 다 애러나서 다 이 함수로 처리함
   // + 원래 함수명은 subject_decode 였음.
   public function decode($subject) {
-    // return 'test';
     if(!isset($subject) || $subject == "") return '(제목 없음)';
-
     $utf8_decoded = imap_utf8($subject);
     if(strpos($utf8_decoded, '=?') === false) {
       // 가끔 광고성메일의 제목 인코딩이 EUC-KR이라 ��으로 뜨는 경우가 있다.
       // + mb_detect_encoding 함수가 이게 좀 확실하진 않는데 실험해보니 EUC-KR은 반드시 잡아낸다.
       // + 반면 UTF-8로 인코딩된 애들은 ASCII로 나온다.
       $charset = strtolower(mb_detect_encoding("$utf8_decoded", array('ASCII','EUC-KR','UTF-8')));
-      if($charset == "euc-kr")
+      if($charset == "euc-kr") {
         $utf8_decoded = iconv("euc-kr", "utf-8", $utf8_decoded);
-      else
+      }else {
         $utf8_decoded = ($utf8_decoded == "")? "(제목 없음)" : $utf8_decoded;
+      }
       return $utf8_decoded;
     }else {   // =?utf-8?B?, 2개이상 있는 경우 인코딩부분 디코딩 안된채로 그대로 출력됨.
       $ques_mark_2 = strpos($subject, '?', 2);
@@ -319,7 +321,6 @@ class Testmailbox extends CI_Controller {
     $data = array();
     $mbox = $this->input->get("boxname");
     // $mbox = stripslashes($mbox);              // 메일함명 '처리
-
     $mbox = (isset($mbox))? $mbox : "INBOX";
     $user_id = $this->user_id;
     $mails= $this->connect_mailserver($mbox);
@@ -327,17 +328,12 @@ class Testmailbox extends CI_Controller {
 
     if($mails) {
       $type = $this->input->get('type');
-      // 없어도 될것 같음
-      // if($type === NULL || $type === "") {
-      //   $mailno_arr = imap_sort($mails, SORTDATE, 1);
-      // }
       if($type == "attachments") {
         $session = $this->input->get("session");
         if(isset($session)) {
           $mailno_arr = $_SESSION['mailno_arr'];
         }else {
           $mailno_arr = $this->exec_name_search($mbox, $user_id, "Content-Disposition: attachment");
-          // $_SESSION['mailno_arr'] = $mailno_arr;
         }
         $data['search_flag'] = true;
         $data['type'] = "attachments";
@@ -372,7 +368,6 @@ class Testmailbox extends CI_Controller {
           }else {
             $mailno_arr = $this->exec_name_search($mbox, $user_id, $search_word);
           }
-          // $_SESSION['mailno_arr'] = $mailno_arr;    // 처음 검색할때는 세션에 넣어줌
         }
         $data['search_word'] = $search_word;
         $data['type'] = "search";
@@ -381,8 +376,8 @@ class Testmailbox extends CI_Controller {
         if(isset($session)) {
           $mailno_arr = $_SESSION['mailno_arr'];
         }else {
-          $mailno_arr_target = array(); // 상단조회해서 배열 나오는 경우 중복검색
-          $overlap_flag = false;        // 상단조회에서 배열 안나오는경우(count가 0인 경우) 중복검색
+          $mailno_arr_target = array();
+          $overlap_flag = false;
 
           $from_target = trim(strtolower($this->input->get("from")));
           if($from_target != "") {
@@ -471,7 +466,6 @@ class Testmailbox extends CI_Controller {
             $data['contents'] = $contents_target;
           }
           $mailno_arr = array_values($mailno_arr_target);
-          // $_SESSION['mailno_arr'] = $mailno_arr;
         }
       $data['type'] = "search_detail";
       }else {
@@ -502,7 +496,7 @@ class Testmailbox extends CI_Controller {
       if ($block_end > $total_pages)  $block_end = $total_pages;  // 페이징 블록을 1~2로 수정
       $total_blocks = ceil($total_pages/$pagingNum_cnt);          // 2/5 -> 페이징 블록 총 1개
       $start_row = ($curpage-1) * $per_page;                      // (1-1)*15 -> 0번째 데이터부터 출력.
-                                                // (만일 2페이지일경우 16번째(인덱스15) 데이터 출력)
+                                                                  // (만일 2페이지일경우 16번째(인덱스15) 데이터 출력)
       $data['per_page'] = $per_page;
       $data['start_row'] = $start_row;
       $data['curpage'] = $curpage;
@@ -583,14 +577,10 @@ class Testmailbox extends CI_Controller {
               $from_name_full = $from_addr;
               if (isset($from_obj->personal)) {
                 $from_name = $this->decode($from_obj->personal);    // 대표님 보낸사람 디코딩 애러처리.  (utf-8/Q)
-                // $from_name = imap_utf8($from_obj->personal);
                 $from_name_full = $from_name.' <'.$from_addr.'>';
               } else {
                 $from_name = $from_addr;
               }
-              // $encoding = strtolower(mb_detect_encoding("$from_name", array('ASCII','EUC-KR','UTF-8')));  // 광고성 메일 euc-kr 인코딩부분 애러처리 (위 subject_decode에 포함되어서 주석처리)
-              // if($encoding == "euc-kr")
-              //   $from_name = iconv("euc-kr", "utf-8", $from_name);
             }else {
               $from_name = "(이름 없음)";
               $from_name_full = "(이름 없음)";
@@ -640,22 +630,13 @@ class Testmailbox extends CI_Controller {
             	'date'			=>		$date,
             	'size'			=>		$size
             );
-            // echo '<pre>';
-            // var_dump($headerinfo);
-            // echo '</pre>';
-            // exit;
           }
         }
-        // echo '<pre>';
-        // var_dump($data["mail_list_info"]);
-        // echo '</pre>';
-        // exit;
       }else {
         $data['test_msg'] = "메일이 없습니다.";
       }
 
       // 방금 전 읽은 메일 표시처리
-      // var_dump($_SESSION['visited_arr']);
       if(isset($_SESSION['visited_arr'])) {
         if($_SESSION["visited_arr"]["boxname"] == $mbox) {
           $data['visited_no'] = $_SESSION["visited_arr"]["mailno"];
@@ -666,18 +647,14 @@ class Testmailbox extends CI_Controller {
     }else {
       $data['test_msg'] = '사용자명 또는 패스워드가 틀립니다.';
     }
-    // var_dump($mailno_arr);
-    // exit;
     if ($this->agent->is_mobile()) {
-      $this->load->view('mobile/test_mail_list_v_mobile', $data);
+      $this->load->view('mobile/mail_list_v_mobile', $data);
     } else {
       $this->load->view('mailbox/test_mail_list_v', $data);
     }
-
   } // function(mail_list)
 
   function get_senderip($uid, $mbox){
-
     $this->load->model('M_dbmail');
     $ip_arr = array(
       "ip" => "",
@@ -1175,17 +1152,8 @@ class Testmailbox extends CI_Controller {
              break;
            }else if($part->subtype == "PLAIN" && $part->ifdisposition == 0) {
              break;   // 그외 일반적인 plain은 출력하지 않음
-           // // .txt 첨부파일은 여기 들어있음 + Undelivered Message Headers.txt도 여기로 빠짐
+                      // .txt 첨부파일은 여기 들어있음 + Undelivered Message Headers.txt도 여기로 빠짐
            }else if( ($part->subtype == "PLAIN" || $part->subtype == "RFC822-HEADERS") && $part->ifdisposition == 1 ) {
-           // }else if($part->subtype == "PLAIN" && $part->ifdisposition == 1) {   // 이전부분
-             // $filename = $this-> getFilenameFromPart($part);
-             // if ($filename) {
-             //   $down_link = "&nbsp;<a href=\"javascript:download('{$mbox}', '{$msg_no}',
-             //   '{$partNumber}', '$part->encoding', '{$filename}');\">".$filename.'</a><br>';
-             // } else {
-             //   $down_link = "(파일명 없음)";
-             // }
-             // $attachments .= $down_link;
              $attachment = $this->makeDownloadLink($mbox, $msg_no, $partNumber, $part);
              array_push($attachments, $attachment);
            }else if($part->subtype == "HTML" && $part->ifdisposition == 0) {    // html 본문 출력부분
@@ -1200,14 +1168,6 @@ class Testmailbox extends CI_Controller {
              $contents .= $message;
              $html_cnt++;
            }else if($part->subtype == "HTML" && $part->ifdisposition == 1) {    // .html 첨부파일 처리
-             // $filename = $this-> getFilenameFromPart($part);
-             // if ($filename) {
-             //   $down_link = "&nbsp;<a href=\"javascript:download('{$mbox}', '{$msg_no}',
-             //   '{$partNumber}', '$part->encoding', '{$filename}');\">".$filename.'</a><br>';
-             // } else {
-             //   $down_link = "(파일명 없음)";
-             // }
-             // $attachments .= $down_link;
              $attachment = $this->makeDownloadLink($mbox, $msg_no, $partNumber, $part);
              array_push($attachments, $attachment);
            }
@@ -1216,31 +1176,16 @@ class Testmailbox extends CI_Controller {
            break;
          case 2:  // attached message headers, can ignore
                   // (.eml 첨부파일은 2로 넘어와서 break 해제하면 되는데 그렇게되면 다른부분 또 애러 생겨서 우선 살려둠)
-           // 첨부파일 용량 초과시 리턴되는 메일의 첨부파일부분 처리 || 상대방 메일함 용량 초과시 리턴되는 첨부파일부분(.txt와 .msg)
+                  // 첨부파일 용량 초과시 리턴되는 메일의 첨부파일부분 처리 || 상대방 메일함 용량 초과시 리턴되는 첨부파일부분(.txt와 .msg)
            if($part->subtype == "DELIVERY-STATUS" || $part->subtype == "RFC822") {
-              // $filename = $this->getFilenameFromPart($part);
-              // if ($filename) {
-              //   if(isset($part->bytes)) {
-              //     $size = $part->bytes;
-              //     $size = ($size < 1024)? $size .= 'B' : (($size < 1024*1024)? $size .= round($size/1024, 1).'KB' : $size = round($size/1024*1024, 1).'MB');
-              //   } else {
-              //     $size = '';
-              //   }
-              //   $down_link = "&nbsp;<a href=\"javascript:download('{$mbox}', '{$msg_no}',
-              //   '{$partNumber}', '$part->encoding', '{$filename}');\">".$filename."</a>&nbsp;
-              //   <span style='color: silver;'>$size</span><br>";
-              // } else {
-              //   $down_link = "(파일명 없음)";
-              // }
               $attachment = $this->makeDownloadLink($mbox, $msg_no, $partNumber, $part);
               array_push($attachments, $attachment);
            }
-           break;                                         //
+           break;
          case 3: // application	(엑셀, 파워포인트등 첨부파일은 3임)
          case 4: // audio
          case 5: // image		(PNG 인라인출력 or 첨부 모두 type이 5임. 여기서는 삽입된거만 처리 첨부는 아래로 내려감)
            if ($part->ifdisposition == 0 || $part->disposition == "inline") {
-
              $img_data = imap_fetchbody($mails, $msg_no, $partNumber);
              $img_data = str_replace("\r\n", " ", $img_data);   // 리턴, 줄개행코드 제거. $img_data에 이게 있으면 애러발생함(HTML로 보내질때)
 
@@ -1266,14 +1211,6 @@ class Testmailbox extends CI_Controller {
            }
          case 6: // video
          case 7: // other (첨부파일)
-           // $filename = $this-> getFilenameFromPart($part);
-           // if ($filename) {
-           //   $down_link = "&nbsp;<a href=\"javascript:download('{$mbox}', '{$msg_no}',
-           //   '{$partNumber}', '$part->encoding', '{$filename}');\">".$filename.'</a><br>';
-           // } else {
-           //   $down_link = "(파일명 없음)";
-           // }
-           // $attachments .= $down_link;
            $attachment = $this->makeDownloadLink($mbox, $msg_no, $partNumber, $part);
            array_push($attachments, $attachment);
          break;
@@ -1344,10 +1281,7 @@ class Testmailbox extends CI_Controller {
     $arr = $this->input->post("mail_arr");
     $arr_str = implode(',', $arr);
     $res = imap_mail_move($mails, $arr_str, $to_box);
-    // imap_expunge() : Deletes all the messages marked for deletion
-    //                  by imap_delete(), imap_mail_move(), or imap_setflag_full().
-    // imap_expunge() 안해주면 삭제버튼 클릭시 이동은 되는데 본 메일박스에 남아있음
-    imap_expunge($mails);
+    imap_expunge($mails);   // imap_expunge() 안해주면 삭제버튼 클릭시 이동은 되는데 본 메일박스에 남아있음
     imap_close($mails);
     echo $res;
   }
@@ -1373,8 +1307,7 @@ class Testmailbox extends CI_Controller {
     switch($encoding) {
       case 0: return $data; // 7BIT
       case 1:
-        // 팀장님 신용보증재단 메일 디코딩 애러처리
-        if ($charset == 'ks_c_5601-1987' || $charset == 'us-ascii' || $charset == 'euc-kr')
+        if ($charset == 'ks_c_5601-1987' || $charset == 'us-ascii' || $charset == 'euc-kr')   // 팀장님 신용보증재단 메일 디코딩 애러처리
           return iconv('cp949', 'utf-8', $data);
         else
           return $data; // 8BIT
@@ -1389,9 +1322,7 @@ class Testmailbox extends CI_Controller {
         $data_decoded = quoted_printable_decode($data);    // QUOTED_PRINTABLE (업무일지 서식)
         if ($charset == 'ks_c_5601-1987' || $charset == 'us-ascii' || $charset == 'euc-kr')   // else는 charset이 utf-8로 iconv 불필요
           $data_decoded = iconv('cp949', 'utf-8', $data_decoded);     // us-ascii도 변경해줘야 제대로 출력됨
-          // 아래로 디코딩 안되는 메일 가끔 있어서 이걸로 해야함 (대표님 메일중 발견)
-          // $data = iconv('euc-kr', 'utf-8', $data);  // charset 변경
-        // $res = 'encoding: '.$encoding.'<br><br>charset: '.$charset.'<br><br>rawData: <br>'.$data.'<br>decoded: <br>'.$data_decoded;
+          // iconv('euc-kr', 'utf-8', $data)로 디코딩 안되는 메일 가끔 있어서 이걸로 해야함 (대표님 메일중 발견)
         return $data_decoded;
       case 5: return $data; // OTHER
     }
@@ -1594,15 +1525,9 @@ class Testmailbox extends CI_Controller {
     $uid = explode(' :', $output[0])[0];
     $msg_no = imap_msgno($mails, (int)$uid);
     array_push($next_arr, $msg_no);
-
     echo implode(' ', $next_arr);
   }
 
-  function test() {
-    echo '뭐꼬';
-  }
 
 }
-
-
  ?>
