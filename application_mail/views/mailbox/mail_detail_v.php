@@ -96,9 +96,7 @@ $reply_cc_input = address_text($mail_info["cc"]);
            ?>
          </th>
          <td align="right">
-           <?php // echo 'mbox: '.$mbox.'<br>'; ?>
            <?php $mailno = isset($mailname)? $mailname : $mailno;   // 첨부/대표검색은 mailname으로 스크립트에서 처리함 ?>
-           <!-- <?php // var_dump($mailno); ?> -->
            <button type="button" class="btn_basic btn_white" style="width:60px" onclick="go_list(`<?php echo $mailno ?>`)">목록</button>
            <img src="<?php echo $misc;?>img/icon/위2.svg" style="position:relative; width:28px; top:7px; cursor:pointer;" onclick="go_up(`<?php echo $mailno; ?>`)">
            <img src="<?php echo $misc;?>img/icon/아래2.svg" style="position:relative; width:28px; top:7px; cursor:pointer;" onclick="go_down(`<?php echo $mailno; ?>`)">
@@ -195,10 +193,7 @@ function del_trash(){
     data : {mbox: `<?php echo $mbox ?>`, to_box: '&ycDGtA- &07jJwNVo-', mail_arr: arr},
     success : function(data){
       go_list();
-    },
-    // complete : function() {
-    //   location.reload();
-    // }
+    }
   });
 }
 
@@ -248,8 +243,6 @@ function go_list(mailno) {
     }
     $list_page_url .= "&curpage=$curpage";
    ?>
-
-  // console.log(`<?php // echo $list_page_url ?>`);
   var list_page_url = `<?php echo site_url().$list_page_url ?>`;
   location.href = list_page_url;
 }

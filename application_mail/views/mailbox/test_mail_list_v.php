@@ -2,23 +2,18 @@
 include $this->input->server('DOCUMENT_ROOT')."/include/base.php";
 include $this->input->server('DOCUMENT_ROOT')."/include/mail_header.php";
 include $this->input->server('DOCUMENT_ROOT')."/include/test_mail_side.php";
-
-// echo 'decode 전:'.$mbox.'<br>';
 // $mbox2 = str_replace(array('#', '&', ' '), array('%23', '%26', '+'), $mbox);   // 아래 함수로 대체함
 $mbox_urlencode = urlencode($mbox);
-// echo 'decode 후:'.$mbox_urlencode.'<br>';
 
 $request_url = $_SERVER['REQUEST_URI'];
-if(!strpos($request_url, 'boxname')) $request_url .= '?boxname=INBOX';   // 로그인한후에는 뒤에 파라미터가 없어서 넣어줌
+if(!strpos($request_url, 'boxname')) $request_url .= '?boxname=INBOX';   // 로그인한 후에는 뒤에 파라미터가 없어서 넣어줌
 $_SESSION['list_page_url_tmp'] = substr($request_url, strpos($request_url, '/', 1));    // url에서 /index.php 부분 제외시킴
 // $_SERVER['REQUEST_URI'] -> /index.php/mailbox/mail_list?curpage=&searchbox=&boxname=INBOX
-
  ?>
 
  <!-- IE에서 input date 입력가능하게 설정 (jQuery에서 제공하는 datepicker 기능) -->
  <!-- jQuery에서 제공하는 css 와 js 파일 -->
  <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css"/>
- <!-- <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script> -->
  <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
  <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/i18n/jquery-ui-i18n.min.js"></script>
 
@@ -129,6 +124,11 @@ $_SESSION['list_page_url_tmp'] = substr($request_url, strpos($request_url, '/', 
     position: relative;
     top: 4px;
   }
+
+  input[type=checkbox] {
+    transform : scale(1.5);
+  }
+
  </style>
 
 <div id="main_contents" align="center">
@@ -146,7 +146,7 @@ $_SESSION['list_page_url_tmp'] = substr($request_url, strpos($request_url, '/', 
           <col width="12%" >
         </colgroup>
         <tr>
-          <td colspan="5"><p>테스트페이지!!!</p></td>
+          <td colspan="5"><p>테스트페이지!!! @@</p></td>
         </tr>
           <tr>
             <td>
@@ -238,7 +238,6 @@ $_SESSION['list_page_url_tmp'] = substr($request_url, strpos($request_url, '/', 
                   </table>
                   <div class="" style="margin: 10px; text-align: center;">
                     <button type="button" id="search_detail_submit" style="width: 45px; cursor: pointer;">검색</button>
-                    <!-- <button type="button" id="" style="width: 45px; ">취소</button> -->
                   </div>
                 </form>
               </div>
@@ -247,7 +246,6 @@ $_SESSION['list_page_url_tmp'] = substr($request_url, strpos($request_url, '/', 
       </table>
   </form>
 
-  <!-- <?php // echo $test_msg; ?> <br><br> -->
   <table class="mlist_tbl" border="0" cellspacing="0" cellpadding="0" style="table-layout: fixed;">
     <colgroup>
       <col width="6%" >
@@ -282,8 +280,8 @@ $_SESSION['list_page_url_tmp'] = substr($request_url, strpos($request_url, '/', 
           <!-- <td><?php // echo $head[$mailno_arr[$i]]->Unseen ?></td> -->
           <td name="msg_no_td" style="display:none;"><?php echo $msg_no?></td>
           <td name="ipcountry_td" style="text-align:center;"></td>
-          <td onclick="event.cancelBubble=true">
-            <input type="checkbox" name="chk" value=<?php echo $msg_no;?>>
+          <td onclick="event.cancelBubble=true" onmousedown="event.cancelBubble=true" id="check_td">
+              <input type="checkbox" name="chk" value=<?php echo $msg_no;?>>
           </td>
           <td onclick="event.cancelBubble=true">
             <a href="javascript:void(0);" onclick="starClick(this); " >
@@ -417,7 +415,7 @@ include $this->input->server('DOCUMENT_ROOT')."/include/mail_footer.php";
        $("td[name=ipcountry_td]").each(function(){
          var country = result[i].country;
          var ip = result[i].ip;
-         var img = "<img width='25' src='<?php echo $misc; ?>/img/flag/"+country+".png' alt='"+country+"'>";
+         var img = "<img width='25' src='<?php echo $misc; ?>/img/flag/"+country+".png' alt='"+country+"' title='"+ip+"'>";
          $(this).append(img);
          i++;
        });
@@ -547,10 +545,6 @@ $(".mlist_tbl tr").on("mousedown", function(){
    // 검색 input창 초기화
    var search_word = '<?php if(isset($search_word)) echo $search_word; ?>';
    if(search_word != "")   $('#search').val(search_word);
-   // $('input[name=from]').val('');
-   // $('input[name=to]').val('');
-   // $('input[name=subject]').val('');
-   // $('input[name=contents]').val('');
 
    // 보기설정 개수 선택시 새로고침된 페이지에서 옵션 selected 설정
    var per_page = '<?php echo $per_page; ?>';
@@ -620,10 +614,6 @@ $(".mlist_tbl tr").on("mousedown", function(){
        newForm.append($('<input>', {type: 'hidden', name: 'search_word', value: search_word }));
        newForm.appendTo('body');
        $('#loading').show();
-       // setTimeout(function() {
-       //  alert('검색결과가 너무 많습니다.\n페이지가 새로고침됩니다.');
-       //  location.reload();
-       // }, 6000);
        newForm.submit();
      }
    }
@@ -723,7 +713,6 @@ $(".mlist_tbl tr").on("mousedown", function(){
     }
   })
 
-
  // 상단 체크박스 클릭시 전체선택/해제 설정
  function check_all(chk_all) {
    if(chk_all.checked) {
@@ -748,12 +737,10 @@ $(".mlist_tbl tr").on("mousedown", function(){
    if(this.checked) {
      $('.top_button').prop('disabled', false);
      $('.top_button').css('cursor', 'pointer');
-     // $('.top_button').css({'background-color':'white', 'border':'1px solid lightgray'});
    }else {
       if($('input[name="chk"]:checked').length == 0) {
         $('.top_button').prop('disabled', 'disabled');
         $('.top_button').css('cursor', '');
-        // $('.top_button').css({'background-color':'', 'border':''});
       }
     }
  })
@@ -811,7 +798,7 @@ $(".mlist_tbl tr").on("mousedown", function(){
   newForm.submit();
 }
 
- // 휴지통으로 삭제
+  // 휴지통으로 삭제
   function del_trash(){
     let arr = [];
     for(var i=0; i<document.frm.length; i++) {
@@ -907,7 +894,7 @@ $(".mlist_tbl tr").on("mousedown", function(){
     if(start_date != "")  newForm.append($('<input>', {type: 'hidden', name: 'start_date', value: start_date }));
     if(end_date != "")  newForm.append($('<input>', {type: 'hidden', name: 'end_date', value: end_date }));
     if(type == "attachments" || type == "search" || type == "search_detail")
-      newForm.append($('<input>', {type: 'hidden', name: 'session', value: 'on' }));
+    newForm.append($('<input>', {type: 'hidden', name: 'session', value: 'on' }));
     newForm.appendTo('body');
     newForm.submit();
   }
