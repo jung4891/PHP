@@ -1,0 +1,8 @@
+{
+  "name": "socket-chat-example-hyukjung",
+  "version": "0.0.1",
+  "description": "my first socket.io app test",
+  "dependencies": {
+    "express": "^4.18.1"
+  }
+}
