@@ -10,19 +10,66 @@
       }
     </style>
   </head>
-  <body>
+  <body onload="checkCookie()">
 
-    <p id="res"></p>
+
+    <input type="button" onclick="test()" value="test">
+    <input type="button" onclick="delCookie()" value="쿠키삭제">
+
+    <p id="res">test </p>
 
     <script>
 
-      function myFunction(x, y) {
-        return x + y;
+    function test() {
+      document.cookie = "username_test = Hyuk Jung2";
+    }
+
+    function delCookie() {
+      document.cookie = "username=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    }
+
+    function setCookie(cname,cvalue,exdays) {
+      const d = new Date();
+      console.log(d);
+      console.log(d.getTime());
+      d.setTime(d.getTime() + (exdays*24*60*60*1000));
+      console.log(d.getTime());
+      console.log(d);
+      console.log(d.toUTCString());
+      let expires = "expires=" + d.toUTCString();
+      document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+    }
+
+    function getCookie(cname) {
+      let name = cname + "=";
+      let decodedCookie = decodeURIComponent(document.cookie);
+      let ca = decodedCookie.split(';');
+      for(let i = 0; i < ca.length; i++) {
+        let c = ca[i];
+        console.log(c.charAt(0));
+        while (c.charAt(0) == ' ') {
+          c = c.substring(1);
+        }
+        console.log(c);
+        if (c.indexOf(name) == 0) {
+          return c.substring(name.length, c.length);
+        }
       }
-      let test = myFunction(1, 5);
-      console.log(test);
-      console.log(myFunction);
-      document.getElementById("res").innerHTML = myFunction;
+      return "";
+    }
+
+    function checkCookie() {
+      let user = getCookie("username");
+      console.log('check -> ' + user);
+      if (user != "") {
+        console.log("Welcome again " + user);
+      } else {
+         user = prompt("Please enter your name:","");
+         if (user != "" && user != null) {
+           setCookie("username", user, 30);
+         }
+      }
+    }
 
     </script>
   </body>

@@ -9,6 +9,11 @@ var app = http.createServer(function(request,response){
     var queryStr = parse_url.query;
     var title = queryStr.id;
 
+    fs.readdir('./data', function(error, files) {
+      console.log(files);
+    })
+
+
     if(pathName === '/'){
       fs.readFile(`data/${title}`, 'utf8', function(err, content){
 
