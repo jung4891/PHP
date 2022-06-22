@@ -46,7 +46,7 @@ function templateHTML(title, list, body) {
   </style>
   </head>
   <body>
-  <h1><a href="/">WEB</a></h1>
+  <h1><a href="/">WEB22</a></h1>
   <ul>
   ${list}
   </ul>
