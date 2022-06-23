@@ -12,15 +12,29 @@
   </head>
   <body>
 
-    <p id="test">bb</p>
+    <div id='content'>
+      <div>A</div>
+      <div>B</div>
+    </div>
+
+    <button type="button" onclick="getInnerText()">innerText()</button>
+
+    <p id="res">res</p>
+
 
     <script>
-    let elem = document.getElementById("test");
-    elem.addEventListener("mouseover", function() {this.innerHTML = 'ccccc'});
 
-    function testFunc() {
-      elem.innerHTML = 'aaaa';
-    }
+      let res = document.getElementById('res');
+
+      function getInnerText() {
+        const element = document.getElementById('content');
+
+        element.innerText = '<p style="color:green">AAA</p>';
+        res.innerHTML = '<p style="color:green">AAA</p>';
+
+
+      }
+
     </script>
   </body>
 </html>
