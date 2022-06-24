@@ -8,6 +8,7 @@ var app = http.createServer(function(request,response){
     var pathName = parse_url.pathname;
     var queryStr = parse_url.query;
     var title = queryStr.id;
+    console.log(pathName);
 
     if(pathName === '/'){
       fs.readdir('./data', function(err, files) {     // [ 'CSS', 'HTML', 'JavaScript' ]
@@ -23,6 +24,20 @@ var app = http.createServer(function(request,response){
           // response.end(fs.readFileSync(__dirname + _url));
           // response.end(`id: ${queryData.id} / page: ${queryData.page}`);
         });
+      })
+    }else if(pathName == '/create') {
+      fs.readdir('./data', function(err, files) {
+        title = 'WEB - Create';
+        let list = templateList(files);
+        var template = templateHTML(title, list, `
+          <form class="" action="http://localhost:4000/create_process" method="post">
+            <p><input type="text" name="title" placeholder="제목"></p>
+            <p><textarea name="description" rows="8" cols="80" placeholder="내용"></textarea></p>
+            <p><input type="submit"></p>
+          </form>
+          `);
+        response.writeHead(200);
+        response.end(template);
       })
     }else {
       response.writeHead(404);
@@ -46,10 +61,11 @@ function templateHTML(title, list, body) {
   </style>
   </head>
   <body>
-  <h1><a href="/">WEB22</a></h1>
+  <h1><a href="/">WEB777</a></h1>
   <ul>
   ${list}
   </ul>
+  <a href="/create">파일 생성<a>
   ${body}
   </body>
   </html>
