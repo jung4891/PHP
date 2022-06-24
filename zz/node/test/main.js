@@ -1,6 +1,7 @@
 var http = require('http');
 var fs = require('fs');
 var url = require('url');
+let qs = require('querystring');
 
 var app = http.createServer(function(request,response){
     var _url = request.url;
@@ -39,6 +40,20 @@ var app = http.createServer(function(request,response){
         response.writeHead(200);
         response.end(template);
       })
+    }else if (pathName === '/create_process') {
+      let body = '';
+      request.on('data', function(data) {
+        body = body + data;
+        // title=%EC%A0%9C%EB%AA%A9%EB%AA%A9&description=%EB%82%B4%EC%9A%A9%EC%9A%A9
+      });
+      request.on('end', function() {
+        let post = qs.parse(body);
+        let title = post.title;
+        let description = post.description;
+        // [Object: null prototype] { title: '제목목', description: '내용용' }
+      })
+      response.writeHead(200);
+      response.end('success');
     }else {
       response.writeHead(404);
       response.end('Not Found');
@@ -85,6 +100,7 @@ function templateList(fileList) {
 
 
 /* parse_url
+(true안하면 query 속성이 decode 안된상태로 객체가 아닌 문자열로 받게됨)
 Url {
   protocol: null,
   slashes: null,
