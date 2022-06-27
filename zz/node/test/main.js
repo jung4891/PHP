@@ -15,11 +15,13 @@ var app = http.createServer(function(request,response){
       fs.readdir('./data', function(err, files) {     // [ 'CSS', 'HTML', 'JavaScript' ]
         let list = templateList(files);
         fs.readFile(`data/${title}`, 'utf8', function(err, content){
+          let control = `<a href="/create">생성<a> <a href="/update?id=${title}">수정</a>`;
           if(title === undefined) {
             title = 'Welcome!';
             content = "환영합니다!";
+            control = `<a href="/create">생성<a>`;
           }
-          var template = templateHTML(title, list, `<h2>${title}</h2><p>${content}</p>`);
+          var template = templateHTML(title, list, `<h2>${title}</h2><p>${content}</p>`, control);
           response.writeHead(200);
           response.end(template);
           // response.end(fs.readFileSync(__dirname + _url));
@@ -36,7 +38,7 @@ var app = http.createServer(function(request,response){
             <p><textarea name="description" rows="8" cols="80" placeholder="내용"></textarea></p>
             <p><input type="submit"></p>
           </form>
-          `);
+          `, '');
         response.writeHead(200);
         response.end(template);
       })
@@ -51,37 +53,63 @@ var app = http.createServer(function(request,response){
         let title = post.title;
         let description = post.description;
         // [Object: null prototype] { title: '제목목', description: '내용용' }
+
+        fs.writeFile(`./data/${title}`, description, 'utf8', function(err) {
+          response.writeHead(302, {       // 302 : 리다이렉션을 뜻함.
+            Location : `/?id=${title}`    // 경로에 /?에서 루트인 /빼고 ?만 넣으면
+          });                             // 기존 /create_precess?id= 이런식으로 이동됨. / 꼭!
+          response.end();
+          // response.writeHead(200);
+          // response.end('saved');
+        })
       })
-      response.writeHead(200);
-      response.end('success');
-    }else {
+    }else if (pathName === '/update') {   // a태그 경로가 /update/?id=~~ 이러면 안된다. /빼야함
+      fs.readdir('./data', function(err, files) {
+        let list = templateList(files);
+        fs.readFile(`data/${title}`, 'utf8', function(err, content){
+          let control = `<a href="/create">생성<a> <a href="/update?id=${title}">수정</a>`;
+          var template = templateHTML(title, list,
+            `
+            <form class="" action="/update_process" method="post">
+              <p><input type="text" name="title" placeholder="제목" value="${title}"></p>
+              <p><textarea name="description" rows="8" cols="80" placeholder="내용"></textarea></p>
+              <p><input type="submit"></p>
+            </form>
+            `, control);
+          response.writeHead(200);
+          response.end(template);
+        });
+      })
+    }
+
+    else {
       response.writeHead(404);
       response.end('Not Found');
     }
 });
 app.listen(4000);
 
-function templateHTML(title, list, body) {
+function templateHTML(title, list, body, control) {
   return `
   <!doctype html>
   <html>
   <head>
-  <title>WEB1 - ${title}</title>
-  <meta charset="utf-8">
-  <style>
-  body {
-    background: black;
-    color: white;
-  }
-  </style>
+    <title>WEB1 - ${title}</title>
+    <meta charset="utf-8">
+    <style>
+    body {
+      background: black;
+      color: white;
+    }
+    </style>
   </head>
   <body>
-  <h1><a href="/">WEB777</a></h1>
-  <ul>
-  ${list}
-  </ul>
-  <a href="/create">파일 생성<a>
-  ${body}
+    <h1><a href="/">WEB777</a></h1>
+    <ul>
+    ${list}
+    </ul>
+    ${control}
+    ${body}
   </body>
   </html>
   `;

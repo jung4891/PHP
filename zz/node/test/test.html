@@ -1,0 +1,26 @@
+<form class="" action="http://localhost:4000/create_process" method="post">
+  <p><input type="text" name="title"></p>
+  <p><textarea name="description" rows="8" cols="80"></textarea></p>
+  <p><input type="submit"></p>
+</form>
+
+<input type="text" id="num" name="" value="">
+<button type="button" onclick="func(document.getElementById('num').value)">테스트</button>
+<script type="text/javascript">
+
+    function func(input){
+       try {
+         functi();
+          if (input > 0){
+             throw "양수가 입력되었습니다";
+          }
+          else if (input < 0){
+             throw "음수가 입력되었습니다";
+          }
+       }
+       catch (err){
+          // document.write(err + "<br>");
+       }
+    }
+
+</script>
