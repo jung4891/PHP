@@ -15,7 +15,15 @@ var app = http.createServer(function(request,response){
       fs.readdir('./data', function(err, files) {     // [ 'CSS', 'HTML', 'JavaScript' ]
         let list = templateList(files);
         fs.readFile(`data/${title}`, 'utf8', function(err, content){
-          let control = `<a href="/create">생성<a> <a href="/update?id=${title}">수정</a>`;
+          let control =
+          `<a href="/create">생성<a>
+           <a href="/update?id=${title}">수정</a>
+           <form action="/delete_process" method="post" onsubmit="return confirm('정말 삭제?')">
+            <input type="hidden" name="title" value="${title}">
+            <input type="submit" value="삭제">
+           </form>
+           `;
+
           if(title === undefined) {
             title = 'Welcome!';
             content = "환영합니다!";
@@ -36,7 +44,7 @@ var app = http.createServer(function(request,response){
           <form class="" action="http://localhost:4000/create_process" method="post">
             <p><input type="text" name="title" placeholder="제목"></p>
             <p><textarea name="description" rows="8" cols="80" placeholder="내용"></textarea></p>
-            <p><input type="submit"></p>
+            <p><input type="submit" value="전송"></p>
           </form>
           `, '');
         response.writeHead(200);
@@ -71,18 +79,51 @@ var app = http.createServer(function(request,response){
           var template = templateHTML(title, list,
             `
             <form class="" action="/update_process" method="post">
+              <input type="hidden" name="id" value="${title}">
               <p><input type="text" name="title" placeholder="제목" value="${title}"></p>
-              <p><textarea name="description" rows="8" cols="80" placeholder="내용"></textarea></p>
-              <p><input type="submit"></p>
+              <p><textarea name="description" rows="8" cols="80" placeholder="내용">${content}</textarea></p>
+              <p><input type="submit" value="전송"></p>
             </form>
             `, control);
           response.writeHead(200);
           response.end(template);
         });
       })
-    }
+    }else if(pathName === '/update_process') {
+      let body = '';
+      request.on('data', function(data) {
+        body = body + data;
+      });
+      request.on('end', function() {
+        let post = qs.parse(body);
+        let id = post.id;
+        let title = post.title;
+        let description = post.description;
 
-    else {
+        fs.rename(`data/${id}`, `data/${title}`, function(err) {
+          fs.writeFile(`./data/${title}`, description, 'utf8', function(err) {
+            response.writeHead(302, {
+                Location : `/?id=${title}`
+              });
+              response.end();
+          })
+        })
+      })
+    }else if(pathName === '/delete_process') {
+      let body = '';
+      request.on('data', function(data) {
+        body = body + data;
+      });
+      request.on('end', function() {
+        let post = qs.parse(body);
+        let title = post.title;
+        fs.unlink(`data/${title}`, function(err) {
+          console.log('deleted~!');
+          response.writeHead(302, {Location : `/`});
+          response.end();
+        })
+      })
+    }else {
       response.writeHead(404);
       response.end('Not Found');
     }
