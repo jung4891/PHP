@@ -2,78 +2,50 @@ var http = require('http');
 var fs = require('fs');
 var url = require('url');
 let qs = require('querystring');
-
-let template = {
-  HTML:function(title, list, body, control) {
-    return `
-    <!doctype html>
-    <html>
-    <head>
-      <title>WEB1 - ${title}</title>
-      <meta charset="utf-8">
-      <style>
-      body {
-        background: black;
-        color: white;
-      }
-      </style>
-    </head>
-    <body>
-      <h1><a href="/">WEB777</a></h1>
-      <ul>
-      ${list}
-      </ul>
-      ${control}
-      ${body}
-    </body>
-    </html>
-    `;
-  },
-  List:function(fileList) {
-    let list = '';
-    let i = 0;
-    while(i < fileList.length) {
-      list += `<li><a href="/?id=${fileList[i]}">${fileList[i]}</a></li>`;
-      i++;
-    }
-    return list;
-  }
-}
+let template = require('./lib/template.js');
+let path = require('path');
 
 var app = http.createServer(function(request,response){
     var _url = request.url;
     let parse_url = url.parse(_url, true);    // 하단 주석
     var pathName = parse_url.pathname;
     var queryStr = parse_url.query;
-    var title = queryStr.id;
-    console.log(pathName);
+    // let filteredId = path.parse(title).base;    // ../password.js -> password.js
+    console.log(pathName);                      // (경로 탐색못하게 보안적으로 막음)
 
     if(pathName === '/'){
-      fs.readdir('./data', function(err, files) {     // [ 'CSS', 'HTML', 'JavaScript' ]
-        let list = template.List(files);
-        fs.readFile(`data/${title}`, 'utf8', function(err, content){
-          let control =
-          `<a href="/create">생성<a>
-           <a href="/update?id=${title}">수정</a>
-           <form action="/delete_process" method="post" onsubmit="return confirm('정말 삭제?')">
-            <input type="hidden" name="title" value="${title}">
-            <input type="submit" value="삭제">
-           </form>
-           `;
-
-          if(title === undefined) {
-            title = 'Welcome!';
-            content = "환영합니다!~!";
-            control = `<a href="/create">생성<a>`;
-          }
-          let html = template.HTML(title, list, `<h2>${title}</h2><p>${content}</p>`, control);
+      if(queryStr.title === undefined) {
+        fs.readdir('./data', function(err, files) {
+          let title = 'Welcome!';
+          let description = "환영합니다!~!";
+          let list = template.List(files);
+          let html = template.HTML(title, list,
+            `<h2>${title}</h2><p>${description}</p>`,
+            `<a href="/create">생성<a>`);
           response.writeHead(200);
           response.end(html);
         });
-      })
+      }else {
+        fs.readdir('./data', function(err, files) {     // [ 'CSS', 'HTML', 'JavaScript' ]
+          fs.readFile(`data/${queryStr.title}`, 'utf8', function(err, description){
+            let title = queryStr.title;
+            let list = template.List(files);
+            let html = template.HTML(title, list,
+              `<h2>${title}</h2><p>${description}</p>`,
+              `<a href="/create">생성<a>
+                <a href="/update?id=${title}">수정</a>
+                <form action="/delete_process" method="post" onsubmit="return confirm('정말 삭제?')">
+                <input type="hidden" name="title" value="${title}">
+                <input type="submit" value="삭제">
+                </form>`);
+            response.writeHead(200);
+            response.end(html);
+          });
+        });
+      }
     }else if(pathName == '/create') {
       fs.readdir('./data', function(err, files) {
-        title = 'WEB - Create';
+        let title = 'WEB - Create';
         let list = template.List(files);
         var html = template.HTML(title, list, `
           <form class="" action="http://localhost:4000/create_process" method="post">
@@ -109,7 +81,7 @@ var app = http.createServer(function(request,response){
     }else if (pathName === '/update') {   // a태그 경로가 /update/?id=~~ 이러면 안된다. /빼야함
       fs.readdir('./data', function(err, files) {
         let list = template.List(files);
-        fs.readFile(`data/${title}`, 'utf8', function(err, content){
+        fs.readFile(`data/${queryStr.id}`, 'utf8', function(err, content){
           let control = `<a href="/create">생성<a> <a href="/update?id=${title}">수정</a>`;
           var html = template.HTML(title, list,
             `

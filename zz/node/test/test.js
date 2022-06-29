@@ -1,13 +1,17 @@
 
 
-let obj = {
-  k1:'k1',
-  f1:function() {
-    console.log('f1', this.k1);
-  },
-  f2:function() {
-    console.log('tttt');
+let A = {
+  a:'aa',
+  func1:function() {
+    console.log('func1', this.a);
   }
 }
 
-obj.f1();
+let test = () => {
+  console.log('testttt입니다.');
+}
+
+// A.func1();
+// test();
+
+module.exports = {A, test};
