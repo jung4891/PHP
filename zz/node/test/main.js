@@ -6,12 +6,12 @@ let template = require('./lib/template.js');
 let path = require('path');
 
 var app = http.createServer(function(request,response){
-    var _url = request.url;
-    let parse_url = url.parse(_url, true);    // 하단 주석
+    var _url = request.url; // 전체url: http://localhost:4000/?title=Nodejs
+    console.log(_url);      //    _url: /?title=Nodejs
+    let parse_url = url.parse(_url, true);    // 하단 주석(GET 방식의 URL 분석)
     var pathName = parse_url.pathname;
     var queryStr = parse_url.query;
-    // let filteredId = path.parse(title).base;    // ../password.js -> password.js
-    console.log(pathName);                      // (경로 탐색못하게 보안적으로 막음)
+    console.log(pathName);
 
     if(pathName === '/'){
       if(queryStr.title === undefined) {
@@ -27,13 +27,16 @@ var app = http.createServer(function(request,response){
         });
       }else {
         fs.readdir('./data', function(err, files) {     // [ 'CSS', 'HTML', 'JavaScript' ]
-          fs.readFile(`data/${queryStr.title}`, 'utf8', function(err, description){
+          // path.parse().base -> ../password.js -> password.js(사용자가 경로 탐색못하게 보안적으로 막음)
+          // 외부에서 내부로 들어오는 url query string으로 readFile()을 통해 내부 파일로 접근하는걸 방지.
+          let filteredId = path.parse(queryStr.title).base;
+          fs.readFile(`data/${filteredId}`, 'utf8', function(err, description){
             let title = queryStr.title;
             let list = template.List(files);
             let html = template.HTML(title, list,
               `<h2>${title}</h2><p>${description}</p>`,
               `<a href="/create">생성<a>
-                <a href="/update?id=${title}">수정</a>
+                <a href="/update?title=${title}">수정</a>
                 <form action="/delete_process" method="post" onsubmit="return confirm('정말 삭제?')">
                 <input type="hidden" name="title" value="${title}">
                 <input type="submit" value="삭제">
@@ -64,15 +67,15 @@ var app = http.createServer(function(request,response){
         // title=%EC%A0%9C%EB%AA%A9%EB%AA%A9&description=%EB%82%B4%EC%9A%A9%EC%9A%A9
       });
       request.on('end', function() {
-        let post = qs.parse(body);
+        let post = qs.parse(body);           // POST 방식의 URL queryString 분석
+        // [Object: null prototype] { title: '제목목', description: '내용용' }
         let title = post.title;
         let description = post.description;
-        // [Object: null prototype] { title: '제목목', description: '내용용' }
 
         fs.writeFile(`./data/${title}`, description, 'utf8', function(err) {
-          response.writeHead(302, {       // 302 : 리다이렉션을 뜻함.
-            Location : `/?id=${title}`    // 경로에 /?에서 루트인 /빼고 ?만 넣으면
-          });                             // 기존 /create_precess?id= 이런식으로 이동됨. / 꼭!
+          response.writeHead(302, {          // 302 : 리다이렉션을 뜻함.
+            Location : `/?title=${title}`    // 경로에 /?에서 루트인 /빼고 ?만 넣으면
+          });                                // 기존 /create_precess?id= 이런식으로 이동됨. / 꼭!
           response.end();
           // response.writeHead(200);
           // response.end('saved');
@@ -81,7 +84,9 @@ var app = http.createServer(function(request,response){
     }else if (pathName === '/update') {   // a태그 경로가 /update/?id=~~ 이러면 안된다. /빼야함
       fs.readdir('./data', function(err, files) {
         let list = template.List(files);
-        fs.readFile(`data/${queryStr.id}`, 'utf8', function(err, content){
+        let filteredId = path.parse(queryStr.title).base;
+        fs.readFile(`data/${filteredId}`, 'utf8', function(err, content){
+          let title = queryStr.title;
           let control = `<a href="/create">생성<a> <a href="/update?id=${title}">수정</a>`;
           var html = template.HTML(title, list,
             `
@@ -110,7 +115,7 @@ var app = http.createServer(function(request,response){
         fs.rename(`data/${id}`, `data/${title}`, function(err) {
           fs.writeFile(`./data/${title}`, description, 'utf8', function(err) {
             response.writeHead(302, {
-                Location : `/?id=${title}`
+                Location : `/?title=${title}`
               });
               response.end();
           })
@@ -124,7 +129,8 @@ var app = http.createServer(function(request,response){
       request.on('end', function() {
         let post = qs.parse(body);
         let title = post.title;
-        fs.unlink(`data/${title}`, function(err) {
+        let filteredId = path.parse(title).base;
+        fs.unlink(`data/${filteredId}`, function(err) {
           console.log('deleted~!');
           response.writeHead(302, {Location : `/`});
           response.end();
@@ -138,7 +144,7 @@ var app = http.createServer(function(request,response){
 app.listen(4000);
 
 
-/* parse_url
+/* let parse_url = url.parse(_url, true);
 (true안하면 query 속성이 decode 안된상태로 객체가 아닌 문자열로 받게됨)
 Url {
   protocol: null,
