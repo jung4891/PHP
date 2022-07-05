@@ -37,18 +37,40 @@
 
       let nickname = document.getElementById('nickname');
       nickname.focus();
+
       let loginBtn = document.getElementById('loginBtn');
       loginBtn.onclick = function() {
-        alert('test');
+        socket.emit('login', nickname.value);
+      }
+      nickname.onkeyup = function(key) {
+        if(key.keyCode == 13) {
+          loginBtn.click();
+        }
       }
 
-      var messages = document.getElementById('messages');
+      socket.on('loginFail', function() {
+        alert('중복된 사용자입니다.');
+      })
+
+      socket.on('loginSuccess', function(chatlog) {
+        document.getElementById('loginArea').style.display = "none";
+        document.getElementById('chatArea').style.display = "block";
+
+        var messages = document.getElementById('messages');
+        for(let i=0; i<chatlog.length; i++){               //DB에 저장된 내용을 가져옴
+          var item = document.createElement('li');
+          item.textContent = `${chatlog[i].nickname} : ${chatlog[i].msg}`;
+          messages.appendChild(item);
+          window.scrollTo(0, document.body.scrollHeight);
+        }
+      });
+
       var form = document.getElementById('form');
       var input = document.getElementById('input');
 
-      socket.on('msg_from_server', function(msg) {
+      socket.on('msg_from_server', function(param) {
         var item = document.createElement('li');
-        item.textContent = msg;
+        item.textContent = (typeof param === 'object')? `${param.nickname} : ${param.msg}` : param;
         messages.appendChild(item);
         window.scrollTo(0, document.body.scrollHeight);
       });
