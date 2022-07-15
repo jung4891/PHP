@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Socket.IO chat</title>
+    <style>
+      body { margin: 0; padding-bottom: 3rem; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+
+      #form { background: rgba(0, 0, 0, 0.15); padding: 0.25rem; position: fixed; bottom: 0; left: 0; right: 0; display: flex; height: 3rem; box-sizing: border-box; backdrop-filter: blur(10px); }
+      #input { border: none; padding: 0 1rem; flex-grow: 1; border-radius: 2rem; margin: 0.25rem; }
+      #input:focus { outline: none; }
+      #form > button { background: #333; border: none; padding: 0 1rem; margin: 0.25rem; border-radius: 3px; outline: none; color: #fff; }
+
+      #messages { list-style-type: none; margin: 0; padding: 0; }
+      #messages > li { padding: 0.5rem 1rem; }
+      #messages > li:nth-child(odd) { background: #efefef; }
+    </style>
+  </head>
+  <body>
+
+    <div id="loginArea">
+      <input type="text" id="nickname">
+      <input type="button" id="loginBtn" value="로그인">
+    </div>
+
+    <div id="chatArea" style="display: none">
+      <ul id="messages"></ul>
+      <form id="form" action="">
+        <input id="input" autocomplete="off" /><button>Send</button>
+      </form>
+    </div>
+
+    <!-- <script src="/socket.io/socket.io.js"></script> -->
+    <script src="https://cdn.socket.io/socket.io-3.0.1.min.js"></script>
+    <script>
+      // var socket = io.connect();                     // server와 client가 같은 로컬에 있는 경우
+      var socket = io.connect('http://localhost:3000');
+      // io.connect('{연결 URL:포트}');                 // {이 주소로} 서버측과 연결합니다.
+
+      let nickname = document.getElementById('nickname');
+      nickname.focus();
+
+      let loginBtn = document.getElementById('loginBtn');
+      loginBtn.onclick = function() {
+        socket.emit('login', nickname.value);
+      }
+      nickname.onkeyup = function(key) {
+        if(key.keyCode == 13) {
+          loginBtn.click();
+        }
+      }
+
+      socket.on('loginFail', function() {
+        alert('중복된 사용자입니다.');
+      })
+
+      socket.on('loginSuccess', function(chatlog) {
+        document.getElementById('loginArea').style.display = "none";
+        document.getElementById('chatArea').style.display = "block";
+
+        var messages = document.getElementById('messages');
+        for(let i=0; i<chatlog.length; i++){               //DB에 저장된 내용을 가져옴
+          var item = document.createElement('li');
+          item.textContent = `${chatlog[i].nickname} : ${chatlog[i].msg}`;
+          messages.appendChild(item);
+          window.scrollTo(0, document.body.scrollHeight);
+        }
+      });
+
+      var form = document.getElementById('form');
+      var input = document.getElementById('input');
+
+      socket.on('msg_from_server', function(param) {
+        var item = document.createElement('li');
+        item.textContent = (typeof param === 'object')? `${param.nickname} : ${param.msg}` : param;
+        messages.appendChild(item);
+        window.scrollTo(0, document.body.scrollHeight);
+      });
+
+      form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        if (input.value) {
+          socket.emit('msg_from_client', input.value);
+          input.value = '';
+        }
+      });
+    </script>
+  </body>
+</html>
