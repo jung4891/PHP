@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+  <g id="플러스아이콘" transform="translate(-0.234)">
+    <circle id="타원_1" data-name="타원 1" cx="8" cy="8" r="8" transform="translate(0.234)" fill="#a3a1a1"/>
+    <g id="그룹_1" data-name="그룹 1" transform="translate(3.267 3.048)">
+      <rect id="사각형_5" data-name="사각형 5" width="9.935" height="1.49" transform="translate(0 4.192)" fill="#fff"/>
+      <rect id="사각형_6" data-name="사각형 6" width="9.905" height="1.467" transform="translate(5.686) rotate(90)" fill="#fff"/>
+    </g>
+  </g>
+</svg>

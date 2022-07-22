@@ -1,0 +1,359 @@
+
+/* 모바일 csss */
+@media (max-width: 575px), (max-width: 768px) {
+#add_conference_btn,#add_car_btn{
+  margin:20px 0px  !important;
+}
+.select_time{
+  font-size:14px;
+  display:flex;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+.select_time_th{
+  width:100% !important;
+}
+.select_time tbody{
+  display:flex
+}
+.select_time th:first-child{
+  display:block;
+  height:30px !important;
+}
+.select_time th:not(:first-child){
+  display:block;
+  height:22px !important;
+}
+.select_time td{
+  display:block;
+}
+.select_time td:first-child{
+  height:30px !important;
+}
+
+.select_time td:not(:first-child){
+  height:0px !important;
+}
+input,
+textarea,
+select {
+    font-size: 16px !important;
+}
+#select_date,#select_car_date{
+  width:220px !important;
+  float: none !important;
+  margin:20px 0px !important;
+}
+
+#select_table,#select_car_table{
+  display:inline-block  !important;
+  width:100% !important;
+  margin:0px !important;
+}
+
+#conference_div{
+  width:100% !important;
+}
+
+#car_reservation_div{
+  width:100% !important;
+}
+
+li{
+  list-style: none;
+}
+#addpopup, #updateSchedule{
+  width:100% !important;
+  margin-left: 100px !important;
+}
+#addpopup input:not(#room_name,#car_name,.dayBtn,.timeBtn,.dateBtn,.basicBtn,.add_weekly_report,.btn-common),#addpopup textarea,
+#updateSchedule input:not(#de_room_name,#de_car_name,.dayBtn,.timeBtn,.dateBtn,.basicBtn,.add_weekly_report,.btn-common),#updateSchedule textarea{
+  width:70% !important;
+}
+#room_name,#car_name,#de_room_name,#de_car_name{
+  width:50% !important;
+}
+#searchDiv{
+  width:25% !important;
+  float:left !important;
+}
+#searchBtnDiv{
+  width:20% !important;
+  float:left !important;
+  text-align: center;
+}
+#changeDiv{
+  width:50% !important;
+  float:left !important;
+}
+#searchSelect,#searchText{
+  width:100% !important;
+  font-family:"Noto Sans KR", sans-serif !important;
+}
+
+#scheduleSidebar,#company_schedule,#selectParticipantBtn {
+  display : none !important;
+}
+#scheduleTop{
+  width:100% !important;
+  margin:0px !important;
+}
+#calendar{
+  width:100% !important;
+  height: 600px !important;
+
+}
+
+.fc .fc-toolbar{
+  font-size: 10px;
+  display: inline-block !important;
+}
+
+.fc-toolbar-title{
+  margin-bottom:10px !important;
+}
+
+.fc .fc-daygrid-day-frame{
+  min-height:100% !important;
+
+}
+
+.fc-button-group:first-child{
+  margin-top:10px;
+  width:100% !important;
+}
+
+
+
+}
+
+/* 모바일css끝 */
+
+
+#feedback { font-size: 1.4em; }
+#selectable .ui-selecting { background: #80dfff; }
+#selectable .ui-selected { background: #52b1fa; color: white; }
+#selectable { list-style-type: none; margin: 0; padding: 0; width: 60%; }
+
+#select_car_tbody .ui-selecting { background: #80dfff; }
+#select_car_tbody .ui-selected { background: #52b1fa; color: white; }
+#select_car_tbody { list-style-type: none; margin: 0; padding: 0; width: 60%; }
+
+div.scheduleHint {
+  font-size:18px; position:absolute; width:450px; line-height:1.5em; padding:5px 8px 7px; border: 1px solid #cccccc;  border-radius: 4px; background:#fff;  /* z-index:10001; */
+  -webkit-box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.1);
+  -moz-box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.1);
+  box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.1);
+}
+
+h3 {
+  padding:0;
+  margin: 0;
+  font-weight: bold;
+  line-height: 1.1;
+  display: block;
+  font-size: 1.17em;
+  margin-block-start:1em;
+  margin-block-end:1em;
+  margin-inline-start:0px;
+  margin-inline-end:0px;
+}
+
+.event_color_button {
+  display: inline-block;
+  vertical-align: middle;
+  width: 15px;
+  height: 15px;
+}
+
+.fc .fc-daygrid-day-frame {
+  position: relative;
+  min-height: 145px;
+  max-height: 145px;
+}
+
+/* 오늘버튼 */
+.fc-today-button:disabled {
+  cursor:pointer !important;
+  width: 60px !important;
+  border-radius: 3px !important;
+  opacity: 1 !important;
+  background-color: #FFFFFF !important;
+  border-color: #565656 !important;
+  color: #565656 !important;
+}
+.fc-today-button {
+  cursor:pointer !important;
+  width: 60px !important;
+  border-radius: 3px !important;
+  opacity: 1 !important;
+  background-color: #FFFFFF !important;
+  border-color: #565656 !important;
+  color: #565656 !important;
+}
+.fc-today-button:hover {
+  cursor:pointer !important;
+  background-color: #565656 !important;
+  border-color: #FFFFFF !important;
+  color: #FFFFFF !important;
+}
+/* 왼쪽버튼 */
+.fc-prev-button {
+  cursor:pointer;
+  background-color: #FFFFFF !important;
+  border-color: #565656 !important;
+  color: #565656 !important;
+}
+.fc-prev-button:hover {
+  cursor:pointer;
+  background-color: #565656 !important;
+  border-color: #FFFFFF !important;
+  color: #FFFFFF !important;
+}
+/* 오른쪽버튼 */
+.fc-next-button {
+  cursor:pointer;
+  background-color: #FFFFFF !important;
+  border-color: #565656 !important;
+  color: #565656 !important;
+}
+.fc-next-button:hover {
+  cursor:pointer;
+  background-color: #565656 !important;
+  border-color: #FFFFFF !important;
+  color: #FFFFFF !important;
+}
+/* 일정추가 버튼 */
+.fc-addSchedule-button {
+  background-color: #FA4C06 !important;
+  border-color: #FA4C06 !important;
+  color: #FFFFFF !important;
+  width: auto !important;
+  margin-right: 20px !important;
+}
+/* .fc-addSchedule-button:hover {
+  background-color: #FFFFFF !important;
+  border-color: #FFFFFF !important;
+  color: #FA4C06 !important;
+} */
+/* 리스트 버튼 */
+.fc-listMonth-button, .fc-listWeek-button, .fc-listDay-button, .fc-dayGridMonth-button, .fc-timeGridWeek-button, .fc-timeGridDay-button {
+  background-color: #E7F3FF !important;
+  border-color: #E7F3FF !important;
+  color: #1A8DFF !important;
+}
+.fc-listMonth-button:hover, .fc-listWeek-button:hover, .fc-listDay-button:hover, .fc-dayGridMonth-button:hover, .fc-timeGridWeek-button:hover, .fc-timeGridDay-button:hover {
+  background-color: #badaf9 !important;
+  border-color: #badaf9 !important;
+}
+.fc-button-active {
+  background-color: #0575E6 !important;
+  border-color: #0575E6 !important;
+  color: #FFFFFF !important;
+}
+/* .fc-toolbar-chunk:nth-child(2) {
+  flex: 3 !important;
+}
+.fc-toolbar-chunk:nth-child(1) {
+  flex: 1 !important;
+  max-width
+} */
+/* 달력 테이블 border */
+.fc-scrollgrid {
+  border: thin solid #DFDFDF !important;
+  border-radius: 5px;
+}
+.fc-scrollgrid th {
+  border: none !important;
+  /* border-bottom: thin solid #DFDFDF !important; */
+}
+.fc-scrollgrid td {
+  border: none !important;
+  border-bottom: thin solid #DFDFDF !important;
+  border-right: thin solid #DFDFDF !important;
+}
+.fc-scrollgrid td:last-child {
+  border-right: none !important;
+}
+/* 토/일 글자색상 및 배경색상 */
+.fc-day-sun a, .fc-day-sun a.fc-daygrid-day-number {
+   color:red;
+ }
+.fc-day-sat a, .fc-day-sat a.fc-daygrid-day-number {
+  color:blue;
+}
+.fc-daygrid-day-top {
+  flex-direction: row !important;
+}
+.fc-daygrid-day-number {
+  direction: ltr !important;
+  margin-left: 5px;
+}
+.fc-event-title {
+  text-align:right !important;
+}
+.koHolidays {
+  background-color: #fff !important;
+}
+
+.text-point { color:#d3292c !important; }
+.text-normal { color:black !important; }
+
+.tooltip-content{
+  visibility: hidden;
+  width: 450px;
+  /* background-color: white; */
+  padding:5px 8px 7px;
+  line-height:1.5em;
+  margin-top: 10px;
+  position: absolute;
+  z-index: 1;
+  color:black;
+  font-size: 18px;
+  border: 1px solid #cccccc;
+  border-radius: 4px;
+  background:#fff;  /* z-index:10001; */
+  -webkit-box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.1);
+  -moz-box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.1);
+  box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.1);
+}
+
+.fc-toolbar-title{
+  font-family:"Noto Sans KR", sans-serif !important;
+}
+
+.fc-toolbar-title:after{
+  content:' (근무자 스케쥴)';
+  color:#7D7D7D;
+  font-family:"Noto Sans KR", sans-serif !important;
+}
+
+.fc-daygrid-event {
+  /* border-left: 3px solid red !important; */
+  padding-left: 2px;
+}
+
+.modal_title {
+  padding-bottom: 20px !important;
+  border-bottom: thin solid #DFDFDF;
+}
+.modal-input-tbl td, .modal-input-tbl tr {
+  border: none !important;
+  height: 20px !important;
+}
+.modal-input-tbl input, .modal-input-tbl select {
+  box-sizing: border-box;
+  color: #A6A6A6;
+  border-color: #DDDDDD;
+  height: 35px;
+}
+.modal-input-tbl .sub_title {
+  padding-top: 10px;
+  padding-bottom: 5px;
+  font-weight: bold;
+}
+.dayBtn, .timeBtn {
+  height: 30px;
+}

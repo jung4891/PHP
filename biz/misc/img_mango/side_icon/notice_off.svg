@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20">
+  <g id="그룹_1314" data-name="그룹 1314" transform="translate(-1095 -474)">
+    <g id="window" transform="translate(1097 477)">
+      <path id="패스_507" data-name="패스 507" d="M14,3.25H2a1,1,0,0,0-1,1v10a1,1,0,0,0,1,1H14a1,1,0,0,0,1-1v-10A1,1,0,0,0,14,3.25Zm-12-1a2,2,0,0,0-2,2v10a2,2,0,0,0,2,2H14a2,2,0,0,0,2-2v-10a2,2,0,0,0-2-2Z" transform="translate(0 -2.25)" fill="#a6a6a6" fill-rule="evenodd"/>
+      <path id="패스_508" data-name="패스 508" d="M16.244,12.253H2.25v-1H16.244Z" transform="translate(-1.247 -7.251)" fill="#a6a6a6" fill-rule="evenodd"/>
+      <path id="패스_509" data-name="패스 509" d="M5.5,7.252a.5.5,0,1,1-.5-.5A.5.5,0,0,1,5.5,7.252Zm1.5,0a.5.5,0,1,1-.5-.5A.5.5,0,0,1,7.008,7.252Zm1.5,0a.5.5,0,1,1-.5-.5A.5.5,0,0,1,8.512,7.252Z" transform="translate(-2.494 -4.744)" fill="#a6a6a6"/>
+    </g>
+    <rect id="사각형_1025" data-name="사각형 1025" width="20" height="20" transform="translate(1095 474)" fill="none" opacity="0.5"/>
+  </g>
+</svg>

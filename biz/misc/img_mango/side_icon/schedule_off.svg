@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20">
+  <g id="그룹_1293" data-name="그룹 1293" transform="translate(-1984 -123)">
+    <g id="__TEMP__SVG__" transform="translate(1986 125)">
+      <path id="패스_516" data-name="패스 516" d="M14,3.249H2a1,1,0,0,0-1,1V15.242a1,1,0,0,0,1,1H14a1,1,0,0,0,1-1V4.249A1,1,0,0,0,14,3.249Zm-12-1a2,2,0,0,0-2,2V15.242a2,2,0,0,0,2,2H14a2,2,0,0,0,2-2V4.249a2,2,0,0,0-2-2Z" transform="translate(0 -1.24)" fill="#a6a6a6" fill-rule="evenodd"/>
+      <path id="패스_517" data-name="패스 517" d="M14,3.26H2a1,1,0,0,0-1,1.01v1.01H15V4.269A1,1,0,0,0,14,3.26ZM2,2.25A2.01,2.01,0,0,0,0,4.269V6.289H16V4.269A2.01,2.01,0,0,0,14,2.25Z" transform="translate(0 -1.24)" fill="#a6a6a6" fill-rule="evenodd"/>
+      <path id="패스_518" data-name="패스 518" d="M7.247,0a.5.5,0,0,1,.5.5v.5a.5.5,0,1,1-.994,0V.5A.5.5,0,0,1,7.247,0Zm8.948,0a.5.5,0,0,1,.5.5v.5a.5.5,0,1,1-.994,0V.5A.5.5,0,0,1,16.195,0Z" transform="translate(-3.721 0)" fill="#a6a6a6" fill-rule="evenodd"/>
+      <path id="패스_519" data-name="패스 519" d="M25.255,15.75h1.01a.5.5,0,0,1,.5.5v1.01a.5.5,0,0,1-.5.5h-1.01a.5.5,0,0,1-.5-.5v-1.01A.5.5,0,0,1,25.255,15.75Z" transform="translate(-13.765 -8.76)" fill="#a6a6a6"/>
+    </g>
+    <rect id="사각형_1019" data-name="사각형 1019" width="20" height="20" transform="translate(1984 123)" fill="none" opacity="0.5"/>
+  </g>
+</svg>

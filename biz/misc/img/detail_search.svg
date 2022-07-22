@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="90" height="30" viewBox="0 0 90 30">
+  <g id="그룹_2119" data-name="그룹 2119" transform="translate(-116 -160)">
+    <g id="사각형_537" data-name="사각형 537" transform="translate(116 160)" fill="#fff" stroke="#b6b6b6" stroke-width="1">
+      <rect width="90" height="30" rx="3" stroke="none"/>
+      <rect x="0.5" y="0.5" width="89" height="29" rx="2.5" fill="none"/>
+    </g>
+    <text id="상세검색" transform="translate(126 180.155)" fill="#1c1c1c" font-size="13" font-family="NotoSansKR-Medium, Noto Sans KR" font-weight="500"><tspan x="0" y="0">상세검색</tspan></text>
+    <g id="그룹_2118" data-name="그룹 2118" transform="translate(-47 23.25)">
+      <rect id="사각형_3" data-name="사각형 3" width="16" height="16" transform="translate(229 143.75)" fill="none" opacity="0.5"/>
+      <g id="plus" transform="translate(230.575 145.575)">
+        <path id="패스_642" data-name="패스 642" d="M14.175,7.875a.7.7,0,0,1,.7.7v5.6a.7.7,0,0,1-.7.7h-5.6a.7.7,0,1,1,0-1.4h4.9v-4.9A.7.7,0,0,1,14.175,7.875Z" transform="translate(-7.875 -7.875)" fill="#1c1c1c" fill-rule="evenodd"/>
+        <path id="패스_643" data-name="패스 643" d="M16.875,17.575a.7.7,0,0,1,.7-.7h5.6a.7.7,0,0,1,0,1.4h-4.9v4.9a.7.7,0,0,1-1.4,0Z" transform="translate(-11.275 -11.275)" fill="#1c1c1c" fill-rule="evenodd"/>
+      </g>
+    </g>
+  </g>
+</svg>

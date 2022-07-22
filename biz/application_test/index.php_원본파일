@@ -1,0 +1,177 @@
+<?php
+header('Content-Type: text/html; charset=UTF-8');
+
+?>
+<html>
+
+<!---뷰포트---->
+<meta name="viewport" content="user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, width=device-width" />
+
+<!----스타일시트&폰트----->
+
+<head>
+    <link rel="stylesheet" type="text/css" href="main.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+
+<!--내부스타일 시작---->
+<style>
+    /* 미디어쿼리 */
+    @media (max-width:400px) {
+        .container {
+            margin: 0px;
+            paddinag: 0px;
+
+        }
+    }
+
+    /* 로그인바 */
+    #login {
+        position: absolute;
+        width: 76%;
+        height: 4.5%;
+        left: 12%;
+        top: 37.5%;
+
+        background-color: rgba 0, 0, 0, 0;
+        color: rgba 0, 0, 0, 0;
+        padding: center center;
+        text-align: center;
+        display: inline-block;
+        cursor: pointer;
+        border: 0.5em solid rgba 0, 0, 0, 0.8;
+
+        font-family: Gothic A1;
+        font-style: normal;
+        font-weight: bold;
+        font-size: 0.8em;
+        line-height: 0.5em;
+        color: rgba 0, 0, 0, 0.8;
+        text-decoration: none;
+
+
+    }
+
+
+
+    /* 등록 */
+    #register {
+
+        position: absolute;
+        width: 76%;
+        height: 4.5%;
+        left: 12%;
+        top: 44%;
+
+        color: rgba 0, 0, 0, 0.8;
+        padding: auto auto;
+        text-align: center;
+        text-decoration: none;
+
+        background-color: #000000;
+        border: none;
+        text-align: center;
+        display: inline-block;
+
+        font-family: Gothic A1;
+        font-style: normal;
+        font-weight: bold;
+        font-size: 0.8em;
+        line-height: 0.5em;
+        color: #ffffff;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+
+    /*비밀번호*/
+
+    #password {
+        position: absolute;
+        width: 100%;
+        height: 11%;
+        left: 66%;
+        top: 55%;
+
+
+        font-family: Gothic A1;
+        font-style: normal;
+        font-weight: bold;
+        font-size: 13px;
+        line-height: 39px;
+        /* or 300% */
+
+        display: flex;
+        align-items: center;
+        color: rgba(0, 0, 0, 0.8);
+        text-decoration: none;
+        z-index: 5;
+
+    }
+
+    #imgstyle {
+        width: 244px;
+        height: 216px;
+        left: 66px;
+        top: 141px;
+
+    }
+
+
+    /* 화면꾸미기 */
+
+    #logo {
+        position: absolute;
+        left: -2%;
+        top: center;
+        width: 100%;
+        height: 89.9%;
+        align-content: center;
+        z-index: 4;
+
+        background: url(logo.png);
+        background-repeat: no-repeat;
+    }
+
+    #img {
+        position: absolute;
+        top: -20%;
+
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+
+
+    }
+
+
+    < !--내부스타일 끝---->
+
+</style>
+
+
+
+<form action='user_process.php' method='post'>
+
+    <div id="img">
+        <img src="logo.png" alt="">
+    </div>
+
+
+    <div>
+        <a id="login" href="<?php echo $_SERVER['DOCUMENT-ROOT'];?>sign_in.php">로그인</a>
+    </div>
+
+    <div>
+        <a id="register" href="<?php echo $_SERVER['DOCUMENT-ROOT'];?>sign_up.php">등록</a>
+    </div>
+
+    <div>
+        <a id="password" href="<?php echo $_SERVER['DOCUMENT-ROOT'];?>pw_change.php">비밀번호 변경</a>
+    </div>
+</form>
+
+</html>

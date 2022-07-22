@@ -1,0 +1,337 @@
+<?php
+	include $this->input->server('DOCUMENT_ROOT')."/include/base.php";
+	include $this->input->server('DOCUMENT_ROOT')."/include/sales_top.php";
+	if($search_keyword != ''){
+	$filter = explode(',',str_replace('"', '&uml;',$search_keyword));
+  }
+?>
+<body>
+	<?php
+	  include $this->input->server('DOCUMENT_ROOT')."/include/base.php";
+	  ?>
+	<meta name="viewport" content="width=device-width,height=device-width, initial-scale=1.0">
+	<style>
+	.menu_div {
+		margin-top:10px;
+		padding: 10px;
+		border-bottom: thin #EFEFEF solid;
+		overflow-x: scroll;
+		white-space:nowrap;
+	}
+	.menu_div::-webkit-scrollbar {
+		display: none;
+	}
+	.menu_list {
+		cursor:pointer;margin:10px;font-weight:bold;font-size:15px;
+	}
+	.content_list {
+		width:100%;
+	 display: inline-block;
+	 padding-bottom:20px;
+	}
+	.approval_list_tbl {
+		padding-top: 20px;
+		padding-left: 15px;
+		padding-right:15px;
+		border-spacing: 0 10px;
+		table-layout: fixed;
+	}
+	.approval_list_tbl td {
+		overflow:hidden;
+		white-space : nowrap;
+		text-overflow: ellipsis;
+	}
+	#paging_tbl {
+		margin-top:10px;
+		width:100%;
+	}
+	#paging_tbl a {
+		font-size: 18px;
+	}
+	<?php if($type != 'admin'){ ?>
+	.read_n td {
+		font-weight:bold;
+	}
+	.admin_tr {
+		display:none;
+	}
+	<?php } ?>
+	.input-common, .select-common, .btn-common {
+		height: 35px !important;
+		border-radius: 3px !important;
+	}
+	.dayBtn {
+		background:url(<?php echo $misc; ?>img/mobile/footer_schedule.svg) no-repeat 98% 50% #fff;
+		background-size: 20px;
+	}
+	</style>
+	<link rel="stylesheet" href="/misc/css/view_page_common.css">
+	<?php
+	  include $this->input->server('DOCUMENT_ROOT')."/include/mobile_side.php";
+	  include $this->input->server('DOCUMENT_ROOT')."/include/mobile_header.php";
+	  ?>
+		<form name="mform" action="<?php echo site_url();?>/biz/board/notice_list" method="get" onKeyDown="if(event.keyCode==13) return GoSearch();">
+			<input type="hidden" name="cur_page" value="<?php echo $cur_page; ?>">
+			<input type="hidden" name="seq" value="">
+			<input type="hidden" name="mode" value="">
+			<input type="hidden" name="category" value="<?php echo $category; ?>">
+	   <input type="hidden" name="searchkeyword" id="searchkeyword" value="<?php echo str_replace('"', '&uml;',$search_keyword); ?>" />
+	   <input type="hidden" name="search1" id="search1" value="<?php echo $search1; ?>" />
+
+	<div class="menu_div">
+		<a class="menu_list" onclick ="moveList('001')" style='color:<?php if($_GET["category"] == "001"){echo "#0575E6";}else{echo "#B0B0B0";}?>'>운영공지</a>
+		<a class="menu_list" onclick ="moveList('002')" style='color:<?php if($_GET["category"] == "002"){echo "#0575E6";}else{echo "#B0B0B0";}?>'>개발공지</a>
+		<a class="menu_list" onclick ="moveList('003')" style='color:<?php if($_GET["category"] == "003"){echo "#0575E6";}else{echo "#B0B0B0";}?>'>버전관리</a>
+	</div>
+
+	<div class="content_list">
+		<table class="approval_list_tbl" width="100%" border="0" cellspacing="0" cellpadding="0">
+			<colgroup>
+				<col width="15%">
+				<col width="85%">
+			</colgroup>
+			<tbody>
+<?php foreach ($list_val as $item) { ?>
+				<tr onclick="ViewBoard('<?php echo $item['seq'];?>','<?php echo $item['category_code']; ?>')">
+					<td align="left" style="color:#A1A1A1;"><?php echo $item['user_name']; ?></td>
+					<td align="right" style="color:#A1A1A1;"><?php echo substr($item['update_date'],0,10); ?></td>
+				</tr>
+				<tr onclick="ViewBoard('<?php echo $item['seq'];?>','<?php echo $item['category_code']; ?>')">
+					<td align="left" colspan="2" style="color:#1C1C1C;font-weight:bold;"><?php echo $this->common->trim_text(stripslashes($item['subject']), 100); ?></td>
+				</tr>
+				<tr><td height="1" colspan="2" bgcolor="#EFEFEF"></td></tr>
+<?php } ?>
+<?php if($count == 0) { ?>
+				<tr>
+					<td colspan="2" align="center" height="40" style="font-weight:bold;">등록된 게시물이 없습니다.</td>
+				</tr>
+<?php } ?>
+			</tbody>
+		</table>
+
+		<!-- 페이징 -->
+		<table id="paging_tbl" cellspacing="0" cellpadding="0">
+		  <!-- 페이징처리 -->
+		  <tr>
+		     <td align="center">
+		     <?php if ($count > 0) {?>
+		           <table border="0" cellspacing="0" cellpadding="0">
+		                 <tr>
+		           <?php
+		              if ($cur_page > 10){
+		           ?>
+		                 <td width="19"><a href="JavaScript:GoFirstPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_first.png" width="20" height="20"/></a></td>
+		                 <td width="2"></td>
+		                 <td width="19"><a href="JavaScript:GoPrevPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_left.png" width="20" height="20"/></a></td>
+		           <?php
+		              } else {
+		           ?>
+		              <td width="19"></td>
+		                 <td width="2"></td>
+		                 <td width="19"></td>
+		           <?php
+		              }
+		           ?>
+		                 <td align="center">
+		              <?php
+		                 for  ( $i = $start_page; $i <= $end_page ; $i++ ){
+		                    if( $i == $end_page ) {
+		                       $strSection = "";
+		                    } else {
+		                       $strSection = "&nbsp;<span class=\"section\">&nbsp&nbsp</span>&nbsp;";
+		                    }
+
+		                    if  ( $i == $cur_page ) {
+		                       echo "<a href=\"JavaScript:GoPage( '".$i."' )\" class=\"alink\"><font color=\"#33ccff\">".$i."</font></a>".$strSection;
+		                    } else {
+		                       echo "<a href=\"JavaScript:GoPage( '".$i."' )\" class=\"alink\">".$i."</a>".$strSection;
+		                    }
+		                 }
+		              ?></td>
+		                 <?php
+		                 if   ( floor( ( $cur_page - 1 ) / 10 ) < floor( ( $total_page - 1 ) / 10 ) ){
+		              ?>
+		              <td width="19"><a href="JavaScript:GoNextPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_right.png" width="20" height="20"/></a></td>
+		                 <td width="2"></td>
+		                 <td width="19"><a href="JavaScript:GoLastPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_last.png" width="20" height="20"/></a></td>
+		              <?php
+		                 } else {
+		              ?>
+		              <td width="19"></td>
+		                 <td width="2"></td>
+		                 <td width="19"></td>
+		              <?php
+		                 }
+		              ?>
+		                 </tr>
+		              </table>
+		     <?php }?>
+		           </td>
+		     </tr>
+		  <!-- 페이징처리끝 -->
+		</table>
+	</div>
+
+	<!-- 검색 모달 시작 -->
+  <div id="search_div" style="height:auto;width:100%;background-color:#ffffff; display:none;border-radius:5px;">
+    <div class="modal_contain" style="font-size:16px; color:#1C1C1C;font-weight:bold;">
+      <table style="width:100%;padding:5%;" cellspacing="0">
+				<colgroup>
+					<col width="50%">
+					<col width="50%">
+				</colgroup>
+				<tr>
+      		<td align="left" height="40">
+						<select class="select-common" id="search_select" name="search1" style="margin-right:10px;color:black;width:92%;">
+							<option value="001" <?php if($search1 == "001"){ echo "selected";}?>>제목</option>
+							<option value="002" <?php if($search1 == "002"){ echo "selected";}?>>등록자</option>
+						</select>
+					</td>
+      	</tr>
+				<tr>
+					<td colspan="2">
+						<input type="text" class="input-common" id="searchkeyword_input" placeholder="검색하세요." value="<?php echo str_replace('"', '&uml;', $search_keyword );?>" style=";width:95%;" />
+					</td>
+				</tr>
+				<tr>
+          <td height="20"></td>
+        </tr>
+				<tr>
+					<td>
+						<input type="button" class="btn-common btn-color1" style="width:95%" value="취소" onclick="$('#search_div').bPopup().close();">
+					</td>
+					<td align="right">
+						<input type="button" class="btn-common btn-color2" style="width:95%" value="검색" onclick="return GoSearch();">
+					</td>
+				</tr>
+      </table>
+    </div>
+  </div>
+	<!-- 검색 모달 끝 -->
+</form>
+	<div style="width:90%;margin:0 auto;margin-bottom:10px;">
+		<?php if($category == "002" || $category == "003"){
+					if($this->group =='기술연구소'){
+			?>
+			<a href="<?php echo site_url();?>/biz/board/notice_input_lab">
+				<!-- <img src="<?php echo $misc;?>img/dashboard/btn/btn_write.png" width="90" height="35" style="cursor:pointer;"> -->
+				<input style="width:100%" type="button" class="btn-common btn-color2" value="글쓰기">
+			</a>
+		<?php }}else{ ?>
+			<a href="<?php echo site_url();?>/biz/board/notice_input">
+				<!-- <img src="<?php echo $misc;?>img/dashboard/btn/btn_write.png" width="90" height="35" style="cursor:pointer;"> -->
+				<input style="width:100%" type="button" class="btn-common btn-color2" value="글쓰기">
+			</a>
+
+		<?php } ?>
+	</div>
+	<div style="width:90%;padding-left:10px;padding-bottom:60px;">
+		<span style="color:red;margin-right:5px;">*</span>공지사항 검색 시 우측 하단에 검색 아이콘을 눌러주세요.
+	</div>
+	<?php include $this->input->server('DOCUMENT_ROOT')."/include/mobile_bottom.php"; ?>
+
+</body>
+<script language="javascript">
+
+function moveList(category){
+	 location.href="<?php echo site_url();?>/biz/board/notice_list?category="+category;
+}
+
+
+function GoFirstPage (){
+	document.mform.cur_page.value = 1;
+	document.mform.submit();
+}
+
+function GoPrevPage (){
+	var	cur_start_page = <?php echo $cur_page;?>;
+
+	document.mform.cur_page.value = Math.floor( ( cur_start_page - 11 ) / 10 ) * 10 + 1;
+	document.mform.submit( );
+}
+
+function GoPage(nPage){
+	document.mform.cur_page.value = nPage;
+	document.mform.submit();
+}
+
+function GoNextPage (){
+	var	cur_start_page = <?php echo $cur_page;?>;
+
+	document.mform.cur_page.value = Math.floor( ( cur_start_page + 9 ) / 10 ) * 10 + 1;
+	document.mform.submit();
+}
+
+function GoLastPage (){
+	var	total_page = <?php echo $total_page;?>;
+//	alert(total_page);
+
+	document.mform.cur_page.value = total_page;
+	document.mform.submit();
+}
+
+function ViewBoard (seq, lab){
+	if (lab == '004') {
+		document.mform.action = "<?php echo site_url();?>/biz/board/lab_notice_view";
+	}else{
+
+		document.mform.action = "<?php echo site_url();?>/biz/board/notice_view";
+	}
+	document.mform.seq.value = seq;
+	document.mform.mode.value = "view";
+
+	document.mform.submit();
+}
+function view_reader(seq) {
+	$.ajax({
+		type: "POST",
+		url: "<?php echo site_url(); ?>/biz/board/reader_list",
+		dataType: "json",
+		data: {
+			notice_seq: seq
+		},
+		success: function(data) {
+			var j = data.length;
+			var list = '';
+			for (i=0; i<data.length; i++) {
+				list += '<tr class="cell-tr" style="height:20px;">';
+				list += '<td>'+j+'</td>';
+				list += '<td>'+data[i].user_name + ' ' + data[i].user_duty +'</td>';
+				list += '<td>'+data[i].read_time+'</td>';
+				list += '</tr>';
+				j --;
+			}
+			$('#reader_list').html(list);console.log(list);
+		}
+	})
+
+
+	$('#reader_popup').bPopup();
+}
+
+function open_search() {
+	$('#search_div').bPopup();
+}
+
+function GoSearch(){
+	$('#searchkeyword').val($.trim($('#searchkeyword_input').val()));
+	$('#search1').val($('#search_select').val());
+
+	var searchkeyword = document.mform.searchkeyword.value;
+
+	if (searchkeyword.replace(/,/g, "") == "") {
+		 alert("검색어가 없습니다.");
+		 location.href="<?php echo site_url();?>/biz/board/notice_list?category=<?php echo $category;?>";
+		 return false;
+	}
+
+	document.mform.action = "<?php echo site_url();?>/biz/board/notice_list";
+	document.mform.cur_page.value = "";
+	document.mform.submit();
+}
+$(window).bind("pageshow", function(event) {
+	if (event.originalEvent.persisted) {
+			document.location.reload();
+	}
+});
+</script>

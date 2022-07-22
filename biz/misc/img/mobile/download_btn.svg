@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+  <g id="그룹_2132" data-name="그룹 2132" transform="translate(-256 -317)">
+    <g id="그룹_370" data-name="그룹 370" transform="translate(256 317)">
+      <g id="사각형_1076" data-name="사각형 1076" fill="#fff" stroke="#dedede" stroke-width="1">
+        <rect width="24" height="24" rx="3" stroke="none"/>
+        <rect x="0.5" y="0.5" width="23" height="23" rx="2.5" fill="none"/>
+      </g>
+    </g>
+    <g id="그룹_1984" data-name="그룹 1984" transform="translate(-18 78)">
+      <g id="download" transform="translate(280 246)">
+        <path id="패스_601" data-name="패스 601" d="M.375,18a.379.379,0,0,1,.375.382v2.674a.757.757,0,0,0,.75.764h9a.757.757,0,0,0,.75-.764V18.382a.375.375,0,1,1,.75,0v2.674a1.514,1.514,0,0,1-1.5,1.528h-9A1.514,1.514,0,0,1,0,21.056V18.382A.379.379,0,0,1,.375,18Z" transform="translate(0 -12.833)" fill="#6d6d6d" fill-rule="evenodd"/>
+        <path id="패스_602" data-name="패스 602" d="M11.032,16.657a.382.382,0,0,1,.54,0l1.752,1.752,1.752-1.752a.382.382,0,0,1,.54.54L13.594,19.22a.382.382,0,0,1-.541,0L11.032,17.2a.382.382,0,0,1,0-.54Z" transform="translate(-7.324 -11.815)" fill="#6d6d6d" fill-rule="evenodd"/>
+        <path id="패스_603" data-name="패스 603" d="M17.257,2.25a.382.382,0,0,1,.382.382V8.743a.382.382,0,1,1-.764,0V2.632A.382.382,0,0,1,17.257,2.25Z" transform="translate(-11.257 -2.25)" fill="#6d6d6d" fill-rule="evenodd"/>
+      </g>
+      <rect id="사각형_1023" data-name="사각형 1023" width="16" height="16" transform="translate(278 243)" fill="none" opacity="0.5"/>
+    </g>
+  </g>
+</svg>

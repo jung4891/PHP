@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40">
+  <g id="그룹_419" data-name="그룹 419" transform="translate(-829 -366)">
+    <g id="__TEMP__SVG__" transform="translate(833 370)">
+      <path id="패스_516" data-name="패스 516" d="M28,4.249H4a2,2,0,0,0-2,2V28.243a2,2,0,0,0,2,2H28a2,2,0,0,0,2-2V6.249A2,2,0,0,0,28,4.249Zm-24-2a4,4,0,0,0-4,4V28.243a4,4,0,0,0,4,4H28a4,4,0,0,0,4-4V6.249a4,4,0,0,0-4-4Z" transform="translate(0 -0.242)" fill="#fff" fill-rule="evenodd"/>
+      <path id="패스_517" data-name="패스 517" d="M28,4.258H4A2,2,0,0,0,2,6.267V8.275H30V6.267A2,2,0,0,0,28,4.258ZM4,2.25A4.008,4.008,0,0,0,0,6.267v4.017H32V6.267A4.008,4.008,0,0,0,28,2.25Z" transform="translate(0 -0.242)" fill="#fff" fill-rule="evenodd"/>
+      <path id="패스_518" data-name="패스 518" d="M7.747,0a1,1,0,0,1,1,1v1a1,1,0,1,1-2,0V1A1,1,0,0,1,7.747,0ZM25.7,0a1,1,0,0,1,1,1v1a1,1,0,1,1-2,0V1A1,1,0,0,1,25.7,0Z" transform="translate(-0.725 0)" fill="#fff" fill-rule="evenodd"/>
+      <path id="패스_519" data-name="패스 519" d="M25.754,15.75h2.008a1,1,0,0,1,1,1v2.008a1,1,0,0,1-1,1H25.754a1,1,0,0,1-1-1V16.754A1,1,0,0,1,25.754,15.75Z" transform="translate(-2.763 -1.758)" fill="#fff"/>
+    </g>
+    <rect id="사각형_1019" data-name="사각형 1019" width="40" height="40" transform="translate(829 366)" fill="none" opacity="0.5"/>
+  </g>
+</svg>
