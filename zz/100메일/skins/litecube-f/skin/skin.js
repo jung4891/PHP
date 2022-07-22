@@ -1,1 +1,0 @@
-var rcs_skin_version=3;var rcs_skin=new function(){this.runBeforeReady=function(){};this.runOnReady=function(){}};
