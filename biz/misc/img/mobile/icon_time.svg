@@ -1,9 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-  <g id="그룹_1468" data-name="그룹 1468" transform="translate(-1971 14326)">
-    <g id="ios-clock-outline" transform="translate(1969.625 -14327.025)">
-      <path id="패스_580" data-name="패스 580" d="M13.375,3.375a10,10,0,1,0,10,10A10,10,0,0,0,13.375,3.375Zm0,19.169a9.169,9.169,0,1,1,9.169-9.169A9.179,9.179,0,0,1,13.375,22.544Z" transform="translate(0 0)" fill="#676767"/>
-      <path id="패스_581" data-name="패스 581" d="M15.381,14.508H11.25v.744h4.875V9h-.744Z" transform="translate(-2.279 -1.562)" fill="#676767"/>
-    </g>
-    <rect id="사각형_3" data-name="사각형 3" width="24" height="24" transform="translate(1971 -14326)" fill="none" opacity="0.5"/>
-  </g>
-</svg>

@@ -125,8 +125,8 @@ $(document).ready(function() {
 				</tr>
 				<tr>
 					<td align="right">
-						<input type="button" class="btn-common btn-color1" value="취소" onClick="javascript:history.go(-1)" style="margin-right:10px">
-						<input type="button" class="btn-common btn-color2" value="수정" onClick="javascript:chkForm();return false;">
+						<input type="button" class="btn-common btn-color4" value="취소" onClick="javascript:history.go(-1)" style="margin-right:10px">
+						<input type="button" class="btn-common btn-color4" value="수정" onClick="javascript:chkForm();return false;">
 					</td>
 				</tr>
 			</form>

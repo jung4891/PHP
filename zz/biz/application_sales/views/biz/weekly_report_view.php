@@ -110,12 +110,13 @@ include $this->input->server('DOCUMENT_ROOT')."/include/sales_header.php";
     <?php } ?>
     <tr>
       <td style="padding:10px 0px 10px 0px;">
-        <input type="button" class="btn-common btn-style1" style="width:100px;" value="엑셀 다운" onclick="excel_download('excelTable','<?php echo $title ;?>');" />
+        <input type="button" class="btn-common btn-updownload" style="float: left;display:inline;margin-right:10px;padding-left:20px;width:auto;" value="엑셀 다운로드" onclick="excel_download('excelTable','<?php echo $title ;?>');" />
+        <img src="/misc/img/download_btn.svg" style="float: left;width:12px;position:relative;top:10px;right: 115px;padding-right:2px;">
         <div style="float:right;">
-          <?php if($name == $view_val['writer'] || $tech_lv == 3) {?>
+          <?php if($name == $view_val['writer'] || $tech_lv == 3 || ($view_val['group_name'] == '기술1팀' && ($this->id == 'gulee' || $this->id == 'jyjung'))) {?>
 
-            <button type="button" class="btn-common btn-color1" name="button" onClick="javascript:chkForm(0);return false;"/>수정</button>
-            <button type="button" class="btn-common btn-color1" name="button" onClick="javascript:chkForm(1);return false;"/>삭제</button>
+            <button type="button" class="btn-common btn-color4" name="button" onClick="javascript:chkForm(0);return false;"/>수정</button>
+            <button type="button" class="btn-common btn-color4" name="button" onClick="javascript:chkForm(1);return false;"/>삭제</button>
 
           <?php }?>
           <button type="button" name="button"  class="btn-common btn-color2" onClick="<?php if (isset($_GET['dash'])){echo "go_list('dash');";}else{echo "go_list('weekly');";} ?>"/>목록</button>
@@ -734,6 +735,21 @@ foreach($next_doc as $key){
                           <?php }else{
                             echo nl2br($view_val['comment']);
                           } ?>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td colspan="2" class="tbl-title">첨부파일</td>
+                          <td colspan="20" class="tbl-cell">
+                            <?php
+                            if($view_val['file_realname'] != '') {
+                              $file = explode('*/*', $view_val['file_realname']);
+                              $file_url = explode('*/*', $view_val['file_changename']);
+                              for($i = 0; $i < count($file); $i++) {
+                                echo $file[$i];
+                                echo "<a href='{$misc}upload/biz/weekly_report/{$file_url[$i]}' download='{$file[$i]}'> <img src='{$misc}img/download.svg' style='width:15px;vertical-align:middle;cursor:pointer;margin:5px 0px 5px 10px;'></a><br>";
+                              }
+                            }
+                            ?>
                           </td>
                         </tr>
                       </table>

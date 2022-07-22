@@ -11,18 +11,26 @@
 <script type="text/javascript" src="/misc/js/jquery-ui.min.js"></script>
 <script type="text/javascript" src="/misc/js/jquery.min.js"></script>
 <link rel="stylesheet" href="/misc/css/jquery-ui.css">
+<link rel="stylesheet" href="/misc/css/view_page_common.css">
 <script src="/misc/js/jquery-ui.js"></script>
 <script src="http://dmaps.daum.net/map_js_init/postcode.js"></script>
 <script type="text/javascript" src="/misc/js/common.js"></script>
 <script type="text/javascript" src="/misc/js/jquery.validate.js"></script>
+<script type="text/javascript" src="/misc/js/jquery.bpopup-0.1.1.min.js"></script>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="generator" content="WebEditor">
-<style type="text/css">
- <!--
-/*** Login form ***/
-
--->
- </style>
+<style media="screen">
+.stamp {
+	position: static;
+	background-size:contain;
+	/* background-position: right bottom; */
+	background-repeat:no-repeat;
+	padding-top:10px;
+	padding-bottom:10px;
+	padding-right:50px;
+	padding-left:10px;
+}
+</style>
 <script language="javascript">
 function checkNum(obj) {
 	var word = obj.value;
@@ -36,7 +44,7 @@ function checkNum(obj) {
 		}
 	}
 }
-	 	
+
 function idcheck(){
 	var uid =  $("#user_id").val();
 //	alert(uid);
@@ -68,7 +76,7 @@ function PWAnnounce() {
 }
 var chkForm = function () {
 	var mform = document.cform;
-	
+
 	if (mform.company_name.value == "") {
 		mform.company_name.focus();
 		alert("회사명을 입력해 주세요.");
@@ -120,20 +128,26 @@ var chkForm = function () {
 		mform.user_email.focus();
 		return false;
 	}
-	
+
 	var regex=/^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/;
-	if(regex.test(mform.user_email.value) === false) {  
+	if(regex.test(mform.user_email.value) === false) {
 		alert("잘못된 이메일 형식입니다.");
 		mform.user_email.focus();
-		return false;  
-	} 
+		return false;
+	}
 
 	if(mform.user_tel.value == ""){
 		alert("연락처를 입력해 주세요.");
 		mform.user_tel.focus();
 		return false;
 	}
-	
+
+	if(mform.user_birthday.value == ""){
+		alert("생년월일을 입력해 주세요.");
+		mform.user_birthday.focus();
+		return false;
+	}
+
 	mform.submit();
 	return false;
 }
@@ -209,7 +223,7 @@ var chkForm = function () {
           <tr>
             <td height="10" colspan="2"></td>
           </tr>
-          <tr>  
+          <tr>
             <td colspan="2"><input name="user_duty" type="text" class="login_input" id="user_duty" placeholder="직급" value="<?php echo $user_duty;?>"></td>
           </tr>
           <tr>
@@ -221,9 +235,24 @@ var chkForm = function () {
           <tr>
             <td height="10" colspan="2"></td>
           </tr>
-          <tr>  
+          <tr>
             <td colspan="2"><input name="user_tel" type="text" class="login_input" id="user_tel" placeholder="연락처" value="<?php echo $user_tel;?>"></td>
           </tr>
+					<tr>
+            <td height="10" colspan="2"></td>
+          </tr>
+					<tr>
+            <td><input name="user_birthday" type="date" class="login_input" id="user_birthday" placeholder="생년월일" value="<?php echo $user_birthday;?>"></td>
+            <td class="login_tex"><span style="display:inline"><span class="error_1">* 생년월일 입력</span></span></td>
+          </tr>
+					<tr>
+						<td height="10" colspan="2"></td>
+					</tr>
+					<tr>
+						<td colspan="2">
+							<input type="button" class="btn-common btn-color2" value="사인등록" onclick="$('#sign_popup').bPopup();">
+						</td>
+					</tr>
 
         </table></td>
       </tr>
@@ -244,10 +273,152 @@ var chkForm = function () {
       </tr>
     </table></td>
   </tr>
-   <tr>
+  <tr>
     <td align="center" height="200"></td>
   </tr>
 </form>
 </table>
+
+<div id="sign_popup" style="position: absolute;background-color: white;width: 540px;height: auto;border-radius: 3px;display:none;">
+  <!-- 폴더 리스트 -->
+	<form id="img_file_form" method="post" enctype="multipart/form-data">
+	<table id="sign_popup_table" class="basic_table" align="left" width="100%" height="200px" cellspacing="0" cellpadding="0" style="font-size: 13px;padding:30px;padding-right:0px;">
+		<colgroup>
+			<col width="30%">
+			<col width="70%">
+		</colgroup>
+		<input type="hidden" name="seq" id="seq" value="<?php echo $seq; ?>">
+		<tr>
+			<td style="font-weight:bold;text-align:left;vertical-align:top;">파일</td>
+			<td style="vertical-align:top;padding-bottom:20px;">
+	<?php if($sign_realname != '') { ?>
+				<span><?php echo $sign_realname; ?></span>
+				<!-- <img src="/misc/img/btn_del2.jpg" width="12" height="12" style="cursor:pointer;margin-left:20px;" onclick="delete_sign('<?php echo $sign_changename; ?>');"> -->
+				<br><br>
+	<?php } ?>
+				<input type="file" id="u_file" name="u_file" accept="image/*">
+			</td>
+		</tr>
+		<tr>
+			<td style="font-weight:bold;text-align:left;vertical-align:top;height:40px;">미리보기</td>
+			<td style="vertical-align:top;">
+				<div>
+					서명 : <span style="letter-spacing:15px;"><?php echo $user_name; ?></span><span class="stamp">(인)</span>
+				</div>
+			</td>
+		</tr>
+		<tr>
+			<td style="font-weight:bold;text-align:left;vertical-align:top;height:40px;">서명 비빌번호</td>
+			<td style="vertical-align:top;padding-bottom:10px;">
+				<input type="password" id="sign_password" name="sign_password" class="input-common" value="" placeholder="영문, 숫자 포함 6자리 이상" onchange="pwCheck();"><br>
+				<span id="pw_check" style="color:red;"></span>
+			</td>
+		</tr>
+		<tr>
+			<td style="font-weight:bold;text-align:left;vertical-align:top;height:40px;">서명 비밀번호 확인</td>
+			<td style="vertical-align:top;">
+				<input type="password" class="input-common" id="sign_repassword" name="sign_repassword" value="" placeholder="비밀번호 재입력" onchange="pwReCheck();"><br>
+				<span id="pw_recheck" style="color:red;"></span>
+			</td>
+		</tr>
+	</table>
+	</form>
+
+	<div style="width:100%;">
+		<input type="button" class="btn-common btn-color1" style="float:right;margin-bottom:10px;margin-right:10px;" onclick="$('#sign_popup').bPopup().close();" value="취소">
+		<input type="button" class="btn-common btn-color2" style="float:right;margin-bottom:10px;margin-right:10px;" onclick="upload_sign();" value="업로드">
+	</div>
+</div>
 </body>
+<script type="text/javascript">
+var sign_changename = '<?php echo $sign_changename; ?>';
+
+if(sign_changename != '') {
+	$('.stamp').css('background-image', 'url("/misc/upload/user_sign/'+sign_changename+'")');
+}
+
+$('#u_file').change(function() {
+	var file = this.files[0];
+	var reader = new FileReader();
+	reader.onloadend = function() {
+		$('.stamp').css('background-image', 'url("'+reader.result+'")');
+	}
+	if(file) {
+		reader.readAsDataURL(file);
+	} else {
+
+	}
+})
+
+function upload_sign() {
+	var pwTest = pwCheck();
+	var pwReTest = pwReCheck();
+
+	if(pwTest && pwReTest) {
+		var formData = new FormData(document.getElementById("img_file_form"));
+
+		if($('#u_file').prop('files')[0] == undefined) {
+			alert('파일을 선택해 주세요.');
+			return false;
+		}
+
+		$.ajax({
+			type: "POST",
+			enctype: 'multipart/form-data',
+			url: "<?php echo site_url(); ?>/account/sign_upload",
+			data: formData,
+			processData: false,
+			contentType: false,
+			cache: false,
+			success: function(data) {
+				if(data) {
+					alert('사인이 업로드 되었습니다.');
+					location.reload();
+				}
+			},
+			error: function(e) {
+				alert('업로드에 실패하였습니다.');
+				return false;
+			}
+		})
+	}
+}
+
+function pwCheck() {
+	var pw = $('#sign_password').val();
+	var num = pw.search(/[0-9]/g);
+ 	var eng = pw.search(/[a-z]/ig);
+
+	if(pw.length < 6) {
+		$('#pw_check').text('6자리 이상 입력해주세요.');
+		$('#sign_password').focus();
+		return false;
+	} else if (pw.search(/\s/) != -1) {
+		$('#pw_check').text('비밀번호는 공백 없이 입력해주세요.');
+		$('#sign_password').focus();
+		return false;
+	} else if (num < 0 || eng < 0) {
+		$('#pw_check').text('영문, 숫자를 혼합하여 입력해주세요.');
+		$('#sign_password').focus();
+		return false;
+	} else {
+		$('#pw_check').text('');
+		return true;
+	}
+}
+
+function pwReCheck() {
+	var pw = $('#sign_password').val();
+	var repw = $('#sign_repassword').val();
+
+	if(pw != repw) {
+		$('#pw_recheck').text('비밀번호가 일치하지 않습니다.');
+		$('#sign_repassword').focus();
+		return false;
+	} else {
+		$('#pw_recheck').text('');
+		return true;
+	}
+}
+</script>
 </html>

@@ -89,14 +89,16 @@
 		<tr valign="top">
 	<?php if($mode == 'view'){  ?>
 		<td align="right">
-			<button type="button" name="button" class="btn-common btn-color3" onclick="fnExcelReport();">엑셀 다운</button>
+			<button type="button" name="button" class="btn-common btn-updownload" onclick="fnExcelReport();" style="width:auto;padding-left: 2px;">엑셀 다운로드
+				<img src="/misc/img/download_btn.svg"  style="float:left; width:12px; padding:5px;">
+			</button>
 			<button type="button" name="button" class="btn-common btn-color3" onclick="history.go(-1);">목록</button>
-			<button type="button" name="button" class="btn-common btn-color3" onclick="mom_delete();">삭제</button>
-			<button type="button" name="button" class="btn-common btn-color2" onclick="ViewBoard();">수정</button>
+			<button type="button" name="button" class="btn-common btn-color4" onclick="ViewBoard();">수정</button>
+			<button type="button" name="button" class="btn-common btn-color4" onclick="mom_delete();">삭제</button>
 		</td>
 	<?php }else{ ?>
 	  	<td align="right">
-				<button type="button" name="button" class="btn-common btn-color3" onclick="history.go(-1);">취소</button>
+				<button type="button" name="button" class="btn-common btn-color4" onclick="history.go(-1);">취소</button>
 				<button type="button" name="button" class="btn-common btn-color3" onclick="doc_submit('save');">임시저장</button>
 				<button type="button" name="button" class="btn-common btn-color2" onclick="doc_submit('add');">등록</button>
 			</td>

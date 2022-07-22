@@ -84,8 +84,9 @@ $income_time = substr($view_val['income_time'],0,10);
 		$message = $html_code;
 
 		$headers = "From: =?utf-8?B?".base64_encode("support@durianit.co.kr")."?= <support@durianit.co.kr> \n";
+		
 		$headers .= 'Cc: tech@durianit.co.kr' . "\r\n";
-		$headers .= "Bcc: sylim@durianit.co.kr" ."\r\n";
+		// $headers .= "Bcc: sylim@durianit.co.kr" ."\r\n";
 		$headers .= 'MIME-Version: 1.0' . "\r\n";
 		$headers .= 'Content-type: text/html; charset=utf-8' . "\r\n";
 		$headers .= "Content-Transfer-Encoding: base64\r\n";
@@ -122,12 +123,13 @@ $income_time = substr($view_val['income_time'],0,10);
 		$message = $html_code;
 
 		$headers = "From: =?utf-8?B?".base64_encode("support@durianit.co.kr")."?= <support@durianit.co.kr> \n";
+
 		$headers .= 'Cc: tech@durianit.co.kr' . "\r\n";
-		$headers .= "Bcc: sylim@durianit.co.kr" ."\r\n";
+		// $headers .= "Bcc: sylim@durianit.co.kr" ."\r\n";
 		$headers .= 'MIME-Version: 1.0' . "\r\n";
 		$headers .= "Content-Type: Multipart/mixed; boundary=\"$boundary\"";
 		$body = "This is a multi-part message in MIME format.\r\n\r\n"."--$boundary\r\n"."Content-Type: text/html; charset=UTF-8\r\n"."Content-Transfer-Encoding: base64\r\n\r\n".chunk_split(base64_encode($message))."\r\n"."--$boundary\r\n";
-		$body .="Content-Type: application/octet-stream; charset=UTF-8\r\n name=\"".$filename."\"\r\n"."Content-Transfer-Encoding: base64\r\n"."Content-Disposition: attachment; filename=\"".$filename."\"\r\n\r\n".$content."\r\n\r\n"."--$boundary--"; //3
+		$body .="Content-Type: application/octet-stream; charset=UTF-8\r\n name=\"=?UTF-8?B?".base64_encode($filename)."?=\"\r\n"."Content-Transfer-Encoding: base64\r\n"."Content-Disposition: attachment; filename=\"=?UTF-8?B?".base64_encode($filename)."?=\"\r\n\r\n".$content."\r\n\r\n"."--$boundary--"; //3
 		$strto = explode("@", $to);
 
 		$result = mail($to, $subject, $body, $headers);

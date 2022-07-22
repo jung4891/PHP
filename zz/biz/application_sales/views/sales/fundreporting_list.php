@@ -30,6 +30,48 @@
 	 .title_parent h1 {
 		 display: inline;
 	 }
+	 /* 계산서 이동 선택 */
+	 .contextmenu {
+		 display: none;
+		 position: absolute;
+		 min-width: 200px;
+		 margin: 0;
+		 padding: 0;
+		 background: #FFFFFF;
+		 border-radius: 5px;
+		 list-style: none;
+		 box-shadow:
+			 0 15px 35px rgba(50,50,90,0.1),
+			 0 5px 15px rgba(0,0,0,0.07);
+		 overflow: hidden;
+		 z-index: 999999;
+ 	}
+ 	.contextmenu li {
+		 border-left: 3px solid transparent;
+		 transition: ease .2s;
+ 	}
+ 	.contextmenu li a {
+		 display: block;
+		 padding: 10px;
+		 color: #B0BEC5;
+		 text-decoration: none;
+		 transition: ease .2s;
+ 	}
+ 	.contextmenu li:hover {
+		 background: #CE93D8;
+		 border-left: 3px solid #9C27B0;
+ 	}
+ 	.contextmenu li:hover a {
+	 color: #FFFFFF;
+ 	}
+ 	/* #bottom{
+	 position: fixed;
+	 right: 100px;
+ 	} */
+
+	.paging strong {
+    color:#0575E6;
+	}
   </style>
 	<link rel="stylesheet" href="/misc/css/view_page_common.css">
 	<script type="text/javascript" src="/misc/js/jquery.bpopup-0.1.1.min.js"></script> <!-- 모달창 js (bpopup) -->
@@ -66,7 +108,7 @@ function getParam(sname) {
 	var firstPage = parseInt(<?php echo $firstPage-1; ?>/100)*100;
 
 	if (window.location.pathname == "/index.php/sales/fundreporting/fundreporting_list" && firstPage > 0){
-		location.href="/index.php/sales/fundreporting/fundreporting_list/page/"+firstPage+"?company=" + getParam("company");
+		location.href="/index.php/sales/fundreporting/fundreporting_list/page/"+firstPage+"?company=" + getParam("company")+"&old_new=<?php echo $old_new; ?>";
 		}
 <?php } ?>
 </script>
@@ -79,6 +121,9 @@ function getParam(sname) {
 	switch ($company) {
 		case 'DUIT':
 			$companyName = '두리안정보기술';
+			break;
+		case 'DUITOLD':
+			$companyName = '두리안정보기술(구)';
 			break;
 		case 'DUICT':
 			$companyName = '두리안정보통신기술';
@@ -93,7 +138,11 @@ function getParam(sname) {
 			$companyName = '던킨';
 			break;
 	}
-	$company = '?company='.$company;
+	if($company == 'DUIT') {
+		$company = '?company='.$company.'&old_new='.$old_new;
+	} else {
+		$company = '?company='.$company;
+	}
 
 	$baseUrl = site_url();
 	$segment1 = $this->uri->segment(2);
@@ -101,7 +150,7 @@ function getParam(sname) {
 	$actual_link = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
 ?>
 <!-- 본문 div -->
-		<div class="content" style="margin-left:10px; margin-right:10px;margin-top:70px;">
+		<div class="content" style="margin-left:10px; margin-right:20px;margin-top:70px;">
 			<div style="display:none">
 				<input type="hidden" id="userId" value="<?php echo $id; ?>">
 			</div>
@@ -110,12 +159,12 @@ function getParam(sname) {
 					<div class="title_parent" style="position:absolute">
 						<h1 style="font-weight:5000;font-size:2.5em;text-align:left;" class="title_child"><?php echo $companyName?></h1>
 						<h1 style="font-weight:300;font-size:2.5em" class="title_child">&nbsp;자금보고서&nbsp;&nbsp;</h1>
-						<a style='cursor:pointer; color:#41beeb;;margin-top:25px;font-size:15px' id='bankbook_day' onclick='searchBankBook();' class="title_child"><?php echo '('.date("Y년 n월 j일 $s\요일",strtotime($day)).')'; ?></a>
+						<a style='cursor:pointer; color:#0575E6;;margin-top:25px;font-size:15px' id='bankbook_day' onclick='searchBankBook();' class="title_child"><?php echo '('.date("Y년 n월 j일 $s\요일",strtotime($day)).')'; ?></a>
 						<h3 style="color:#a9abac;font-weight: normal;text-align:left;" class="title_child">자금 입출금 현황 및 SCHEDULE</h3>
 					</div>
 				</div>
 				<div>
-					<button type="button" name="modalBtn" id="modalBtn" class="btn-common btn-color1" style="float:right; cursor:pointer;<?php if($pGroupName=='영업본부'){echo 'display:none';} ?>" onclick="modalOpen();">은행관리</button>
+					<button type="button" name="modalBtn" id="modalBtn" class="btn-common btn-style4" style="float:right; cursor:pointer;<?php if($pGroupName=='영업본부' || $_GET['company']=='DUITOLD'){echo 'display:none';} ?>" onclick="modalOpen();">은행관리</button>
 				</div>
 				<div>
 					<input type="button" class="btn-common btn-color2" onclick="fold_bankbook(this);" style="float:right;margin-right:10px;" value="잔고현황 ▼" />
@@ -271,6 +320,25 @@ function getParam(sname) {
 			}
 ?>
 					</tbody>
+<?php foreach ($bankBook as $val) { ?>
+					<tbody id="loan_bank">
+<?php 	if ($val->type == '자산(건물)') {
+					echo '<tr class="loan_bank_list">';
+					echo '<td scope="row" name="accountType" style="text-align:left;">'.$val->type.'</td>';
+					echo '<td scope="row" name="bank" style="text-align:left;">'.$val->bank.'</td>';
+					echo '<td scope="row" name="bankType" style="text-align:left;">'.$val->banktype.'</td>';
+					echo '<td scope="row" name="account" style="text-align:left;">'.$val->account.'</td>';
+					echo '<td scope="row" name="breakdown" style="text-align:left;">'.$val->breakdown.'</td>';
+					echo '<td scope="row" name="yesbalance" style="text-align:right;">'.number_format($val->yesbalance).'</td>';
+					echo '<td scope="row" name="todaydeposit" style="text-align:right;">'.number_format($val->todaydeposit).'</td>';
+					echo '<td scope="row" name="todaywithdraw" style="text-align:right;">'.number_format($val->todaywithdraw).'</td>';
+					echo '<td scope="row" name="balance" class="bank-balance" style="text-align:right; font-weight:bold;">'.number_format($val->balance).'</td>';
+					echo '<td scope="row" name="balance2" class="bank-balance2" style="text-align:right;">'.number_format($val->balance).'</td>';
+					echo '</tr>';
+				}
+			}
+?>
+					</tbody>
 					<tbody>
 						<tr style="background-color:#FFFFF2;">
 							<td></td><td></td><td></td><td></td><td></td><td></td><td></td>
@@ -296,9 +364,9 @@ function getParam(sname) {
 							<td style="border-bottom:none;"></td>
 							<td style="border-bottom:none;"></td>
 							<td style="background:yellow; text-align:center; background-color:#FFEDED; color:#E53737; font-weight:bold;">매 출 채 권</td>
-							<td scope="row" name="bond" style="text-align:right; font-weight:bold;background-color:#FFEDED; color:#E53737;"><?php echo number_format($bond[0]->bond) ?></td>
+							<td scope="row" name="bond" style="text-align:right; font-weight:bold;background-color:#FFEDED; color:#E53737;"><?php echo number_format($bond[0]->bond + $bond_adjust['bond_adjust']); ?></td>
 							<td style="background:yellow; text-align:center; background-color:#F2FCFF; color:#007BCB; font-weight:bold;">매 입 채 무</td>
-							<td scope="row" name="debt" style="text-align:right; font-weight:bold;background-color:#F2FCFF; color:#007BCB;"><?php echo number_format($debt[0]->debt) ?></td>
+							<td scope="row" name="debt" style="text-align:right; font-weight:bold;background-color:#F2FCFF; color:#007BCB;"><?php echo number_format($debt[0]->debt + $debt_adjust['debt_adjust']) ?></td>
 						</tr>
 					</tbody>
 				</table>
@@ -338,6 +406,7 @@ function getParam(sname) {
 												<option value="보증금">보증금</option>
 												<option value="대출금">대출금</option>
 												<option value="투자금">투자금</option>
+												<option value="자산(건물)">자산(건물)</option>
 											</select>
 										</td>
 										<td scope="row">
@@ -390,7 +459,7 @@ function getParam(sname) {
 			echo '<option value="보증금">보증금</option>';
 			echo '<option value="예적금">예적금</option>';
 			echo '<option value="대출금">대출금</option>';
-			echo '<option value="투자금">투자금</option></select></td>';
+			echo '<option value="투자금">투자금</option><option value="자산(건물)">자산(건물)</option></select></td>';
 			echo '<td style="width:10%; border-bottom: 0.1px solid #D8D8D8" scope="row">';
 			echo '<select class="input select-common select-style1" id="selectBank" name="selectBank" style="width:100%; border:solid 1px black;" onchange="selboxDirect(this); modifyModalInput(this);">';
 			echo '<option value="직접입력">직접입력</option>';
@@ -449,7 +518,7 @@ function getParam(sname) {
 			echo '<option value="보증금">보증금</option>';
 			echo '<option value="예적금" selected="">예적금</option>';
 			echo '<option value="대출금">대출금</option>';
-			echo '<option value="투자금">투자금</option></select></td>';
+			echo '<option value="투자금">투자금</option><option value="자산(건물)">자산(건물)</option></select></td>';
 			echo '<td style="width:10%; border-bottom: 0.1px solid #D8D8D8" scope="row">';
 			echo '<select class="input select-common select-style1" id="selectBank" name="selectBank" style="width:100%; border:solid 1px black;" onchange="selboxDirect(this); modifyModalInput(this);">';
 			echo '<option value="직접입력">직접입력</option>';
@@ -507,7 +576,7 @@ function getParam(sname) {
 			echo '<option value="보증금" selected="">보증금</option>';
 			echo '<option value="예적금">예적금</option>';
 			echo '<option value="대출금">대출금</option>';
-			echo '<option value="투자금">투자금</option></select></td>';
+			echo '<option value="투자금">투자금</option><option value="자산(건물)">자산(건물)</option></select></td>';
 			echo '<td style="width:10%; border-bottom: 0.1px solid #D8D8D8" scope="row">';
 			echo '<select class="input select-common select-style1" id="selectBank" name="selectBank" style="width:100%; border:solid 1px black;" onchange="selboxDirect(this); modifyModalInput(this);">';
 			echo '<option value="직접입력">직접입력</option>';
@@ -566,7 +635,7 @@ function getParam(sname) {
 			echo '<option value="보증금">보증금</option>';
 			echo '<option value="예적금">예적금</option>';
 			echo '<option value="대출금" selected="">대출금</option>';
-			echo '<option value="투자금">투자금</option></select></td>';
+			echo '<option value="투자금">투자금</option><option value="자산(건물)">자산(건물)</option></select></td>';
 			echo '<td style="width:10%; border-bottom: 0.1px solid #D8D8D8" scope="row">';
 			echo '<select class="input select-common select-style1" id="selectBank" name="selectBank" style="width:100%; border:solid 1px black;" onchange="selboxDirect(this); modifyModalInput(this);">';
 			echo '<option value="직접입력">직접입력</option>';
@@ -625,7 +694,66 @@ function getParam(sname) {
 			echo '<option value="보증금">보증금</option>';
 			echo '<option value="예적금">예적금</option>';
 			echo '<option value="대출금">대출금</option>';
-			echo '<option value="투자금" selected="">투자금</option></select></td>';
+			echo '<option value="투자금" selected="">투자금</option><option value="자산(건물)">자산(건물)</option></select></td>';
+			echo '<td style="width:10%; border-bottom: 0.1px solid #D8D8D8" scope="row">';
+			echo '<select class="input select-common select-style1" id="selectBank" name="selectBank" style="width:100%; border:solid 1px black;" onchange="selboxDirect(this); modifyModalInput(this);">';
+			echo '<option value="직접입력">직접입력</option>';
+			echo '<option value=""></option>';
+			echo '<option value="'.$val->bank.'" selected="">'.$val->bank.'</option>';
+			foreach($bankList as $option){
+				if($option->bank != $val->bank){
+					echo '<option value="'.$option->bank.'">'.$option->bank.'</option>';
+				}
+			}
+			echo '</select>';
+			echo '<input type="text" class="selboxDirect input2" style="display:none; width:90%;" scope="row"></td>';
+			echo '<td style="width:10%; border-bottom: 0.1px solid #D8D8D8" scope="row">';
+			echo '<input class="input" style="width:90%; text-align:left;" type="text" id="selectBankType" name="selectBankType" value="'.$val->banktype.'" onchange="modifyModalInput(this);"></td>';
+			echo '<td style="width:20%; border-bottom: 0.1px solid #D8D8D8" scope="row">';
+			echo '<input class="input" style="width:95%; text-align:left;" type="text" id="selectAccount" name="selectAccount" value="'.$val->account.'" onchange="modifyModalInput(this);" onkeyup="onlyNumHipen(this)"></td>';
+			echo '<td style="width:25%; border-bottom: 0.1px solid #D8D8D8" scope="row">';
+			echo '<input class="input" style="width:95%; text-align:left;" type="text" id="selectBreakdown" name="selectBreakdown" value="'.$val->breakdown.'" onchange="modifyModalInput(this);"></td>';
+			echo '<td style="width:20%; border-bottom: 0.1px solid #D8D8D8" scope="row">';
+			echo '<input class="input" style="width:95%; text-align:right;" type="text" id="selectBalance" name="selectBalance" value="'.number_format($val->balance).'" onfocus="deCommaStr(this);" onblur="this.value = commaStr(this.value);" onchange="modifyModalInput(this);" onkeyup="onlyNumber(this)"></td>';
+			echo '<td style="width:5%; border-bottom: 0.1px solid #D8D8D8">';
+			echo '<input type="button" style="width:95%;" id="delBank" class="delBank fundBtn" onclick="delBank(this)" value="X"></td></tr>';
+		}
+	}
+ ?>
+										</tbody>
+									</table>
+								</div>
+							</div>
+							<br>
+
+							<strong><a href="javascript:void(0);" id="buildingTableBtn" align="center" onclick="fold_modal(this)">자산(건물)▼</a></strong>
+							<div class="modal_select_building_div" style="display:none;">
+								<div class="modal_select_a_box">
+									<table style="margin:10px,20px;" class="selectBuildingTable" id="selectBuildingTable" name="buildingTable">
+										<thead>
+											<tr class="fixed_top">
+												<th scope="colgroup" style="width:10%; background-color: #F4F4F4;"><strong>예금종류</strong></th>
+												<th scope="colgroup" style="width:10%; background-color: #F4F4F4;"><strong>은행</strong></th>
+												<th scope="colgroup" style="width:10%; background-color: #F4F4F4;"><strong>은행구분</strong></th>
+												<th scope="colgroup" style="width:14%; background-color: #F4F4F4;"><strong>계좌번호</strong></th>
+												<th scope="colgroup" style="width:41%; background-color: #F4F4F4;"><strong>내역</strong></th>
+												<th scope="colgroup" style="width:12%; background-color: #F4F4F4;"><strong>금액</strong></th>
+												<th scope="colgroup" style="width:5%; background-color: #F4F4F4;"></th>
+											</tr>
+										</thead>
+										<tbody>
+<?php
+	foreach($selectBanklist as $val){
+		if($val->type == "자산(건물)") {
+			echo '<tr class="modal_select_building_row" id="modal_select_building_row" name="'.$val->idx.'">';
+			// echo '<input type="hidden" style="color:red" id="idx'.$val->idx.'" value="'.$val->idx.'">';
+			echo '<td style="width:10%; border-bottom: 0.1px solid #D8D8D8" scope="row">';
+			echo '<select class="input select-common select-style1" id="selectType" name="selectType" style="width:100%; border:solid 1px black;" onchange="modifyModalInput(this);">';
+			echo '<option value="보통예금">보통예금</option>';
+			echo '<option value="보증금">보증금</option>';
+			echo '<option value="예적금">예적금</option>';
+			echo '<option value="대출금">대출금</option>';
+			echo '<option value="투자금">투자금</option><option value="자산(건물)" selected="">자산(건물)</option></select></td>';
 			echo '<td style="width:10%; border-bottom: 0.1px solid #D8D8D8" scope="row">';
 			echo '<select class="input select-common select-style1" id="selectBank" name="selectBank" style="width:100%; border:solid 1px black;" onchange="selboxDirect(this); modifyModalInput(this);">';
 			echo '<option value="직접입력">직접입력</option>';
@@ -669,6 +797,12 @@ function getParam(sname) {
 			<!-- 버튼 시작 -->
 <br><br><br>
 			<div style="clear:both;width:100%;width:100%;align:center;<?php if($segment2=='fundreporting_list'){echo 'height:20px;';}else{echo 'min-height:20px;';} ?>">
+			<?php if($_GET['company'] == 'DUIT' && $pGroupName != '영업본부') { ?>
+				<span style="float:left;font-weight:bold;">
+					<input type="checkbox" name="old_new" value="" <?php if($old_new == 'old'){echo 'checked';} ?> onchange="change_old_new(this);">
+					이전 자료 보기
+				</span>
+			<?php } ?>
 				<form id="fundSearch" method="post" >
 					<select name="selectDate" id="selectDate" class="select-common select-style1" style="float:center;">
 						<option value="dueDate" <?php if(isset($selectDate) && $selectDate=="dueDate"){echo 'selected';} ?>>확정일</option>
@@ -706,7 +840,7 @@ function getParam(sname) {
 					<input class="btn-common btn-style2" type="submit" name="submit" onclick="list_search('search');" value="검색" style="float:center;width:60px;">
 					<input class="btn-common btn-style2" type="submit" style="float:center;width:60px;<?php if($segment2=="fundreporting_list"){echo 'display:none';} ?>" onclick="list_search('reset');" value="초기화">
 				</form>
-				<div style="<?php if($segment2=="fundreporting_list"){echo 'display:none;';} ?> margin-top:10px" class="">
+				<div style="<?php if($segment2=="fundreporting_list" || $_GET['company'] == 'DUITOLD'){echo 'display:none;';} ?> margin-top:10px" class="">
 					<select name="modify_col" id="modify_col" class="select-common select-style1" onchange="search_modify_select(this);">
 						<option value="" selected disabled hidden>선택하세요</option>
 						<option value="dueDate">확정일</option>
@@ -726,7 +860,7 @@ function getParam(sname) {
 						} else {
 							var segment = 'search';
 						}
-						var act = "<?php echo site_url();?>/sales/fundreporting/"+segment+"<?php echo $company ?>";
+						var act = "<?php echo site_url();?>/sales/fundreporting/"+segment+"<?php echo $company; ?>";
 						$("#fundSearch").attr('action', act).submit();
 					}
 				</script>
@@ -748,6 +882,31 @@ function getParam(sname) {
 	} else {
  ?>
 					<h5 style ="color: black;">검색건수 : <?php echo number_format($total_rows); ?>건 /    입금총액 : <?php echo  number_format($sumDeposit); ?>원 /  출금총액 : <?php echo  number_format($sumWithdraw); ?>원 / 미입금총액 : <?php echo  number_format($nsDeposit); ?>원 / 미출금총액 : <?php echo  number_format($nsWithdraw); ?>원</h5>
+					<h5 style ="color: black;">2022 Version /    입금총액 : <?php
+					if($_GET['company'] == 'DUIT') {
+						echo  number_format($sumDeposit + $sumDeposit_adjust);
+					} else {
+						echo  number_format($sumDeposit);
+					}
+					?>원 /  출금총액 : <?php
+					if($_GET['company'] == 'DUIT') {
+						echo  number_format($sumWithdraw + $sumWithdraw_adjust);
+					} else {
+						echo  number_format($sumWithdraw);
+					}
+					?>원 / 미입금총액 : <?php
+					if($_GET['company'] == 'DUIT') {
+						echo  number_format($nsDeposit + $nsDeposit_adjust);
+					} else {
+						echo  number_format($nsDeposit);
+					}
+					?>원 / 미출금총액 : <?php
+					if($_GET['company'] == 'DUIT') {
+						echo  number_format($nsWithdraw + $nsWithdraw_adjust);
+					} else {
+						echo  number_format($nsWithdraw);
+					}
+					?>원</h5>
 <?php
 	};
  ?>
@@ -840,9 +999,9 @@ function getParam(sname) {
 						<tbody id="AddOption">
 <?php
 	if ($pagingBalance==0) {
-		$balance = 0;
+		$balance = $set_balance['balance'] + 0;
 	} else {
-		$balance = $pagingBalance[0]->pagingBalance;
+		$balance = $set_balance['balance'] + $pagingBalance[0]->pagingBalance;
 	}
  ?>
 							<input type="hidden" id="saveBalance" value="<?php echo $balance ?>">
@@ -888,6 +1047,7 @@ function getParam(sname) {
  ?>
 							<tr class="row_accountlist" name="<?php echo $key ?>">
 								<input type="hidden" id="idx" value="<?php echo $val->idx ?>" />
+								<input type="hidden" name="bill_seq" value="<?php echo $val->bill_seq; ?>">
 								<td class="cell0" scope="row">
 									<input type="checkbox" class="delRow" name="delRow" id="rowCheck" onchange="delRowCheck(this);"/>
 								</td>
@@ -929,10 +1089,10 @@ function getParam(sname) {
 									<input class="input mousetrap" style="width:100%; text-align:left; <?php echo $color; ?>" type="text" id="endUser" name="endUser" value="<?php echo $val->endUser?>" title="<?php echo $val->endUser?>" onchange="modifyInput(this);"/>
 								</td>
 								<td class="cell8" scope="row">
-									<input class="input mousetrap" style="width:100%; text-align:left; <?php echo $color; ?>" type="text" id="breakdown" name="breakdown" value="<?php echo $val->breakdown?>" title="<?php echo $val->breakdown?>" onchange="modifyInput(this);"/>
+									<input class="input mousetrap" style="width:100%; text-align:left;<?php if($val->bill_seq != ''){echo 'cursor:pointer;';} ?> <?php echo $color; ?>" type="text" id="breakdown" name="breakdown" value="<?php echo $val->breakdown?>" title="<?php echo $val->breakdown?>" onchange="modifyInput(this);"/>
 								</td>
 								<td class="cell9" scope="row">
-									<input class="input mousetrap" style="width:70%; text-align:right; <?php echo $color; ?>" type="text" id="requisition" name="requisition" value="<?php echo $requisition?>" title="<?php echo $requisition?>" onchange="modifyInput(this);" onFocus="deCommaStr(this);" onBlur="this.value = commaStr(this.value);" onkeyup="onlyNumber(this);" />
+									<input class="input mousetrap" style="width:70%; text-align:right; <?php echo $color; ?>" type="text" id="requisition" name="requisition" value="<?php echo $requisition?>" title="<?php echo $requisition?>" onchange="modifyInput(this);" onFocus="deCommaStr(this);" onBlur="this.value = commaStr(this.value);" onkeyup="<?php if($_GET['company']=='DK'){echo 'onlyNumHipen';}else{echo 'onlyNumber';} ?>(this);" />
 								</td>
 								<td class="cell10" scope="row">
 									<input class="input mousetrap" style="width:70%; text-align:right; <?php echo $color; ?>" type="text" id="deposit" name="deposit" class="deposit" value="<?php echo $deposit?>" title="<?php echo $deposit?>" onchange="calcBalance(); modifyInput(this);" onFocus="deCommaStr(this);" onBlur="this.value = commaStr(this.value);" onkeyup="onlyNumber(this);" />
@@ -1055,6 +1215,10 @@ function getParam(sname) {
 					</table>
 				</div>
 			</div>
+			<div class="scroll" style="float: right; position:relative; left:10px; bottom:55px;">
+				<a href="JavaScript:scrollUp()"><img src="<?php echo $misc;?>img/dashboard/btn/scroll_top.svg" align="right" width="20" height="20" style="position:relative; left:10px;"/>
+				<a href="JavaScript:scrollDown()"><img src="<?php echo $misc;?>img/dashboard/btn/scroll_bottom.svg" align="right" width="20" height="20" style="position:relative; left:30px; top:15px;"/>
+			</div>
 			<!-- 영업본부 조회 용 테이블 끝 -->
 
 
@@ -1065,18 +1229,31 @@ function getParam(sname) {
 			<div class = "paging">
 				<?php echo $pagination; ?>
 			</div>
-			<div id="bottom">
-				<button id="hideButton" class="btn-common btn-style1" style="float: left;display:inline;width:120px;margin-right:10px;" type="button" onclick="location.href='<?php echo site_url();?>/sales/fundreporting/download';">엑셀 폼 다운로드</button>
-				<input type="button" class="btn-common btn-style2" style="margin-bottom: 30px;float:left;display:inline;width:90px;margin-right:10px;<?php if($pGroupName=='영업본부'){echo 'display:none';} ?>" onclick="newRow('add');" value="한줄추가" />
-				<input type="button" class="btn-common btn-style2" style="float:left;display:inline;width:90px;margin-right:10px;<?php if($pGroupName=='영업본부'){echo 'display:none';} ?>" onclick="newRow('paste');" value="한줄복사" />
-				<button class="fund_btn5" class="moveTop" style="float: right;" type="button" name="button" onclick="scrollUp();">↑<br>TOP</button>
-				<input type='button' class="btn-common btn-style2" value='엑셀 다운' onclick="fnExcelReport('excelTable');" style="float: right;display:inline;width:90px;margin-right:10px;"/>
+
+				<button id="hideButton" class="btn-common btn-updownload" style="float: left;display:inline;width:140px;margin-right:10px;<?php if($_GET['company']=='DUITOLD'){echo 'display:none;';} ?>" type="button" onclick="location.href='<?php echo site_url();?>/sales/fundreporting/download';">엑셀 폼 다운로드
+					<img src="/misc/img/download_btn.svg"  style="float:left; width:12px; padding:5px;">
+				</button>
+
+				<input type="button" class="btn-common btn-style5" style="margin-bottom: 30px;float:left;display:inline;width:90px;margin-right:10px;<?php if($pGroupName=='영업본부' || $_GET['company'] == 'DUITOLD'){echo 'display:none';} ?>" onclick="newRow('add');" value="한줄추가" />
+				<input type="button" class="btn-common btn-style5" style="float:left;display:inline;width:90px;margin-right:10px;<?php if($pGroupName=='영업본부' || $_GET['company'] == 'DUITOLD'){echo 'display:none';} ?>" onclick="newRow('paste');" value="한줄복사" />
+				<!-- <button class="fund_btn5" class="moveTop" style="float: right;" type="button" name="button" onclick="scrollUp();">↑<br>TOP</button> -->
+
+				<!-- <div class="scroll" style="float: right;">
+					<a href="JavaScript:scrollUp()"><img src="<?php echo $misc;?>img/dashboard/btn/scroll_top.svg" align="right" width="20" height="20" style="display: inline;"/><br>
+					<a href="JavaScript:scrollDown()"><img src="<?php echo $misc;?>img/dashboard/btn/scroll_bottom.svg" align="right" width="20" height="20" style="display: inline;"/>
+				</div> -->
+
+				<input type='button' class="btn-common btn-updownload" value='엑셀 다운로드' onclick="fnExcelReport('excelTable');" style="float: right;display:inline;margin-right:10px;padding-left:20px;width:auto;"/>
+				<img src="/misc/img/download_btn.svg" style="float:right; width:12px; position:relative; top:10px; left:20px; padding-right:2px;">
+
 				<div style="float:right;height:50px;">
-				<input type='button' style="display:inline;width:90px;margin-right:10px;<?php if($pGroupName=='영업본부'){echo 'display:none';} ?>" class="btn-common btn-style2" onclick="$('#excelFile').click();" value="파일업로드" />
+				<input type='button' style="display:inline;width:100px;margin-right:-8px;padding-left:20px;<?php if($pGroupName=='영업본부' || $_GET['company'] == 'DUITOLD'){echo 'display:none';} ?>" class="btn-common btn-updownload" onclick="$('#excelFile').click();" value="파일업로드" />
 					<input style="display:none;" type="file" id="excelFile" onchange="excelExport(event)" />
+					<img src="/misc/img/upload_btn.svg" style="float:left; width:12px; position:relative; top:10px; left:20px; padding: 2px;">
 				</div>
-				<button class="btn-common btn-style3" style="float: right;display:inline;width:90px;margin-right:10px;<?php if($pGroupName=='영업본부'){echo 'display:none';} ?>" type="button" id="update" onclick="saveList();">저장</button>
-				<button class="btn-common btn-style3" style="float: right;display:inline;width:90px;margin-right:10px;<?php if($pGroupName=='영업본부'){echo 'display:none';} ?>;" type="button"name="button" onclick="deleteRow();">삭제</button>
+
+				<button class="btn-common btn-style3" style="border-width:thin;float: right;display:inline;width:90px;margin-right:-8px;<?php if($pGroupName=='영업본부' || $_GET['company'] == 'DUITOLD'){echo 'display:none';} ?>" type="button" id="update" onclick="saveList();">저장</button>
+				<button class="btn-common btn-color4" style="border-width:thin;float: right;display:inline;width:90px;margin-right:10px;<?php if($pGroupName=='영업본부' || $_GET['company'] == 'DUITOLD'){echo 'display:none';} ?>;" type="button"name="button" onclick="deleteRow();">삭제</button>
 			</div>
 			<span id="sumSpan" style="align:right"></span>
 			<!-- <button style="float: right;<?php if($pGroupName=='영업본부'){echo 'display:none';} ?>" for="excelFile">파일업로드</button> -->
@@ -1091,6 +1268,9 @@ function getParam(sname) {
 		</div>
     <!-- ********************** 본문 끝 ********************** -->
 	</div>
+	<ul class="contextmenu">
+	  <li class="memo_menu" id="memo_select_li"><a style="cursor:pointer;">계산서 이동</a></li>
+	</ul>
 <!--하단-->
 <?php include $this->input->server('DOCUMENT_ROOT')."/include/sales_bottom.php"; ?>
 <!--하단-->
@@ -1251,6 +1431,175 @@ function fnExcelReport(id) {
     elem.click();
     document.body.removeChild(elem);
   }
+}
+
+function change_old_new(el) {
+	var url = '<?php echo site_url(); ?>';
+	if($(el).is(':checked')) {
+		location.href="/index.php/sales/fundreporting/fundreporting_list?company=" + getParam("company") + '&old_new=old';
+	} else {
+		location.href="/index.php/sales/fundreporting/fundreporting_list?company=" + getParam("company") + '&old_new=new';
+	}
+}
+
+// const url = new URL($(location).attr('href'));
+//
+// const urlParams = url.searchParams;
+//
+// alert(urlParams.has('old_new'));
+
+$("input[name=breakdown]").contextmenu(function(e){
+	var tr = $(this).closest('tr');
+	var bill_seq = tr.find('input[name=bill_seq]').val();
+
+	if (bill_seq != '') {
+		$('#memo_select_li').attr('onclick', 'go_site("'+bill_seq+'")');
+		$("#memo_select_li").show();
+		//Get window size:
+		var winWidth = $(document).width();
+		var winHeight = $(document).height();
+		//Get pointer position:
+		var posX = e.pageX;
+		var posY = e.pageY;
+		//Get contextmenu size:
+		var menuWidth = $(".contextmenu").width();
+		var menuHeight = $(".contextmenu").height();
+		//Security margin:
+		var secMargin = 10;
+		//Prevent page overflow:
+		if(posX + menuWidth + secMargin >= winWidth
+			&& posY + menuHeight + secMargin >= winHeight){
+				//Case 1: right-bottom overflow:
+				posLeft = posX - menuWidth - secMargin;
+				posTop = posY - menuHeight - secMargin;
+			}
+			else if(posX + menuWidth + secMargin >= winWidth){
+				//Case 2: right overflow:
+				posLeft = posX - menuWidth - secMargin;
+				posTop = posY + secMargin;
+			}
+			else if(posY + menuHeight + secMargin >= winHeight){
+				//Case 3: bottom overflow:
+				posLeft = posX + secMargin;
+				posTop = posY - menuHeight - secMargin;
+			}
+			else {
+				//Case 4: default values:
+				posLeft = posX + secMargin;
+				posTop = posY + secMargin;
+			};
+			//Display contextmenu:
+			$(".contextmenu").css({
+				"left": posLeft - 60 + "px",
+				"top": posTop - 70 + "px"
+			}).show();
+			//Prevent browser default contextmenu.
+			return false;
+	}
+});
+// Hide contextmenu:
+// $(document).not("ul.contextmenu").click(function(){
+//   $(".contextmenu").hide();
+// });
+$(document).mouseup(function (e){
+   var LayerPopup = $(".contextmenu");
+   if(LayerPopup.has(e.target).length === 0){
+     $(".contextmenu").hide();
+   }
+ });
+Mousetrap.bind('esc', function(e) {
+  $(".contextmenu").hide();
+});
+
+function go_site(bill_seq) {
+
+	if (bill_seq.indexOf('r_') != -1) {
+		var url = '<?php echo site_url(); ?>/tech/tech_board/request_tech_support_list';
+		window.open(url, '_blank');
+	} else if (bill_seq.indexOf('m_') != -1 || bill_seq.indexOf('f_') != -1) {
+		$.ajax({
+			type: "POST",
+			dataType: 'json',
+			async: false,
+			url: "<?php echo site_url(); ?>/sales/fundreporting/find_bill_target",
+			data: {
+				bill_seq: bill_seq
+			},
+			success: function(data) {
+				var target_seq = data.target_seq;
+				if (bill_seq.indexOf('f_') != -1) {
+					var url = '<?php echo site_url(); ?>/sales/forcasting/order_completed_view?seq='+target_seq;
+						window.open(url, '_blank');
+				} else if (bill_seq.indexOf('m_') != -1) {
+					$.ajax({
+						type: "POST",
+						dataType: "json",
+						async: false,
+						url: "<?php echo site_url(); ?>/sales/purchase_sales/check_maintain",
+						data: {
+							seq: target_seq
+						},
+						success: function(data) {
+							var cnt = data[0]['cnt'];
+							if (cnt > 0) {
+								var type = '002';
+							} else {
+								var type = '001';
+							}
+							var url = '<?php echo site_url(); ?>/sales/maintain/maintain_view?seq='+target_seq+'&type='+type;
+							window.open(url, '_blank');
+						}
+					})
+				}
+			}
+		})
+	} else if (bill_seq.indexOf('o_') != -1) {
+		$.ajax({
+			type: 'POST',
+			dataType: 'json',
+			async: false,
+			url: "<?php echo site_url(); ?>/sales/fundreporting/find_bill_target",
+			data: {
+				bill_seq: bill_seq
+			},
+			success: function(data) {
+				var issuance_month = data.issuance_month;
+				var year = issuance_month.split('-')[0];
+				var month = issuance_month.split('-')[1];
+				var url = '<?php echo site_url(); ?>/sales/purchase_sales/purchase_sales_view?company='+data.dept+'&year='+year+'&month='+month;
+				window.open(url, '_blank');
+			}
+		})
+	}
+
+	// if (bill_seq.indexOf('m_')) {
+	// 	$.ajax({
+	// 		type: "POST",
+	// 		dataType: "json",
+	// 		async: false,
+	// 		url: "<?php echo site_url(); ?>/sales/purchase_sales/check_maintain",
+	// 		data: {
+	// 			seq: seq
+	// 		},
+	// 		success: function(data) {
+	// 			var cnt = data[0]['cnt'];
+	// 			if (cnt > 0) {
+	// 				var type = '002';
+	// 			} else {
+	// 				var type = '001';
+	// 			}
+	// 			var url = '<?php echo site_url(); ?>/sales/maintain/maintain_view?seq='+seq+'&type='+type;
+	// 			window.open(url, '_blank');
+	// 		}
+	// 	})
+	// } else if (bill_seq.indexOf('f_')) {
+	// 	var url = '<?php echo site_url(); ?>/sales/forcasting/order_completed_view?seq='+seq;
+	// 	window.open(url, '_blank');
+	// } else if (bill_seq.indexOf('r_')) {
+	// 	var url = '<?php echo site_url(); ?>/tech/tech_board/request_tech_support_list';
+	// 	window.open(url, '_blank');
+	// }
+
 }
 </script>
 </body>

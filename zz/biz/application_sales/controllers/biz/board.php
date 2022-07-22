@@ -13,6 +13,12 @@ class Board extends CI_Controller {
 		$this->lv = $this->phpsession->get( 'lv', 'stc' );
 		$this->seq = $this->phpsession->get( 'seq', 'stc' );
 		$this->group = $this->phpsession->get( 'group', 'stc' );
+		$this->pGroupName = $this->phpsession->get( 'pGroupName', 'stc' );
+		$this->cooperation_yn = $this->phpsession->get( 'cooperation_yn', 'stc' );
+
+		if($this->cooperation_yn == 'Y') {
+			echo "<script>alert('권한이 없습니다.');location.href='".site_url()."'</script>";
+		}
 
 		$this->load->Model(array('biz/STC_Board', 'STC_Common'));
 		$this->load->library('user_agent');
@@ -46,7 +52,21 @@ class Board extends CI_Controller {
 			$search1 = "";
 		}
 
+		if(isset($_GET['hide_yn'])) {
+			$hide_yn = $_GET['hide_yn'];
+		} else {
+			$hide_yn = 'N';
+		}
 
+		if(isset($_GET['temporary'])) {
+			$temporary = $_GET['temporary'];
+		} else {
+			$temporary = 'N';
+		}
+		// echo $hide_yn;
+
+		$data['temporary'] = $temporary;
+		$data['hide_yn'] = $hide_yn;
 		$data['search_keyword'] = $search_keyword;
 		$data['search1'] = $search1;
 		if  ( $cur_page <= 0 )
@@ -54,8 +74,8 @@ class Board extends CI_Controller {
 
 		$data['cur_page'] = $cur_page;
 
-		$user_list_data = $this->STC_Board->notice_list($category, $search_keyword, $search1, ( $cur_page - 1 ) * $no_page_list, $no_page_list);
-		$data['count'] = $this->STC_Board->notice_list_count($category, $search_keyword, $search1)->ucount;
+		$user_list_data = $this->STC_Board->notice_list($category, $search_keyword, $search1, $hide_yn, $temporary, ( $cur_page - 1 ) * $no_page_list, $no_page_list);
+		$data['count'] = $this->STC_Board->notice_list_count($category, $search_keyword, $search1, $hide_yn, $temporary)->ucount;
 
 		$data['list_val'] = $user_list_data['data'];
 		$data['list_val_count'] = $user_list_data['count'];
@@ -105,7 +125,16 @@ class Board extends CI_Controller {
 		$seq = $this->input->post('seq');
 		$category_code = $this->input->post('category_code');
 		$type = $this->input->post( 'type' );
+		$hide_btn = $this->input->post('hide_btn'); // 숨김버튼 추가?
+		if($hide_btn == '') {
+			$hide_btn = 'N';
+		}
 
+		if($category_code == 001) { //운영공지 외에 임시저장 사용안함
+			$temporary = $this->input->post('temporary');
+		} else {
+			$temporary = 'N';
+		}
 
 		$file_count = $_POST['file_length'];
 		if($type == 1){
@@ -159,7 +188,9 @@ class Board extends CI_Controller {
 				'file_realname'   => $file_realname,
 				'insert_date'     => date("Y-m-d H:i:s"),
 				'update_date'     => date("Y-m-d H:i:s"),
-				'is_mobile'       => $is_mobile
+				'is_mobile'       => $is_mobile,
+				'hide_btn'        => $hide_btn,
+				'temporary'       => $temporary
 			);
 
 		} else {
@@ -173,7 +204,9 @@ class Board extends CI_Controller {
 				'file_realname'   => $file_realname,
 				'insert_date'     => date("Y-m-d H:i:s"),
 				'update_date'     => date("Y-m-d H:i:s"),
-				'is_mobile'       => $is_mobile
+				'is_mobile'       => $is_mobile,
+				'hide_btn'        => $hide_btn,
+				'temporary'       => $temporary
 			 );
 		}
 
@@ -235,7 +268,7 @@ class Board extends CI_Controller {
 					);
 					array_push($insert_arr, $contents_arr);
 			}
-
+// var_dump($insert_arr);
 				$result = $this->STC_Board->notice_insert_lab($insert_arr);
 				if($result){
 	        echo "<script>alert('정상적으로 처리되었습니다.');location.href='".site_url()."/biz/board/notice_list?category=002'</script>";

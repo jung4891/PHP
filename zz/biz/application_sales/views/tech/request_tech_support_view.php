@@ -39,9 +39,9 @@ if ($this->cooperative_id != '') {
 			<tr>
 				<td align="right" style="padding-right:15%;">
           <?php if($tech_lv > 0){ ?>
-					<input type="button" class="btn-common btn-color1" value="삭제" onClick="javascript:chkForm(1);return false;">
+					<input type="button" class="btn-common btn-color4" value="삭제" onClick="javascript:chkForm(1);return false;">
           <?php } ?>
-					<input type="button" class="btn-common btn-color1" value="수정" onClick="javascript:chkForm(0);return false;">
+					<input type="button" class="btn-common btn-color4" value="수정" onClick="javascript:chkForm(0);return false;">
 					<input type="button" class="btn-common btn-color2" value="목록" onClick="requestTechSupportListGo();">
 				</td>
 			</tr>

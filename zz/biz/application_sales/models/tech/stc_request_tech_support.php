@@ -12,6 +12,8 @@ class STC_request_tech_support extends CI_Model {
 		$this->pGroupName= $this->phpsession->get( 'pGroupName', 'stc' );
 		$this->id= $this->phpsession->get( 'id', 'stc' );
 		$this->cooperative_id= $this->phpsession->get( 'cooperative_id', 'stc' );
+
+		$this->load->Model('sales/STC_Bill_fund_link');
     }
 
     //협력사 가져오기
@@ -325,8 +327,12 @@ ORDER BY a.seq DESC, a.approval_seq DESC";
 	function save_request_support_bill($data, $mode, $seq) {
 		if ($mode == 'insert') {
 			$result = $this->db->insert('request_tech_support_bill', $data );
+			$bill_seq = $this->db->insert_id();
+			$this->STC_Bill_fund_link->bill_fund_link($bill_seq, $data['issuance_status'], $data['issuance_month'], 'request_tech_support');
 		} else {
 			$result = $this->db->update('request_tech_support_bill',$data,array('seq' => $seq));
+			$bill_seq = $seq;
+			$this->STC_Bill_func_link->bill_fund_link($bill_seq, $data['issuance_status'], $data['issuance_month'], 'request_tech_support');
 		}
 		return $result;
 	}

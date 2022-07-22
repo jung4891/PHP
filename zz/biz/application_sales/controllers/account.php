@@ -14,7 +14,7 @@ class Account extends CI_Controller {
       $this->pg = $this->phpsession->get( 'pg', 'stc' );
       $this->pGroupName = $this->phpsession->get( 'pGroupName', 'stc' );
       $this->customerid = $this->phpsession->get( 'customerid', 'stc' );
-      $this->load->Model(array('STC_Common'));
+      $this->load->Model(array('STC_Common', 'STC_mail'));
       $this->load->library('user_agent');
    }
 
@@ -233,6 +233,7 @@ class Account extends CI_Controller {
       $user_id = $this->id;
       $userdata = $this->STC_Common->selected_user( $user_id );
 
+      $data['seq'] = $userdata['seq'];
       $data['user_part'] = $userdata['user_part'];
       $data['user_id'] = $userdata['user_id'];
       $data['user_name'] = $userdata['user_name'];
@@ -245,6 +246,9 @@ class Account extends CI_Controller {
       // $data['user_level'] = $userdata['user_level'];
       $data['user_duty'] = $userdata['user_duty'];
       $data['user_comment'] = $userdata['update_date'];
+      $data['user_birthday'] = $userdata['user_birthday'];
+      $data['sign_realname'] = $userdata['sign_realname'];
+      $data['sign_changename'] = $userdata['sign_changename'];
 
       $this->load->view( 'modify_view', $data );
    }
@@ -261,6 +265,7 @@ class Account extends CI_Controller {
       $user_email = $this->input->get('user_email');
       $user_tel = $this->input->get('user_tel');
       $user_duty = $this->input->get('user_duty');
+      $user_birthday = $this->input->get('user_birthday');
 
       $data = array(
          'user_password' => sha1($user_passwd),
@@ -268,6 +273,7 @@ class Account extends CI_Controller {
          'user_tel' => $user_tel,
          'user_email' => $user_email,
          'user_duty' => $user_duty,
+         'user_birthday' => $user_birthday,
          'update_date' => date("Y-m-d H:i:s")
        );
 
@@ -293,20 +299,52 @@ class Account extends CI_Controller {
          $userdata = $this->STC_Common->select_user($userid, sha1($userpassword));         //   해당 ID가 존재하는지와 임시 로그인 상태인지 검사
 
          if(isset($userdata['user_id'])){
+
+           // $key_pass = $this->db->password;
+           $key_pass = "durian12#";
+           $key_pass = substr(hash('sha256', $key_pass, true), 0, 32);
+
+           $iv = chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0);
+           $encrypted = base64_encode(openssl_encrypt($userpassword, 'aes-256-cbc', $key_pass, 1, $iv));
+           $create_key = $this->STC_mail->aes_key($userdata['user_email'], $encrypted);
+
+
             $user_level = $userdata['user_part'];
             $biz_lv = substr($userdata['user_part'],0,1);
             $sales_lv = substr($userdata['user_part'],1,1);
             $tech_lv = substr($userdata['user_part'],2,1);
             $admin_lv = substr($userdata['user_part'],3,1);
+            $cooperation_yn = $userdata['cooperation_yn'];
             $date = date("Y.m.d_H시i분");
 
             //   해당 아이디가 존재하는 경우
-            $var = array('id'=> $userdata['user_id'], 'name' => $userdata['user_name'], 'lv' => $user_level, 'at' => $user_authority,'email' => $userdata['user_email'], 'cnum' => $userdata['company_num'], 'group'=>$userdata['user_group'], 'seq'=>$userdata['seq'], 'pGroupName'=>$userdata['parentGroupName'], 'duty'=>$userdata['user_duty'], 'biz_lv'=>$biz_lv, 'sales_lv'=>$sales_lv, 'tech_lv'=>$tech_lv, 'admin_lv'=>$admin_lv, 'login_time'=>$date );
+            $var = array(
+              'id'=> $userdata['user_id'],
+              'name' => $userdata['user_name'],
+              'lv' => $user_level,
+              'at' => $user_authority,
+              'email' => $userdata['user_email'],
+              'cnum' => $userdata['company_num'],
+              'group'=>$userdata['user_group'],
+              'seq'=>$userdata['seq'],
+              'pGroupName'=>$userdata['parentGroupName'],
+              'duty'=>$userdata['user_duty'],
+              'biz_lv'=>$biz_lv,
+              'sales_lv'=>$sales_lv,
+              'tech_lv'=>$tech_lv,
+              'admin_lv'=>$admin_lv,
+              'cooperation_yn'=>$cooperation_yn,
+              'login_time'=>$date
+            );
 
             foreach( $var as $k => $v )
                $this->phpsession->save( $k, $v, "stc" );
                setcookie("cookieid", "" ,time()+60*60*24*30, "/");
-               echo "<script>location.href='".site_url()."/biz/?login=1'</script>";
+               if($cooperation_yn == 'N') {
+                 echo "<script>location.href='".site_url()."/biz/?login=1'</script>";
+               } else {
+                 echo "<script>location.href='".site_url()."/tech/tech_board/tech_doc_list?type=Y'</script>";
+               }
          } else{                                                   //   해당 ID가 존재하지 않음
             echo "<script>alert('로그인에 실패하였습니다.\\n\\n아이디, 비밀번호를 확인후 로그인해 주시기 바랍니다.');location.href='".site_url()."/account'</script>";
          }
@@ -467,5 +505,43 @@ class Account extends CI_Controller {
       $data['view_val']=$this->STC_Common->periodic_inspection($data['group']);
       $this->load->view( 'periodic_inspection', $data );
    }
+
+  function sign_upload() {
+    $seq = $this->input->post('seq');
+    $sign_password = $this->input->post('sign_password');
+
+    if($_FILES['u_file']) {
+      $cname = $_FILES['u_file']['name'];
+      $ext = substr(strrchr($cname,"."),1);
+      $ext = strtolower($ext);
+
+      $upload_dir = "/var/www/html/stc/misc/upload/user_sign";
+      // $upload_dir = "C:/xampp/htdocs/biz/misc/upload/user_sign";
+      $conf_file['upload_path'] = $upload_dir;
+      $conf_file['allowed_types'] = '*';
+      $conf_file['overwrite']  = false;
+      $conf_file['encrypt_name']  = true;
+      $conf_file['remove_spaces']  = true;
+
+      $this->load->library('upload', $conf_file );
+      $result = $this->upload->do_upload('u_file');
+      if($result) {
+          $file_data = array('upload_data' => $this->upload->data());
+          $file_realname = $file_data['upload_data']['orig_name'];
+          $file_changename = $file_data['upload_data']['file_name'];
+
+          $data = array(
+            'sign_changename' => $file_changename,
+            'sign_realname'   => $file_realname,
+            'sign_password'   => sha1($sign_password)
+          );
+          $result = $this->STC_Common->insert_user( $data, $mode = 1, $this->id);
+          echo json_encode(true);
+      } else {
+          echo json_encode(false);
+          exit;
+      }
+    }
+  }
 }
 ?>

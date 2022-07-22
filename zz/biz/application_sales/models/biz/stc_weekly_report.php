@@ -20,6 +20,9 @@ class STC_weekly_report extends CI_Model {
     function weekly_report_list( $searchkeyword,$search_keyword2, $search1, $start_limit = 0, $offset = 0) {
         $keyword = $searchkeyword;
         $tmp="";
+        $user_seq = $this->seq;
+        $user_group = $this->group;
+        $pGroupName = $this->pGroupName;
 
         if($searchkeyword != "") {
                 if($search1 == "001") {
@@ -34,7 +37,25 @@ class STC_weekly_report extends CI_Model {
                 $searchstring = "";
         }
 
-        $sql = "select * from weekly_report".$searchstring." order by seq desc"; //  수정포인트
+        if($user_group == "CEO" || $pGroupName == "기술연구소") {
+          $group = "";
+        } else if($pGroupName == '기술본부') { //김갑진 이사님
+          $group = "group_name like '기술%' and group_name != '기술연구소'";
+        } else if($pGroupName == '영업본부') {
+          $group = "group_name like '사업%'";
+        } else {
+          $group = "group_name = '{$user_group}'";
+        }
+
+        if($searchstring == "" && $group != "") {
+          $where = " WHERE ";
+        } else if($searchstring != "" && $group != "") {
+          $where = " AND ";
+        } else {
+          $where = "";
+        }
+
+        $sql = "SELECT * FROM weekly_report LEFT JOIN (SELECT user_seq, notice_seq FROM weekly_report_read GROUP BY notice_seq, user_seq HAVING user_seq = {$user_seq}) AS wrr ON seq = wrr.notice_seq ".$searchstring.$where.$group." ORDER BY seq DESC"; //  수정포인트
 
         if  ( $offset <> 0 )
             $sql = $sql." limit ?, ?";
@@ -51,6 +72,9 @@ class STC_weekly_report extends CI_Model {
     function weekly_report_list_count( $searchkeyword,$search_keyword2, $search1, $start_limit = 0, $offset = 0) {
         $keyword = $searchkeyword;
         $tmp="";
+        $user_seq = $this->seq;
+        $user_group = $this->group;
+        $pGroupName = $this->pGroupName;
 
         if($searchkeyword != "") {
                 if($search1 == "001") {
@@ -67,7 +91,25 @@ class STC_weekly_report extends CI_Model {
                 $searchstring = "";
         }
 
-        $sql = "select count(seq) as ucount from weekly_report".$searchstring." order by seq desc"; //  수정포인트
+        if($user_group == "CEO" || $pGroupName == "기술연구소") {
+          $group = "";
+        } else if($pGroupName == '기술본부') { //김갑진 이사님
+          $group = "group_name like '기술%' and group_name != '기술연구소'";
+        } else if($pGroupName == '영업본부') {
+          $group = "group_name like '사업%'";
+        } else {
+          $group = "group_name = '{$user_group}'";
+        }
+
+        if($searchstring == "" && $group != "") {
+          $where = " WHERE ";
+        } else if($searchstring != "" && $group != "") {
+          $where = " AND ";
+        } else {
+          $where = "";
+        }
+
+        $sql = "SELECT count(seq) AS ucount FROM weekly_report ".$searchstring.$where.$group." ORDER BY seq DESC"; //  수정포인트
 
         if  ( $searchkeyword != "" )
             $query = $this->db->query( $sql);
@@ -75,6 +117,16 @@ class STC_weekly_report extends CI_Model {
             $query = $this->db->query( $sql );
 
         return $query->row();
+    }
+
+    function weekly_report_read_count($notice_seq, $user_seq) {
+      $sql = "SELECT count(*) AS cnt FROM weekly_report_read WHERE notice_seq = {$notice_seq} AND user_seq = {$user_seq}";
+      $query = $this->db->query($sql);
+      return $query->row_array();
+    }
+
+    function weekly_report_read_insert($notice_seq, $user_seq, $data) {
+      $this->db->insert('weekly_report_read', $data );
     }
 
     //주간업무보고
@@ -1043,6 +1095,12 @@ class STC_weekly_report extends CI_Model {
 		$result = $this->db->update('weekly_report',$data,array('seq' => $data['seq']));
 		return $result;
 	}
+
+    function report_file_attach($data) {
+      $result = $this->db->update('weekly_report', $data, array('seq' => $data['seq']));
+
+      return $result;
+    }
 
     // function change_sch_report_N_action($seq){
     //   $find_sch_seq_sql = "SELECT schedule_seq FROM weekly_report_doc where seq = {$seq}";

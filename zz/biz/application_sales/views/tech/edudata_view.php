@@ -44,8 +44,8 @@ $(document).ready(function() {
 				<tr>
 					<td align="right">
 		<?php if($tech_lv == 3) {?>
-						<input type="button" class="btn-common btn-color1" value="삭제" onClick="javascript:chkForm(1);return false;" style="margin-right:10px">
-						<input type="button" class="btn-common btn-color1" value="수정" onClick="javascript:chkForm(0);return false;" style="margin-right:10px">
+						<input type="button" class="btn-common btn-color4" value="삭제" onClick="javascript:chkForm(1);return false;" style="margin-right:10px">
+						<input type="button" class="btn-common btn-color4" value="수정" onClick="javascript:chkForm(0);return false;" style="margin-right:10px">
 		<?php }?>
 						<input type="button" class="btn-common btn-color2" value="목록" onClick="javascript:history.go(-1);">
 					</td>
@@ -63,9 +63,9 @@ $(document).ready(function() {
           			<td class="tbl-title">카테고리</td>
           			<td class="tbl-cell">
 						<?php
-						foreach ($category  as $val) {
-							if( $view_val['category_code'] && ( $val['code'] == $view_val['category_code'] ) ) {
-								echo $val['code_name'];
+            foreach ($category  as $val) {
+              if( $view_val['category_code'] == $val['seq'] ) {
+								echo $val['company_name'];
 							}
 						}
 						?></td>

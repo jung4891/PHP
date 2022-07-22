@@ -83,9 +83,9 @@
 	  ?>
   <div class="menu_div">
     <a class="menu_list" onclick ="movePage('electronic_approval_list?type=admin')" style='color:#B0B0B0'>결재문서관리</a>
-		<a class="menu_list" onclick ="movePage('electronic_approval_form_list?mode=admin')" style='color:#B0B0B0'>양식관리</a>
+		<!-- <a class="menu_list" onclick ="movePage('electronic_approval_form_list?mode=admin')" style='color:#B0B0B0'>양식관리</a> -->
 		<a class="menu_list" style='color:#0575E6'>서식함관리</a>
-		<a class="menu_list" onclick ="movePage('electronic_approver_line_list')" style='color:#B0B0B0'>결재선관리</a>
+		<!-- <a class="menu_list" onclick ="movePage('electronic_approver_line_list')" style='color:#B0B0B0'>결재선관리</a> -->
 	</div>
 
   <div style="width:90%;margin: 0 auto;margin-top:10px;">

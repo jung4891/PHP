@@ -2,10 +2,24 @@
   class STC_Fundreporting extends CI_Model {
     function __construct(){
       parent::__construct();
+
+      $this->load->Model('sales/STC_Bill_fund_link');
     }
 
-    public function count($company){
-      $sql = "SELECT COUNT(*) as cnt FROM fund_list where company = '{$company}'";
+    public function count($company, $old_new){
+      if ($company == 'DUITOLD') {
+        $table = '_old';
+      } else {
+        $table = '';
+      }
+
+      if($company == 'DUIT' && $old_new == 'new') {
+        $old_new_string = ' AND old_new is null';
+      } else {
+        $old_new_string = '';
+      }
+
+      $sql = "SELECT COUNT(*) as cnt FROM fund_list{$table} where company = '{$company}' {$old_new_string}";
 
       $row = $this->db->query($sql);
 
@@ -15,8 +29,13 @@
     }
 
     public function bankbookupdate($company){
+      if ($company == 'DUITOLD') {
+        $table = '_old';
+      } else {
+        $table = '';
+      }
 
-      $result = $this->db->query("update fund_bankbook a, ( select a.banktype, ifnull(b.balance,0) as balance from fund_bankbook a left join (select banktype, ifnull(sum(deposit),0) - ifnull(sum(withdraw),0) as balance from fund_list group by banktype) b on a.banktype = b.banktype where company = '{$company}' ) b SET a.balance = b.balance WHERE a.banktype = b.banktype;");
+      $result = $this->db->query("update fund_bankbook{$table} a, ( select a.banktype, ifnull(b.balance,0) as balance from fund_bankbook{$table} a left join (select banktype, ifnull(sum(deposit),0) - ifnull(sum(withdraw),0) as balance from fund_list{$table} group by banktype) b on a.banktype = b.banktype where company = '{$company}' and type = '보통예금' ) b SET a.balance = b.balance WHERE a.banktype = b.banktype;");
       if($result){
         return "true";
       }else{
@@ -24,41 +43,108 @@
       }
     }
 
-    public function accountlist($start, $limit, $company){
+    public function accountlist($start, $limit, $company, $old_new = ''){
+      if ($company == 'DUITOLD') {
+        $table = '_old';
+      } else {
+        $table = '';
+      }
+
+      if($company == 'DUIT' && $old_new == 'new') {
+        $old_new_string = ' AND old_new is null';
+      } else {
+        $old_new_string = '';
+      }
 
       $limit_query=' LIMIT '. $start .', '. $limit ;
-      return $this->db->query("SELECT * FROM fund_list where company = '{$company}' ORDER BY dateOfIssue DESC". $limit_query)->result();
+      return $this->db->query("SELECT fl.*, bfl.bill_seq FROM (SELECT * FROM fund_list{$table} where company = '{$company}' {$old_new_string} ORDER BY dateOfIssue DESC {$limit_query}) fl left join bill_fund_link bfl on fl.idx = bfl.fund_list_seq ORDER BY dateOfIssue DESC")->result();
       // return $this->db->query("SELECT * FROM test WHERE idx = 1 OR month(dueDate) = month(curDate()) ORDER BY idx")->result();
     }
 
-    public function pagingbalance($start,$company){
+    public function pagingbalance($start,$company,$old_new){
+      if ($company == 'DUITOLD') {
+        $table = '_old';
+      } else {
+        $table = '';
+      }
+
+      if($company == 'DUIT' && $old_new == 'new') {
+        $old_new_string = ' AND old_new is null';
+      } else {
+        $old_new_string = '';
+      }
+
       $limit = $start;
       // echo "<script>alert('{$start}')</script>";
-      return $this->db->query("select ifnull(sum(a.deposit),0)-ifnull(sum(a.withdraw),0) as pagingBalance from (select * from fund_list where company = '{$company}' order by idx limit {$limit}) a;")->result();
+      return $this->db->query("select ifnull(sum(a.deposit),0)-ifnull(sum(a.withdraw),0) as pagingBalance from (select * from fund_list{$table} where company = '{$company}' {$old_new_string} order by idx limit {$limit}) a;")->result();
     }
 
-    public function sortpagingbalance($limit,$company){
+    public function sortpagingbalance($limit,$company,$old_new = ''){
+      if ($company == 'DUITOLD') {
+        $table = '_old';
+      } else {
+        $table = '';
+      }
+
+      if($company == 'DUIT' && $old_new == 'new') {
+        $old_new_string = ' AND old_new is null';
+      } else {
+        $old_new_string = '';
+      }
       // echo "<script>alert('{$start}')</script>";
-      return $this->db->query("select ifnull(sum(a.deposit),0)-ifnull(sum(a.withdraw),0) as pagingBalance from (SELECT * FROM fund_list where company = '{$company}' ORDER BY dueDate is null DESC, dueDate ASC, idx ASC limit {$limit}) a;")->result();
+      return $this->db->query("select ifnull(sum(a.deposit),0)-ifnull(sum(a.withdraw),0) as pagingBalance from (SELECT * FROM fund_list{$table} where company = '{$company}' {$old_new_string} ORDER BY dueDate is null DESC, dueDate ASC, idx ASC limit {$limit}) a;")->result();
     }
 
-    public function enduserpagingbalance($start,$company){
+    public function enduserpagingbalance($start,$company,$old_new){
+      if ($company == 'DUITOLD') {
+        $table = '_old';
+      } else {
+        $table = '';
+      }
+
+      if($company == 'DUIT' && $old_new == 'new') {
+        $old_new_string = ' AND old_new is null';
+      } else {
+        $old_new_string = '';
+      }
       $limit = $start;
 
-      return $this->db->query("select ifnull(sum(a.deposit),0)-ifnull(sum(a.withdraw),0) as pagingBalance from  (SELECT * FROM fund_list where company = '{$company}' ORDER BY endUser is null DESC, endUser DESC, dueDate is null DESC, dueDate ASC, idx ASC limit {$limit}) a;")->result();
+      return $this->db->query("select ifnull(sum(a.deposit),0)-ifnull(sum(a.withdraw),0) as pagingBalance from  (SELECT * FROM fund_list{$table} where company = '{$company}' {$old_new_string} ORDER BY endUser is null DESC, endUser DESC, dueDate is null DESC, dueDate ASC, idx ASC limit {$limit}) a;")->result();
     }
 
-    public function sort($start, $limit, $company){
-    $limit_query=' LIMIT '. $start .', '. $limit ;
-    // return $this->db->query("SELECT * FROM fund_list where company = '{$company}' ORDER BY  dueDate is null ASC, dueDate ASC, idx ASC". $limit_query)->result();
-    return $this->db->query("SELECT * FROM fund_list where company = '{$company}' ORDER BY dueDate is null ASC, dueDate DESC, idx DESC". $limit_query)->result();
+    public function sort($start, $limit, $company, $old_new){
+      if ($company == 'DUITOLD') {
+        $table = '_old';
+      } else {
+        $table = '';
+      }
+
+      if($company == 'DUIT' && $old_new == 'new') {
+        $old_new_string = ' AND old_new is null';
+      } else {
+        $old_new_string = '';
+      }
+      $limit_query=' LIMIT '. $start .', '. $limit ;
+      // return $this->db->query("SELECT * FROM fund_list where company = '{$company}' ORDER BY  dueDate is null ASC, dueDate ASC, idx ASC". $limit_query)->result();
+      return $this->db->query("SELECT fl.*, bfl.bill_seq FROM (SELECT * FROM fund_list{$table} where company = '{$company}' {$old_new_string} ORDER BY dueDate is null ASC, dueDate DESC, idx DESC {$limit_query}) fl left join bill_fund_link bfl on fl.idx = bfl.fund_list_seq ORDER BY dueDate is null ASC, dueDate DESC, idx DESC")->result();
   }
 
 
-  public function enduser($start, $limit, $company){
-   $limit_query=' LIMIT '. $start .', '. $limit ;
-   return $this->db->query("SELECT * FROM fund_list where company = '{$company}' ORDER BY endUser is null ASC, endUser ASC, dueDate is null ASC, dueDate DESC, idx DESC". $limit_query)->result();
- }
+  public function enduser($start, $limit, $company, $old_new){
+    if ($company == 'DUITOLD') {
+      $table = '_old';
+    } else {
+      $table = '';
+    }
+
+    if($company == 'DUIT' && $old_new == 'new') {
+      $old_new_string = ' AND old_new is null';
+    } else {
+      $old_new_string = '';
+    }
+    $limit_query=' LIMIT '. $start .', '. $limit ;
+    return $this->db->query("SELECT fl.*, bfl.bill_seq FROM (SELECT * FROM fund_list{$table} where company = '{$company}' {$old_new_string} ORDER BY endUser is null ASC, endUser ASC, dueDate is null ASC, dueDate DESC, idx DESC {$limit_query}) fl left join bill_fund_link bfl on fl.idx = bfl.fund_list_seq ORDER BY endUser is null ASC, endUser ASC, dueDate is null ASC, dueDate DESC, idx DESC")->result();
+  }
 
     public function delete($data){
         $result = $this->db->delete('fund_list', $data);
@@ -75,6 +161,8 @@
       // $this->db->update('accountlist2', $data);
       $where = "idx = '{$idx}'";
       $result=$this->db->update('fund_list',$data,$where);
+
+      $this->STC_Bill_fund_link->update_bankType($data, $idx);
       //echo $result;
       if($result){
         return "true";
@@ -104,8 +192,16 @@
       $result = $query->result();
     }
     // 쿠키 필요
-    public function insert($data){
+    public function insert($data, $link_seq){
       $result = $this->db->insert('fund_list',$data);
+      $fund_seq = $this->db->insert_id();
+
+      if($link_seq != '') {
+        $this->STC_Bill_fund_link->insert_bill_fund_link($link_seq, $fund_seq);
+      }
+
+      $this->STC_Bill_fund_link->update_bankType($data, $fund_seq);
+
       if($result){
         return "true";
       }else{
@@ -156,12 +252,22 @@
 
 
     public function selectbankbook($company){
+      if ($company == 'DUITOLD') {
+        $table = '_old';
+      } else {
+        $table = '';
+      }
       // return $this->db->query("SELECT * FROM fund_bankbook WHERE type='보통예금' and company = '{$company}' ORDER BY idx ASC")->result();
-      return $this->db->query("SELECT * FROM fund_bankbook WHERE company = '{$company}' ORDER BY idx ASC")->result();
+      return $this->db->query("SELECT * FROM fund_bankbook{$table} WHERE company = '{$company}' ORDER BY idx ASC")->result();
     }
 
     public function bankList($company){
-      return $this->db->query("SELECT DISTINCT bank FROM fund_bankbook WHERE company = '{$company}' AND bank != '' ORDER BY bank")->result();
+      if ($company == 'DUITOLD') {
+        $table = '_old';
+      } else {
+        $table = '';
+      }
+      return $this->db->query("SELECT DISTINCT bank FROM fund_bankbook{$table} WHERE company = '{$company}' AND bank != '' ORDER BY bank")->result();
     }
 
     // public function selectBalance(){
@@ -169,10 +275,20 @@
     // }
 
     public function selectloanaccount($company){
-      return $this->db->query("SELECT * FROM fund_bankbook WHERE type='대출' and company = '{$company}' ORDER BY idx ASC")->result();
+      if ($company == 'DUITOLD') {
+        $table = '_old';
+      } else {
+        $table = '';
+      }
+      return $this->db->query("SELECT * FROM fund_bankbook{$table} WHERE type='대출' and company = '{$company}' ORDER BY idx ASC")->result();
     }
 
-    public function seachlist($selectDate, $fromDate = null, $toDate = null, $search1, $keyword1 = null, $search2, $keyword2 = null, $search3, $keyword3 = null, $company, $sort){
+    public function seachlist($selectDate, $fromDate = null, $toDate = null, $search1, $keyword1 = null, $search2, $keyword2 = null, $search3, $keyword3 = null, $company, $old_new, $sort){
+      if ($company == 'DUITOLD') {
+        $table = '_old';
+      } else {
+        $table = '';
+      }
   if($fromDate==null && $toDate){
     $this->db->select_min($selectDate, 'MinDate');
     $query = $this->db->get('fund_list');
@@ -214,6 +330,12 @@
 
     $comkey = " AND company = '$company'";
 
+    if($company == 'DUIT' && $old_new == 'new') {
+      $old_new_string = ' AND old_new is null';
+    } else {
+      $old_new_string = '';
+    }
+
     if ($sort=='dueDate'){
       $sort = " ORDER BY dueDate is null ASC, dueDate DESC, idx DESC";
     } else if ($sort=='dateOfIssue'){
@@ -222,13 +344,13 @@
       $sort = " ORDER BY endUser DESC, endUser ASC, dueDate is null ASC, dueDate DESC, idx DESC";
     }
 
-    $sql = "SELECT * FROM fund_list WHERE 1=1 ".$term.$key1.$key2.$key3.$comkey.$sort;
+    $sql = "SELECT * FROM fund_list{$table} WHERE 1=1 ".$term.$key1.$key2.$key3.$comkey.$old_new_string.$sort;
 
     // echo $sql;
     $query = $this->db->query($sql);
     $result['num_rows'] = $query->num_rows();
 
-    $sql2 = "SELECT IFNULL(sum(deposit),0) as sumDeposit, IFNULL(sum(withdraw),0) as sumWithdraw FROM fund_list WHERE 1=1 ".$term.$key1.$key2.$key3.$comkey." AND bankType IS NOT NULL";
+    $sql2 = "SELECT IFNULL(sum(deposit),0) as sumDeposit, IFNULL(sum(withdraw),0) as sumWithdraw FROM fund_list{$table} WHERE 1=1 ".$term.$key1.$key2.$key3.$old_new_string.$comkey." AND bankType IS NOT NULL";
     // echo $sql2;
     $query2 = $this->db->query($sql2);
     $row = $query2->row();
@@ -237,15 +359,41 @@
     // echo $resultRow;
     // $result['list'] = $query->result();
     // $result['row'] = $query->num_rows();
-    $sql3 = "SELECT IFNULL(sum(deposit),0) as nsDeposit, IFNULL(sum(withdraw),0) as nsWithdraw FROM fund_list WHERE 1=1 ".$term.$key1.$key2.$key3.$comkey." AND bankType IS NULL";
+    $sql3 = "SELECT IFNULL(sum(deposit),0) as nsDeposit, IFNULL(sum(withdraw),0) as nsWithdraw FROM fund_list{$table} WHERE 1=1 ".$term.$key1.$key2.$key3.$comkey.$old_new_string." AND bankType IS NULL";
     $query3 = $this->db->query($sql3);
     $row = $query3->row();
     $result['nsDeposit'] = $row->nsDeposit;
     $result['nsWithdraw'] = $row->nsWithdraw;
+
+    $sql4 = "SELECT SUM(if(fl.type = '매출채권', requisition, 0)) AS sumDeposit_adjust,
+            SUM(if(fl.type = '매입채무', requisition, 0)) AS sumWithdraw_adjust
+            FROM fund_list{$table} fl
+            LEFT JOIN bill_fund_link bfl ON fl.idx = bfl.fund_list_seq WHERE 1=1 ".$term.$key1.$key2.$key3.$old_new_string.$comkey." AND bankType IS NOT NULL AND bill_seq IS NOT NULL";
+    // echo $sql4;
+    $query4 = $this->db->query($sql4);
+    $row = $query4->row();
+    $result['sumDeposit_adjust'] = $row->sumDeposit_adjust;
+    $result['sumWithdraw_adjust']= $row->sumWithdraw_adjust;
+
+    $sql5 = "SELECT SUM(if(fl.type = '매출채권', requisition, 0)) AS nsDeposit_adjust,
+            SUM(if(fl.type = '매입채무' or fl.type='운영비용', requisition, 0)) AS nsWithdraw_adjust
+            FROM fund_list{$table} fl
+            LEFT JOIN bill_fund_link bfl ON fl.idx = bfl.fund_list_seq WHERE 1=1 ".$term.$key1.$key2.$key3.$comkey.$old_new_string." AND bankType IS NULL AND bill_seq IS NOT NULL";
+    $query5 = $this->db->query($sql5);
+    $row = $query5->row();
+    $result['nsDeposit_adjust'] = $row->nsDeposit_adjust;
+    $result['nsWithdraw_adjust'] = $row->nsWithdraw_adjust;
+
     return $result;
   }
 
-  public function searchpaging($selectDate, $fromDate = null, $toDate = null, $search1, $keyword1 = null, $search2, $keyword2 = null, $search3, $keyword3 = null, $start, $limit, $company, $sort){
+  public function searchpaging($selectDate, $fromDate = null, $toDate = null, $search1, $keyword1 = null, $search2, $keyword2 = null, $search3, $keyword3 = null, $start, $limit, $company, $old_new, $sort){
+    if ($company == 'DUITOLD') {
+      $table = '_old';
+    } else {
+      $table = '';
+    }
+
     if($fromDate==null && $toDate){
       $this->db->select_min($selectDate, 'MinDate');
       $query = $this->db->get('fund_list');
@@ -284,6 +432,12 @@
 
     $comkey = " AND company = '$company'";
 
+    if($company == 'DUIT' && $old_new == 'new') {
+      $old_new_string = ' AND old_new is null';
+    } else {
+      $old_new_string = '';
+    }
+
     // $limitQuery ='';
     // if($start !='' && $limit !=''){
       $limitQuery=' LIMIT '. $start .', '. $limit ;
@@ -296,7 +450,7 @@
     } else if ($sort=='endUser'){
       $sort = " ORDER BY endUser is null ASC, endUser ASC, dueDate is null ASC, dueDate DESC, idx DESC";
     }
-    $sql = "SELECT * FROM fund_list WHERE 1=1 ".$term.$key1.$key2.$key3.$comkey.$sort.$limitQuery;
+    $sql = "SELECT fl.*, bfl.bill_seq FROM (SELECT * FROM fund_list{$table} WHERE 1=1 {$term}{$key1}{$key2}{$key3}{$comkey}{$old_new_string}{$sort}{$limitQuery}) fl left join bill_fund_link bfl on fl.idx = bfl.fund_list_seq".$sort;
 
     $query = $this->db->query($sql);
 
@@ -309,7 +463,13 @@
   }
 
   public function selectbanktypelist($company){
-    return $this->db->query("SELECT distinct banktype from fund_bankbook where company = '{$company}' and type = '보통예금' and banktype is not null ORDER BY banktype;")->result();
+    if ($company == 'DUITOLD') {
+      $table = '_old';
+    } else {
+      $table = '';
+    }
+
+    return $this->db->query("SELECT distinct banktype from fund_bankbook{$table} where company = '{$company}' and type = '보통예금' and banktype is not null ORDER BY banktype;")->result();
   }
 
       public function history($count, $start, $limit){
@@ -610,8 +770,20 @@ public function banksearch($count, $start, $limit, $cud, $old_company, $fromModi
       }
     }
 
-    public function firstPage($company){
-      $sql = "SELECT min(c.ROWNUM) as rownum from (select @ROWNUM := @ROWNUM + 1 AS ROWNUM, a.* FROM (SELECT * FROM fund_list where company = '{$company}' ORDER BY dueDate is null ASC, dueDate DESC, idx DESC LIMIT 18446744073709551615) a, (SELECT @ROWNUM := 0 ) b) c where bankType is not null and bankType != ' '";
+    public function firstPage($company, $old_new){
+      if ($company == 'DUITOLD') {
+        $table = '_old';
+      } else {
+        $table = '';
+      }
+
+      if($company == 'DUIT' && $old_new == 'new') {
+        $old_new_string = ' AND old_new is null';
+      } else {
+        $old_new_string = '';
+      }
+
+      $sql = "SELECT min(c.ROWNUM) as rownum from (select @ROWNUM := @ROWNUM + 1 AS ROWNUM, a.* FROM (SELECT * FROM fund_list{$table} where company = '{$company}' {$old_new_string} ORDER BY dueDate is null ASC, dueDate DESC, idx DESC LIMIT 18446744073709551615) a, (SELECT @ROWNUM := 0 ) b) c where bankType is not null and bankType != ' '";
 
       $row = $this->db->query($sql);
 
@@ -621,6 +793,12 @@ public function banksearch($count, $start, $limit, $cud, $old_company, $fromModi
     }
 
     public function bankbook($company, $searchday){
+      if ($company == 'DUITOLD') {
+        $table = '_old';
+      } else {
+        $table = '';
+      }
+
       $searchstring = "";
       $searchstring2 = "and duedate = CURDATE()";
 
@@ -630,43 +808,97 @@ public function banksearch($count, $start, $limit, $cud, $old_company, $fromModi
       }
 
       $sql = "select a.* from (select a.idx, a.type, a.bank, a.banktype, a.account, a.breakdown,
-       b.yesbalance, b.todaydeposit, b.todaywithdraw, b.balance from fund_bankbook a
+       b.yesbalance, b.todaydeposit, b.todaywithdraw, b.balance from fund_bankbook{$table} a
        left join (select a.banktype, ifnull(a.balance,0)-ifnull(b.todaydeposit,0)+ifnull(b.todaywithdraw,0) as yesbalance,
        ifnull(b.todaydeposit,0) as todaydeposit, ifnull(b.todaywithdraw,0) as todaywithdraw,
        a.balance from (select banktype, IFNULL(SUM(deposit),0) - IFNULL(SUM(withdraw),0) as balance
-       from fund_list where banktype is not null and company = '{$company}' {$searchstring} group BY banktype) a
+       from fund_list{$table} where banktype is not null and company = '{$company}' {$searchstring} group BY banktype) a
        left join (SELECT banktype, IFNULL(SUM(deposit),0) AS todayDeposit, IFNULL(SUM(withdraw),0) AS todayWithdraw
-       from fund_list WHERE company = '{$company}' and banktype is NOT NULL {$searchstring2} GROUP BY banktype) b
-       ON a.banktype = b.banktype) b on a.banktype = b.banktype where type='보통예금' and company ='{$company}' order by idx) a union select idx, type, bank, banktype, account, breakdown, null as yesbalance, null as todaydeposit, null as todaywithdraw, balance from fund_bankbook where type!= '보통예금' and company = '{$company}';";
+       from fund_list{$table} WHERE company = '{$company}' and banktype is NOT NULL {$searchstring2} GROUP BY banktype) b
+       ON a.banktype = b.banktype) b on a.banktype = b.banktype where type='보통예금' and company ='{$company}' order by idx) a union select idx, type, bank, banktype, account, breakdown, null as yesbalance, null as todaydeposit, null as todaywithdraw, balance from fund_bankbook{$table} where type!= '보통예금' and company = '{$company}';";
 
      return $this->db->query($sql)->result();
     }
 
     public function bond($company, $searchday){
+      if ($company == 'DUITOLD') {
+        $table = '_old';
+      } else {
+        $table = '';
+      }
+
       $searchstring = "";
 
       if ($searchday != "") {
         $searchstring = "and dueDate <= '{$searchday}'";
       }
 
-      $sql = "SELECT IFNULL(SUM(deposit),0) as bond from fund_list where type = '매출채권' and company = '{$company}' {$searchstring} and banktype is null;";
+      $sql = "SELECT IFNULL(SUM(deposit),0) as bond from fund_list{$table} where type = '매출채권' and company = '{$company}' {$searchstring} and banktype is null;";
 
       return $this->db->query($sql)->result();
     }
 
     public function debt($company, $searchday){
+      if ($company == 'DUITOLD') {
+        $table = '_old';
+      } else {
+        $table = '';
+      }
+
       $searchstring = "";
 
       if ($searchday != "") {
         $searchstring = "and dueDate <= '{$searchday}'";
       }
 
-      $sql = "SELECT IFNULL(SUM(withdraw),0) as debt from fund_list where type = '매입채무' and company = '{$company}' {$searchstring} and banktype is null;";
+      $sql = "SELECT IFNULL(SUM(withdraw),0) as debt from fund_list{$table} where type = '매입채무' and company = '{$company}' {$searchstring} and banktype is null;";
 
       return $this->db->query($sql)->result();
     }
 
+    public function bond_adjust($company, $searchday){
+      if ($company == 'DUITOLD') {
+        $table = '_old';
+      } else {
+        $table = '';
+      }
+
+      $searchstring = "";
+
+      if ($searchday != "") {
+        $searchstring = "and dueDate <= '{$searchday}'";
+      }
+
+      $sql = "SELECT IFNULL(SUM(requisition),0) as bond_adjust FROM fund_list fl JOIN bill_fund_link bfl ON fl.idx = bfl.fund_list_seq WHERE type = '매출채권' AND bankType IS null and company = '{$company}' {$searchstring};";
+
+      return $this->db->query($sql)->row_array();
+    }
+
+    public function debt_adjust($company, $searchday){
+      if ($company == 'DUITOLD') {
+        $table = '_old';
+      } else {
+        $table = '';
+      }
+
+      $searchstring = "";
+
+      if ($searchday != "") {
+        $searchstring = "and dueDate <= '{$searchday}'";
+      }
+
+      $sql = "SELECT IFNULL(SUM(requisition),0) as debt_adjust FROM fund_list fl JOIN bill_fund_link bfl ON fl.idx = bfl.fund_list_seq WHERE type = '매입채무' AND bankType IS null and company = '{$company}' {$searchstring};";
+
+      return $this->db->query($sql)->row_array();
+    }
+
     public function sum_botong($company, $searchday) {
+      if ($company == 'DUITOLD') {
+        $table = '_old';
+      } else {
+        $table = '';
+      }
+
       $searchstring = "";
       $searchstring2 = "and duedate = CURDATE()";
 
@@ -676,14 +908,14 @@ public function banksearch($count, $start, $limit, $cud, $old_company, $fromModi
       }
 
       $sql = "select SUM(balance) FROM (select a.* from (select a.idx, a.type, a.bank, a.banktype, a.account, a.breakdown,
-       b.yesbalance, b.todaydeposit, b.todaywithdraw, b.balance from fund_bankbook a
+       b.yesbalance, b.todaydeposit, b.todaywithdraw, b.balance from fund_bankbook{$table} a
        left join (select a.banktype, ifnull(a.balance,0)-ifnull(b.todaydeposit,0)+ifnull(b.todaywithdraw,0) as yesbalance,
        ifnull(b.todaydeposit,0) as todaydeposit, ifnull(b.todaywithdraw,0) as todaywithdraw,
        a.balance from (select banktype, IFNULL(SUM(deposit),0) - IFNULL(SUM(withdraw),0) as balance
-       from fund_list where banktype is not null and company = '{$company}' {$searchstring} group BY banktype) a
+       from fund_list{$table} where banktype is not null and company = '{$company}' {$searchstring} group BY banktype) a
        left join (SELECT banktype, IFNULL(SUM(deposit),0) AS todayDeposit, IFNULL(SUM(withdraw),0) AS todayWithdraw
-       from fund_list WHERE company = '{$company}' and banktype is NOT NULL {$searchstring2} GROUP BY banktype) b
-       ON a.banktype = b.banktype) b on a.banktype = b.banktype where type='보통예금' and company ='{$company}' order by idx) a union select idx, type, bank, banktype, account, breakdown, null as yesbalance, null as todaydeposit, null as todaywithdraw, balance from fund_bankbook where type!= '보통예금' and company = '{$company}') a where a.type='보통예금';";
+       from fund_list{$table} WHERE company = '{$company}' and banktype is NOT NULL {$searchstring2} GROUP BY banktype) b
+       ON a.banktype = b.banktype) b on a.banktype = b.banktype where type='보통예금' and company ='{$company}' order by idx) a union select idx, type, bank, banktype, account, breakdown, null as yesbalance, null as todaydeposit, null as todaywithdraw, balance from fund_bankbook{$table} where type!= '보통예금' and company = '{$company}') a where a.type='보통예금';";
 
       $row = $this->db->query($sql);
 
@@ -693,6 +925,12 @@ public function banksearch($count, $start, $limit, $cud, $old_company, $fromModi
     }
 
     public function sum_not_botong($company, $searchday) {
+      if ($company == 'DUITOLD') {
+        $table = '_old';
+      } else {
+        $table = '';
+      }
+
       $searchstring = "";
       $searchstring2 = "and duedate = CURDATE()";
 
@@ -702,14 +940,14 @@ public function banksearch($count, $start, $limit, $cud, $old_company, $fromModi
       }
 
       $sql = "select SUM(balance) FROM (select a.* from (select a.idx, a.type, a.bank, a.banktype, a.account, a.breakdown,
-       b.yesbalance, b.todaydeposit, b.todaywithdraw, b.balance from fund_bankbook a
+       b.yesbalance, b.todaydeposit, b.todaywithdraw, b.balance from fund_bankbook{$table} a
        left join (select a.banktype, ifnull(a.balance,0)-ifnull(b.todaydeposit,0)+ifnull(b.todaywithdraw,0) as yesbalance,
        ifnull(b.todaydeposit,0) as todaydeposit, ifnull(b.todaywithdraw,0) as todaywithdraw,
        a.balance from (select banktype, IFNULL(SUM(deposit),0) - IFNULL(SUM(withdraw),0) as balance
-       from fund_list where banktype is not null and company = '{$company}' {$searchstring} group BY banktype) a
+       from fund_list{$table} where banktype is not null and company = '{$company}' {$searchstring} group BY banktype) a
        left join (SELECT banktype, IFNULL(SUM(deposit),0) AS todayDeposit, IFNULL(SUM(withdraw),0) AS todayWithdraw
-       from fund_list WHERE company = '{$company}' and banktype is NOT NULL {$searchstring2} GROUP BY banktype) b
-       ON a.banktype = b.banktype) b on a.banktype = b.banktype where type='보통예금' and company ='{$company}' order by idx) a union select idx, type, bank, banktype, account, breakdown, null as yesbalance, null as todaydeposit, null as todaywithdraw, balance from fund_bankbook where type!= '보통예금' and company = '{$company}') a where a.type!='보통예금';";
+       from fund_list{$table} WHERE company = '{$company}' and banktype is NOT NULL {$searchstring2} GROUP BY banktype) b
+       ON a.banktype = b.banktype) b on a.banktype = b.banktype where type='보통예금' and company ='{$company}' order by idx) a union select idx, type, bank, banktype, account, breakdown, null as yesbalance, null as todaydeposit, null as todaywithdraw, balance from fund_bankbook{$table} where type!= '보통예금' and company = '{$company}') a where a.type!='보통예금';";
 
       $row = $this->db->query($sql);
 
@@ -719,17 +957,23 @@ public function banksearch($count, $start, $limit, $cud, $old_company, $fromModi
     }
 
     public function sum_list_banktype($company, $searchday) {
+      if ($company == 'DUITOLD') {
+        $table = '_old';
+      } else {
+        $table = '';
+      }
+
       $searchstring = "";
 
       if ($searchday != "") {
         $searchstring = "and dueDate <= '{$searchday}'";
       }
 
-      $sql = "SELECT COUNT(*) as cnt FROM fund_list where company = '{$company}' {$searchstring}";
+      $sql = "SELECT COUNT(*) as cnt FROM fund_list{$table} where company = '{$company}' {$searchstring}";
       $row = $this->db->query($sql);
       $result = $row->row_array();
 
-      $sql2 = "SELECT min(c.ROWNUM) as rownum from (select @ROWNUM := @ROWNUM + 1 AS ROWNUM, a.* FROM (SELECT * FROM fund_list where company = '{$company}' ORDER BY dueDate is null ASC, dueDate DESC, idx DESC LIMIT 18446744073709551615) a, (SELECT @ROWNUM := 0 ) b) c where bankType is not null and bankType != ' ' {$searchstring}";
+      $sql2 = "SELECT min(c.ROWNUM) as rownum from (select @ROWNUM := @ROWNUM + 1 AS ROWNUM, a.* FROM (SELECT * FROM fund_list{$table} where company = '{$company}' ORDER BY dueDate is null ASC, dueDate DESC, idx DESC LIMIT 18446744073709551615) a, (SELECT @ROWNUM := 0 ) b) c where bankType is not null and bankType != ' ' {$searchstring}";
 
 
       $row2 = $this->db->query($sql2);
@@ -737,7 +981,7 @@ public function banksearch($count, $start, $limit, $cud, $old_company, $fromModi
 
       $limit = $result['cnt'] - $result2['rownum'] + 1;
 
-      $sql3 = "SELECT IFNULL(SUM(deposit),0)-IFNULL(SUM(withdraw),0) AS balance FROM (SELECT * FROM fund_list where company = '{$company}' {$searchstring} ORDER BY dueDate is null DESC, dueDate ASC, idx ASC LIMIT {$limit}) a;";
+      $sql3 = "SELECT IFNULL(SUM(deposit),0)-IFNULL(SUM(withdraw),0) AS balance FROM (SELECT * FROM fund_list{$table} where company = '{$company}' {$searchstring} ORDER BY dueDate is null DESC, dueDate ASC, idx ASC LIMIT {$limit}) a;";
       $row3 = $this->db->query($sql3);
 
       $result3 = $row3->row_array();
@@ -802,9 +1046,15 @@ public function banksearch($count, $start, $limit, $cud, $old_company, $fromModi
       }
 
       function excel_list_search($selectDate, $fromDate = null, $toDate = null, $search1, $keyword1 = null, $search2, $keyword2 = null, $search3, $keyword3 = null, $company, $sort) {
+        if ($company == 'DUITOLD') {
+          $table = '_old';
+        } else {
+          $table = '';
+        }
+
         if($fromDate==null && $toDate){
           $this->db->select_min($selectDate, 'MinDate');
-          $query = $this->db->get('fund_list');
+          $query = $this->db->get('fund_list'.$table);
           $row = $query->row();
 
           $fromDate = $row->MinDate;
@@ -812,7 +1062,7 @@ public function banksearch($count, $start, $limit, $cud, $old_company, $fromModi
 
         if($toDate==null && $fromDate){
           $this->db->select_max($selectDate, 'MaxDate');
-          $query = $this->db->get('fund_list');
+          $query = $this->db->get('fund_list'.$table);
           $row = $query->row();
 
           $toDate = $row->MaxDate;
@@ -847,7 +1097,7 @@ public function banksearch($count, $start, $limit, $cud, $old_company, $fromModi
         } else if ($sort=='endUser'){
           $sort = " ORDER BY endUser is null ASC, endUser ASC, dueDate is null ASC, dueDate DESC, idx DESC";
         }
-        $sql = "SELECT * FROM fund_list WHERE 1=1 ".$term.$key1.$key2.$key3.$comkey.$sort;
+        $sql = "SELECT * FROM fund_list{$table} WHERE 1=1 ".$term.$key1.$key2.$key3.$comkey.$sort;
         // echo $sql;
 
         $query = $this->db->query($sql);
@@ -861,20 +1111,68 @@ public function banksearch($count, $start, $limit, $cud, $old_company, $fromModi
       }
 
       function excel_list($company,$page) {
+        if ($company == 'DUITOLD') {
+          $table = '_old';
+        } else {
+          $table = '';
+        }
+
         if ($page == 'fundreporting_list') {
-          $sql = "SELECT * FROM fund_list where company = '{$company}' ORDER BY dueDate is null ASC, dueDate DESC, idx DESC";
+          $sql = "SELECT * FROM fund_list{$table} where company = '{$company}' ORDER BY dueDate is null ASC, dueDate DESC, idx DESC";
         }
         if ($page == 'sort') {
-          $sql = "SELECT * FROM fund_list where company = '{$company}' ORDER BY dateOfIssue DESC";
+          $sql = "SELECT * FROM fund_list{$table} where company = '{$company}' ORDER BY dateOfIssue DESC";
         }
         if ($page == 'enduser') {
-          $sql = "SELECT * FROM fund_list where company = '{$company}' ORDER BY endUser is null ASC, endUser ASC, dueDate is null ASC, dueDate DESC, idx DESC";
+          $sql = "SELECT * FROM fund_list{$table} where company = '{$company}' ORDER BY endUser is null ASC, endUser ASC, dueDate is null ASC, dueDate DESC, idx DESC";
         }
 
         $query = $this->db->query($sql);
 
         return $query->result_array();
       }
+
+      function set_balance($company, $old_new) {
+        if ($company == 'DUITOLD') {
+          $table = '_old';
+        } else {
+          $table = '';
+        }
+
+        if ($company == 'DUIT' && $old_new == 'new') {
+          $sql = "SELECT IFNULL(SUM(a.deposit),0)- IFNULL(SUM(a.withdraw),0) AS balance
+                  FROM (
+                  SELECT *
+                  FROM fund_list{$table}
+                  WHERE company = 'DUIT' AND old_new = 'old'
+                ) a";
+        } else {
+          $sql = "SELECT 0 as balance";
+        }
+
+        $query = $this->db->query($sql);
+
+        return $query->row_array();
+      }
+
+    function find_bill_target($bill_seq) {
+      $bill_seq = explode('_', $bill_seq);
+
+      $target = $bill_seq[0];
+      $seq = $bill_seq[1];
+
+      if($target == 'm') {
+        $sql = "SELECT maintain_seq as target_seq from sales_maintain_bill where seq = {$seq}";
+      } else if ($target == 'f') {
+        $sql = "SELECT forcasting_seq as target_seq from sales_forcasting_bill where seq = {$seq}";
+      } else if ($target == 'o') {
+        $sql = "SELECT * FROM sales_operating_bill where seq = {$seq}";
+      }
+
+      $query = $this->db->query($sql);
+
+      return $query->row_array();
+    }
 
     }
  ?>

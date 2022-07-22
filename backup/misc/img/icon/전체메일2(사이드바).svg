@@ -1,6 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20">
-  <g id="그룹_4" data-name="그룹 4" transform="translate(70 -256)">
-    <path id="email-line" d="M17,6H3A1,1,0,0,0,2,7V17a1,1,0,0,0,1,1H17a1,1,0,0,0,1-1V7A1,1,0,0,0,17,6Zm-.77,11H3.83l3.5-3.62-.72-.7L3,16.42V7.76l6.215,6.185a1,1,0,0,0,1.41,0L17,7.605v8.75l-3.68-3.68-.7.7ZM3.655,7H16.19L9.92,13.235Z" transform="translate(-70 254)" fill="#0575e6"/>
-    <rect id="사각형_3" data-name="사각형 3" width="20" height="20" transform="translate(-70 256)" fill="none" opacity="0.5"/>
-  </g>
-</svg>

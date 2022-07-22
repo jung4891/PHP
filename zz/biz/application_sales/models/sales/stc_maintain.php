@@ -11,6 +11,8 @@ class STC_Maintain extends CI_Model
 		$this->name = $this->phpsession->get('name', 'stc');
 		$this->lv = $this->phpsession->get('lv', 'stc');
 		$this->cnum = $this->phpsession->get('cnum', 'stc');
+
+		$this->load->Model('sales/STC_Bill_fund_link');
 	}
 
 	// 포캐스팅 기본사항 추가및 수정
@@ -414,11 +416,11 @@ class STC_Maintain extends CI_Model
 					array_push($search_columns, '프로젝트명');
 				}
 				if(trim($searchkeyword[2])!=''){ //유지보수 시작일
-					$searchstring .= " and exception_saledate2 >= '{$searchkeyword[2]}'";
+					$searchstring .= " and exception_saledate2 between '{$searchkeyword[2]}' and '{$searchkeyword[16]}'";
 					array_push($search_columns, '유지보수시작일');
 				}
 				if(trim($searchkeyword[3])!=''){ //유지보수 종료일
-					$searchstring .= " and exception_saledate3 <= '{$searchkeyword[3]}'";
+					$searchstring .= " and exception_saledate3 between '{$searchkeyword[3]}' and '{$searchkeyword[17]}'";
 					array_push($search_columns, '유지보수종료일');
 				}
 				if(trim($searchkeyword[4])!=''){ //영업담당자(두리안)
@@ -441,6 +443,12 @@ class STC_Maintain extends CI_Model
 					$searchstring .= " and manage_team = '{$searchkeyword[8]}'";
 					array_push($search_columns, '관리팀');
 				}
+
+				if(trim($searchkeyword[15])!=''){ //영업부서
+					$searchstring .= " and sf.dept like '%{$searchkeyword[15]}%'";
+					array_push($search_columns, '영업부서');
+				}
+
 				if(trim($searchkeyword[9])!=''){ //점검여부
 					$searchstring .= " and maintain_result = '{$searchkeyword[9]}'";
 					array_push($search_columns, '점검여부');
@@ -471,6 +479,11 @@ class STC_Maintain extends CI_Model
 
 				if(trim($searchkeyword[12])!='' || trim($searchkeyword[13])!= '') {
 					array_push($search_columns, '매출금액');
+				}
+
+				if(trim($searchkeyword[14])!=''){ // 매출처
+					$searchstring .= " and sales_companyname like '%{$searchkeyword[14]}%'";
+					array_push($search_columns, '매출처');
 				}
 
 
@@ -521,7 +534,7 @@ class STC_Maintain extends CI_Model
 
 				if(trim($searchkeyword[8])!=''){
 					$searchstring .= " and (";
-					$searchstring .= " customer_companyname like '%{$searchkeyword[8]}%' || project_name like '%{$searchkeyword[8]}%' || cooperation_username like '%{$searchkeyword[8]}%' || product_company like '%{$searchkeyword[8]}%' || product_item like '%{$searchkeyword[8]}%' || product_name like '%{$searchkeyword[8]}%'";
+					$searchstring .= " customer_companyname like '%{$searchkeyword[8]}%' || project_name like '%{$searchkeyword[8]}%' || cooperation_username like '%{$searchkeyword[8]}%' || product_company like '%{$searchkeyword[8]}%' || product_item like '%{$searchkeyword[8]}%' || product_name like '%{$searchkeyword[8]}%' || sales_companyname like '%{$searchkeyword[8]}%'";
 					$searchstring .= " )";
 					array_push($search_columns, '통합검색');
 				}
@@ -558,17 +571,30 @@ class STC_Maintain extends CI_Model
 
 	// 유지보수 리스트
 	function maintain_list($search_mode,$type, $type2, $searchkeyword , $start_limit = 0, $offset = 0, $cnum, $mode=''){
-		if($type=='001') {
+		if($type=='001' || $type == '003') {
 			$page = 'maintain';
 		} else {
 			$page = 'intergrated maintain';
 		}
 
+		if($type == '003') {
+			$forcasting = " where s.progress_step <= '014' or s.progress_step is null or s.progress_step = '' ";
+		} else {
+			$forcasting = " where s.progress_step > '014' ";
+		}
+
+		$sub_sql = "SELECT GROUP_CONCAT(sub_project_add SEPARATOR ',') AS seq FROM sales_maintain ORDER BY sub_project_add";
+		$sub_query = $this->db->query($sub_sql);
+		$sub_seq = $sub_query->row_array();
+		$sub_seq = $sub_seq['seq'];
+
+		$forcasting .= " AND s.seq NOT IN ({$sub_seq}) || s.seq = 401 || s.seq = 731";
+
 		$searchstring = $this->maintain_search($search_mode, $searchkeyword, $page, $mode);
 
 		if($type == "001"){
 			if($type2 == 'list') {
-				$f_sql = 'SELECT sf.seq, sf.forcasting_seq, sf.manage_team,sf.maintain_cycle, sf.customer_companyname, sf.project_name, sf.maintain_result, sf.progress_step, sf.write_id, sf.exception_saledate2,sf.exception_saledate3,sf.company_num,sf.sub_project_add, p.product_company, p.product_item, p.product_name,sf.forcasting_sales,sf.forcasting_purchase, sf.forcasting_profit, sf.sales_pay_session,sf.bill_progress_step';
+				$f_sql = 'SELECT sf.seq, sf.generate_type, sf.forcasting_seq, sf.manage_team,sf.maintain_cycle, sf.customer_companyname, sf.sales_companyname, sf.project_name, sf.maintain_result, sf.progress_step, sf.write_id, sf.exception_saledate2,sf.exception_saledate3,sf.company_num,sf.sub_project_add, p.product_company, p.product_item, p.product_name,sf.forcasting_sales,sf.forcasting_purchase, sf.forcasting_profit, sf.sales_pay_session,sf.bill_progress_step, sf.dept';
 			}
 			if ($type2 == 'sum') {
 				$f_sql = 'SELECT SUM(IFNULL(sf.forcasting_sales,0)) AS forcasting_sales, SUM(IFNULL(sf.forcasting_purchase,0)) AS forcasting_purchase, SUM(IFNULL(sf.forcasting_profit,0)) AS forcasting_profit';
@@ -576,7 +602,7 @@ class STC_Maintain extends CI_Model
 			if ($type2 == 'count') {
 				$f_sql = 'SELECT count(sf.seq) as cnt';
 			}
-		    $sql = " FROM (SELECT *,(SELECT count(*) FROM sales_maintain_bill WHERE maintain_seq =s.seq AND TYPE='001' AND issuance_status='Y') AS bill_progress_step FROM sales_maintain AS s) sf
+		    $sql = " FROM (SELECT *,(SELECT count(*) FROM sales_maintain_bill WHERE maintain_seq =s.seq AND TYPE='001' AND issuance_status='Y') AS bill_progress_step FROM sales_maintain AS s {$forcasting}) sf
 					join
 					(SELECT a.* FROM(SELECT maintain_seq,product_code FROM sales_maintain_product group by maintain_seq) AS a
 					left JOIN
@@ -586,10 +612,10 @@ class STC_Maintain extends CI_Model
 					on sf.seq = sp.maintain_seq
 					left join stc.product p on p.seq = sp.product_code " . $searchstring . " order by replace(exception_saledate2,'-','') DESC, exception_saledate3 ASC";
 				$sql = $f_sql.$sql;
-		}else{
+		}else if ($type == '002'){
 
 			if($type2 == 'list') {
-				$f_sql = 'SELECT sf.seq, sf.forcasting_seq, sf.manage_team,sf.maintain_cycle, sf.customer_companyname, sf.project_name, sf.maintain_result, sf.progress_step, sf.write_id, sf.exception_saledate2,sf.exception_saledate3,sf.company_num,sf.sub_project_add, p.product_company, p.product_item, p.product_name,sf.forcasting_sales,sf.forcasting_purchase, sf.forcasting_profit, sf.sales_pay_session,sf.bill_progress_step';
+				$f_sql = 'SELECT sf.seq, sf.generate_type, sf.forcasting_seq, sf.manage_team,sf.maintain_cycle, sf.customer_companyname, sf.sales_companyname, sf.project_name, sf.maintain_result, sf.progress_step, sf.write_id, sf.exception_saledate2,sf.exception_saledate3,sf.company_num,sf.sub_project_add, p.product_company, p.product_item, p.product_name,sf.forcasting_sales,sf.forcasting_purchase, sf.forcasting_profit, sf.sales_pay_session,sf.bill_progress_step,sf.dept';
 			}
 			if ($type2 == 'sum') {
 				$f_sql = 'SELECT SUM(IFNULL(sf.forcasting_sales,0)) AS forcasting_sales, SUM(IFNULL(sf.forcasting_purchase,0)) AS forcasting_purchase, SUM(IFNULL(sf.forcasting_profit,0)) AS forcasting_profit';
@@ -598,12 +624,61 @@ class STC_Maintain extends CI_Model
 				$f_sql = 'SELECT count(sf.seq) as cnt';
 			}
 
-			$sql = " FROM (SELECT *,(SELECT count(*) FROM sales_maintain_bill WHERE maintain_seq =s.seq AND TYPE='001' AND issuance_status='Y') AS bill_progress_step FROM sales_maintain AS s) sf
+			$sql = " FROM (SELECT *,(SELECT count(*) FROM sales_maintain_bill WHERE maintain_seq =s.seq AND TYPE='001' AND issuance_status='Y') AS bill_progress_step FROM sales_maintain AS s {$forcasting}) sf
 					join
 					(select * from stc.sales_maintain_product WHERE integration_maintain_seq IS not null group by maintain_seq) sp
 					on sf.seq = sp.maintain_seq
 					left join stc.sales_integration_maintain_product p on p.seq = sp.integration_maintain_product_seq " . $searchstring . " order by replace(exception_saledate2,'-','') DESC, exception_saledate3 ASC";
 			$sql = $f_sql.$sql;
+
+
+		} else if ($type == '003') {
+
+
+			if($type2 == 'list') {
+				$f_sql1 = 'SELECT sf.seq, sf.generate_type, sf.forcasting_seq, sf.manage_team,sf.maintain_cycle, sf.customer_companyname, sf.sales_companyname, sf.project_name, sf.maintain_result, sf.progress_step, sf.write_id, sf.exception_saledate2,sf.exception_saledate3,sf.company_num,sf.sub_project_add, p.product_company, p.product_item, p.product_name,sf.forcasting_sales,sf.forcasting_purchase, sf.forcasting_profit, sf.sales_pay_session,sf.bill_progress_step, sf.dept';
+			}
+			if ($type2 == 'sum') {
+				$f_sql1 = 'SELECT SUM(IFNULL(sf.forcasting_sales,0)) AS forcasting_sales, SUM(IFNULL(sf.forcasting_purchase,0)) AS forcasting_purchase, SUM(IFNULL(sf.forcasting_profit,0)) AS forcasting_profit';
+			}
+			if ($type2 == 'count') {
+				$f_sql1 = 'SELECT count(sf.seq) as cnt';
+			}
+		    $sql1 = " FROM (SELECT *,(SELECT count(*) FROM sales_maintain_bill WHERE maintain_seq =s.seq AND TYPE='001' AND issuance_status='Y') AS bill_progress_step FROM sales_maintain AS s {$forcasting}) sf
+					join
+					(SELECT a.* FROM(SELECT maintain_seq,product_code FROM sales_maintain_product group by maintain_seq) AS a
+					left JOIN
+					(select maintain_seq from sales_maintain_product WHERE integration_maintain_seq IS not null group by maintain_seq) AS b
+					ON a.maintain_seq = b.maintain_seq
+					WHERE b.maintain_seq IS NULL) sp
+					on sf.seq = sp.maintain_seq
+					left join stc.product p on p.seq = sp.product_code " . $searchstring;
+				$sql1 = $f_sql1.$sql1;
+
+				if($type2 == 'list') {
+					$f_sql2 = 'SELECT sf.seq, sf.generate_type, sf.forcasting_seq, sf.manage_team,sf.maintain_cycle, sf.customer_companyname, sf.sales_companyname, sf.project_name, sf.maintain_result, sf.progress_step, sf.write_id, sf.exception_saledate2,sf.exception_saledate3,sf.company_num,sf.sub_project_add, p.product_company, p.product_item, p.product_name,sf.forcasting_sales,sf.forcasting_purchase, sf.forcasting_profit, sf.sales_pay_session,sf.bill_progress_step,sf.dept';
+				}
+				if ($type2 == 'sum') {
+					$f_sql2 = 'SELECT SUM(IFNULL(sf.forcasting_sales,0)) AS forcasting_sales, SUM(IFNULL(sf.forcasting_purchase,0)) AS forcasting_purchase, SUM(IFNULL(sf.forcasting_profit,0)) AS forcasting_profit';
+				}
+				if ($type2 == 'count') {
+					$f_sql2 = 'SELECT count(sf.seq) as cnt';
+				}
+
+				$sql2 = " FROM (SELECT *,(SELECT count(*) FROM sales_maintain_bill WHERE maintain_seq =s.seq AND TYPE='001' AND issuance_status='Y') AS bill_progress_step FROM sales_maintain AS s {$forcasting}) sf
+						join
+						(select * from stc.sales_maintain_product WHERE integration_maintain_seq IS not null group by maintain_seq) sp
+						on sf.seq = sp.maintain_seq
+						left join stc.sales_integration_maintain_product p on p.seq = sp.integration_maintain_product_seq " . $searchstring;
+				$sql2 = $f_sql2.$sql2;
+
+				if($type2 == 'sum') {
+					$sql = "SELECT SUM(IFNULL(t.forcasting_sales,0)) AS forcasting_sales, SUM(IFNULL(t.forcasting_purchase,0)) AS forcasting_purchase, SUM(IFNULL(t.forcasting_profit,0)) AS forcasting_profit FROM ".'(' . '('. $sql1 . ')' . ' union ' . '(' . $sql2 . ')' . ')t';
+				} else if ($type2 == 'count') {
+					$sql = "SELECT sum(t.cnt) as cnt FROM ".'(' . '('. $sql1 . ')' . ' union ' . '(' . $sql2 . ')' . ')t';
+				} else {
+					$sql = "SELECT * FROM ((". $sql1 . ')' . ' union ' . '(' . $sql2 . "))t order by replace(t.exception_saledate2,'-','') DESC, t.exception_saledate3 ASC";
+				}
 		}
 
 		if ($offset <> 0){
@@ -617,95 +692,6 @@ class STC_Maintain extends CI_Model
 		} else {
 			return $query->row_array();
 		}
-	}
-
-	//유지보수 리스트개수
-	function maintain_list_count($search_mode,$type, $searchkeyword, $cnum){
-		if ($searchkeyword != "") {
-			$searchstring='';
-			$searchkeyword = explode(',',$searchkeyword);
-			if(trim($searchkeyword[0])!=''){ //고객사
-				$searchstring = " and customer_companyname like '%{$searchkeyword[0]}%'";
-			}
-			if(trim($searchkeyword[1])!=''){ //프로젝트명
-				$searchstring .= " and project_name like '%{$searchkeyword[1]}%'";
-			}
-			if(trim($searchkeyword[2])!=''){ //유지보수 시작일
-				$searchstring .= " and exception_saledate2 >= '{$searchkeyword[2]}'";
-			}
-			if(trim($searchkeyword[3])!=''){ //유지보수 종료일
-				$searchstring .= " and exception_saledate3 <= '{$searchkeyword[3]}'";
-			}
-			if(trim($searchkeyword[4])!=''){ //영업담당자(두리안)
-				$searchstring .= " and cooperation_username like '%{$searchkeyword[4]}%'";
-			}
-			if(trim($searchkeyword[5])!=''){//제조사
-				$searchstring .= " and product_company like '%{$searchkeyword[5]}%'";
-			}
-			if(trim($searchkeyword[6])!=''){ //품목
-				$searchstring .= " and product_item like '%{$searchkeyword[6]}%'";
-			}
-			if(trim($searchkeyword[7])!=''){ //제품명
-				$searchstring .= " and product_name like '%{$searchkeyword[7]}%'";
-			}
-			if(trim($searchkeyword[8])!=''){ //관리팀
-				$searchstring .= " and manage_team = '{$searchkeyword[8]}'";
-			}
-			if(trim($searchkeyword[9])!=''){ //점검여부
-				$searchstring .= " and maintain_result = '{$searchkeyword[9]}'";
-			}
-
-			if(trim($searchkeyword[10])!=''){ // 계산서 발행 단계
-				if($searchkeyword[10] == 0){
-					$searchstring .= " and bill_progress_step = 0";
-				}else if($searchkeyword[10] == 1){
-					$searchstring .= " and bill_progress_step > 0 and bill_progress_step < sales_pay_session";
-				}else{
-					$searchstring .= " and bill_progress_step > 0 and bill_progress_step = sales_pay_session";
-				}
-			}
-
-			if(trim($searchkeyword[11])!=''){ //정보통신공사업
-				$searchstring .= " and infor_comm_corporation = '{$searchkeyword[11]}'";
-			}
-
-			//매출금액 검색
-			if(trim($searchkeyword[12])!=''){
-				$searchstring .= " and forcasting_sales >= {$searchkeyword[12]}";
-			}
-
-			if(trim($searchkeyword[13])!=''){
-				$searchstring .= " and forcasting_sales <= {$searchkeyword[13]}";
-			}
-
-			$searchstring = ltrim($searchstring,' and');
-			$searchstring = "where ".$searchstring;
-		} else {
-			$searchstring = "";
-		}
-
-		// $sql = "select count(seq) as ucount from (SELECT mt.*, if(smp.integration_maintain_seq IS NOT NULL,'통합유지보수','유지보수') AS type FROM (select sf.seq, sf.forcasting_seq, sf.manage_team,sf.maintain_cycle, sf.customer_companyname, sf.project_name, sf.maintain_result, sf.progress_step, sf.write_id, sf.exception_saledate2,sf.exception_saledate3,sf.company_num,sf.sub_project_add, p.product_company, p.product_item, p.product_name,sf.sales_pay_session, sf.forcasting_sales,sf.forcasting_purchase,sf.forcasting_profit,sf.bill_progress_step from (SELECT *,(SELECT count(*) FROM sales_maintain_bill WHERE maintain_seq =s.seq AND TYPE='001' AND issuance_status='Y') AS bill_progress_step FROM sales_maintain AS s) sf left join (select * from stc.sales_maintain_product group by maintain_seq) sp on sf.seq = sp.maintain_seq left join stc.product p on p.seq = sp.product_code ) as mt left join (SELECT * from sales_maintain_product WHERE integration_maintain_seq IS NOT NULL) AS smp on mt.seq= smp.maintain_seq group by mt.seq) as tt " . $searchstring . " order by replace(exception_saledate2,'-','') DESC, exception_saledate3 asc";
-
-		if($type == "001"){
-			$sql = "SELECT COUNT(*) as ucount FROM (SELECT sf.seq, sf.forcasting_seq, sf.manage_team,sf.maintain_cycle, sf.customer_companyname, sf.project_name, sf.maintain_result, sf.progress_step, sf.write_id, sf.exception_saledate2,sf.exception_saledate3,sf.company_num,sf.sub_project_add, p.product_company, p.product_item, p.product_name,sf.forcasting_sales,sf.forcasting_purchase, sf.forcasting_profit, sf.sales_pay_session,sf.bill_progress_step FROM (SELECT *,(SELECT count(*) FROM sales_maintain_bill WHERE maintain_seq =s.seq AND TYPE='001' AND issuance_status='Y') AS bill_progress_step FROM sales_maintain AS s) sf
-					join
-					(SELECT a.* FROM(SELECT * FROM sales_maintain_product group by maintain_seq) AS a
-					left JOIN
-					(select * from sales_maintain_product WHERE integration_maintain_seq IS not null group by maintain_seq) AS b
-					ON a.maintain_seq = b.maintain_seq
-					WHERE b.maintain_seq IS NULL) sp
-					on sf.seq = sp.maintain_seq
-					left join stc.product p on p.seq = sp.product_code " . $searchstring ." ) as tb ";
-		}else{
-			// $sql = "select * from (SELECT mt.*, if(smp.integration_maintain_seq IS NOT NULL,'통합유지보수','유지보수') AS type FROM (select sf.seq, sf.forcasting_seq, sf.manage_team,sf.maintain_cycle, sf.customer_companyname, sf.project_name, sf.maintain_result, sf.progress_step, sf.write_id, sf.exception_saledate2,sf.exception_saledate3,sf.company_num,sf.sub_project_add, p.product_company, p.product_item, p.product_name,sf.forcasting_sales,sf.forcasting_purchase, sf.forcasting_profit, sf.sales_pay_session,sf.bill_progress_step from (SELECT *,(SELECT count(*) FROM sales_maintain_bill WHERE maintain_seq =s.seq AND TYPE='001' AND issuance_status='Y') AS bill_progress_step FROM sales_maintain AS s) sf left join (select * from stc.sales_maintain_product group by maintain_seq) sp on sf.seq = sp.maintain_seq left join stc.product p on p.seq = sp.product_code ) as mt left join (SELECT * from sales_maintain_product WHERE integration_maintain_seq IS NOT NULL) AS smp on mt.seq= smp.maintain_seq group by mt.seq) as tt " . $searchstring . " order by replace(exception_saledate2,'-','') DESC, exception_saledate3 asc";
-			$sql = "SELECT COUNT(*) as ucount FROM (SELECT sf.seq, sf.forcasting_seq, sf.manage_team,sf.maintain_cycle, sf.customer_companyname, sf.project_name, sf.maintain_result, sf.progress_step, sf.write_id, sf.exception_saledate2,sf.exception_saledate3,sf.company_num,sf.sub_project_add, p.product_company, p.product_item, p.product_name,sf.forcasting_sales,sf.forcasting_purchase, sf.forcasting_profit, sf.sales_pay_session,sf.bill_progress_step FROM (SELECT *,(SELECT count(*) FROM sales_maintain_bill WHERE maintain_seq =s.seq AND TYPE='001' AND issuance_status='Y') AS bill_progress_step FROM sales_maintain AS s) sf
-					join
-					(select * from stc.sales_maintain_product WHERE integration_maintain_seq IS not null group by maintain_seq) sp
-					on sf.seq = sp.maintain_seq
-					left join stc.sales_integration_maintain_product p on p.seq = sp.integration_maintain_product_seq " . $searchstring . " ) as tb ";
-		}
-		$query = $this->db->query($sql);
-		return $query->row();
 	}
 
 	// 유지보수 코멘트 추가
@@ -1003,12 +989,28 @@ class STC_Maintain extends CI_Model
 
 	//유지보수 만료 30일전부터 가져오기
 	function maintain_expiration_mail(){
+		$sub_sql = "SELECT GROUP_CONCAT(sub_project_add SEPARATOR ',') AS seq FROM sales_maintain ORDER BY sub_project_add";
+		$sub_query = $this->db->query($sub_sql);
+		$sub_seq = $sub_query->row_array();
+		$sub_seq = $sub_seq['seq'];
 
-		$sql1= "SELECT customer_companyname, project_name, exception_saledate2 AS maintain_start, exception_saledate3 AS maintain_end FROM sales_maintain where exception_saledate3 <= DATE_FORMAT(DATE_ADD(NOW(),INTERVAL 30 DAY), '%Y-%m-%d') AND exception_saledate3 >= DATE_FORMAT(DATE_ADD(NOW(),INTERVAL 16 DAY), '%Y-%m-%d')	order by binary(customer_companyname)";
+		$target_sql = "SELECT GROUP_CONCAT(seq SEPARATOR ',') AS seq FROM sales_maintain
+WHERE (forcasting_seq, exception_saledate3) IN (
+SELECT forcasting_seq, MAX(exception_saledate3) AS exception_saledate3
+FROM sales_maintain WHERE progress_step > '014'
+GROUP BY forcasting_seq) ORDER BY forcasting_seq";
+		$target_query = $this->db->query($target_sql);
+		$target_seq = $target_query->row_array();
+		$target_seq = $target_seq['seq'];
 
-		$sql2 = "SELECT customer_companyname, project_name, exception_saledate2 AS maintain_start, exception_saledate3 AS maintain_end FROM sales_maintain where exception_saledate3 <= DATE_FORMAT(DATE_ADD(NOW(), INTERVAL 15 DAY), '%Y-%m-%d') AND exception_saledate3 >= DATE_FORMAT(DATE_ADD(NOW(), INTERVAL 0 DAY), '%Y-%m-%d') ORDER BY BINARY(customer_companyname);";
+		$except_add = " AND seq NOT IN ({$sub_seq})";
+		$target_seq = " AND seq IN ({$target_seq})";
 
-		$sql3 = "SELECT customer_companyname, project_name, exception_saledate2 AS maintain_start, exception_saledate3 AS maintain_end FROM sales_maintain where exception_saledate3 < DATE_FORMAT(NOW(),'%Y-%m-%d') order by binary(customer_companyname)";
+		$sql1= "SELECT customer_companyname, project_name, exception_saledate2 AS maintain_start, exception_saledate3 AS maintain_end FROM sales_maintain where exception_saledate3 <= DATE_FORMAT(DATE_ADD(NOW(),INTERVAL 30 DAY), '%Y-%m-%d') AND exception_saledate3 >= DATE_FORMAT(DATE_ADD(NOW(),INTERVAL 16 DAY), '%Y-%m-%d') {$except_add} {$target_seq} order by binary(customer_companyname)";
+
+		$sql2 = "SELECT customer_companyname, project_name, exception_saledate2 AS maintain_start, exception_saledate3 AS maintain_end FROM sales_maintain where exception_saledate3 <= DATE_FORMAT(DATE_ADD(NOW(), INTERVAL 15 DAY), '%Y-%m-%d') AND exception_saledate3 >= DATE_FORMAT(DATE_ADD(NOW(), INTERVAL 0 DAY), '%Y-%m-%d') {$except_add} {$target_seq} ORDER BY BINARY(customer_companyname);";
+
+		$sql3 = "SELECT customer_companyname, project_name, exception_saledate2 AS maintain_start, exception_saledate3 AS maintain_end FROM sales_maintain where exception_saledate3 < DATE_FORMAT(NOW(),'%Y-%m-%d') {$except_add} {$target_seq} order by binary(customer_companyname)";
 
 		$query1 = $this->db->query($sql1);
 		$query2 = $this->db->query($sql2);
@@ -1159,11 +1161,18 @@ class STC_Maintain extends CI_Model
 	//세금계산서 저장/수정/삭제
 	function maintain_sales_bill_save($data,$type){
 		if($type == 0){//insert
-			return $this->db->insert('sales_maintain_bill',$data);
+			$result = $this->db->insert('sales_maintain_bill',$data);
+			$bill_seq = $this->db->insert_id();
+			$this->STC_Bill_fund_link->bill_fund_link($bill_seq, $data['issuance_status'], $data['issuance_month'], 'maintain');
+			return $result;
 		}else if($type == 1){//update
-			return $this->db->update('sales_maintain_bill',$data, array('seq' => $data['seq']));
+			$result = $this->db->update('sales_maintain_bill',$data, array('seq' => $data['seq']));
+			$bill_seq = $data['seq'];
+			$this->STC_Bill_fund_link->bill_fund_link($bill_seq, $data['issuance_status'], $data['issuance_month'], 'maintain');
+			return $result;
 		}else{//delete
 			$sql = "delete from sales_maintain_bill where seq in ($data)";
+			$this->STC_Bill_fund_link->bill_fund_link_delete($data, 'maintain');
 			return $this->db->query( $sql );
 		}
 	}
@@ -1727,5 +1736,91 @@ ORDER BY issue_schedule_date IS NULL ASC, issue_schedule_date ASC, maintain_seq 
 
 		return $result;
 	}
+
+	function infor_comm_corporation_bill($type, $search_mode, $searchkeyword, $target_year) {
+		$searchstring = $this->maintain_search($search_mode, $searchkeyword, 'intergrated maintain');
+
+		$f_sql = 'SELECT sf.seq';
+		$sql = " FROM (SELECT *,(SELECT count(*) FROM sales_maintain_bill WHERE maintain_seq =s.seq AND TYPE='001' AND issuance_status='Y') AS bill_progress_step FROM sales_maintain AS s) sf
+				join
+				(select * from stc.sales_maintain_product WHERE integration_maintain_seq IS not null group by maintain_seq) sp
+				on sf.seq = sp.maintain_seq
+				left join stc.sales_integration_maintain_product p on p.seq = sp.integration_maintain_product_seq " . $searchstring . " order by replace(exception_saledate2,'-','') DESC, exception_saledate3 ASC";
+		$sql = $f_sql.$sql;
+
+		if($type == 'done') {
+			$t = " AND issuance_status = 'Y'";
+		} else {
+			$t = '';
+		}
+
+		$sql2 = "SELECT
+						SUM(CASE WHEN `type` = '002' then issuance_amount END) AS purchase_sum,
+						SUM(CASE WHEN `type` = '001' then issuance_amount END) AS sales_sum
+						FROM sales_maintain_bill
+						WHERE
+						maintain_seq
+						IN ({$sql})
+						AND ((issuance_status = 'Y' AND issuance_date LIKE '{$target_year}%')
+						OR (issuance_status = 'N' AND issue_schedule_date LIKE '{$target_year}%')) {$t}";
+// echo $sql2.'<br><br>';
+		$result = $this->db->query($sql2);
+
+		return $result->row_array();
+	}
+
+	function maintain_term($seq) {
+		$sql = "SELECT TIMESTAMPDIFF(MONTH, exception_saledate2, exception_saledate3) + 1 AS nom FROM sales_maintain WHERE seq = {$seq}";
+
+		$query = $this->db->query($sql);
+
+		return $query->row_array();
+	}
+
+	function generate_maintain_forcasting($maintain_seq, $nom) {
+		$sql = "INSERT INTO sales_maintain (forcasting_seq,type,upper_seq,generate_type,customer_companyname,customer_username,customer_tel,customer_email,
+		 		project_name,sales_companyname,sales_username,dept,sales_tel,sales_email,cooperation_companyname,cooperation_username,exception_saledate2, exception_saledate3,
+				complete_status,company_num,write_id,insert_date,manage_team,maintain_cycle,maintain_date,maintain_user,maintain_type,maintain_result,maintain_comment,sub_project_add,procurement_sales_amount,forcasting_sales,forcasting_purchase,forcasting_profit,division_month, issue_cycle)
+				select forcasting_seq,type,{$maintain_seq},'갱신',customer_companyname,customer_username,customer_tel,customer_email, project_name,sales_companyname,sales_username,dept,sales_tel,sales_email,cooperation_companyname,cooperation_username, DATE_ADD(exception_saledate3, INTERVAL 1 DAY) as exception_saledate2,
+				DATE_ADD(exception_saledate3, INTERVAL {$nom} MONTH) as exception_saledate3,
+				complete_status,company_num,write_id, now() as insert_date,manage_team,maintain_cycle,null,maintain_user,maintain_type,null,null,sub_project_add,procurement_sales_amount,forcasting_sales,forcasting_purchase,forcasting_profit,division_month, issue_cycle from sales_maintain where seq = {$maintain_seq}";
+		$this->db->query( $sql );
+		$renewal_seq  = $this->db->insert_id();
+
+		$sql2 = "INSERT INTO sales_maintain_product (maintain_seq,org_maintain_seq,forcasting_seq,integration_maintain_seq,integration_maintain_product_seq,product_code,product_supplier,
+		product_serial,product_state,product_licence,product_version,product_purpose,product_host,maintain_yn,maintain_target,insert_date,product_check_list,product_sales,product_purchase,product_profit,maintain_begin,maintain_expire)
+		SELECT {$renewal_seq} as maintain_seq,org_maintain_seq,forcasting_seq,integration_maintain_seq,integration_maintain_product_seq,product_code,product_supplier,
+		product_serial,product_state,product_licence,product_version,product_purpose,product_host,maintain_yn,maintain_target,now() as insert_date,product_check_list,product_sales,product_purchase,product_profit, DATE_ADD(maintain_expire, INTERVAL 1 DAY) as maintain_begin, DATE_ADD(maintain_expire, INTERVAL {$nom} MONTH) as maintain_expire from sales_maintain_product WHERE maintain_seq = {$maintain_seq}";
+
+		$result = $this->db->query( $sql2 );
+
+		$sql3= "INSERT INTO sales_maintain_mcompany (maintain_seq,forcasting_seq,main_companyname,main_username,main_tel,main_email,insert_date, purchase_pay_session, issue_cycle)
+		SELECT {$renewal_seq} as maintain_seq,forcasting_seq,main_companyname,main_username,main_tel,main_email,now() insert_date, purchase_pay_session, issue_cycle from sales_maintain_mcompany WHERE maintain_seq ={$maintain_seq}";
+
+		$result = $this->db->query( $sql3 );
+
+		$sql4 = "INSERT INTO sales_maintain_bill
+		(maintain_seq, type, company_name, pay_session, issuance_amount, tax_amount, total_amount, issue_schedule_date, issuance_status, deposit_status, write_id, insert_date)
+		SELECT {$renewal_seq} as maintain_seq, type, company_name, pay_session, issuance_amount, tax_amount, total_amount,
+		case
+		when issue_schedule_date is not null and issue_schedule_date != '0000-00-00'
+		then DATE_ADD(issue_schedule_date, INTERVAL {$nom} MONTH)
+		else DATE_ADD(issuance_date, INTERVAL {$nom} MONTH) end as issue_schedule_date,
+		'N', 'N', '{$this->id}' as write_id, now() from sales_maintain_bill WHERE maintain_seq = {$maintain_seq} AND issuance_status in ('Y', 'N')";
+
+		$this->db->query($sql4);
+
+		return $renewal_seq;
+
+	}
+
+	function forcasting_cnt($seq) {
+		$sql = "SELECT count(*) as cnt from sales_maintain where upper_seq = {$seq}";
+
+		$query = $this->db->query($sql);
+
+		return $query->row_array();
+	}
+
 
 }

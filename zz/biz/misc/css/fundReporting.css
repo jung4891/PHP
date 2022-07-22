@@ -299,7 +299,7 @@ th, td {
   width:6.5%;
 }
 
-.modal_select_div, .modal_select_Loan_div, .modal_select_Deposit_div, .modal_select_Save_div, .modal_select_invest_div{
+.modal_select_div, .modal_select_Loan_div, .modal_select_Deposit_div, .modal_select_Save_div, .modal_select_invest_div, .modal_select_building_div{
   position:relative;
   width:1000px;
   margin:20px auto;
@@ -485,11 +485,16 @@ th, td {
 }
 
 .paging a{
-  font-size: 14px;
+  margin-right:5px;
+  font-size: 12px;
+}
+
+.paging strong {
+  margin-right:5px;
 }
 
 .paging {
-  font-size:16px;
+  font-size:12px;
 }
 
 
@@ -603,4 +608,8 @@ th, td {
 .bank-balance2 {
   color: #1C1C1C;
   font-weight: bold;
+}
+#accountlist input, #accountlist select {
+  font-family:"Noto Sans KR", sans-serif !important;
+  color: #1c1c1c;
 }

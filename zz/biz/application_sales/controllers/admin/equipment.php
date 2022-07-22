@@ -11,6 +11,13 @@ class Equipment extends CI_Controller {
       $this->id = $this->phpsession->get( 'id', 'stc' );
       $this->name = $this->phpsession->get( 'name', 'stc' );
       $this->lv = $this->phpsession->get( 'lv', 'stc' );
+      $this->cooperation_yn = $this->phpsession->get( 'cooperation_yn', 'stc' );
+
+      if($this->cooperation_yn == 'Y') {
+        echo "<script>alert('권한이 없습니다.');location.href='".site_url()."'</script>";
+      }
+
+      $this->load->library('user_agent');
 
       $this->load->Model(array('STC_Common', 'admin/STC_Equipment', 'biz/STC_Schedule'));
    }
@@ -28,17 +35,29 @@ class Equipment extends CI_Controller {
       }                                          //   현재 페이지
       $no_page_list = 10;                              //   한페이지에 나타나는 목록 개수
 
-      $search_keyword = "";
+      $searchkeyword = "";
       $search1 = "";
       $search2 = "";
+      if(isset($_GET['searchkeyword'])) {
+        $searchkeyword = $_GET['searchkeyword'];
+      }
+      if(isset($_GET['search1'])) {
+        $search1 = $_GET['search1'];
+      }
+      if(isset($_GET['search2'])) {
+        $search2 = $_GET['search2'];
+      }
+      $data['searchkeyword'] = $searchkeyword;
+      $data['search1'] = $search1;
+      $data['search2'] = $search2;
 
       if  ( $cur_page <= 0 )
          $cur_page = 1;
 
       $data['cur_page'] = $cur_page;
 
-      $user_list_data = $this->STC_Equipment->car_list($search_keyword, $search1, $search2, ( $cur_page - 1 ) * $no_page_list, $no_page_list);
-      $data['count'] = $this->STC_Equipment->car_list_count($search_keyword, $search1, $search2)->ucount;
+      $user_list_data = $this->STC_Equipment->car_list($searchkeyword, $search1, $search2, ( $cur_page - 1 ) * $no_page_list, $no_page_list);
+      $data['count'] = $this->STC_Equipment->car_list_count($searchkeyword, $search1, $search2)->ucount;
 
       $data['list_val'] = $user_list_data['data'];
       $data['list_val_count'] = $user_list_data['count'];
@@ -66,7 +85,12 @@ class Equipment extends CI_Controller {
       $data['userInfo'] = $this->STC_Schedule->userInfo();
       $data['userDepth'] = $this->STC_Schedule->userDepth();
 
-      $this->load->view('admin/car_list', $data );
+      if($this->agent->is_mobile()) {
+        $data['title'] = '차량관리';
+        $this->load->view('admin/car_list_mobile', $data );
+      } else {
+        $this->load->view('admin/car_list', $data );
+      }
    }
 
    // 차량 쓰기 뷰
@@ -87,18 +111,36 @@ class Equipment extends CI_Controller {
       // $this->load->Model( 'STC_Equipment' );
       $seq = $this->input->post('seq');
 
+      $sell_yn = $this->input->post('sell_yn');
+      $sell_date = $this->input->post('sell_date');
+      $purchase_date = $this->input->post('purchase_date');
+
+      if ($sell_yn == 'N') {
+        $sell_date = NULL;
+      }
+
       $data = array(
-         'type' => $this->input->post('type'),
-         'number' => $this->input->post('number'),
-         'user_name' => $this->input->post('user_name'),
-         'user_seq' => $this->input->post('user_seq'),
-         'insert_date' => date("Y-m-d H:i:s")
+         'type'        => $this->input->post('type'),
+         'number'      => $this->input->post('number'),
+         'user_name'   => $this->input->post('user_name'),
+         'user_seq'    => $this->input->post('user_seq'),
+         'sell_yn'     => $sell_yn,
+         'sell_date'   => $sell_date,
+         'purchase_date' => $purchase_date
        );
 
-      if ($seq == null) {
-         $result = $this->STC_Equipment->car_insert($data, $mode = 0);
-      } else {
-         $result = $this->STC_Equipment->car_insert($data, $mode = 1, $seq);
+      if ($seq == null) { // seq 없으니까 입력
+        $data['sell_yn'] = 'N';
+
+        $data['insert_date'] = date('Y-m-d H:i:s'); // 현재날짜 시간 표현
+        $data['insert_id'] = $this->id;
+
+        $result = $this->STC_Equipment->car_insert($data, $mode = 0);
+      } else { // 이미 seq 있으니까 수정
+        $data['modify_date'] = date('Y-m-d H:i:s');
+        $data['modify_id'] = $this->id;
+
+        $result = $this->STC_Equipment->car_insert($data, $mode = 1, $seq);
       }
 
       if($result) {
@@ -127,7 +169,12 @@ class Equipment extends CI_Controller {
       $data['userInfo'] = $this->STC_Schedule->userInfo();
       $data['userDepth'] = $this->STC_Schedule->userDepth();
 
-      $this->load->view('admin/car_modify', $data );
+      if($this->agent->is_mobile()) {
+        $data['title'] = '차량관리';
+        $this->load->view('admin/car_modify_mobile', $data );
+      } else {
+        $this->load->view('admin/car_modify', $data );
+      }
    }
 
    // 차량 삭제
@@ -165,9 +212,9 @@ class Equipment extends CI_Controller {
       }                                          //   현재 페이지
       $no_page_list = 10;                              //   한페이지에 나타나는 목록 개수
 
-      $search_keyword = "";
-      $search1 = "";
-      $search2 = "";
+      $search_keyword = "";   // 검색 input창
+      $search1 = "";         // '차량 번호' select창
+      $search2 = "";        // '상태' selectbox창
 
       if  ( $cur_page <= 0 )
          $cur_page = 1;
@@ -198,7 +245,12 @@ class Equipment extends CI_Controller {
       $data['start_page'] = $start_page;
       $data['end_page'] = $end_page;
 
-      $this->load->view('admin/meeting_room_list', $data );
+      if($this->agent->is_mobile()) {
+        $data['title'] = '회의실관리';
+        $this->load->view('admin/meeting_room_list_mobile', $data );
+      } else {
+        $this->load->view('admin/meeting_room_list', $data );
+      }
    }
 
    // 회의실 쓰기 뷰
@@ -252,7 +304,12 @@ class Equipment extends CI_Controller {
       $data['view_val'] = $this->STC_Equipment->meeting_room_view($seq);
       $data['seq'] = $seq;
 
-      $this->load->view('admin/meeting_room_modify', $data );
+      if($this->agent->is_mobile()) {
+        $data['title'] = '회의실관리';
+        $this->load->view('admin/meeting_room_modify_mobile', $data );
+      } else {
+        $this->load->view('admin/meeting_room_modify', $data );
+      }
    }
 
    // 회의실 삭제

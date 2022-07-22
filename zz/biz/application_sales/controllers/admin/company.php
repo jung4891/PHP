@@ -11,6 +11,13 @@ class Company extends CI_Controller {
       $this->id = $this->phpsession->get( 'id', 'stc' );
       $this->name = $this->phpsession->get( 'name', 'stc' );
       $this->lv = $this->phpsession->get( 'lv', 'stc' );
+      $this->cooperation_yn = $this->phpsession->get( 'cooperation_yn', 'stc' );
+
+      if($this->cooperation_yn == 'Y') {
+        echo "<script>alert('권한이 없습니다.');location.href='".site_url()."'</script>";
+      }
+
+      $this->load->library('user_agent');
 
       $this->load->Model(array('STC_Common', 'admin/STC_Company'));
    }
@@ -216,7 +223,12 @@ class Company extends CI_Controller {
       $data['start_page'] = $start_page;
       $data['end_page'] = $end_page;
 
-      $this->load->view('admin/product_list', $data );
+      if($this->agent->is_mobile()) {
+        $data['title'] = '제품명';
+        $this->load->view('admin/product_list_mobile', $data);
+      } else {
+        $this->load->view('admin/product_list', $data );
+      }
    }
 
    //제품명 입력/수정 처리
@@ -279,7 +291,12 @@ class Company extends CI_Controller {
       $data['view_val'] = $this->STC_Company->product_view($seq);
       $data['seq'] = $seq;
 
-      $this->load->view('admin/product_modify', $data );
+      if($this->agent->is_mobile()) {
+        $data['title'] = '제품명';
+        $this->load->view('admin/product_modify_mobile', $data);
+      } else {
+        $this->load->view('admin/product_modify', $data );
+      }
    }
 
    // 제품명 삭제

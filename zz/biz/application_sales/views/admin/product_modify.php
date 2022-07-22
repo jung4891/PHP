@@ -85,8 +85,8 @@ function chkForm2 () {
 				<tr>
 					<td align="right">
 		<?php if($admin_lv > 0){ ?>
-						<input type="button" class="btn-common btn-color1" value="삭제" onclick="javascript:chkForm2();return false;" style="margin-right:10px">
-						<input type="button" class="btn-common btn-color1" value="수정" onclick="javascript:chkForm();return false;" style="margin-right:10px">
+						<input type="button" class="btn-common btn-color4" value="삭제" onclick="javascript:chkForm2();return false;" style="margin-right:10px">
+						<input type="button" class="btn-common btn-color4" value="수정" onclick="javascript:chkForm();return false;" style="margin-right:10px">
 		<?php }?>
 						<input type="button" class="btn-common btn-color2" value="목록" onClick="javascript:history.go(-1)">
 					</td>

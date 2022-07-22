@@ -148,7 +148,7 @@
 			</table>
 			<table class="dash_tbl" style="margin-top:20px;height:100%;">
 				<tr class="dash_tr">
-					<td style="text-align:left;vertical-align:middle">
+					<td id='attendance' style="text-align:left;vertical-align:middle" onclick="go_page(this.id);">
 						<img src="<?php echo $misc;?>img/mobile/dash_attendance.svg" width="30px" style="float:left;">
 						<span style="width:100px;margin-left:20px;">근태관리</span>
 						<img src="<?php echo $misc;?>img/mobile/dash_right.svg" width="30px" style="float:right;">
@@ -164,7 +164,7 @@
 					</td>
 				</tr>
 			</table>
-			<table class="dash_tbl" style="margin-top:10px;">
+			<table id ="weeklyreport" class="dash_tbl" style="margin-top:10px;" onclick="go_page(this.id);">
 				<tr class="dash_tr">
 					<td style="text-align:left">
 						<img src="<?php echo $misc;?>img/mobile/dash_weeklyreport.svg" width="30px" style="float:left;">
@@ -175,14 +175,14 @@
 			</table>
 			<table class="dash_tbl" style="margin-top:10px;">
 				<tr class="dash_tr">
-					<td style="text-align:left">
+					<td id="address" style="text-align:left" onclick="go_page(this.id);">
 						<img src="<?php echo $misc;?>img/mobile/dash_address.svg" width="30px" style="float:left;">
 						<span style="width:100px;margin-left:20px;">주소록</span>
 						<img src="<?php echo $misc;?>img/mobile/dash_right.svg" width="30px" style="float:right;">
 					</td>
 				</tr>
 			</table>
-			<table class="dash_tbl" style="margin-top:10px;">
+			<!-- <table class="dash_tbl" style="margin-top:10px;">
 				<tr class="dash_tr">
 					<td style="text-align:left">
 						<img src="<?php echo $misc;?>img/mobile/dash_equipment.svg" width="30px" style="float:left;">
@@ -190,7 +190,7 @@
 						<img src="<?php echo $misc;?>img/mobile/dash_right.svg" width="30px" style="float:right;">
 					</td>
 				</tr>
-			</table>
+			</table> -->
 		</div>
 	</div>
 	<?php include $this->input->server('DOCUMENT_ROOT')."/include/mobile_bottom.php"; ?>

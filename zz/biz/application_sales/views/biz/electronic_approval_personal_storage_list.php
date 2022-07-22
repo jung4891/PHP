@@ -125,7 +125,7 @@
                                     </div>
                                 </td>
                                 <td>
-                                  <table class="list_tbl" width="100%" style="font-family:Noto Sans KR" border="0" cellspacing="0" cellpadding="0">
+                                  <table class="list_tbl list" width="100%" style="font-family:Noto Sans KR" border="0" cellspacing="0" cellpadding="0">
                                     <tr class="t_top row-color1" align="center" >
                                       <th height=50 class="basic_td"><input type="checkbox" id="allCheck" /></th>
                                       <th class="basic_td">서식함</th>

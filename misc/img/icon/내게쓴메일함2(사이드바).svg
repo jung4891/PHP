@@ -1,9 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20">
-  <g id="그룹_7" data-name="그룹 7" transform="translate(105 -335)">
-    <g id="clipboard-check" transform="translate(-104.25 337)">
-      <path id="패스_290" data-name="패스 290" d="M5.25,3.375h-1a2,2,0,0,0-2,2v10.5a2,2,0,0,0,2,2h10a2,2,0,0,0,2-2V5.375a2,2,0,0,0-2-2h-1v1h1a1,1,0,0,1,1,1v10.5a1,1,0,0,1-1,1h-10a1,1,0,0,1-1-1V5.375a1,1,0,0,1,1-1h1Z" transform="translate(0 -1.874)" fill="#0575e6" fill-rule="evenodd"/>
-      <path id="패스_291" data-name="패스 291" d="M15.752,1h-3a.5.5,0,0,0-.5.5v1a.5.5,0,0,0,.5.5h3a.5.5,0,0,0,.5-.5v-1A.5.5,0,0,0,15.752,1Zm-3-1a1.5,1.5,0,0,0-1.5,1.5v1a1.5,1.5,0,0,0,1.5,1.5h3a1.5,1.5,0,0,0,1.5-1.5v-1a1.5,1.5,0,0,0-1.5-1.5Zm4.356,7.15a.5.5,0,0,1,0,.708l-3,3a.5.5,0,0,1-.708,0l-1.5-1.5A.5.5,0,1,1,12.6,8.65L13.751,9.8,16.4,7.15a.5.5,0,0,1,.708,0Z" transform="translate(-5.002)" fill="#0575e6" fill-rule="evenodd"/>
-    </g>
-    <rect id="사각형_1028" data-name="사각형 1028" width="20" height="20" transform="translate(-105 335)" fill="none" opacity="0.5"/>
-  </g>
-</svg>

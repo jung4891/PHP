@@ -10,7 +10,7 @@
    p, div, span, a, a:hover, a:visited, a:active, label, input, h1,h2,h3,h4,h5,h6{font-family: "Noto Sans KR";}
 
    .datepicker{
-     z-index:10000;
+     z-index:10000 !important;
    }
 </style>
 <link rel="stylesheet" href="/misc/css/view_page_common.css">
@@ -21,6 +21,10 @@
 <link href="https://fonts.googleapis.com/css?family=Noto+Sans+KR" rel="stylesheet">
 <script type="text/javascript" src="/misc/js/jquery.bpopup-0.1.1.min.js"></script>
 <script type="text/javascript" src="/misc/js/bootstrap-datepicker.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/themes/default/style.min.css" /> <!-- 조직도 생성 -->
+<link rel="stylesheet" href="/misc/css/tech_schedule/proton/style.min.css" />
+<!-- 조직도 생성 -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/jstree.min.js"></script>
 <body>
 <?php
   include $this->input->server('DOCUMENT_ROOT')."/include/sales_header.php";
@@ -34,7 +38,7 @@
       <input type="hidden" id="searchkeyword" name="searchkeyword" value="<?php echo str_replace('"', '&uml;', $search_keyword );?>"/>
       <table width="100%" height="100%" border="0" cellspacing="0" cellpadding="0" style="width:95%">
          <tbody>
-            <tr height="5%">
+        <tr height="5%">
           <td class="dash_title">
             근태조회
           </td>
@@ -48,7 +52,7 @@
               <tr>
                 <td>
                   <!-- <span style="color:red;font-size:15px;margin-left:20px">*</span> -->
-                  <span valign="bottom" style="font-weight:bold; font-size:17px;">근무일자</span>
+                  <span valign="bottom"  style="font-weight:bold; font: Noto sans(Medium); font-size:13px; color: #1c1c1c;">근무일자</span>
                   <select name="search1" id="filter1" class="select-common filtercolumn" style="width:100px;" onchange="search_day_type(this);">
                      <option value="day" <?php if(isset($filter)){if($filter[0]=='day'){echo "selected";}} ?>>일</option>
                      <option value="period" <?php if(isset($filter)){if($filter[0]=='period'){echo "selected";}} ?>>기간</option>
@@ -61,10 +65,93 @@
                     <option value="user_name" <?php if(isset($filter)){if($filter[3]=='user_name'){echo "selected";}} ?>>성명</option>
                   </select>
                   <span>
-                    <input id="filter5" type="text" style="width:240px;" class="input-common filtercolumn" placeholder="검색하세요." value="<?php if(isset($filter)){echo $filter[4];} ?>"/>
+                    <input id="filter5" type="text" style="width:240px;" class="input-common filtercolumn" placeholder="검색하세요." autocomplete="off" readonly value="<?php if(isset($filter)){echo $filter[4];} ?>" onclick="$('#searchAddUserpopup').bPopup();" />
                   </span>
+
+<!-- 검색 모달 -->
+<div id="searchAddUserpopup" style="display:none; background-color: white; width: auto; height: auto;">
+	<span id="searchAddUserpopupCloseBtn" class="btn" onclick="searchCloseBtn()" style="margin:0% 0% 0% 96%; color:white;">X</span>
+	<div id="search-modal-body">
+		<div id="search-modal-grouptree" style="width:300px">
+			<div id="search-usertree">
+				<ul>
+					<li>(주)두리안정보기술
+						<ul>
+						<?php
+						foreach ($parentGroup as $pg){
+						?>
+
+						<?php
+						if ($pg->childGroupNum==1 && $pg->depth==1){
+						?>
+							<li>
+								<?php echo $pg->parentGroupName;
+									foreach ($userInfo as $ui){
+											if ($pg->groupName==$ui->user_group){
+								?>
+								<ul>
+									<li id="<?php echo $ui->user_name; ?>"><?php echo $ui->user_name." ".$ui->user_duty.'<div style="display:none;">'.$ui->seq.'</div>'; ?></li>
+								</ul>
+								<?php
+											}
+									}
+								?>
+							</li>
+							<?php
+							} else if ($pg->childGroupNum>1 && $pg->depth==1){
+							?>
+							<li>
+							<?php echo $pg->parentGroupName;
+							foreach ($user_group as $ug) {
+								if ($pg->parentGroupName==$ug->parentGroupName){
+							?>
+								<ul>
+									<?php
+									foreach ($userDepth as $ud){
+											if ($ug->groupName == $ud->groupName){
+												echo '<li id="'.$ud->user_name.'">'.$ud->user_name." ".$ud->user_duty.'<div style="display:none;">'.$ud->seq.'</div></li>';
+											}
+									}
+									if ($ug->groupName != $pg->groupName){
+										echo "<li>".$ug->groupName;
+									}
+									?>
+										<ul>
+										<?php
+											foreach($userInfo as $ui) {
+												if ($ug->groupName==$ui->user_group){
+													echo '<li id="'.$ui->user_name.'">'.$ui->user_name." ".$ui->user_duty.'<div style="display:none;">'.$ui->seq.'</div></li>';
+												}
+											}
+										?>
+										</ul>
+									</li>
+								</ul>
+							<?php
+								}
+							}
+							?>
+							</li>
+							<?php
+							}
+							?>
+						<?php
+						}
+						?>
+						</ul>
+					</li>
+				</ul>
+			</div>
+		</div>
+		<div id="search-btnDiv" style="float:right;">
+			<input type="button" class="btn-common btn-color2" value="선택" width="54" height="25" onclick="addUser(this.id)" id="searchChosenBtn">
+		</div>
+	</div>
+</div>
+	<!-- 검색 모달 끝 -->
+
                   <span>
-                    <input class="btn-common btn-style1" type="button" onclick="return GoSearch();" value="검색" >
+                    <input class="btn-common btn-style2" type="button" onclick="GoSearch();" value="검색" >
                   </span>
                 </td>
              </tr>
@@ -84,19 +171,20 @@
               <!--리스트-->
                 <colgroup>
                   <col width="5%" />
-                  <col width="9%" />
+                  <col width="8%" />
                   <col width="5%" />
                   <col width="5%" />
                   <col width="5%" />
                   <col width="5%" />
-                  <col width="6%" />
                   <col width="5%" />
-                  <col width="9%" />
-                  <col width="9%" />
-                  <col width="9%" />
+                  <col width="5%" />
+                  <col width="8%" />
+                  <col width="8%" />
+                  <col width="8%" />
                   <!-- <col width="9%" /> -->
                   <!-- <col width="9%" />
                   <col width="9%" /> -->
+                  <col width="5%" />
                   <col width="5%" />
                 </colgroup>
                 <tr class="t_top row-color1">
@@ -114,6 +202,7 @@
                   <!-- <th align="center">출근IP</th>
                   <th align="center">퇴근IP</th> -->
                   <th align="center">근무시간</th>
+                  <th align="center">직출기록</th>
                   <th></th>
                 </tr>
           <?php
@@ -130,7 +219,7 @@
 
                 <tr>
                   <td></td>
-                  <td height="40" align="center"><?php echo $workdate;?></td>
+                  <td height="40" align="center" class="workdate"><?php echo $workdate;?></td>
                   <td align="center"><?php echo $item['dayoftheweek'];?></td>
                   <td align="center">
                   <?php
@@ -150,8 +239,14 @@
                      }
                   ?>
                   </td>
-                  <td align="center">-</td>
-                  <td align="center"><?php echo $item['user_name']; ?></td>
+                  <td align="center">
+                    <?php if($item['start_day'] != ''){
+                      echo "<span style='color:red'>O<span>";
+                    } else{
+                      echo "-";
+                    } ?>
+                  </td>
+                  <td align="center" class="user_name"><?php echo $item['user_name']; ?></td>
                   <td align="center"><?php echo $item['user_duty']; ?></td>
                   <td align="center">
                   <?php
@@ -202,6 +297,12 @@
                              }
                   ?> -->
                   </td>
+                  <td align="center">
+                    <?php if($item['start_day'] != ''){ ?>
+                    <img src="/misc/img/mobile/allow_up.svg" class="upBtn" onclick="viewShow(this);" style="cursor:pointer">
+                    <img src="/misc/img/mobile/allow_down.svg" class="downBtn" style="cursor:pointer;display:none;">
+                  <?php } ?>
+                  </td>
                   <td></td>
                 </tr>
             <?php
@@ -216,6 +317,7 @@
             <?php
              }
             ?>
+          </form>
                                          <!--//리스트-->
     <script type="text/javascript">
     function GoFirstPage (){
@@ -268,9 +370,9 @@
    <?php
       if ($cur_page > 10){
    ?>
-                     <td width="19"><a href="JavaScript:GoFirstPage()"><img src="<?php echo $misc;?>img/btn_prev.jpg" /></a></td>
+                     <td width="19"><a href="JavaScript:GoFirstPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_last_left.svg" width="20" height="20"/></a></td>
                      <td width="2"></td>
-                     <td width="19"><a href="JavaScript:GoPrevPage()"><img src="<?php echo $misc;?>img/btn_left.jpg" /></a></td>
+                     <td width="19"><a href="JavaScript:GoPrevPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_left.svg" width="20" height="20"/></a></td>
    <?php
       } else {
    ?>
@@ -299,9 +401,9 @@
                      <?php
          if   ( floor( ( $cur_page - 1 ) / 10 ) < floor( ( $total_page - 1 ) / 10 ) ){
       ?>
-                     <td width="19"><a href="JavaScript:GoNextPage()"><img src="<?php echo $misc;?>img/btn_right.jpg"/></a></td>
+                     <td width="19"><a href="JavaScript:GoNextPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_right.svg" width="20" height="20"/></a></td>
                      <td width="2"></td>
-                     <td width="19"><a href="JavaScript:GoLastPage()"><img src="<?php echo $misc;?>img/btn_next.jpg" /></a></td>
+                     <td width="19"><a href="JavaScript:GoLastPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_last_right.svg" width="20" height="20"/></a></td>
       <?php
          } else {
       ?>
@@ -329,6 +431,34 @@
             <?php }?>
          </tbody>
       </table>
+<?php if(isset($filter) && $filter[0]=='period' && ($filter[1].$filter[2] != '')) { ?>
+      <table class="calc_tbl" style="width:70%;margin-top:20px;margin-bottom:20px;" cellpadding="0" cellspacing="0" border="0">
+<?php if(!empty($calc_sum)) {
+        for($i = 0; $i < count($calc_sum); $i=$i+3) { ?>
+        <tr height="30">
+          <td style="border-left:1px #9EE7FD solid; text-align:center;font-size:14px;font-weight:bold;background-color:#F2FCFF;"><?php echo $calc_sum[$i]['user_name']; ?></td>
+          <td style="text-align:center;font-size:14px;font-weight:bold;background-color:#F2F2F2;">휴일 : <?php echo $calc_sum[$i]['holiday_cnt']; ?> </td>
+          <td style="text-align:center;font-size:14px;font-weight:bold;background-color:#F2F2F2;">휴가 : <?php echo $calc_sum[$i]['annual_cnt']; ?></td>
+            <td style="text-align:center;font-size:14px;font-weight:bold;background-color:#F2F2F2;"> 직출 : <?php echo $calc_sum[$i]['outside_work_cnt']; ?></td>
+
+    <?php if(isset($calc_sum[$i+1])) { ?>
+          <td style="border-left:1px #9EE7FD solid; text-align:center;font-size:14px;font-weight:bold;background-color:#F2FCFF;"><?php echo $calc_sum[$i+1]['user_name']; ?></td>
+          <td style="text-align:center;font-size:14px;font-weight:bold;background-color:#F2F2F2;">휴일 : <?php echo $calc_sum[$i+1]['holiday_cnt']; ?></td>
+          <td style="text-align:center;font-size:14px;font-weight:bold;background-color:#F2F2F2;">휴가 : <?php echo $calc_sum[$i+1]['annual_cnt']; ?></td>
+          <td style="text-align:center;font-size:14px;font-weight:bold;background-color:#F2F2F2;"> 직출 : <?php echo $calc_sum[$i+1]['outside_work_cnt']; ?></td>
+    <?php } ?>
+
+    <?php if(isset($calc_sum[$i+2])) { ?>
+          <td style="border-left:1px #9EE7FD solid; text-align:center;font-size:14px;font-weight:bold;background-color:#F2FCFF;"><?php echo $calc_sum[$i+2]['user_name']; ?></td>
+          <td style="text-align:center;font-size:14px;font-weight:bold;background-color:#F2F2F2;">휴일 : <?php echo $calc_sum[$i+2]['holiday_cnt']; ?></td>
+          <td style="text-align:center;font-size:14px;font-weight:bold;background-color:#F2F2F2;">휴가 : <?php echo $calc_sum[$i+2]['annual_cnt']; ?></td>
+          <td style="text-align:center;font-size:14px;font-weight:bold;background-color:#F2F2F2;"> 직출 : <?php echo $calc_sum[$i+2]['outside_work_cnt']; ?></td>
+    <?php } ?>
+        </tr>
+  <?php }
+      } ?>
+      </table>
+<?php } ?>
    </div>
 </div>
 <!-- 수정 모달 -->
@@ -403,6 +533,8 @@
    <!-- </form> -->
 </div>
 
+
+
 <!--하단-->
 <?php include $this->input->server('DOCUMENT_ROOT')."/include/sales_bottom.php"; ?>
 <!--//하단-->
@@ -459,7 +591,9 @@
      document.mform.action = "<?php echo site_url();?>/admin/attendance_admin/attendance_list";
      document.mform.cur_page.value = "";
      document.mform.submit();
+
    }
+
 
    //근태관리 정보 수정
    function input_attendance(seq) {
@@ -527,5 +661,142 @@
       })
 
    }
+
+   function viewShow(el){
+     // 필요한 데이터 찾으려고 workdate와 user_name 사용 -> controller에 넘김 -> model -> return
+     var tr = $(el).closest('tr'); // 직출기록버튼과 가장 가까운 tr 찾는다
+     var workdate = tr.find('.workdate').text(); // input타입이 아니라서 val()아니고 text()로 가져와유
+     var user_name = tr.find('.user_name').text();
+     var result_cnt = 0;
+
+     $.ajax({
+        type: "POST",
+        async: false,
+        url: "/index.php/admin/attendance_admin/outside_schedule_data",
+        dataType: "json",
+        data: {
+          workdate: workdate,
+          user_name: user_name
+        },
+        success: function (result) {
+          if(result) {
+            var txt = "";
+            result_cnt = result.length;
+            //직출이 여러개일수도 있어서 반복문을 돌리면서 tr생성
+            for(i=0; i<result.length; i++) {
+              var place = $.trim(result[i].place);
+              var visit_company = $.trim(result[i].visit_company);
+              var customer = $.trim(result[i].customer);
+              var start_time = result[i].start_time;
+              var end_time = result[i].end_time;
+
+              if(place != '') {
+                var loc = place;
+              } else if (visit_company != '') {
+                var loc = visit_company;
+              } else if (customer != '') {
+                var loc = customer;
+              } else {
+                var loc = '';
+              }
+
+              // 문자열로 tr,td를 하나씩 생성
+              txt += '<tr><td align="center" colspan="5"></td>';
+              txt += '<td align="center" style="background-color:#F4F4F4">직출장소</td>';
+              txt += '<td align="center">' + loc + '</td>';
+              txt += '<td align="center" style="background-color:#F4F4F4">시작시간</td>';
+              txt += '<td align="center">' + start_time + '</td>';
+              txt += '<td align="center" style="background-color:#F4F4F4">종료시간</td>';
+              txt += '<td align="center">' + end_time + '</td>';
+              txt += '<td colspan="2"></td></tr>';
+            }
+
+            tr.after(txt); // 604번째 줄 tr밑에 변수txt 붙이기
+          }
+        }
+     })
+     tr.find('.upBtn').hide();
+     tr.find('.downBtn').attr('onclick', 'viewHide(this, '+result_cnt+')')
+     tr.find('.downBtn').show();
+   };
+
+   function viewHide(el, cnt) {
+     var tr = $(el).closest('tr');
+     for(i=0; i<cnt; i++) {
+       $(tr).next().remove(); // tr에서 반복문을 돌린 길이만큼 (직출장소 갯수만큼) remove
+     }
+     tr.find('.upBtn').show(); // 올라간 화살표 보여줘
+     tr.find('.downBtn').hide(); // 내려간 화살표 숨
+   }
+
+   function searchAddUserBtn(){
+    $('#searchAddUserpopup').bPopup({follow:[false,false]});
+    $('#searchAddUserpopup').bPopup();
+   }
+
+   // 지정 조직도 트리 생성
+   var checked_text_select = [];
+   var checked_seq_select = [];
+   $(function() {
+     $('#search-usertree').jstree({
+       "checkbox" : {
+         "keep_selected_style" : false
+       },
+       'plugins': ["wholerow", "checkbox"],
+       'core' : {
+         'themes' : {
+           'name': 'proton',
+           'icons' : false
+         }
+       }
+     });
+     $("#search-usertree").bind("changed.jstree", function (e, data) {
+       var reg = /^[가-힣]*$/;
+       checked_text_select.length = 0;
+       checked_seq_select.length = 0;
+       $.each($("#search-usertree").jstree("get_checked",true),function() {
+         if (reg.test(this.id)) {
+   				var text = this.text.split('<div style="display:none;">');
+   				text2 = text[0];
+   				var seq = text[1].replace('</div>','');
+           checked_text_select.push(text2);
+           checked_seq_select.push(seq);
+   				// console.log(checked_text_select);
+   				// console.log(checked_seq_select);
+         }
+       })
+     });
+   });
+
+
+   function unique(array) {
+     var result = [];
+     $.each(array, function(index, element) {
+       if ($.inArray(element, result) == -1) {
+         result.push(element);
+       }
+     });
+     return result;
+   }
+
+   // 사용자 추가
+   function addUser(){
+       var noneOverlapArr = unique(checked_text_select);
+
+       var searchName ='';
+       var searchNameArr = [];
+       //직급 제거하기
+       $.each(noneOverlapArr,function() {
+         searchName = $(this)[0];
+         searchName = searchName.split(' ')[0];
+         searchNameArr.push(searchName)
+         console.log(searchNameArr);
+       })
+       var searchAdduser = searchNameArr.join(".");
+       $('#filter5').val(searchAdduser);
+       $('#searchAddUserpopup').bPopup().close(); //모달 닫기
+   }
+
+
 </script>
 </html>

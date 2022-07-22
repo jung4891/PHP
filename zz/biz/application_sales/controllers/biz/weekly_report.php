@@ -12,6 +12,16 @@ class Weekly_report extends CI_Controller {
         $this->lv = $this->phpsession->get( 'lv', 'stc' );
         $this->company = $this->phpsession->get( 'company', 'stc' );
         $this->email = $this->phpsession->get('email','stc'); //김수성추가
+        $this->seq = $this->phpsession->get( 'seq', 'stc' );
+        $this->group = $this->phpsession->get( 'group', 'stc' );
+        $this->pGroupName = $this->phpsession->get( 'pGroupName', 'stc' );
+        $this->cooperation_yn = $this->phpsession->get( 'cooperation_yn', 'stc' );
+
+        if($this->cooperation_yn == 'Y') {
+          echo "<script>alert('권한이 없습니다.');location.href='".site_url()."'</script>";
+        }
+
+        $this->load->library('user_agent');
 
         $this->load->Model('biz/STC_weekly_report');
     }
@@ -81,7 +91,13 @@ class Weekly_report extends CI_Controller {
         $data['start_page'] = $start_page;
         $data['end_page'] = $end_page;
         $data['tech_group'] = $this->STC_weekly_report->techGroup();
-        $this->load->view('biz/weekly_report_list', $data );
+
+        if($this->agent->is_mobile()) {
+          $data['title'] = '주간보고';
+          $this->load->view('biz/weekly_report_list_mobile', $data);
+        } else {
+          $this->load->view('biz/weekly_report_list', $data );
+        }
     }
 
     function weekly_report_view() {
@@ -110,6 +126,14 @@ class Weekly_report extends CI_Controller {
 
         $data['seq'] = $seq;
 
+        $read_count = $this->STC_weekly_report->weekly_report_read_count($seq, $this->seq);
+      	if ($read_count['cnt'] == 0) {
+      		$read = array(
+      			'notice_seq' => $seq,
+      			'user_seq'   => $this->seq
+      		);
+      		$this->STC_weekly_report->weekly_report_read_insert($seq, $this->seq, $read);
+      	}
 
         if($mode == "view") {
             $this->load->view('biz/weekly_report_view', $data );
@@ -556,11 +580,55 @@ class Weekly_report extends CI_Controller {
           }
         }
 
+        $file_count = $_POST['file_length'];
+        $file_realname = $_POST['file_realname'];
+				$file_changename = $_POST['file_changename'];
+
+        if($file_count > 0){
+    			for($i=0; $i<$file_count; $i++){
+    				// $csize = $_FILES["files".$i]["size"];
+    				$f = "files".$i;
+    				$cname = $_FILES[$f]["name"];
+    				$ext = substr(strrchr($cname,"."),1);
+    				$ext = strtolower($ext);
+
+    				$upload_dir = "/var/www/html/stc/misc/upload/biz/weekly_report";
+    				// $upload_dir = "c:/xampp/htdocs/biz/misc/upload/biz/weekly_report";
+    				$conf_file['upload_path'] = $upload_dir;
+    				$conf_file['allowed_types'] = '*';
+    				$conf_file['overwrite']  = false;
+    				$conf_file['encrypt_name']  = true;
+    				$conf_file['remove_spaces']  = true;
+
+    				$this->load->library('upload', $conf_file );
+    				$result = $this->upload->do_upload($f);
+    				if($result) {
+    						$file_data = array('upload_data' => $this->upload->data());
+    						$file_realname .= '*/*'.$file_data['upload_data']['orig_name'];
+    						$file_changename .= '*/*'.$file_data['upload_data']['file_name'];
+    				} else {
+    						// alert('업로드 파일에 문제가 있습니다. 다시 처리해 주시기 바랍니다.');
+    						echo json_encode(false);
+    						exit;
+    				}
+    			}
+    			$file_realname = trim($file_realname,'*/*');
+    			$file_changename = trim($file_changename,'*/*');
+    		}
+
+        $attach_data = array(
+          'seq' => $report_seq,
+          'file_realname' => $file_realname,
+          'file_changename' => $file_changename
+        );
+
+        $file_attach = $this->STC_weekly_report->report_file_attach($attach_data);
+
 
          if($doc_result && $next_result) {
-            echo "<script>alert('정상적으로 처리되었습니다.');location.href='".site_url()."/biz/weekly_report/weekly_report_list';</script>";
+            echo json_encode(true);
          } else {
-            echo "<script>alert('{$doc_result}{$next_result}정상적으로 처리되지 못했습니다. 다시 입력해 주세요.');history.go(-1);</script>";
+           echo json_encode(false);
          }
 
 	  }

@@ -219,6 +219,11 @@
 							<a href="javascript:;" class="tx-icon" title="다시실행 (Ctrl+Y)">다시실행</a>
 						</div>
 					</li>
+					<li class="tx-list">
+						<div unselectable="on" id="tx_image" class="tx-image tx-btn-trans">
+							<a href="javascript:;" title="사진" class="tx-text">사진</a>
+						</div>
+					</li>
 				</ul>
 				<ul class="tx-bar tx-bar-right">
 					<li class="tx-list">
@@ -393,7 +398,12 @@
 			lineHeight: "1.5", /*기본 줄간격 */
 			padding: "8px" /* 위지윅 영역의 여백 */
 			},
-			showGuideArea: false
+			<?php if(strpos($_SERVER['REQUEST_URI'], '/official_doc')!== false){
+				echo "showGuideArea: true";
+			} else {
+				echo "showGuideArea: false";
+			} ?>
+
 		},
 		events: {
 			preventUnload: false
@@ -405,7 +415,10 @@
 			}
 		},
 		size: {
-			// contentWidth: 700 /* 지정된 본문영역의 넓이가 있을 경우에 설정 */
+			<?php if(strpos($_SERVER['REQUEST_URI'], '/official_doc')!== false){
+				echo "contentWidth: 700";
+			} ?>
+			 /* 지정된 본문영역의 넓이가 있을 경우에 설정 */
 		}
 	};
 

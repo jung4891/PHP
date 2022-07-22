@@ -60,6 +60,22 @@
         </span>
       </a>
     </li>
+    <li>
+      <a href="<?php echo site_url()?>/biz/diquitaca/qna_list">
+        <span style="font-size:12px;">
+          <img src="<?php echo $misc;?>img/sideicon/diquitaca_qna.svg" width="40px;" heigth="40px;"/>
+          <br>디키타카
+        </span>
+      </a>
+    </li>
+    <li>
+      <a href="<?php echo site_url()?>/biz/dev_request/dev_request_list">
+        <span style="font-size:12px;">
+          <img src="<?php echo $misc;?>img/sideicon/dev_request.svg" width="40px;" heigth="40px;"/>
+          <br>개발요청
+        </span>
+      </a>
+    </li>
     </ul>
   </div>
 <?php
@@ -104,6 +120,14 @@
       </a>
     </li>
     <li>
+      <a href="<?php echo site_url()?>/sales/maintain/maintain_list?type=003">
+        <span style="font-size:12px;">
+            <img src="<?php echo $misc;?>img/sideicon/maintain_forcasting.svg" width="40px;" heigth="40px;"/>
+            <br>유지보수<br>포캐스팅
+        </span>
+      </a>
+    </li>
+    <li>
       <a href="<?php echo site_url()?>/sales/maintain/maintain_list?type=001">
         <span style="font-size:12px;">
             <img src="<?php echo $misc;?>img/sideicon/maintain.svg" width="40px;" heigth="40px;"/>
@@ -111,7 +135,7 @@
         </span>
       </a>
     </li>
-    <?php if($group == "CEO" || $group=="경영지원실" || $group == "기술연구소" || $parent_group == "영업본부" ){?>
+    <?php if($group == "CEO" || $group=="경영지원실" || $parent_group == "기술연구소" || $parent_group == "영업본부" ){?>
     <li>
       <a href="<?php echo site_url()?>/sales/fundreporting/fundreporting_list?company=DUIT">
         <span style="font-size:12px;">
@@ -125,6 +149,14 @@
         <span style="font-size:12px;">
             <img src="<?php echo $misc;?>img/sideicon/purchase_sales.svg" width="40px;" heigth="40px;"/>
             <br>매입매출장
+        </span>
+      </a>
+    </li>
+    <li>
+      <a href="<?php echo site_url()?>/sales/accounts_receivable_unpaid/accounts_receivable_unpaid_view">
+        <span style="font-size:12px;">
+            <img src="<?php echo $misc;?>img/sideicon/accounts_receivable_unpaid.svg" width="40px;" heigth="40px;"/>
+            <br>미수금미지급
         </span>
       </a>
     </li>
@@ -184,6 +216,20 @@
   </div>
 <?php
   }
+  if((isset($this->cooperation_yn) && $this->cooperation_yn == 'Y')) { ?>
+    <div class="menulist" name="tech" id="tech_side">
+      <ul class="menu_wrap">
+        <li>
+          <a href="<?php echo site_url()?>/tech/tech_board/tech_doc_list?type=Y" >
+            <span style="font-size:12px;">
+              <img src="<?php echo $misc;?>img/sideicon/customer.svg" width="40px;" heigth="40px;"/>
+              <br>고객사
+            </span>
+          </a>
+        </li>
+      </ul>
+    </div>
+<?php }
 ?>
 
 <?php
@@ -232,7 +278,17 @@
         </span>
       </a>
     </li>
-    <?php if($admin_lv == 3 && ($group =="경영지원실" || $group == "기술연구소" || $group == "CEO")){?>
+    <?php if(($group =="경영지원실" || $parent_group == "기술연구소" || $group == "CEO" || $group == '영업본부' || $group == '사업1부' || $group == '사업2부')){?>
+    <li>
+      <a href="<?php echo site_url()?>/admin/management/site_management">
+      <span style="font-size:12px;">
+            <img src="<?php echo $misc;?>img/sideicon/management.svg" width="40px;" heigth="40px;"/>
+            <br>사이트관리
+        </span>
+      </a>
+    </li>
+    <?php } ?>
+    <?php if($admin_lv == 3 && ($group =="경영지원실" || $parent_group == "기술연구소" || $group == "CEO")){?>
     <li>
       <a href="<?php echo site_url()?>/admin/attendance_admin/attendance_user_list">
       <span style="font-size:12px;">

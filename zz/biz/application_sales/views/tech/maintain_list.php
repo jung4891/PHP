@@ -197,11 +197,11 @@ function change(){
 	</select>
 </span>
 			<span>
-				<input type="button" class="btn-common btn-style1" value="검색" onClick="return GoSearch();">
+				<input type="button" class="btn-common btn-style2" value="검색" onClick="return GoSearch();">
 			</span>
 			</td>
 			<td align="right">
-				<input type="button" class="btn-common btn-color2" value="정기점검 미완료" onclick="openModal();" style="width:120px;"/>
+				<input type="button" class="btn-common btn-color5" value="정기점검 미완료" onclick="openModal();" style="width:120px;"/>
 			</td>
 		</tr>
 	</table>
@@ -214,7 +214,7 @@ function change(){
 	<table class="content_dash_tbl" align="center" width="100%" border="0" cellspacing="0" cellpadding="0">
 		<tr>
 			<td>
-				<table class="list_tbl" style="margin-top:20px;" width="100%" border="0" cellspacing="0" cellpadding="0">
+				<table class="list_tbl list" style="margin-top:20px;" width="100%" border="0" cellspacing="0" cellpadding="0">
 					<colgroup>
 						<col width="3%" />
 						<col width="5%" />
@@ -413,9 +413,9 @@ $icounter++;
 <?php
 if ($cur_page > 10){
 ?>
-		<td width="19"><a href="JavaScript:GoFirstPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_first.png" width="20" height="20"/></a></td>
+		<td width="19"><a href="JavaScript:GoFirstPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_last_left.svg" width="20" height="20"/></a></td>
 		<td width="2"></td>
-		<td width="19"><a href="JavaScript:GoPrevPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_left.png" width="20" height="20"/></a></td>
+		<td width="19"><a href="JavaScript:GoPrevPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_left.svg" width="20" height="20"/></a></td>
 <?php
 } else {
 ?>
@@ -447,8 +447,8 @@ if   ( floor( ( $cur_page - 1 ) / 10 ) < floor( ( $total_page - 1 ) / 10 ) ){
 ?>
 <!-- <td width="19"><a href="JavaScript:GoNextPage()"><img src="<?php echo $misc;?>img/dashboard/page_next.png" width="20" height="20"/></a></td> -->
 		<td width="2"></td>
-		<td width="19"><a href="JavaScript:GoNextPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_right.png" width="20" height="20"/></a></td>
-		<td width="19"><a href="JavaScript:GoLastPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_last.png" width="20" height="20"/></a></td>
+		<td width="19"><a href="JavaScript:GoNextPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_right.svg" width="20" height="20"/></a></td>
+		<td width="19"><a href="JavaScript:GoLastPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_last_right.svg" width="20" height="20"/></a></td>
 <?php
 } else {
 ?>

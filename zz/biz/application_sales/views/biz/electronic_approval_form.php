@@ -187,7 +187,7 @@
                                                          <input type="hidden" id="form_table_html" name="form_table_html" />
                                                          <input type="hidden" id="preview_html" name="preview_html" />
                                                          <input type="button" class="btn-common btn-color2" value="저장" onClick="approval_info_save();" style="float:right;">
-                                                         <input type="button" class="btn-common btn-color1" value="취소" onClick="location.href='<?php echo site_url(); ?>/biz/approval/electronic_approval_form_list?mode=admin';" style="float:right;margin-right:10px;">
+                                                         <input type="button" class="btn-common btn-color4" value="취소" onClick="location.href='<?php echo site_url(); ?>/biz/approval/electronic_approval_form_list?mode=admin';" style="float:right;margin-right:10px;">
                                                          <h3>기본 정보</h3>
                                                          <table width="100%" class ="basic_table">
                                                             <tr >
@@ -222,8 +222,15 @@
                                                                <td height="40" width="15%" class="basic_td row-color1" align="center" style="font-weight:bold;" >
                                                                   정렬순서
                                                                </td>
-                                                               <td colspan=3 width="35%" class="basic_td" align="left" >
+                                                               <td width="35%" class="basic_td" align="left" >
                                                                   <input type="text" id="template_sort_seq" name="template_sort_seq" class="input-common" style="width:100px;" value="0" />&nbsp * 기안문 작성 시 표시되는 양식의 정렬 순서, 숫자가 낮을 수록 상단에 표시됨.
+                                                               </td>
+                                                               <td height="40" width="15%" class="basic_td row-color1" align="center" style="font-weight:bold;" >
+                                                                  공문첨부
+                                                               </td>
+                                                               <td width="35%" class="basic_td" align="left" >
+                                                                 <input type="radio" name="official_doc" value="N" checked="checked"  />미사용
+                                                                 <input type="radio" name="official_doc" value="Y" />사용
                                                                </td>
                                                             </tr>
                                                             <tr >
@@ -274,15 +281,15 @@
                                                          <!-- <img src="<?php echo $misc;?>img/dashboard/btn/btn_cancel.png" style="cursor:pointer;float:right;margin-left:5px;" border="0" onClick="location.href='<?php echo site_url(); ?>/biz/approval/electronic_approval_form_list?mode=admin';"/> -->
                                                          <!-- <img src="<?php echo $misc;?>img/dashboard/btn/btn_add.png" style="cursor:pointer;float:right" border="0" onClick="approval_info_save();"/> -->
                                                          <input type="button" class="btn-common btn-color2" value="저장" onClick="approval_info_save();" style="float:right;">
-                                                         <input type="button" class="btn-common btn-color1" value="취소" onClick="location.href='<?php echo site_url(); ?>/biz/approval/electronic_approval_form_list?mode=admin';" style="float:right;margin-right:10px;">
+                                                         <input type="button" class="btn-common btn-color4" value="취소" onClick="location.href='<?php echo site_url(); ?>/biz/approval/electronic_approval_form_list?mode=admin';" style="float:right;margin-right:10px;">
                                                       </div>
                                                       <div class="content-2">
                                                          <!-- <img src="<?php echo $misc;?>img/dashboard/btn/btn_delete.png" style="cursor:pointer;float:right;margin-left:5px;" border="0" onClick="template_delete();"/>
                                                          <img src="<?php echo $misc;?>img/dashboard/btn/btn_cancel.png" style="cursor:pointer;float:right;margin-left:5px;" border="0" onClick="location.href= '<?php echo site_url(); ?>/biz/approval/electronic_approval_form_list?mode=admin';"/>
                                                          <img src="<?php echo $misc;?>img/dashboard/btn/btn_add.png" style="cursor:pointer;float:right" border="0" onClick="template_info_save();"/><br> -->
                                                          <input type="button" class="btn-common btn-color2" style="float:right;" value="저장" onClick="template_info_save();">
-                                                         <input type="button" class="btn-common btn-color1" style="float:right;margin-right:10px;" value="취소" onClick="location.href= '<?php echo site_url(); ?>/biz/approval/electronic_approval_form_list?mode=admin';">
-                                                         <input type="button" class="btn-common btn-color1" style="float:right;margin-right:10px;" value="삭제" onClick="template_delete();">
+                                                         <input type="button" class="btn-common btn-color4" style="float:right;margin-right:10px;" value="취소" onClick="location.href= '<?php echo site_url(); ?>/biz/approval/electronic_approval_form_list?mode=admin';">
+                                                         <input type="button" class="btn-common btn-color4" style="float:right;margin-right:10px;" value="삭제" onClick="template_delete();">
                                                          <h3>양식정보</h3>
                                                          <table width="100%" class ="basic_table">
                                                             <tr >
@@ -367,7 +374,7 @@
                                              </table>
                                              <!-- <img src="<?php echo $misc;?>img/dashboard/btn/btn_cancel.png" style="cursor:pointer;float:right;margin-left:5px;margin-top:5px;" border="0" onClick="closeMultiForm();"/>
                                              <img src="<?php echo $misc;?>img/dashboard/btn/btn_add.png" style="cursor:pointer;float:right;margin-top:5px;" border="0" onClick="multiForm_save();"/><br> -->
-                                             <button type="button" class="btn-common btn-color1" onClick="closeMultiForm();" style="float:right;margin-left:5px;margin-top:5px;">취소</button>
+                                             <button type="button" class="btn-common btn-color4" onClick="closeMultiForm();" style="float:right;margin-left:5px;margin-top:5px;">취소</button>
                                              <button type="button" class="btn-common btn-color2" onClick="multiForm_save();" style="float:right;margin-top:5px;">등록</button><br><br>
                                           </div>
                                        </div>
@@ -397,7 +404,7 @@
                                              </table>
                                              <!-- <img src="<?php echo $misc;?>img/dashboard/btn/btn_cancel.png" style="cursor:pointer;float:right;margin-left:5px;margin-top:5px;" border="0" onClick="closeLineModal();"/>
                                              <img src="<?php echo $misc;?>img/dashboard/btn/btn_add.png" style="cursor:pointer;float:right;margin-top:5px;" border="0" onClick="saveLineModal();"/><br> -->
-                                             <button type="button" class="btn-common btn-color1" onClick="closeLineModal();" style="float:right;margin-left:5px;margin-top:5px;">취소</button>
+                                             <button type="button" class="btn-common btn-color4" onClick="closeLineModal();" style="float:right;margin-left:5px;margin-top:5px;">취소</button>
                                              <button type="button" class="btn-common btn-color2" onClick="saveLineModal();" style="float:right;margin-top:5px;">등록</button><br><br>
                                           </div>
                                        </div>
@@ -465,7 +472,7 @@
                                                 <div>
                                                    <!-- <img src="<?php echo $misc;?>img/dashboard/btn/btn_cancel.png" style="cursor:pointer;float:right;margin-left:5px;margin-top:5px;" border="0" onClick="closeUserModal();"/>
                                                    <img src="<?php echo $misc;?>img/dashboard/btn/btn_add.png" style="cursor:pointer;float:right;margin-top:5px;" border="0" onClick="saveUserModal();"/><br> -->
-                                                   <button type="button" class="btn-common btn-color1" onClick="closeUserModal();" style="float:right;margin-left:5px;margin-top:5px;">취소</button>
+                                                   <button type="button" class="btn-common btn-color4" onClick="closeUserModal();" style="float:right;margin-left:5px;margin-top:5px;">취소</button>
                                                    <button type="button" class="btn-common btn-color2" onClick="saveUserModal();" style="float:right;margin-top:5px;">등록</button><br><br>
                                                 </div>
                                           </div>
@@ -484,7 +491,7 @@
                                                       <img id="form_save_cancel_btn" src="<?php echo $misc;?>img/dashboard/btn/btn_cancel.png" style="vertical-align:middle;cursor:pointe;display:none;" border="0" width=60 onclick="form_change_cancel();" /> -->
                                                       <button id="form_save_btn" type="button" class="btn-common btn-style1" onclick="form_save(0);" style="vertical-align:middle;cursor:pointer;float:right;">저장</button>
                                                       <button id="form_adjust_btn" type="button" class="btn-common btn-color2" onclick="form_save(1);" style="vertical-align:middle;cursor:pointer;display:none;float:right;width:60px">수정</button>
-                                                      <button id="form_save_cancel_btn" type="button" class="btn-common btn-color1" onclick="form_change_cancel();" style="vertical-align:middle;cursor:pointer;display:none;float:right;margin-right:10px;width:60px">취소</button>
+                                                      <button id="form_save_cancel_btn" type="button" class="btn-common btn-color4" onclick="form_change_cancel();" style="vertical-align:middle;cursor:pointer;display:none;float:right;margin-right:10px;width:60px">취소</button>
                                                    </td>
                                                 </tr>
                                              </table>
@@ -523,8 +530,8 @@
                                                    <td align="right">
                                                       <!-- <img src="<?php echo $misc;?>img/dashboard/btn/btn_delete.png" style="cursor:pointer;" border="0" onclick="form_save(2);"/>
                                                       <img src="<?php echo $misc;?>img/dashboard/btn/btn_cancel.png" style="cursor:pointer;" border="0" onClick="$('#form_save_modal').hide();"/> -->
-                                                      <button type="button" class="btn-common btn-color1" onclick="form_save(2);">삭제</button>
-                                                      <button type="button" class="btn-common btn-color1" onClick="$('#form_save_modal').hide();">취소</button>
+                                                      <button type="button" class="btn-common btn-color4" onclick="form_save(2);">삭제</button>
+                                                      <button type="button" class="btn-common btn-color4" onClick="$('#form_save_modal').hide();">취소</button>
                                                    </td>
                                                 </tr>
                                              </table>
@@ -551,7 +558,7 @@
                                                          <input type="hidden" id="form_table_html" name="form_table_html" />
                                                          <input type="hidden" id="preview_html" name="preview_html" />
                                                          <input type="button" class="btn-common btn-color2" value="저장" onClick="approval_info_save();" style="float:right;">
-                                                         <input type="button" class="btn-common btn-color1" value="취소" onClick="location.href='<?php echo site_url(); ?>/biz/approval/electronic_approval_form_list?mode=admin';" style="float:right;margin-right:10px;">
+                                                         <input type="button" class="btn-common btn-color4" value="취소" onClick="location.href='<?php echo site_url(); ?>/biz/approval/electronic_approval_form_list?mode=admin';" style="float:right;margin-right:10px;">
                                                          <h3>기본 정보</h3>
                                                          <table width="100%" class ="basic_table">
                                                             <tr >
@@ -597,8 +604,15 @@
                                                                <td height="40" width="15%" class="basic_td row-color1" align="center" style="font-weight:bold;" >
                                                                   정렬순서
                                                                </td>
-                                                               <td colspan=3 width="35%" class="basic_td" align="left" style="font-weight:bold;" >
+                                                               <td width="35%" class="basic_td" align="left" style="font-weight:bold;" >
                                                                   <input type="text" id="template_sort_seq" name="template_sort_seq" class="input-common" style="width:100px;" value="<?php echo $view_val['template_sort_seq'] ;?>" onchange="$('#approval_info_check').val('N');" />&nbsp * 기안문 작성 시 표시되는 양식의 정렬 순서, 숫자가 낮을 수록 상단에 표시됨.
+                                                               </td>
+                                                               <td height="40" width="15%" class="basic_td row-color1" align="center" style="font-weight:bold;" >
+                                                                  공문첨부
+                                                               </td>
+                                                               <td width="35%" class="basic_td" align="left" >
+                                                                 <input type="radio" name="official_doc" value="N" <?php if($view_val['official_doc']=="N"){echo 'checked="checked"';} ?> />미사용
+                                                                 <input type="radio" name="official_doc" value="Y" <?php if($view_val['official_doc']=="Y"){echo 'checked="checked"';} ?> />사용
                                                                </td>
                                                             </tr>
                                                             <tr >
@@ -647,15 +661,15 @@
                                                          <!-- <img src="<?php echo $misc;?>img/dashboard/btn/btn_cancel.png" style="cursor:pointer;float:right;margin-left:5px;" border="0" onClick="location.href= '<?php echo site_url(); ?>/biz/approval/electronic_approval_form_list?mode=admin';"/>
                                                          <img src="<?php echo $misc;?>img/dashboard/btn/btn_save.png" style="cursor:pointer;float:right;margin-left:5px;" border="0" onClick="approval_info_save();"/><br> -->
                                                          <input type="button" class="btn-common btn-color2" value="등록" onClick="approval_info_save();" style="float:right;">
-                                                         <input type="button" class="btn-common btn-color1" value="취소" onClick="location.href= '<?php echo site_url(); ?>/biz/approval/electronic_approval_form_list?mode=admin';" style="float:right;margin-right:10px;">
+                                                         <input type="button" class="btn-common btn-color4" value="취소" onClick="location.href= '<?php echo site_url(); ?>/biz/approval/electronic_approval_form_list?mode=admin';" style="float:right;margin-right:10px;">
                                                       </div>
                                                       <div class="content-2">
                                                          <!-- <img src="<?php echo $misc;?>img/dashboard/btn/btn_delete.png" style="cursor:pointer;float:right;margin-left:5px;" border="0" onClick="template_delete();"/>
                                                          <img src="<?php echo $misc;?>img/dashboard/btn/btn_cancel.png" style="cursor:pointer;float:right;margin-left:5px;" border="0" onClick="location.href= '<?php echo site_url(); ?>/biz/approval/electronic_approval_form_list?mode=admin';"/>
                                                          <img src="<?php echo $misc;?>img/dashboard/btn/btn_save.png" style="cursor:pointer;float:right;margin-left:5px;" border="0" onClick="template_info_save();"/><br> -->
                                                          <input type="button" class="btn-common btn-color2" style="float:right;" value="저장" onClick="template_info_save();">
-                                                         <input type="button" class="btn-common btn-color1" style="float:right;margin-right:10px;" value="취소" onClick="location.href= '<?php echo site_url(); ?>/biz/approval/electronic_approval_form_list?mode=admin';">
-                                                         <input type="button" class="btn-common btn-color1" style="float:right;margin-right:10px;" value="삭제" onClick="template_delete();">
+                                                         <input type="button" class="btn-common btn-color4" style="float:right;margin-right:10px;" value="취소" onClick="location.href= '<?php echo site_url(); ?>/biz/approval/electronic_approval_form_list?mode=admin';">
+                                                         <input type="button" class="btn-common btn-color4" style="float:right;margin-right:10px;" value="삭제" onClick="template_delete();">
                                                          <h3>양식정보</h3>
                                                          <table width="100%" class ="basic_table">
                                                             <tr >
@@ -746,7 +760,7 @@
                                              </table>
                                              <!-- <img src="<?php echo $misc;?>img/dashboard/btn/btn_cancel.png" style="cursor:pointer;float:right;margin-left:5px;margin-top:5px;" border="0" onClick="closeMultiForm();"/>
                                              <img src="<?php echo $misc;?>img/dashboard/btn/btn_add.png" style="cursor:pointer;float:right;margin-top:5px;" border="0" onClick="multiForm_save();"/><br> -->
-                                             <button type="button" class="btn-common btn-color1" onClick="closeMultiForm();" style="float:right;margin-left:5px;margin-top:5px;">취소</button>
+                                             <button type="button" class="btn-common btn-color4" onClick="closeMultiForm();" style="float:right;margin-left:5px;margin-top:5px;">취소</button>
                                              <button type="button" class="btn-common btn-color2" onClick="multiForm_save();" style="float:right;margin-top:5px;">등록</button><br><br>
                                           </div>
                                        </div>
@@ -776,7 +790,7 @@
                                              </table>
                                              <!-- <img src="<?php echo $misc;?>img/dashboard/btn/btn_cancel.png" style="cursor:pointer;float:right;margin-left:5px;margin-top:5px;" border="0" onClick="closeLineModal();"/>
                                              <img src="<?php echo $misc;?>img/dashboard/btn/btn_add.png" style="cursor:pointer;float:right;margin-top:5px;" border="0" onClick="saveLineModal();"/><br> -->
-                                             <button type="button" class="btn-common btn-color1" onClick="closeLineModal();" style="float:right;margin-left:5px;margin-top:5px;">취소</button>
+                                             <button type="button" class="btn-common btn-color4" onClick="closeLineModal();" style="float:right;margin-left:5px;margin-top:5px;">취소</button>
                                              <button type="button" class="btn-common btn-color2" onClick="saveLineModal();" style="float:right;margin-top:5px;">등록</button><br><br>
                                           </div>
                                        </div>
@@ -844,7 +858,7 @@
                                                 <div>
                                                    <!-- <img src="<?php echo $misc;?>img/dashboard/btn/btn_cancel.png" style="cursor:pointer;float:right;margin-left:5px;margin-top:5px;" border="0" onClick="closeUserModal();"/>
                                                    <img src="<?php echo $misc;?>img/dashboard/btn/btn_add.png" style="cursor:pointer;float:right;margin-top:5px;" border="0" onClick="saveUserModal();"/><br> -->
-                                                   <button type="button" class="btn-common btn-color1" onClick="closeUserModal();" style="float:right;margin-left:5px;margin-top:5px;">취소</button>
+                                                   <button type="button" class="btn-common btn-color4" onClick="closeUserModal();" style="float:right;margin-left:5px;margin-top:5px;">취소</button>
                                                    <button type="button" class="btn-common btn-color2" onClick="saveUserModal();" style="float:right;margin-top:5px;">등록</button><br><br>
                                                 </div>
                                           </div>
@@ -863,7 +877,7 @@
                                                       <img id="form_save_cancel_btn" src="<?php echo $misc;?>img/dashboard/btn/btn_cancel.png" style="vertical-align:middle;cursor:pointer;display:none;" border="0" width=60 onclick="form_change_cancel();" /> -->
                                                       <button id="form_save_btn" type="button" class="btn-common btn-style1" onclick="form_save(0);" style="vertical-align:middle;cursor:pointer;float:right;">저장</button>
                                                       <button id="form_adjust_btn" type="button" class="btn-common btn-color2" onclick="form_save(1);" style="vertical-align:middle;cursor:pointer;display:none;float:right;width:60px">수정</button>
-                                                      <button id="form_save_cancel_btn" type="button" class="btn-common btn-color1" onclick="form_change_cancel();" style="vertical-align:middle;cursor:pointer;display:none;float:right;margin-right:10px;width:60px">취소</button>
+                                                      <button id="form_save_cancel_btn" type="button" class="btn-common btn-color4" onclick="form_change_cancel();" style="vertical-align:middle;cursor:pointer;display:none;float:right;margin-right:10px;width:60px">취소</button>
                                                    </td>
                                                 </tr>
                                              </table>
@@ -902,8 +916,8 @@
                                                    <td align="right">
                                                       <!-- <img src="<?php echo $misc;?>img/dashboard/btn/btn_delete.png" style="cursor:pointer;" border="0" onclick="form_save(2);"/>
                                                       <img src="<?php echo $misc;?>img/dashboard/btn/btn_cancel.png" style="cursor:pointer;" border="0" onClick="$('#form_save_modal').hide();"/> -->
-                                                      <button type="button" class="btn-common btn-color1" onclick="form_save(2);">삭제</button>
-                                                      <button type="button" class="btn-common btn-color1" onClick="$('#form_save_modal').hide();">취소</button>
+                                                      <button type="button" class="btn-common btn-color4" onclick="form_save(2);">삭제</button>
+                                                      <button type="button" class="btn-common btn-color4" onClick="$('#form_save_modal').hide();">취소</button>
                                                    </td>
                                                 </tr>
                                              </table>
@@ -1880,7 +1894,7 @@
 
                for (k = 0; k < expression2.length; k++) {
                   if (isNaN(expression2[k]) == true) {
-                     expression2[k] = expression2[k].replace('[', '').replace(']', '');
+                     expression2[k] = expression2[k].replace('[', '').replace(']', '').replace('(', '').replace(')', '');
                      var sum = 0;
                      for (l = 0; l < $("." + expression2[k]).length; l++) {
                         var onchange = $("." + expression2[k]).eq(l).attr("onchange");
@@ -1925,7 +1939,7 @@
                   var onchange_name = '';
                   for (k = 0; k < expression2.length; k++) {
                      if (isNaN(expression2[k]) == true) {
-                        expression2[k] = expression2[k].replace('[', '').replace(']', '');
+                        expression2[k] = expression2[k].replace('[', '').replace(']', '').replace('(', '').replace(')', '');
                         var onchange = $("." + expression2[k]).eq(j).attr("onchange");
                         // $("." + expression2[k]).eq(j).attr("onchange", onchange + ";multi_calculation('" + expression + "','" + html_input_class + "','" + j + "')");
                         for(l = 0; l < expression2[k].length; l++){
@@ -2192,6 +2206,7 @@
                template_name: $("#template_name").val(),
                template_category: $("#template_category").val(),
                template_type: $("input[name=template_type]:checked").val(),
+               official_doc: $("input[name=official_doc]:checked").val(),
                template_use: 'Y',
                template_sort_seq: $("#template_sort_seq").val(),
                template_explanation: $("#template_explanation").val(),
@@ -2224,6 +2239,7 @@
                template_name: $("#template_name").val(),
                template_category: $("#template_category").val(),
                template_type: $("input[name=template_type]:checked").val(),
+               official_doc: $("input[name=official_doc]:checked").val(),
                template_use: $("input[name=template_use]:checked").val(),
                template_sort_seq: $("#template_sort_seq").val(),
                template_explanation: $("#template_explanation").val(),

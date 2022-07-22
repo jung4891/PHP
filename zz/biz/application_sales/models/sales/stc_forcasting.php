@@ -11,6 +11,8 @@ class STC_Forcasting extends CI_Model
 		$this->name = $this->phpsession->get('name', 'stc');
 		$this->lv = $this->phpsession->get('lv', 'stc');
 		$this->cnum = $this->phpsession->get('cnum', 'stc');
+
+		$this->load->Model('sales/STC_Bill_fund_link');
 	}
 
 	// 포캐스팅 기본사항 추가및 수정
@@ -99,7 +101,20 @@ class STC_Forcasting extends CI_Model
 		(select COUNT(*) FROM ( SELECT * FROM sales_forcasting_product WHERE forcasting_seq = {$seq} GROUP BY product_code) AS z where product_supplier = sp.product_supplier) as product_row
 		from sales_forcasting_product sp, product p where sp.product_code = p.seq and sp.forcasting_seq = {$seq} group BY product_supplier";
 		$query = $this->db->query($sql, $seq);
+		if ($query->num_rows() <= 0) {
+			return false;
+		} else {
+			return $query->result_array();
+		}
+	}
 
+	function forcasting_view5($seq = 0) {
+		$sql = "SELECT count(DISTINCT(product_code)) AS cnt
+						FROM sales_forcasting_product sp, product p
+						WHERE sp.product_code = p.seq AND sp.forcasting_seq = ?
+						ORDER BY sp.seq ASC, p.product_company DESC";
+
+		$query = $this->db->query($sql, $seq);
 		if ($query->num_rows() <= 0) {
 			return false;
 		} else {
@@ -205,9 +220,17 @@ class STC_Forcasting extends CI_Model
 				}
 
 
-				if(trim($searchkeyword[7])!=''){ //예상월
-					$searchstring .= " and (TIMESTAMPDIFF(MONTH,DATE_FORMAT(sf.exception_saledate, '%Y-%m-01'),'{$searchkeyword[7]}-01') % sf.division_month)=0 and TIMESTAMPDIFF(MONTH,DATE_FORMAT(sf.exception_saledate, '%Y-%m-01'),'{$searchkeyword[7]}-01') between 0 and 11";
-					$searchstring2 .= " and (TIMESTAMPDIFF(MONTH,DATE_FORMAT(sf.exception_saledate, '%Y-%m-01'),'{$searchkeyword[7]}-01') % 1)=0 and TIMESTAMPDIFF(MONTH,DATE_FORMAT(exception_saledate, '%Y-%m-01'),'{$searchkeyword[7]}-01') between 0 and (replace(sf.division_month,'m','')-1)";
+				if(trim($searchkeyword[7])!=''){ //예상월 시작
+					// $searchstring .= " and (TIMESTAMPDIFF(DAY,DATE_FORMAT(sf.exception_saledate, '%Y-%m-01'),'{$searchkeyword[7]}') % sf.division_month)=0 and TIMESTAMPDIFF(MONTH,DATE_FORMAT(sf.exception_saledate, '%Y-%m-01'),'{$searchkeyword[7]}') between 0 and 11";
+					// $searchstring2 .= " and (TIMESTAMPDIFF(MONTH,DATE_FORMAT(sf.exception_saledate, '%Y-%m-01'),'{$searchkeyword[7]}-01') % 1)=0 and TIMESTAMPDIFF(MONTH,DATE_FORMAT(exception_saledate, '%Y-%m-01'),'{$searchkeyword[7]}-01') between 0 and (replace(sf.division_month,'m','')-1)";
+					$searchstring .= " and sf.exception_saledate >= '{$searchkeyword[7]}'";
+					$searchstring2 .= " and sf.exception_saledate >= '{$searchkeyword[7]}'";
+					array_push($search_columns, '예상월');
+				}
+
+				if(trim($searchkeyword[12])!=''){ //예상월 종료
+					$searchstring .= " and sf.exception_saledate <= '{$searchkeyword[12]}'";
+					$searchstring2 .= " and sf.exception_saledate <= '{$searchkeyword[12]}'";
 					array_push($search_columns, '예상월');
 				}
 
@@ -225,6 +248,11 @@ class STC_Forcasting extends CI_Model
 					$searchstring .= " and infor_comm_corporation = '{$searchkeyword[10]}'";
 					$searchstring2 .= " and infor_comm_corporation = '{$searchkeyword[10]}'";
 					array_push($search_columns, '정보통신공사업');
+				}
+				if(trim($searchkeyword[11])!=''){ // 매출처
+					$searchstring .= " and sf.sales_companyname like '%{$searchkeyword[11]}%' ";
+					$searchstring2 .= " and sf.sales_companyname like '%{$searchkeyword[11]}%' ";
+					array_push($search_columns, '매출처');
 				}
 
 			} else if ($search_mode == 'simple') {
@@ -503,8 +531,14 @@ class STC_Forcasting extends CI_Model
 
 
 				if(trim($searchkeyword[7])!=''){ //예상월
-					$searchstring .= " and (TIMESTAMPDIFF(MONTH,DATE_FORMAT(sf.exception_saledate, '%Y-%m-01'),'{$searchkeyword[7]}-01') % sf.division_month)=0 and TIMESTAMPDIFF(MONTH,DATE_FORMAT(sf.exception_saledate, '%Y-%m-01'),'{$searchkeyword[7]}-01') between 0 and 11";
-					$searchstring2 .= " and (TIMESTAMPDIFF(MONTH,DATE_FORMAT(sf.exception_saledate, '%Y-%m-01'),'{$searchkeyword[7]}-01') % 1)=0 and TIMESTAMPDIFF(MONTH,DATE_FORMAT(exception_saledate, '%Y-%m-01'),'{$searchkeyword[7]}-01') between 0 and (replace(sf.division_month,'m','')-1)";
+					$searchstring .= " and sf.exception_saledate >= '{$searchkeyword[7]}'";
+					$searchstring2 .= " and sf.exception_saledate >= '{$searchkeyword[7]}'";
+					array_push($search_columns, '예상월');
+				}
+
+				if(trim($searchkeyword[15])!=''){ //예상월
+					$searchstring .= " and sf.exception_saledate <= '{$searchkeyword[15]}'";
+					$searchstring2 .= " and sf.exception_saledate <= '{$searchkeyword[15]}'";
 					array_push($search_columns, '예상월');
 				}
 
@@ -549,6 +583,12 @@ class STC_Forcasting extends CI_Model
 
 				if(trim($searchkeyword[12])!='' || trim($searchkeyword[13]!='')) {
 					array_push($search_columns, '매출금액');
+				}
+
+				if(trim($searchkeyword[14])!=''){ // 매출처
+					$searchstring .= " and sf.sales_companyname like '%{$searchkeyword[14]}%' ";
+					$searchstring2 .= " and sf.sales_companyname like '%{$searchkeyword[14]}%' ";
+					array_push($search_columns, '매출처');
 				}
 
 			} else if ($search_mode == 'simple') {
@@ -666,11 +706,18 @@ class STC_Forcasting extends CI_Model
 	//세금계산서 저장/수정/삭제
 	function forcasting_sales_bill_save($data,$type){
 		if($type == 0){//insert
-			return $this->db->insert('sales_forcasting_bill',$data);
+			$result = $this->db->insert('sales_forcasting_bill',$data);
+			$bill_seq = $this->db->insert_id();
+			$this->STC_Bill_fund_link->bill_fund_link($bill_seq, $data['issuance_status'], $data['issuance_month'], 'forcasting');
+			return $result;
 		}else if($type == 1){//update
-			return $this->db->update('sales_forcasting_bill',$data, array('seq' => $data['seq']));
+			$result = $this->db->update('sales_forcasting_bill',$data, array('seq' => $data['seq']));
+			$bill_seq = $data['seq'];
+			$this->STC_Bill_fund_link->bill_fund_link($bill_seq, $data['issuance_status'], $data['issuance_month'], 'forcasting');
+			return $result;
 		}else{//delete
 			$sql = "delete from sales_forcasting_bill where seq in ($data)";
+			$this->STC_Bill_fund_link->bill_fund_link_delete($data, 'forcasting');
 			return $this->db->query( $sql );
 		}
 
@@ -854,6 +901,63 @@ class STC_Forcasting extends CI_Model
 			}else{
 				$this->db->insert('sales_forcasting_product', $data);
 			}
+		}
+
+		function forcasting_adjust($search_mode, $searchkeyword, $mode) {
+			$target = false;
+			$dept_string = '';
+			$company_string = '';
+			$calc_string = '';
+
+			if($searchkeyword != '') {
+				if($search_mode == 'detail') {
+					$searchkeyword = explode(',',$searchkeyword);
+
+					if(trim($searchkeyword[7]) != '') { // 예상월 시작
+						$target = true;
+						$s_date = substr($searchkeyword[7], 0, 8).'01';
+						if($mode == 'minus') {
+							$calc_string .= " AND DATE_FORMAT(exception_saledate, '%Y-%m-01') >= '{$s_date}'";
+						} else {
+							$calc_string .= " AND DATE_FORMAT(issuance_date, '%Y-%m-01') >= '{$s_date}'";
+						}
+					}
+
+					if(trim($searchkeyword[15]) != '') { // 예상월 종료
+						$target = true;
+						$t = date('t', strtotime($searchkeyword[15]));
+						$e_date = substr($searchkeyword[15], 0, 8).$t;
+						if($mode == 'minus') {
+							$calc_string .= " AND DATE_FORMAT(exception_saledate, '%Y-%m-{$t}') <= '{$e_date}'";
+						} else {
+							$calc_string .= " AND DATE_FORMAT(issuance_date, '%Y-%m-{$t}') <= '{$e_date}'";
+						}
+					}
+
+					if(trim($searchkeyword[4]) != '') { // 부서
+						$dept_string = " AND dept like '%{$searchkeyword[4]}%'";
+					}
+
+					if(trim($searchkeyword[5]) != '') { // 회사
+						$company_string = " AND cooperation_companyname like '%{$searchkeyword[5]}%'";
+					}
+				}
+			}
+
+			if($target) {
+				$sql = "SELECT IFNULL(SUM(issuance_amount),0) AS sum
+		            FROM sales_forcasting_bill sfb
+		            JOIN sales_forcasting sf ON sfb.forcasting_seq = sf.seq
+		            WHERE sfb.`type` = '001'
+		            AND sfb.issuance_status = 'Y'
+		            {$dept_string} {$company_string} {$calc_string}";
+				$query = $this->db->query($sql);
+
+				return $query->row_array();
+			} else {
+				return false;
+			}
+			
 		}
 
 

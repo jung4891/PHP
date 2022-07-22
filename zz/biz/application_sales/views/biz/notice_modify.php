@@ -33,6 +33,7 @@ function filedel(seq, filename) {
 <form name="tx_editor_form" id="tx_editor_form" action="<?php echo site_url();?>/biz/board/notice_input_action" method="post" enctype="multipart/form-data" onSubmit="javascript:chkForm();return false;">
 <input type="hidden" name="seq" value="<?php echo $seq;?>">
 <input type="hidden" id="type" name="type" value="0" />
+<input type="hidden" id="temporary" name="temporary" value="N">
 <tr height="5%">
   <td class="dash_title">
 		<!-- <img src="<?php echo $misc;?>img/dashboard/title_notice_list.png"/> -->
@@ -43,8 +44,9 @@ function filedel(seq, filename) {
 	<td align="right">
 		<!-- <input type="image" src="<?php echo $misc;?>img/dashboard/btn/btn_adjust.png" width="64" height="31" style="cursor:pointer" onClick="javascript:chkForm();return false;"/>
 		<img src="<?php echo $misc;?>img/dashboard/btn/btn_cancel.png" width="64" height="31" onClick="javascript:history.go(-1)" style="cursor:pointer"/> -->
-		<input style="margin-top:20px;margin-right:10px;" type="button" class="btn-common btn-color1" value="취소"  onClick="javascript:history.go(-1)"/>
-		<input style="margin-top:20px;" type="button" class="btn-common btn-color2" value="수정"  onClick="javascript:chkForm();return false;">
+		<input style="margin-top:20px;margin-right:10px;" type="button" class="btn-common btn-color4" value="취소"  onClick="javascript:history.go(-1)"/>
+		<input style="margin-top:20px;margin-right:10px;" type="button" class="btn-common btn-color3" value="임시저장"  onClick="javascript:temporary_save();"/>
+		<input style="margin-top:20px;" type="button" class="btn-common btn-color4" value="수정"  onClick="javascript:chkForm();return false;">
 	</td>
 </tr>
   <tr>
@@ -98,13 +100,24 @@ function filedel(seq, filename) {
 
                   </tr>
                   <tr>
-                    <td height="40" align="center" class="row-color1" style="font-weight:bold;border-bottom:none;border-left: thin solid #DFDFDF;">제목</td>
-                    <td style="padding-left:10px;border-bottom:none;">
+                    <td height="40" align="center" class="row-color1" style="font-weight:bold;border-left: thin solid #DFDFDF;">제목</td>
+                    <td style="padding-left:10px;">
 											<input type="text" name="subject" id="subject" class="input-common" value="<?php echo stripslashes($view_val['subject']);?>" style="width:300px;"/>
 										</td>
-										<td align="center" class="row-color1" style="font-weight:bold;border-bottom:none;">등록자</td>
-										<td align="center" style="border-bottom:none;border-right: thin solid #DFDFDF;"><?php echo $view_val['user_name'];?></td>
+										<td align="center" class="row-color1" style="font-weight:bold;">등록자</td>
+										<td align="center" style="border-right: thin solid #DFDFDF;"><?php echo $view_val['user_name'];?></td>
                   </tr>
+									<tr>
+										<td height="40" align="center" class="row-color1 border-l" style="font-weight:bold;border-bottom:none;">숨김</td>
+										<td align="left" style="padding-left:10px;">
+											<input type="checkbox" name="hide_chk" onclick="ynCheck(this);" <?php if($view_val['hide_btn'] == 'Y') {
+												echo "checked";
+											} ?> >
+											<input type="hidden" name="hide_btn" value="<?php echo $view_val['hide_btn'] ?>">
+										</td>
+										<td></td>
+										<td align="center" class="border-r"></td>
+									</tr>
 									<tr>
 				            <td colspan="4" style="border-bottom:none">
 											<textarea name="content" id="content" style="display:none;"><?php echo $view_val['contents']; ?></textarea>
@@ -183,6 +196,19 @@ var response_url = "<?php echo site_url(); ?>/biz/board/notice_list?category="+l
 function change_category(el) {
 	loc = $(el).val();
 	response_url = "<?php echo site_url(); ?>/biz/board/notice_list?category="+loc;
+}
+
+function ynCheck(obj){
+	if($(obj).is(":checked")){
+		$("input[name=hide_btn]").val('Y');
+	} else {
+		$("input[name=hide_btn]").val('N');
+	}
+}
+
+function temporary_save() {
+	$('#temporary').val('Y');
+	chkForm();
 }
 
 </script>

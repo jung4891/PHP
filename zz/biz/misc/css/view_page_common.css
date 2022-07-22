@@ -22,7 +22,7 @@ element.style {
 /* 타이틀 */
 .dash_title {
   font-weight: bold;
-  font-size: 28px;
+  font-size: 28px !important;
   color: #1C1C1C;
   margin-top:
 }
@@ -43,6 +43,7 @@ element.style {
 
 .contents_item{
   margin-top: 5vh;
+  font-size: 13px;
 }
 
 .contents_item:last-child{
@@ -58,6 +59,7 @@ element.style {
   color: #B0B0B0;
   vertical-align: middle;
   font-family:"Noto Sans KR", sans-serif !important;
+  font-size: 13px;
 }
 .select-style1 {
   background-color: #F2FCFF;
@@ -129,6 +131,21 @@ element.style {
   color: #565656;
   width: 60px;
 }
+
+/* 상세내역보기, 부서관리, 부서별권한관리, 권한관리,제품별 점검항목 보기, 조직도, 계정과목, 조정연차관리, 은행관리  */
+.btn-style4{
+  background: #F4F4F4;
+  border-color: #DFDFDF;
+  color: #1C1C1C;
+}
+
+/* 한줄추가, 전체읽음, 부서이동, 미권한자 목록, 한줄복사, 담당자 설정 */
+.btn-style5{
+  background: #DFDFDF;
+  border: white;
+  color: #1C1C1C;
+}
+
 .btn-color1 {
   background: #E7F3FF;
   border: #E7F3FF;
@@ -146,6 +163,40 @@ element.style {
   color: #1A8DFF;
 }
 
+/* 삭제,취소,수정,연차삭제 빨간바탕버튼 */
+.btn-color4{
+  background: #FFEDED;
+  border: none;
+  color: #E53737;
+}
+
+/* 정기점검 미완료, 설정해제, 초기화 버튼*/
+.btn-color5{
+  background: white;
+  border-color: #DFDFDF;
+  color: #E53737;
+}
+
+/* 제품별 점검항목 추가  */
+.btn-color6{
+  background: #0575E6;
+  border: none;
+  color: #FFFFFF;
+}
+
+/* 표지등록, 로고등록, 공문작성, 최송승인, 연차생성, 품의서작성 */
+.btn-color7{
+  background: white;
+  border-color: #DFDFDF;
+  color: #0575E6;
+}
+
+/* 업로드, 엑셀 다운버튼 */
+.btn-updownload{
+  background: white;
+  border-color: #DFDFDF;
+  color: #1C1C1C;
+}
 
 /* TABLE */
 .row-color1 {
@@ -238,12 +289,30 @@ element.style {
   border-bottom: solid #DFDFDF;
   border-width: thin;
   height: 40px;
+  font-family: "Noto Sans KR", sans-sans-serif !important;
 }
+
+/* 리스트 내용 */
+.list {
+  color: #1c1c1c;
+  font-size: 13px;
+}
+
+/* 셀렉트박스 옆 제목 */
+.search_title {
+  color: #1c1c1c !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  /* font-family: "Noto sans(Medium)" !important; */
+}
+
 .contents_tbl th {
   background-color: #DEDEDE;
 }
 .money_td {
   padding-right:10px;
+  color: #1c1c1c;
+  font-size: 13px;
 }
 
 /* summernote */
@@ -253,4 +322,12 @@ element.style {
 }
 .note-editor.note-frame {
   border: none !important;
+}
+
+.alink > font {
+  color: #0575E6 !important;
+}
+
+#search_tr, #search_tr2 {
+  font-weight: 500 !important;
 }

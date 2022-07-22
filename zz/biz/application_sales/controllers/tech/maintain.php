@@ -13,6 +13,11 @@ class Maintain extends CI_Controller {
 		$this->lv = $this->phpsession->get( 'lv', 'stc' );
     $this->company = $this->phpsession->get( 'company', 'stc' );
 		$this->cnum = $this->phpsession->get( 'cnum', 'stc' );
+		$this->cooperation_yn = $this->phpsession->get( 'cooperation_yn', 'stc' );
+
+		if($this->cooperation_yn == 'Y') {
+			echo "<script>alert('권한이 없습니다.');location.href='".site_url()."'</script>";
+		}
 		$this->load->library('user_agent');
 
 		$this->load->Model(array('tech/STC_Maintain', 'STC_Common', 'tech/STC_User', 'tech/STC_Forcasting'));

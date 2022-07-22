@@ -78,7 +78,7 @@
                 <td align="center" valign="top">
                   <tr>
                     <td>
-                      <table class="list_tbl" width="100%" border="0" cellspacing="0" cellpadding="0">
+                      <table class="list_tbl list" width="100%" border="0" cellspacing="0" cellpadding="0">
                         <colgroup>
                           <col width="15%">
                           <col width="10.5%">

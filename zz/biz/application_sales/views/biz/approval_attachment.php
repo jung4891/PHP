@@ -15,9 +15,14 @@
       border:1px solid;
       border-color:#d7d7d7;
    }
+   .input-common {
+     width: 156px !important;
+     box-sizing: border-box;
+   }
 </style>
 <link href="https://fonts.googleapis.com/css?family=Noto+Sans+KR" rel="stylesheet">
-<link rel="stylesheet" href="/misc/css/dashboard.css">
+<!-- <link rel="stylesheet" href="/misc/css/dashboard.css"> -->
+<link rel="stylesheet" href="/misc/css/view_page_common.css">
 <body>
 <form name="cform" action="<?php echo site_url();?>/biz/approval/approval_attachment" method="get" onkeydown="if(event.keyCode==13) return GoSearch();">
    <input type="hidden" name="cur_page" value="<?php echo $cur_page; ?>">
@@ -41,41 +46,36 @@
             <!-- 검색 부분 시작 -->
             <tr id="search_tr">
                <td align="left" valign="top">
-                  <table width="80%" id="filter_table" style="margin:30px 0px 30px 20px;">
+                  <table width="80%" id="filter_table" style="margin:30px 0px 30px 20px;font-weight:bold;vertical-align:middle;">
                      <tr align="left">
-                        <td width="6%">양식명</td>
-                        <td width="16%"><input type="text" id="filter1" class="input3 filtercolumn" value='<?php if(isset($filter)){echo $filter[0];} ?>' onkeydown="if(event.keyCode==13) return GoSearch();"  /></td>
-                        <td width="6%">문서제목</td>
-                        <td width="16%"><input type="text" id="filter2" class="input3 filtercolumn" value='<?php if(isset($filter)){echo $filter[1];} ?>' onkeydown="if(event.keyCode==13) return GoSearch();" /></td>
-                        <td width="6%">문서상태</td>
-                        <td width="16%">
-                           <select id="filter3" class="input3 filtercolumn" onkeydown="if(event.keyCode==13) return GoSearch();" >
-                              <option value="" <?php if(isset($filter)){if($filter[2] == ""){echo "selected";}} ?>>문서상태선택</option>
-                              <option value="001" <?php if(isset($filter)){if($filter[2] == "001"){echo "selected";}} ?>>진행중</option>
-                              <option value="002" <?php if(isset($filter)){if($filter[2] == "002"){echo "selected";}} ?>>완료</option>
-                              <option value="003" <?php if(isset($filter)){if($filter[2] == "003"){echo "selected";}} ?>>반려</option>
-                              <option value="004" <?php if(isset($filter)){if($filter[2] == "004"){echo "selected";}} ?>>회수</option>
-                              <option value="006" <?php if(isset($filter)){if($filter[2] == "006"){echo "selected";}} ?>>보류</option>
-                           </select>
+                        <td>양식명</td>
+                        <td><input type="text" id="filter1" class="input-common filtercolumn" value='<?php if(isset($filter)){echo $filter[0];} ?>' onkeydown="if(event.keyCode==13) return GoSearch();"  /></td>
+                        <td>문서제목</td>
+                        <td><input type="text" id="filter2" class="input-common filtercolumn" value='<?php if(isset($filter)){echo $filter[1];} ?>' onkeydown="if(event.keyCode==13) return GoSearch();" /></td>
+                        <td>기안자</td>
+                        <td>
+                          <input type="text" id="filter3" class="input-common filtercolumn" value='<?php if(isset($filter)){echo $filter[2];} ?>' onkeydown="if(event.keyCode==13) return GoSearch();" />
                         </td>
-                        <td width="6%">문서내용</td>
-                        <td width="16%">
-                           <input type="text" id="filter4" class="input3 filtercolumn" value='<?php if(isset($filter)){echo $filter[3];} ?>' onkeydown="if(event.keyCode==13) return GoSearch();" />
+                        <td>문서내용</td>
+                        <td>
+                           <input type="text" id="filter4" class="input-common filtercolumn" value='<?php if(isset($filter)){echo $filter[3];} ?>' onkeydown="if(event.keyCode==13) return GoSearch();" />
                         </td>
-                        <td width="5%"><input type="image" style='cursor:hand;' onclick="return GoSearch();" src="<?php echo $misc;?>img/dashboard/btn/btn_search.png" align="left" valign="top" border="0" width="28" /></td>
                      </tr>
                      <tr align="left">
                         <td>기안일</td>
                         <td colspan=3>
-                           <input type="date" id="filter5" class="input3 filtercolumn" value='<?php if(isset($filter)){echo $filter[4];} ?>' onkeydown="if(event.keyCode==13) return GoSearch();" />
+                           <input type="date" id="filter5" class="input-common filtercolumn" value='<?php if(isset($filter)){echo $filter[4];} ?>' onkeydown="if(event.keyCode==13) return GoSearch();" />
                            &ensp; ~ &ensp;
-                           <input type="date" id="filter6" class="input3 filtercolumn" value='<?php if(isset($filter)){echo $filter[5];} ?>' onkeydown="if(event.keyCode==13) return GoSearch();" />
+                           <input type="date" id="filter6" class="input-common filtercolumn" value='<?php if(isset($filter)){echo $filter[5];} ?>' onkeydown="if(event.keyCode==13) return GoSearch();" />
                         </td>
                         <td>완료일</td>
                         <td colspan=3>
-                           <input type="date" id="filter7" class="input3 filtercolumn" value='<?php if(isset($filter)){echo $filter[6];} ?>' onkeydown="if(event.keyCode==13) return GoSearch();" />
+                           <input type="date" id="filter7" class="input-common filtercolumn" value='<?php if(isset($filter)){echo $filter[6];} ?>' onkeydown="if(event.keyCode==13) return GoSearch();" />
                            &ensp; ~ &ensp;
-                           <input type="date" id="filter8" class="input3 filtercolumn" value='<?php if(isset($filter)){echo $filter[7];} ?>' onkeydown="if(event.keyCode==13) return GoSearch();" />
+                           <input type="date" id="filter8" class="input-common filtercolumn" value='<?php if(isset($filter)){echo $filter[7];} ?>' onkeydown="if(event.keyCode==13) return GoSearch();" />
+                        </td>
+                        <td>
+                          <input type="button" class="btn-common btn-style1" style="height:27px;cursor:hand;" value="검색" onclick="return GoSearch();">
                         </td>
                      </tr>
                   </table>
@@ -237,6 +237,7 @@
       }else{
          $("input[name=attachment_check]").prop("checked", false);
       }
+      check_change();
    }
 
    function attachment_ok(){
@@ -269,6 +270,7 @@
       if(text1 != ""){
          $("#approval_attach",opener.document).val($("#approval_attach",opener.document).val()+','+text1);
          $("#approval_attach_list",opener.document).html($("#approval_attach_list",opener.document).html()+text2);
+         window.opener.$('#approval_attach').trigger('change');
       }
       self.close();
    }

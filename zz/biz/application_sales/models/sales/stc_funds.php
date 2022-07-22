@@ -71,11 +71,42 @@ class STC_Funds extends CI_Model {
 
 		$query = $this->db->query($sql);
 
-    // echo $sql.'<br><br>';
-
 		return $query->result_array();
 
 	}
+
+  function forcasting_adjust($year, $month, $dept_code, $mode) {
+    if($dept_code=="IT"){
+			$dept_code = "사업1부','사업2부','기술지원부";
+		}else if($dept_code=="D_1"){
+			$dept_code = "사업1부";
+		}else if($dept_code=="D_2"){
+			$dept_code = "사업2부','기술지원부";
+		}
+
+    if ($month < 10) {
+      $month = "0".$month;
+    }
+
+		$tmp = $year."-".$month."-01";
+
+    $sql = "SELECT IFNULL(SUM(issuance_amount),0) AS sum
+            FROM sales_forcasting_bill sfb
+            JOIN sales_forcasting sf ON sfb.forcasting_seq = sf.seq
+            WHERE sfb.`type` = '001'
+            AND sfb.issuance_status = 'Y'
+            AND DEPT in ('{$dept_code}')";
+
+    if($mode == 'minus') {
+      $sql .= " AND DATE_FORMAT(exception_saledate, '%Y-%m-01') = '{$tmp}'";
+    } else {
+      $sql .= " AND DATE_FORMAT(issuance_date, '%Y-%m-01') = '{$tmp}'";
+    }
+
+    $query = $this->db->query($sql);
+
+    return $query->row_array();
+  }
 
   function forcasting_sum($year,$month,$dept_code,$type){
     if($dept_code=="IT"){
@@ -98,7 +129,31 @@ class STC_Funds extends CI_Model {
       $type = 4;
     }
 
-    $sql = "SELECT ifnull(sum(a.issuance_amount),0) as sum FROM sales_forcasting_bill a JOIN sales_forcasting b ON a.forcasting_seq = b.seq WHERE a.issuance_status = 'Y' AND a.TYPE = '001' AND a.issuance_month = '{$year}-{$month}' AND b.type = {$type} AND b.dept IN ('{$dept_code}')";
+    $sql = "SELECT ifnull(sum(a.issuance_amount),0) as sum FROM sales_forcasting_bill a JOIN sales_forcasting b ON a.forcasting_seq = b.seq WHERE a.issuance_status != 'N' AND a.TYPE = '001' AND a.issuance_month = '{$year}-{$month}' AND b.type = {$type} AND b.dept IN ('{$dept_code}')";
+
+    $query = $this->db->query($sql);
+
+    return $query->result_array();
+  }
+
+  function maintain_forcasting_sum($year, $month, $dept_code) {
+    if($dept_code == "IT") {
+      $dept_code = "사업1부','사업2부','기술지원부";
+    } else if ($dept_code == "D_1") {
+      $dept_code = "사업1부";
+    } else if ($dept_code == "D_2") {
+      $dept_code = "사업2부','기술지원부";
+    }
+
+    if ($month < 10) {
+      $month = "0".$month;
+    }
+
+    $sql = "SELECT IFNULL(SUM(smb.issuance_amount),0) AS sum
+            FROM sales_maintain sm
+            JOIN sales_maintain_bill smb ON sm.seq = smb.maintain_seq
+            WHERE 1=1
+            AND smb.type = '001' AND smb.issuance_status = 'N' AND smb.issue_schedule_date LIKE ('{$year}-{$month}-%')";
 
     $query = $this->db->query($sql);
 
@@ -184,7 +239,7 @@ class STC_Funds extends CI_Model {
     $date_string = " = '{$target_date}'";
 
 
-    $sql = "SELECT DISTINCT(t.seq) FROM ((SELECT fbf.*, p.product_company, p.product_name FROM ( SELECT CONCAT('f_',f.seq) AS seq, f.type, fb.issuance_date FROM sales_forcasting_bill fb JOIN sales_forcasting f ON fb.forcasting_seq = f.seq WHERE fb.issuance_status = 'Y' AND fb.issuance_month {$date_string} and DEPT in ('$dept_code')) fbf JOIN ( SELECT * FROM sales_forcasting_product GROUP BY forcasting_seq) sfp ON  REPLACE(fbf.seq,'f_','') = sfp.forcasting_seq JOIN product p ON sfp.product_code = p.seq) UNION ( SELECT mbm.*, p.product_company, p.product_name FROM ( SELECT CONCAT('m_',m.seq) AS seq, 3 as type, mb.issuance_date FROM sales_maintain_bill mb JOIN sales_maintain m ON mb.maintain_seq = m.seq WHERE mb.issuance_status = 'Y' AND mb.issuance_month {$date_string} and DEPT in ('$dept_code')) mbm JOIN ( SELECT * FROM sales_maintain_product GROUP BY maintain_seq) smp ON REPLACE(mbm.seq,'m_','') = smp.maintain_seq JOIN product p ON smp.product_code = p.seq) ORDER BY field(type, 1,2,4,3,0), issuance_date ) t";
+    $sql = "SELECT DISTINCT(t.seq) FROM ((SELECT fbf.*, p.product_company, p.product_name FROM ( SELECT CONCAT('f_',f.seq) AS seq, f.type, fb.issuance_date FROM sales_forcasting_bill fb JOIN sales_forcasting f ON fb.forcasting_seq = f.seq WHERE fb.issuance_status != 'N' AND fb.issuance_month {$date_string} and DEPT in ('$dept_code')) fbf JOIN ( SELECT * FROM sales_forcasting_product GROUP BY forcasting_seq) sfp ON  REPLACE(fbf.seq,'f_','') = sfp.forcasting_seq JOIN product p ON sfp.product_code = p.seq) UNION ( SELECT mbm.*, p.product_company, p.product_name FROM ( SELECT CONCAT('m_',m.seq) AS seq, 3 as type, mb.issuance_date FROM sales_maintain_bill mb JOIN sales_maintain m ON mb.maintain_seq = m.seq WHERE mb.issuance_status != 'N' AND mb.issuance_month {$date_string} and DEPT in ('$dept_code')) mbm JOIN ( SELECT * FROM sales_maintain_product GROUP BY maintain_seq) smp ON REPLACE(mbm.seq,'m_','') = smp.maintain_seq JOIN product p ON smp.product_code = p.seq) ORDER BY field(type, 1,2,4,3,0), issuance_date ) t";
 
     $query = $this->db->query($sql);
     // echo $sql;
@@ -206,9 +261,9 @@ class STC_Funds extends CI_Model {
     $target_date = $year."-".$month;
     $date_string = " = '{$target_date}'";
 
-      $sql = "(SELECT mbm.*, p.product_company, p.product_name FROM ( SELECT CONCAT('m_',m.seq) AS seq, 3 as type, mb.`type` AS bill_type, m.customer_companyname, m.sales_companyname, m.project_name, mb.company_name, mb.issuance_date, m.progress_step, mb.pay_session, mb.issuance_amount, m.cooperation_companyname, m.dept, m.cooperation_username FROM sales_maintain_bill mb JOIN sales_maintain m ON mb.maintain_seq = m.seq WHERE mb.issuance_month {$date_string} AND mb.issuance_status = 'Y' and DEPT in ('$dept_code')) mbm JOIN (SELECT * FROM sales_maintain_product GROUP BY maintain_seq) smp ON replace(mbm.seq,'m_','') = smp.maintain_seq JOIN product p ON smp.product_code = p.seq)";
+      $sql = "(SELECT mbm.*, p.product_company, p.product_name FROM ( SELECT CONCAT('m_',m.seq) AS seq, 3 as type, mb.`type` AS bill_type, m.customer_companyname, m.sales_companyname, m.project_name, mb.company_name, mb.issuance_date, m.progress_step, mb.pay_session, mb.issuance_amount, m.cooperation_companyname, m.dept, m.cooperation_username FROM sales_maintain_bill mb JOIN sales_maintain m ON mb.maintain_seq = m.seq WHERE mb.issuance_month {$date_string} and DEPT in ('$dept_code')) mbm JOIN (SELECT * FROM sales_maintain_product GROUP BY maintain_seq) smp ON replace(mbm.seq,'m_','') = smp.maintain_seq JOIN product p ON smp.product_code = p.seq)";
       $sql.= " UNION ALL ";
-      $sql .= "(SELECT fbf.*, p.product_company, p.product_name FROM ( SELECT CONCAT('f_',f.seq) AS seq, f.type, fb.`type` AS bill_type, f.customer_companyname, f.sales_companyname, f.project_name, fb.company_name, fb.issuance_date, f.progress_step, concat(fb.percentage,'%') AS pay_session, fb.issuance_amount, f.cooperation_companyname, f.dept, f.cooperation_username FROM sales_forcasting_bill fb JOIN sales_forcasting f ON fb.forcasting_seq = f.seq WHERE fb.issuance_month {$date_string} AND fb.issuance_status = 'Y' AND DEPT in ('$dept_code')) fbf JOIN ( SELECT * FROM sales_forcasting_product GROUP BY forcasting_seq) sfp ON REPLACE(fbf.seq,'f_','') = sfp.forcasting_seq JOIN product p ON sfp.product_code = p.seq) ORDER BY bill_type, issuance_date";
+      $sql .= "(SELECT fbf.*, p.product_company, p.product_name FROM ( SELECT CONCAT('f_',f.seq) AS seq, f.type, fb.`type` AS bill_type, f.customer_companyname, f.sales_companyname, f.project_name, fb.company_name, fb.issuance_date, f.progress_step, concat(fb.percentage,'%') AS pay_session, fb.issuance_amount, f.cooperation_companyname, f.dept, f.cooperation_username FROM sales_forcasting_bill fb JOIN sales_forcasting f ON fb.forcasting_seq = f.seq WHERE fb.issuance_month {$date_string} AND DEPT in ('$dept_code')) fbf JOIN ( SELECT * FROM sales_forcasting_product GROUP BY forcasting_seq) sfp ON REPLACE(fbf.seq,'f_','') = sfp.forcasting_seq JOIN product p ON sfp.product_code = p.seq) ORDER BY bill_type, issuance_date";
       $query = $this->db->query($sql);
       // echo $sql.'<br><br>';
   		return $query->result_array();

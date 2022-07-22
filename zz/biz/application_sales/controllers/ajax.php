@@ -62,7 +62,7 @@ class Ajax extends CI_Controller {
 		}
 	}
 
-	//조직도 그룹 별로 보기
+	//조직도 부서 별로 보기
 	function groupView(){
 		$group = $this->input->post('group');
 		if( $group == null ) {
@@ -73,7 +73,7 @@ class Ajax extends CI_Controller {
 		}
 	}
 
-	//상위그룹에 맞는 하위 그룹 보기
+	//상위부서에 맞는 하위 부서 보기
 	function childGroup(){
 		$parentGroup = $this->input->post('parentGroup');
 		if( $parentGroup == null ) {
@@ -85,7 +85,7 @@ class Ajax extends CI_Controller {
 		}
 	}
 
-	//부서 그룹 전체 가져오기
+	//부서 부서 전체 가져오기
 	function group(){
 		// $this->load->Model(array('STC_User', 'STC_Common'));
 		$result = $this->STC_Common->group();
@@ -94,6 +94,93 @@ class Ajax extends CI_Controller {
 
 	//부서 이동하기
 	function changeGroup(){
+		// $this->load->Model(array('STC_User', 'STC_Common'));
+		$seq = $this->input->post( 'seq' );
+		$group = $this->input->post( 'changeGroup' );
+		$result = $this->STC_Common->changeGroup($seq,$group);
+		echo json_encode($result);
+	}
+
+	//부서위치 이동하기
+	function moveGroup(){
+		$groupSeq = $this->input->post( 'seq' );
+		$parentGroupName = $this->input->post( 'changeGroup' );
+		$groupName = $this->input->post( 'id' );
+
+		$beforeParents = $this->STC_Common->beforeParents($groupSeq); //이전 상위부서
+		$beforeParents = $beforeParents['parentGroupName'];
+		if ($groupName != $beforeParents) { //이전 상위부서가 자기자신일땐 제외
+			$this->STC_Common->minusChildGroup($beforeParents); //이전 상위부서의 childGroupNum -1
+		}
+		$this->STC_Common->plusChildGroup($parentGroupName); //현재 상위부서의 childGroupNum +1
+
+		if ($parentGroupName == '(주)두리안정보기술') { //맨 상위부서일때 -> 자기이름으로 변경
+			$parentGroupName = $groupName;
+			$depth = 1;
+		} else {
+			$depth2 = $this->STC_Common->depth($parentGroupName); //현재 상위부서의 depth보다 +1이므로
+			$depth = $depth2['depth']+1;
+		}
+
+		$result = $this->STC_Common->moveGroup($groupSeq,$parentGroupName,$depth); //위치 이동한 부서 정보 수정
+
+		echo json_encode($result);
+	}
+
+	//부서 수정 or 추가
+	function modifyGroup(){
+		$seq = $this->input->post('seq');
+		$groupName = $this->input->post('group_name');
+		$mode = $this->input->post( 'mode' ); //수정인지 추가인지 구분
+
+		if($mode == 1) { //수정
+			$data = array(
+				"groupName" => $groupName
+			);
+
+		} else if($mode == 3) { //추가
+			if($seq == 1) { //맨상위(두리안정보기술)일 경우
+				$parentGroupName = $groupName; //상위부서에도 자기이름들어감
+				$depth = 1;
+			} else {
+				$parentDepth = $this->STC_Common->groupName($seq);
+				$parentGroupName = $parentDepth['groupName']; //상위부서 이름
+				$depth = $parentDepth['depth']+1; //상위부서depth + 1 = 새부서depth
+				$this->STC_Common->plusChildGroup($parentGroupName); //상위부서의 childGroupNum +1
+			}
+
+			$data = array(
+				"groupName" => $groupName,
+				"parentGroupName" => $parentGroupName,
+				"depth" => $depth,
+				"childGroupNum" => 1
+			);
+
+		}
+		$result = $this->STC_Common->modifyGroup($mode,$seq,$data);
+
+		echo json_encode($result);
+	}
+
+	//부서 삭제
+	function removeGroup(){
+		$seq = $this->input->post('seq');
+
+		$groupName = $this->STC_Common->groupName($seq); //부서명
+		$groupName = $groupName['groupName'];
+		$parentsName = $this->STC_Common->beforeParents($seq); //상위부서
+		$parentsName = $parentsName['parentGroupName'];
+		if ($groupName != $parentsName) { //상위부서가 자기자신일땐 제외
+			$this->STC_Common->minusChildGroup($parentsName); //상위부서의 childGroupNum -1
+		}
+
+		$result = $this->STC_Common->removeGroup($seq,$groupName);
+
+		echo json_encode($result);
+	}
+
+	//부서 추가
+	function addGroup(){
 		// $this->load->Model(array('STC_User', 'STC_Common'));
 		$seq = $this->input->post( 'seq' );
 		$group = $this->input->post( 'changeGroup' );

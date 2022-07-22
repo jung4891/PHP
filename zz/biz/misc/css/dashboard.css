@@ -30,13 +30,19 @@ text {
 }
 .main_dash2 {
   float:left;
-  min-width:30%;
-  max-width:30%;
+  min-width:29%;
+  max-width:29%;
 }
 .main_dash3 {
   float:left;
-  min-width:25%;
-  max-width:25%;
+  min-width:29%;
+  max-width:29%;
+  overflow: visible;
+}
+.main_dash4 {
+  float:left;
+  min-width:22%;
+  max-width:22%;
   overflow: visible;
 }
 .btn_menu_1 {
@@ -60,10 +66,14 @@ text {
     max-width:17%;
   }
   .main_dash2 {
-    min-width:34%;
-    max-width:34%;
+    min-width:30%;
+    max-width:30%;
   }
   .main_dash3 {
+    min-width:27%;
+    max-width:27%;
+  }
+  .main_dash4 {
     min-width:24%;
     max-width:24%;
   }

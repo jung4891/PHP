@@ -4,8 +4,10 @@ include $this->input->server('DOCUMENT_ROOT')."/include/sales_top.php";
 ?>
 <link rel="stylesheet" href="/misc/css/dashboard.css">
 <link rel="stylesheet" href="/misc/css/simple-calendar.css">
+<link rel="stylesheet" href="/misc/css/nice-select.css">
 <script type="text/javascript" src="/misc/js/jquery.simple-calendar.js"></script>
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script type="text/javascript" src="/misc/js/jquery.nice-select.min.js"></script>
 <style>
 body {
   background-color: #EBF0F3;
@@ -28,6 +30,62 @@ body::-webkit-scrollbar {
     background-color: #6e6f6c;
     color:white;
   }
+
+  #mail_tbl tr:hover{
+    background-color:#FAFAFA;
+    cursor: pointer;
+  }
+
+  @keyframes spinner {
+    from {transform: rotate(0deg); }
+    to {transform: rotate(360deg);}
+  }
+
+  .img_spin{
+     animation: spinner .8s ease infinite;
+  }
+
+  .seen0 td{
+    color:#0575E6;
+  }
+
+  .mail_select{
+    /* height: 30px; */
+    border: none;
+    outline: none;
+    border-radius: 3px;
+    color: black;
+    vertical-align: middle;
+    font-family: "Noto Sans KR", sans-serif !important;
+    font-size: 20px;
+    font-weight: 600;
+  }
+
+  .mail_select option {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font-size: 14px;
+}
+
+.nice-select {
+  height:unset;
+  line-height: unset;
+  padding-left: unset;
+}
+
+.nice-select.open .list{
+  max-height: 400px;
+  overflow-y: scroll;
+}
+
+.nice-select .list{
+  font-size: 14px;
+}
+
+.read_n td {
+  font-weight:bold;
+}
 </style>
 <script type="text/javascript">
 
@@ -316,7 +374,7 @@ function car_drawChart() {
   // echo $connection;
    ?>
 <!-- 내정보 -->
-  <div align="center" class="main_dash_div">
+  <div align="center" class="main_dash_div"><?php // echo phpinfo(); ?>
     <div class="main_dash1">
       <div style="height:370px">
         <table id="maintain" class="main_dash_tbl main_dash_tbl_1" border="0" cellspacing="0" cellpadding="0">
@@ -363,9 +421,9 @@ function car_drawChart() {
                 <tr>
                   <td align="center" height="30">
                     <div class="myinfo_btn_div">
-                      <div class="myinfo_btn1 myinfo_btn_l no_pointer" style="margin-top:20px;">
+                      <div class="myinfo_btn1 myinfo_btn_l no_pointer" style="margin-top:20px;" onclick="go_detail('mail');">
                         <span class="span_left">메일</span>
-                        <span class="span_right">--</span>
+                        <span class="span_right" id="all_mailcnt">--</span>
                       </div>
                       <div class="myinfo_btn1 myinfo_btn_r" style="margin-top:20px;" onclick="location.href='<?php echo site_url(); ?>/biz/approval/electronic_approval_list?type=standby'">
                         <span class="span_left">결재</span>
@@ -410,7 +468,7 @@ $s = $week[date("w",strtotime($day))];
           <tr>
             <td class="dash_title_td"><div class="dash_title">근태관리</div></td>
             <td align="right" style="padding-right:10px;vertical-align:middle;">
-              <div style="padding-top:15px;"><img src="<?php echo $misc;?>img/dashboard/dash_detail.svg" width="25" onclick="go_detail(this)" style="cursor:pointer;"/></div>
+              <div style="padding-top:15px;"><img src="<?php echo $misc;?>img/dashboard/dash_plus.svg" width="25" onclick="go_detail(this)" style="cursor:pointer;"/></div>
             </td>
           </tr>
           <tr>
@@ -589,21 +647,93 @@ $s = $week[date("w",strtotime($day))];
       <div style="height:299px;">
         <table id="mail" class="main_dash_tbl main_dash_tbl_2" border="0" cellspacing="0" cellpadding="0">
           <tr>
-            <td class="dash_title_td"><div class="dash_title">메일</div></td>
-            <td align="right" style="padding-right:10px;vertical-align:middle;">
-              <div style="padding-top:15px;"><img src="<?php echo $misc;?>img/dashboard/dash_detail.svg" width="25" onclick="go_detail(this)" style="cursor:pointer;"/></div>
+            <td class="dash_title_td" style="width:80%;">
+              <div style="padding-left:20px;padding-top:10px;width:100%;" id="mlist_td">
+                <span id="mail_title_span" style="font-size: 20px;font-weight:600;display:none;">메일</span>
+              <!-- <select class="mail_select" name="">
+                <option value="">메일</option>
+              </select> -->
+            </div>
+          </td>
+            <td align="right" style="padding-right:10px;vertical-align:middle;width:20%;">
+              <div style="padding-top:15px;display:flex;flex-direction:row;align-items:center;justify-content: flex-end;width:100%;">
+                <span id="minfo_td" style="font-size:14px;padding-right: 5px;"></span>
+                <span>
+                  <img src="<?php echo $misc;?>img/dashboard/dash_plus.svg" width="25" onclick="go_detail(this)" style="cursor:pointer;"/>
+
+                </span>
+              </div>
             </td>
           </tr>
           <tr>
-            <td height="16"></td>
+            <td colspan="2" height="16"></td>
           </tr>
           <tr>
             <td colspan="2" height="10" style="border-top: 1px solid rgba(0, 0, 0, 0.19);"></td>
           </tr>
+
+          <tr id="mbox_tr" style="display:none;">
+            <td colspan="2" valign="top" style="height:1px;">
+            <table class="" id="mbox_tbl" align="center" width="90%" border="0" cellspacing="0" cellpadding="0">
+              <colgroup>
+                <col width="35%">
+                <col width="45%">
+                <col width="20%">
+              </colgroup>
+              <tr>
+                <td></td>
+                <td id="f5_td"></td>
+                <td>
+                </td>
+                <!-- <td></td> -->
+              </tr>
+            </table>
+          </td>
+          </tr>
+          <!-- <tr>
+            <td height="10"></td>
+          </tr> -->
           <tr>
             <td colspan="2" valign="top">
-              <table class="content_tbl" align="center" width="100%" border="0" cellspacing="0" cellpadding="0">
+              <table class="content_tbl" id="mail_tbl" align="left" width="90%" border="0" cellspacing="0" cellpadding="0" style="padding-left: 20px">
+                <colgroup>
+                  <col width="35%">
+                  <col width="45%">
+                  <col width="20%">
+                </colgroup>
+                <tbody>
 
+                </tbody>
+              </table>
+
+              <table class="content_tbl" id="mailauth_tbl" align="center" width="90%" border="0" cellspacing="0" cellpadding="0" style="display:none;margin-top:20px;">
+                <colgroup>
+                  <col width="20%">
+                  <col width="60%">
+                  <col width="20%">
+                </colgroup>
+                <tbody>
+                  <tr>
+                    <td colspan="3" align="center" class="no_list">
+                      메일 인증에 실패하였습니다.
+                    </td>
+                  </tr>
+                  <tr>
+                    <td colspan="3" align="center">
+                      <input type="text" id="authMail" name="" style="width:200px;height:30px;" value="<?php echo $email; ?>" disabled>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td colspan="3" align="center">
+                      <input type="password" id="authMail_pass" name="" style="width:200px;height:30px;" value="" placeholder="비밀번호를 입력하세요" onkeyup="if(window.event.keyCode==13){ping_mail(1)}">
+                    </td>
+                  </tr>
+                  <tr>
+                    <td colspan="3" align="center">
+                      <input type="button" name="" value="확 인" onclick="ping_mail(1)" style="-webkit-appearance: none;-moz-appearance: none;appearance: none;height: 30px;width:210px;cursor: pointer;  border:none; background-color: #E7F3FF; color: #1A8DFF;">
+                    </td>
+                  </tr>
+                </tbody>
               </table>
             </td>
           </tr>
@@ -616,9 +746,18 @@ $s = $week[date("w",strtotime($day))];
       <div style="height:299px;">
         <table id="approval" class="main_dash_tbl main_dash_tbl_2" border="0" cellspacing="0" cellpadding="0">
           <tr>
-            <td class="dash_title_td" style="padding-top:1px;"><div class="dash_title">결재</div></td>
+            <td class="dash_title_td" style="padding-top:1px;">
+              <div class="dash_title">
+                결재
+                <span class="no_read_cnt_s">(<?php echo $no_read_cnt_s[0]['cnt']; ?>)</span>
+                <span class="no_read_cnt_p" style="display:none;">(<?php echo $no_read_cnt_p[0]['cnt']; ?>)</span>
+                <span class="no_read_cnt_c" style="display:none;">(<?php echo $no_read_cnt_c[0]['cnt']; ?>)</span>
+                <span class="no_read_cnt_b" style="display:none;">(<?php echo $no_read_cnt_b[0]['cnt']; ?>)</span>
+                <span class="no_read_cnt_w" style="display:none;">(<?php echo $no_read_cnt_w[0]['cnt']; ?>)</span>
+              </div>
+            </td>
             <td align="right" style="padding-right:10px;vertical-align:middle;">
-              <div style="padding-top:15px;"><img src="<?php echo $misc;?>img/dashboard/dash_detail.svg" width="25" onclick="go_detail(this)" style="cursor:pointer;"/></div>
+              <div style="padding-top:15px;"><img src="<?php echo $misc;?>img/dashboard/dash_plus.svg" width="25" onclick="go_detail(this)" style="cursor:pointer;"/></div>
             </td>
           </tr>
           <tr>
@@ -644,6 +783,10 @@ $s = $week[date("w",strtotime($day))];
               <img src="<?php echo $misc;?>img/dashboard/btn/btn_2-4_on.svg" id="approval_dash_2-4:on" class="approval_btn_on" onclick="change_tbl(this.id);" style="display:none;" width="90" name="back"/>
               <img src="<?php echo $misc;?>img/dashboard/btn/btn_2-4_off.svg" id="approval_dash_2-4:off" class="approval_btn_off" onclick="change_tbl(this.id);" width="90"/>
             </td>
+            <td class="btn_menu_2 btn_menu_ex btn_menu_ex2" style="float:left" style="padding-left:10px;">
+              <img src="<?php echo $misc;?>img/dashboard/btn/btn_2-5_on.svg" id="approval_dash_2-5:on" class="approval_btn_on" onclick="change_tbl(this.id);" style="display:none;" width="90" name="wage"/>
+              <img src="<?php echo $misc;?>img/dashboard/btn/btn_2-5_off.svg" id="approval_dash_2-5:off" class="approval_btn_off" onclick="change_tbl(this.id);" width="90"/>
+            </td>
           </tr>
           <tr>
             <td height="10"></td>
@@ -667,8 +810,15 @@ $s = $week[date("w",strtotime($day))];
                          for($i = $start_row; $i<$start_row+$end_row; $i++){
                             if(!empty( $standby[$i])){
                                $doc = $standby[$i];
+                               $read_yn = '';
+                               $read_seq = 's_'.$this->seq;
+                               if(strpos($doc['read_seq'],$read_seq)===false) {
+                                 $read_yn = 'read_n';
+                               } else {
+                                 $read_yn = 'read_y';
+                               }
                       ?>
-                      <tr align='center' onMouseOver="this.style.backgroundColor='#FAFAFA'" onMouseOut="this.style.backgroundColor='#fff'" style='cursor:pointer;' onclick="eletronic_approval_view('<?php echo $doc['seq']; ?>', 'standby')">
+                      <tr align='center' onMouseOver="this.style.backgroundColor='#FAFAFA'" onMouseOut="this.style.backgroundColor='#fff'" style='cursor:pointer;' onclick="eletronic_approval_view('<?php echo $doc['seq']; ?>', 'standby')" class="<?php echo $read_yn; ?>">
                        <td class="board_title" height="30" align="left" style="text-overflow:ellipsis; overflow:hidden;padding-left:18px;">
                          <div style="overflow:hidden;text-overflow:ellipsis;;white-space:nowrap;"><?php
                          if($doc['approval_doc_hold'] == "N"){
@@ -723,8 +873,15 @@ $s = $week[date("w",strtotime($day))];
                          for($i = $start_row; $i<$start_row+$end_row; $i++){
                             if(!empty( $progress[$i])){
                                $doc = $progress[$i];
+                               $read_yn = '';
+                               $read_seq = 'p_'.$this->seq;
+                               if(strpos($doc['read_seq'],$read_seq)===false) {
+                                 $read_yn = 'read_n';
+                               } else {
+                                 $read_yn = 'read_y';
+                               }
                       ?>
-                      <tr align='center' onMouseOver="this.style.backgroundColor='#FAFAFA'" onMouseOut="this.style.backgroundColor='#fff'" style='cursor:pointer;' onclick="eletronic_approval_view('<?php echo $doc['seq']; ?>', 'progress')">
+                      <tr align='center' onMouseOver="this.style.backgroundColor='#FAFAFA'" onMouseOut="this.style.backgroundColor='#fff'" style='cursor:pointer;' onclick="eletronic_approval_view('<?php echo $doc['seq']; ?>', 'progress')" class="<?php echo $read_yn; ?>">
                        <td class="board_title" height="30" align="left" style="text-overflow:ellipsis; overflow:hidden;padding-left:18px;">
                          <div style="overflow:hidden;text-overflow:ellipsis;;white-space:nowrap;"><?php
                          if($doc['approval_doc_hold'] == "N"){
@@ -780,8 +937,15 @@ $s = $week[date("w",strtotime($day))];
                          for($i = $start_row; $i<$start_row+$end_row; $i++){
                             if(!empty( $completion[$i])){
                                $doc = $completion[$i];
+                               $read_yn = '';
+                               $read_seq = 'c_'.$this->seq;
+                               if(strpos($doc['read_seq'],$read_seq)===false) {
+                                 $read_yn = 'read_n';
+                               } else {
+                                 $read_yn = 'read_y';
+                               }
                       ?>
-                      <tr align='center' onMouseOver="this.style.backgroundColor='#FAFAFA'" onMouseOut="this.style.backgroundColor='#fff'" style='cursor:pointer;' onclick="eletronic_approval_view('<?php echo $doc['seq']; ?>', 'completion')">
+                      <tr align='center' onMouseOver="this.style.backgroundColor='#FAFAFA'" onMouseOut="this.style.backgroundColor='#fff'" style='cursor:pointer;' onclick="eletronic_approval_view('<?php echo $doc['seq']; ?>', 'completion')" class="<?php echo $read_yn; ?>">
                        <td class="board_title" height="30" align="left" style="text-overflow:ellipsis; overflow:hidden;padding-left:18px;">
                          <div style="overflow:hidden;text-overflow:ellipsis;;white-space:nowrap;"><?php
                          if($doc['approval_doc_hold'] == "N"){
@@ -837,8 +1001,79 @@ $s = $week[date("w",strtotime($day))];
                          for($i = $start_row; $i<$start_row+$end_row; $i++){
                             if(!empty( $back[$i])){
                                $doc = $back[$i];
+                               $read_yn = '';
+                               $read_seq = 'b_'.$this->seq;
+                               if(strpos($doc['read_seq'],$read_seq)===false) {
+                                 $read_yn = 'read_n';
+                               } else {
+                                 $read_yn = 'read_y';
+                               }
                       ?>
-                      <tr align='center' onMouseOver="this.style.backgroundColor='#FAFAFA'" onMouseOut="this.style.backgroundColor='#fff'" style='cursor:pointer;' onclick="eletronic_approval_view('<?php echo $doc['seq']; ?>', 'back')">
+                      <tr align='center' onMouseOver="this.style.backgroundColor='#FAFAFA'" onMouseOut="this.style.backgroundColor='#fff'" style='cursor:pointer;' onclick="eletronic_approval_view('<?php echo $doc['seq']; ?>', 'back')" class="<?php echo $read_yn; ?>">
+                       <td class="board_title" height="30" align="left" style="text-overflow:ellipsis; overflow:hidden;padding-left:18px;">
+                         <div style="overflow:hidden;text-overflow:ellipsis;;white-space:nowrap;"><?php
+                         if($doc['approval_doc_hold'] == "N"){
+                            echo $doc['approval_doc_name'];
+                         }else{
+                            echo $doc['approval_doc_name']." (보류)";
+                         }
+                         ?></div>
+                       </td>
+                       <td class="board_writer" align="right"><?php echo $doc['writer_name'];?></td>
+                       <td class="board_date" align="right" style="padding-right:18px;">
+                         <?php
+                         $tmp=explode(" ",$doc['write_date']);
+                         $tmp2 = $tmp[0];
+                         echo $tmp2;
+                         ?></td>
+                     </tr>
+                         <?php
+                          $idx--;
+                        }
+                        }
+                      } else {
+                    ?>
+                      <tr>
+                        <td width="100%" height="80" align="center" colspan="9" class="no_list">등록된 게시물이 없습니다.</td>
+                      </tr>
+            <?php
+            }
+            ?>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+
+          <!-- 연봉계약서 -->
+          <tr>
+            <td colspan="2" valign="top">
+              <table id="tbl_approval_dash_2-5" class="approval_dash_2" width="100%" style="display:none;">
+                <tr>
+                  <td colspan="2" valign="top">
+                    <table class="content_tbl" align="center" width="100%" border="0" cellspacing="0" cellpadding="0">
+                      <colgroup>
+                        <col width="63%">
+                        <col width="13%">
+                        <col width="24%">
+                      </colgroup>
+                      <?php
+                      if(empty($wage) != true){
+                         $idx = $wage_count-$start_row;
+                         for($i = $start_row; $i<$start_row+$end_row; $i++){
+                            if(!empty( $wage[$i])){
+                               $doc = $wage[$i];
+                               $read_yn = '';
+                               $read_seq = 'w_'.$this->seq;
+                               if(strpos($doc['read_seq'],$read_seq)===false) {
+                                 $read_yn = 'read_n';
+                               } else {
+                                 $read_yn = 'read_y';
+                               }
+                      ?>
+                      <tr align='center' onMouseOver="this.style.backgroundColor='#FAFAFA'" onMouseOut="this.style.backgroundColor='#fff'" style='cursor:pointer;' onclick="eletronic_approval_view('<?php echo $doc['seq']; ?>', 'wage')" class="<?php echo $read_yn; ?>">
                        <td class="board_title" height="30" align="left" style="text-overflow:ellipsis; overflow:hidden;padding-left:18px;">
                          <div style="overflow:hidden;text-overflow:ellipsis;;white-space:nowrap;"><?php
                          if($doc['approval_doc_hold'] == "N"){
@@ -880,9 +1115,16 @@ $s = $week[date("w",strtotime($day))];
       <div style="height:299px;">
         <table id="notice" class="main_dash_tbl main_dash_tbl_2" border="0" cellspacing="0" cellpadding="0">
           <tr>
-            <td class="dash_title_td" style="padding-top:1px;"><div class="dash_title">공지사항</div></td>
+            <td class="dash_title_td" style="padding-top:1px;">
+              <div class="dash_title">
+                공지사항
+                <span class="management_nread_count">(<?php echo $management_nread_count; ?>)</span>
+                <span class="development_nread_count" style="display:none;">(<?php echo $development_nread_count; ?>)</span>
+                <span class="version_nread_count" style="display:none;">(<?php echo $version_nread_count; ?>)</span>
+              </div>
+            </td>
             <td align="right" style="padding-right:10px;vertical-align:middle;">
-              <div style="padding-top:15px;"><img src="<?php echo $misc;?>img/dashboard/dash_detail.svg" width="25" onclick="go_detail(this)" style="cursor:pointer;"/></div>
+              <div style="padding-top:15px;"><img src="<?php echo $misc;?>img/dashboard/dash_plus.svg" width="25" onclick="go_detail(this)" style="cursor:pointer;"/></div>
             </td>
           </tr>
           <tr>
@@ -934,13 +1176,18 @@ $s = $week[date("w",strtotime($day))];
                           $icounter = 0;
 
                           foreach ( $management as $item ) {
+                            if($item['user_seq'] == '') {
+                              $read = "font-weight:bold;";
+                            } else {
+                              $read = '';
+                            }
                         // if ($notice_list_count > 0) {
                         //   $i = $notice_list_count;
                         //   $icounter = 0;
                         //
                         //   foreach ( $notice_list as $item ) {
                       ?>
-                      <tr onMouseOver="this.style.backgroundColor='#FAFAFA'" onMouseOut="this.style.backgroundColor='#fff'">
+                      <tr onMouseOver="this.style.backgroundColor='#FAFAFA'" onMouseOut="this.style.backgroundColor='#fff'" style="<?php echo $read; ?>">
                        <td class="board_title" align="left" height="30" style="text-overflow:ellipsis; overflow:hidden;padding-left:18px;">
                          <div style="overflow:hidden;text-overflow:ellipsis;;white-space:nowrap;">
                            <a href="JavaScript:ViewBoard('<?php echo $item['seq'];?>','<?php echo $item['category_code'] ?>')"><?php echo $item['subject'];?></a>
@@ -986,8 +1233,13 @@ $s = $week[date("w",strtotime($day))];
                           $icounter = 0;
 
                           foreach ( $development as $item ) {
+                            if($item['user_seq'] == '') {
+                              $read = "font-weight:bold;";
+                            } else {
+                              $read = '';
+                            }
                       ?>
-                      <tr onMouseOver="this.style.backgroundColor='#FAFAFA'" onMouseOut="this.style.backgroundColor='#fff'">
+                      <tr onMouseOver="this.style.backgroundColor='#FAFAFA'" onMouseOut="this.style.backgroundColor='#fff'" style="<?php echo $read; ?>">
                        <td class="board_title" align="left" height="30" style="text-overflow:ellipsis; overflow:hidden;padding-left:18px;">
                          <div style="overflow:hidden;text-overflow:ellipsis;;white-space:nowrap;">
                            <a href="JavaScript:ViewBoard('<?php echo $item['seq'];?>','<?php echo $item['category_code'] ?>')"><?php echo $item['subject'];?></a>
@@ -1033,8 +1285,13 @@ $s = $week[date("w",strtotime($day))];
                           $icounter = 0;
 
                           foreach ( $version as $item ) {
+                            if($item['user_seq'] == '') {
+                              $read = "font-weight:bold;";
+                            } else {
+                              $read = '';
+                            }
                       ?>
-                      <tr onMouseOver="this.style.backgroundColor='#FAFAFA'" onMouseOut="this.style.backgroundColor='#fff'">
+                      <tr onMouseOver="this.style.backgroundColor='#FAFAFA'" onMouseOut="this.style.backgroundColor='#fff'" style="<?php echo $read; ?>">
                        <td class="board_title" align="left" height="30" style="text-overflow:ellipsis; overflow:hidden;padding-left:18px;">
                          <div style="overflow:hidden;text-overflow:ellipsis;;white-space:nowrap;">
                            <a href="JavaScript:ViewBoard('<?php echo $item['seq'];?>','<?php echo $item['category_code'] ?>')"><?php echo $item['subject'];?></a>
@@ -1067,11 +1324,11 @@ $s = $week[date("w",strtotime($day))];
 
     <!-- 주간업무보고 -->
     <div class="main_dash3">
-      <div style="height:420px;">
-        <table id="tech_doc" class="main_dash_tbl" border="0" cellspacing="0" cellpadding="0">
+      <div style="height:409px;">
+        <table id="weekly_report" class="main_dash_tbl" border="0" cellspacing="0" cellpadding="0">
           <tr valign="top">
-            <td class="dash_title_td" style="padding-top:1px;"><div class="dash_title">주간업무보고</div></td>
-            <!-- <td align="right" style="padding-right:10px; padding-top:10px"><img src="<?php echo $misc;?>img/dashboard/dash_detail.svg" width="25" onclick="go_detail(this)" style="cursor:pointer;"/></td> -->
+            <td class="dash_title_td" style="padding-top:1px;"><div class="dash_title">주간업무보고 (<?php echo $weekly_report_nread_count['cnt']; ?>)</div></td>
+            <td align="right" style="padding-right:10px; padding-top:15px"><img src="<?php echo $misc;?>img/dashboard/dash_plus.svg" width="25" onclick="go_detail(this)" style="cursor:pointer;"/></td>
           </tr>
           <tr>
             <td height="16"></td>
@@ -1084,7 +1341,7 @@ $s = $week[date("w",strtotime($day))];
           </tr>
           <tr>
             <td colspan="3" valign="top">
-              <table class="content_tbl" align="center" width="90%" border="0" cellspacing="0" cellpadding="0">
+              <table class="content_tbl" align="left" width="90%" border="0" cellspacing="0" cellpadding="0" style="padding-left: 20px;">
                 <colgroup>
                   <col width="54%">
                   <col width="22%">
@@ -1096,8 +1353,13 @@ $s = $week[date("w",strtotime($day))];
                     $icounter = 0;
 
                     foreach ( $weekly_report_list as $item ) {
+                      if($item['user_seq'] == '') {
+                        $read = "font-weight:bold;";
+                      } else {
+                        $read = '';
+                      }
                       ?>
-                <tr onMouseOver="this.style.backgroundColor='#FAFAFA'" onMouseOut="this.style.backgroundColor='#fff'" onclick="JavaScript:ViewWeekly('<?php echo $item['seq'];?>')" style="cursor:pointer;height:30px;">
+                <tr onMouseOver="this.style.backgroundColor='#FAFAFA'" onMouseOut="this.style.backgroundColor='#fff'" onclick="JavaScript:ViewWeekly('<?php echo $item['seq'];?>')" style="cursor:pointer;height:30px;<?php echo $read; ?>">
                  <td class="board_title" align="left" height="30" style="text-overflow:ellipsis; overflow:hidden;">
                    <?php
                    	$tmp=explode(" ",$item['s_date']);
@@ -1125,8 +1387,86 @@ $s = $week[date("w",strtotime($day))];
           </tr>
         </table>
       </div>
+<!-- 디키타카 -->
+      <div style="height:180px;margin-bottom:21px;">
+        <table id="diquitaca" class="main_dash_tbl" border="0" cellspacing="0" cellpadding="0" style="display:inline-block;">
+          <tr valign="top">
+            <td class="dash_title_td" style="padding-top:1px;"><div class="dash_title">디키타카 (<?php echo $diquitaca_nread_count['cnt']; ?>)</div></td>
+            <td align="right" style="padding-right:10px;vertical-align:middle;width:45px;">
+              <div style="padding-top:15px;"><img src="<?php echo $misc;?>img/dashboard/dash_plus.svg" width="25" onclick="go_detail(this)" style="cursor:pointer;"/></div>
+            </td>
+          </tr>
+          <tr>
+            <td height="16"></td>
+          </tr>
+          <tr>
+            <td colspan="4" height="10" style="border-top: 1px solid rgba(0, 0, 0, 0.19);"></td>
+          </tr>
+          <tr>
+            <td colspan="3" valign="top">
+              <table class="content_tbl" align="left" width="90%" border="0" cellspacing="0" cellpadding="0" style="padding-left: 20px">
+                <colgroup>
+                  <col width="54%">
+                  <col width="11%">
+                  <col width="11%">
+                  <col width="24%">
+                </colgroup>
+      <?php if(!empty($diquitaca)) {
+              foreach($diquitaca as $item) {
+                if($item['vote_yn'] == 'Y') {
+                  $vote = true;
+                } else {
+                  $vote = false;
+                }
+                if($vote) {
+                  $deadline = strtotime($item['vote_deadline']);
+                  $now = strtotime("Now");
+                  if($now > $deadline) {
+                    $vote_progress = '투표마감';
+                  } else if($now < $deadline) {
+                    $vote_progress = "투표중";
+                  }
+                }
+                if($item['user_seq'] == '') {
+                  $read = "font-weight:bold;";
+                } else {
+                  $read = '';
+                }
+                ?>
+                <tr onMouseOver="this.style.backgroundColor='#FAFAFA'" onMouseOut="this.style.backgroundColor='#fff'" onclick="JavaScript:ViewDiquitaca('<?php echo $item['seq'];?>')" style="cursor:pointer;height:30px;<?php echo $read; ?>">
+                  <td class="board_title" align="left" height="30" style="text-overflow:ellipsis; overflow:hidden;">
+                    <div style="overflow:hidden;text-overflow:ellipsis;;white-space:nowrap;">
+                      <?php echo stripslashes($item['title']); ?>
+                    </div>
+                  </td>
+                  <td align="right">
+                    <?php
+                    if($vote) {
+                      if($vote_progress == "투표마감") {
+                        echo "<span style='color:#767676'>투표중</span>";
+                      } else if($vote_progress == '투표중') {
+                        echo "<span style='color:#5938E4'>투표중</span>";
+                      }
+                    } else {
+                      echo "<span style='color:".$item['color']."'>".$item['category_name']."</span>";
+                    } ?>
+                  </td>
+                  <td class="board_writer" align="right"><?php echo $item['user_name'];?></td>
+                  <td class="board_date" align="right"><?php echo date('Y-m-d', strtotime($item['insert_date'])); ?></td>
+                </tr>
+        <?php }
+            } else { ?>
+                <tr>
+                  <td width="100%" height="80" align="center" colspan="9" class="no_list">등록된 게시물이 없습니다.</td>
+                </tr>
+        <?php } ?>
+            </table>
+            </td>
+          </tr>
+        </table>
+      </div>
 <!-- 주소록 -->
-      <div style="height:493px">
+      <div style="height:303px">
         <table id="address" class="main_dash_tbl" border="0" cellspacing="0" cellpadding="0" style="display:inline-block;">
           <tr valign="top">
             <td class="dash_title_td" style="padding-top:1px;"><div class="dash_title">주소록</div></td>
@@ -1141,7 +1481,7 @@ $s = $week[date("w",strtotime($day))];
               </div>
             </td>
             <td align="right" style="padding-right:10px;vertical-align:middle;width:45px;">
-              <div style="padding-top:15px;"><img src="<?php echo $misc;?>img/dashboard/dash_detail.svg" width="25" onclick="go_detail(this)" style="cursor:pointer;"/></div>
+              <div style="padding-top:15px;"><img src="<?php echo $misc;?>img/dashboard/dash_plus.svg" width="25" onclick="go_detail(this)" style="cursor:pointer;"/></div>
             </td>
           </tr>
           <tr>
@@ -1154,102 +1494,44 @@ $s = $week[date("w",strtotime($day))];
 
           <?php
           $j=0;
-          for($i=0; $i < count($user_data); $i++){
-            for($k=0; $k<count($user_data[$i]);$k=$k+3){
-            ?>
-          <tr>
-            <td colspan="4" valign="top">
-              <table id="tbl_dash_3-<?php echo $j+1; ?>" width="100%" style="<?php if($j>2){echo "display:none";} ?>">
-                <tr>
-                  <td colspan="2" valign="top">
-                    <table class="content_tbl" align="center" width="100%" border="0" cellspacing="0" cellpadding="0">
-                      <colgroup>
-                        <col width="33%">
-                        <col width="33%">
-                        <col width="33%">
-                      </colgroup>
-
-                      <tr>
-                        <td align="center" height="50"><img src="<?php echo $misc;?>img/dashboard/user.svg" width="40"/></td>
-                        <?php if(isset($user_data[$i][$k+1])){ ?>
-                        <td align="center"><img src="<?php echo $misc;?>img/dashboard/user.svg" width="40"/></td>
-                      <?php } ?>
-                      <?php if(isset($user_data[$i][$k+2])){ ?>
-                        <td align="center"><img src="<?php echo $misc;?>img/dashboard/user.svg" width="40"/></td>
-                      <?php } ?>
-                      </tr>
-                      <tr>
-                        <td align="center" height="15" class="user_name"><?php echo $user_data[$i][$k]['user_name']." ".$user_data[$i][$k]['user_duty']; ?></td>
-                        <?php if(isset($user_data[$i][$k+1])){ ?>
-                        <td align="center" height="15" class="user_name"><?php echo $user_data[$i][$k+1]['user_name']." ".$user_data[$i][$k+1]['user_duty']; ?></td>
-                        <?php } ?>
-                        <?php if(isset($user_data[$i][$k+2])){ ?>
-                        <td align="center" height="15" class="user_name"><?php echo $user_data[$i][$k+2]['user_name']." ".$user_data[$i][$k+2]['user_duty']; ?></td>
-                        <?php } ?>
-                      </tr>
-                      <tr>
-                        <td align="center" style="font-weight:bold;color:#3C3C3C;font-size:12px;font-weight:normal;"><?php echo $user_data[$i][$k]['user_group'] ?></td>
-                        <?php if(isset($user_data[$i][$k+1])){ ?>
-                        <td align="center" style="font-weight:bold;color:#3C3C3C;font-size:12px;font-weight:normal;"><?php echo $user_data[$i][$k+1]['user_group'] ?></td>
-                      <?php } ?>
-                      <?php if(isset($user_data[$i][$k+2])){ ?>
-                        <td align="center" style="font-weight:bold;color:#3C3C3C;font-size:12px;font-weight:normal;"><?php echo $user_data[$i][$k+2]['user_group'] ?></td>
-                        <?php } ?>
-                      </tr>
-                      <tr>
-                        <td align="center" style="font-weight:bold;color:#3C3C3C;font-size:12px;font-weight:normal;" title="<?php echo $user_data[$i][$k]['user_tel'] ?>">
-                          <div style="overflow:hidden;text-overflow:ellipsis;;white-space:nowrap;">
-                          <?php echo $user_data[$i][$k]['user_tel'] ?>
-                          </div>
-                        </td>
-                        <?php if(isset($user_data[$i][$k+1])){ ?>
-                        <td align="center" style="font-weight:bold;color:#3C3C3C;font-size:12px;font-weight:normal;" title="<?php echo $user_data[$i][$k+1]['user_tel'] ?>">
-                          <div style="overflow:hidden;text-overflow:ellipsis;;white-space:nowrap;">
-                          <?php echo $user_data[$i][$k+1]['user_tel'] ?>
-                          </div>
-                        </td>
-                      <?php } ?>
-                      <?php if(isset($user_data[$i][$k+2])){ ?>
-                        <td align="center" style="font-weight:bold;color:#3C3C3C;font-size:12px;font-weight:normal;" title="<?php echo $user_data[$i][$k+2]['user_tel'] ?>">
-                          <div style="overflow:hidden;text-overflow:ellipsis;;white-space:nowrap;">
-                          <?php echo $user_data[$i][$k+2]['user_tel'] ?>
-                          </div>
-                        </td>
-                        <?php } ?>
-                      </tr>
-                      <tr>
-                        <td align="center" style="color:#B0B0B0;font-size:10px;text-overflow:ellipsis; overflow:hidden;" title="<?php echo $user_data[$i][$k]['user_email'] ?>">
-                          <div style="overflow:hidden;text-overflow:ellipsis;;white-space:nowrap;">
-                          <?php echo $user_data[$i][$k]['user_email'] ?>
-                          </div>
-                        </td>
-                        <?php if(isset($user_data[$i][$k+1])){ ?>
-                        <td align="center" style="color:#B0B0B0;font-size:10px;text-overflow:ellipsis; overflow:hidden;" title="<?php echo $user_data[$i][$k+1]['user_email'] ?>">
-                          <div style="overflow:hidden;text-overflow:ellipsis;;white-space:nowrap;">
-                          <?php echo $user_data[$i][$k+1]['user_email'] ?>
-                          </div>
-                        </td>
-                      <?php } ?>
-                      <?php if(isset($user_data[$i][$k+2])){ ?>
-                        <td align="center" style="color:#B0B0B0;font-size:10px;text-overflow:ellipsis; overflow:hidden;" title="<?php echo $user_data[$i][$k+2]['user_email'] ?>">
-                          <div style="overflow:hidden;text-overflow:ellipsis;;white-space:nowrap;">
-                          <?php echo $user_data[$i][$k+2]['user_email'] ?>
-                          </div>
-                        </td>
-                        <?php } ?>
-                      </tr>
-
-                    </table>
-                  </td>
-                </tr>
-              </table>
-            </td>
-          </tr>
-        <?php
-        $j++;
-            }
-          }
-          ?>
+          for($i=0; $i < count($user_data); $i=$i+5) { ?>
+            <tr>
+              <td colspan="4" valign="top">
+                <table id="tbl_dash_3-<?php echo $j+1; ?>" width="100%" style="padding-left:10px;padding-right:10px;<?php if($j>0){echo "display:none;";} ?>">
+                  <tr>
+                    <td colspan="2" valign="top">
+                      <table class="content_tbl" align="center" width="100%" border="0" cellspacing="0" cellpadding="0" style="">
+                        <colgroup>
+                          <col width="18%">
+                          <col width="22%">
+                          <col width="30%">
+                          <col width="30%">
+                        </colgroup>
+                <?php for($k = 0; $k < 5; $k++) { ?>
+                        <tr>
+                          <td style="font-weight:bold;color:#1C1C1C;height:40px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-left:10px;">
+                            <?php if(isset($user_data[$i+$k])){echo $user_data[$i+$k]['user_name'].' '.mb_substr($user_data[$i+$k]['user_duty'],0,2);} ?>
+                          </td>
+                          <td style="color:#1C1C1C;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                            <?php if(isset($user_data[$i+$k])){echo $user_data[$i+$k]['user_group'];} ?>
+                          </td>
+                          <td style="align:right;color:#1C1C1C;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="<?php if(isset($user_data[$i+$k]['extension_number']) && $user_data[$i+$k]['extension_number'] != null) {echo $user_data[$i+$k]['extension_number'].' / ';} ?><?php if(isset($user_data[$i+$k])){echo $user_data[$i+$k]['user_tel'];} ?>">
+                            <?php if(isset($user_data[$i+$k]['extension_number']) && $user_data[$i+$k]['extension_number'] != null) {echo $user_data[$i+$k]['extension_number'].' / ';} ?>
+                            <?php if(isset($user_data[$i+$k])){echo $user_data[$i+$k]['user_tel'];} ?>
+                          </td>
+                          <td style="color:#B0B0B0;padding-left:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="<?php if(isset($user_data[$i+$k])){echo $user_data[$i+$k]['user_email'];} ?>">
+                            <?php if(isset($user_data[$i+$k])){echo $user_data[$i+$k]['user_email'];} ?>
+                          </td>
+                        </tr>
+                <?php } ?>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+    <?php $j++;
+          } ?>
 
 
         </table>
@@ -1257,13 +1539,13 @@ $s = $week[date("w",strtotime($day))];
     </div>
 
 <!-- 일정 -->
-    <div class="main_dash3">
+    <div class="main_dash4">
       <div style="height:450px;">
         <table id="schedule" class="main_dash_tbl dash_tbl_4" border="0" cellspacing="0" cellpadding="0">
           <tr valign="top">
             <td class="dash_title_td" style="padding-top:1px;"><div class="dash_title">일정</div></td>
             <td align="right" style="padding-right:10px;vertical-align:middle;">
-              <div style="padding-top:15px;"><img src="<?php echo $misc;?>img/dashboard/dash_detail.svg" width="25" onclick="go_detail(this)" style="cursor:pointer;"/></div>
+              <div style="padding-top:15px;"><img src="<?php echo $misc;?>img/dashboard/dash_plus.svg" width="25" onclick="go_detail(this)" style="cursor:pointer;"/></div>
             </td>
           </tr>
           <tr>
@@ -1276,12 +1558,9 @@ $s = $week[date("w",strtotime($day))];
             <td colspan="3" valign="top">
               <table class="content_tbl" align="center" width="90%" border="0" cellspacing="0" cellpadding="0">
                 <tr>
-                  <td colspan="3" align="center">
+                  <td colspan="3" align="center" style="padding-top:20px;">
                     <div id="calendar"></div>
                   </td>
-                </tr>
-                <tr>
-                  <td colspan="3" height="10" style="border-top: 1px solid rgba(0, 0, 0, 0.19);"></td>
                 </tr>
               </table>
             </td>
@@ -1332,7 +1611,7 @@ $s = $week[date("w",strtotime($day))];
     </div>
 
     <!-- 기술부 미점검 모달 -->
-    <?php if($parent_group == "기술본부"){ ?>
+    <?php if($parent_group == "기술본부" || $parent_group == '기술연구소'){ ?>
     <div id="modal" class="searchModal">
       <div class="search-modal-content">
         <!-- <button onClick="closeModal();" style="float:right;">닫기</button> -->
@@ -1409,6 +1688,60 @@ $s = $week[date("w",strtotime($day))];
           </div>
       </div>
     </div>
+
+    <div id="modal2" class="searchModal">
+      <div class="search-modal-content">
+        <!-- <button onClick="closeModal();" style="float:right;">닫기</button> -->
+
+        <div class="row">
+          <div class="col-sm-12">
+            <div class="row">
+              <div class="col-sm-12">
+                <h2>포티게이트 장비 라이선스 미등록</h2>
+              </div>
+              <div>
+                <table  width="100%" border="1" cellspacing="0" cellpadding="0" style="font-weight:bold;font-size:13px;">
+                    <tr width="100%" height=30>
+                        <td align="center" width="10%" bgcolor="f8f8f9" >idx</td>
+                        <td align="center" width="20%" bgcolor="f8f8f9" >고객사</td>
+                        <td align="center" width="20%" bgcolor="f8f8f9" >프로젝트명</td>
+                        <td align="center" width="10%" bgcolor="f8f8f9" >관리팀</td>
+                        <td align="center" width="10%" bgcolor="f8f8f9" >점검자</td>
+                    </tr>
+
+                    <?php
+                    $idx=1;
+                    foreach($fortigate_project as $val){
+                      echo "<tr height=30 align='center' style='cursor:pointer;' onclick=''><td>{$idx}</td>";
+                      echo  "<td>{$val['customer_companyname']}</td>";
+                      echo  "<td>{$val['project_name']}</td>";
+                      echo "<td>";
+                      if ($val['manage_team'] == "1") {
+                        echo "기술 1팀";
+                      }else if ($val['manage_team'] == "2") {
+                          echo "기술 2팀";
+                      }else if ($val['manage_team'] == "3") {
+                          echo "기술 3팀";
+                      }else{
+                          echo "";
+                      }
+                      echo "</td>";
+                      echo  "<td>{$val['maintain_user']}</td>";
+                      echo "</tr>";
+
+                      $idx=$idx+1;
+                    }
+                    ?>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+          <div style="cursor:pointer;background-color:#DDDDDD;text-align: center;padding-bottom: 10px;padding-top: 10px;margin-top:20px;" onClick="closeModal2();">
+            <span class="pop_bt modalCloseBtn" style="font-size: 13pt;">닫기</span>
+          </div>
+      </div>
+    </div>
     <?php } ?>
     <!-- 기술부 미점검 모달 끝 -->
 
@@ -1417,21 +1750,60 @@ $s = $week[date("w",strtotime($day))];
 <?php include $this->input->server('DOCUMENT_ROOT')."/include/sales_bottom.php"; ?>
 </body>
 <script type="text/javascript">
-<?php if(isset($_GET['login'])){?>
 
   jQuery(document).ready(function () {
+    <?php if(isset($_GET['login'])){?>
     $("#modal").show();
+    $("#modal2").show();
+    <?php } ?>
+
+    <?php  if ($id == "bhkim") { ?>
+    <?php } ?>
+    ping_mail(0);
   });
 
   function closeModal() {
     $("#modal").hide();
   };
-<?php } ?>
+  function closeModal2() {
+    $("#modal2").hide();
+  };
 // + 버튼 눌렀을때 해당 페이지 이동
   function go_detail(el) {
-    var page = $(el).closest('table').attr('id');
+    if (el == 'mail') {
+      var page = "mail";
+    } else {
+      var page = $(el).closest('table').attr('id');
+
+    }
     if (page=="mail") {
-      location.href = "http://mail.durianit.co.kr/";
+      // location.href = "https://mail.durianit.co.kr/";
+      var mail_address = "<?php echo $email ?>";
+
+      $.ajax({
+        type:"POST",
+        async:true,
+        url:"/index.php/mail/get_pkey",
+        dataType:"json",
+        success : function(data){
+          // console.log(data);
+          var newForm = $('<form name="winName"></form>');
+          newForm.attr("method","post");
+          newForm.attr("action", "https://mail.durianit.co.kr/index.php/account/biz_login");
+          newForm.append($('<input>', {type: 'hidden', name: 'login_mode', value: 'general'}));
+          newForm.append($('<input>', {type: 'hidden', name: 'inputId', value: mail_address }));
+          newForm.append($('<input>', {type: 'hidden', name: 'inputPass', value:data.pkey }));
+          newForm.append($('<input>', {type: 'hidden', name: 'biz_mode', value:'y' }));
+          newForm.appendTo('#mail_tbl');
+          newForm.attr("target", "winName");
+          var gsWin = window.open("", "winName");
+          newForm.submit();
+          },
+        error : function(request, status, error){
+            console.log("AJAX_ERROR");
+          }
+
+      })
     } else if (page=="approval") {
       var type = '';
       $("#approval_btn").find(".approval_btn_on").each(function(){
@@ -1454,6 +1826,10 @@ $s = $week[date("w",strtotime($day))];
       location.href = "<?php echo site_url();?>/biz/schedule/tech_schedule";
     } else if (page=="attendance") {
       location.href = "<?php echo site_url();?>/biz/attendance/attendance_user";
+    } else if (page=="diquitaca") {
+      location.href = "<?php echo site_url(); ?>/biz/diquitaca/qna_list";
+    } else if (page == 'weekly_report') {
+      location.href = "<?php echo site_url(); ?>/biz/weekly_report/weekly_report_list";
     }
   }
 
@@ -1475,6 +1851,49 @@ function change_tbl(id) {
     $("#tbl_"+id).show();
     $("#tbl_"+id).closest('tr').show();
     // console.log('type:'+type+' id:'+id+' cname:'+cname);
+    if(id == 'notice_dash_6-1') {
+      $('.management_nread_count').show();
+      $('.development_nread_count').hide();
+      $('.version_nread_count').hide();
+    } else if (id == 'notice_dash_6-2') {
+      $('.management_nread_count').hide();
+      $('.development_nread_count').show();
+      $('.version_nread_count').hide();
+    } else if (id == 'notice_dash_6-3') {
+      $('.management_nread_count').hide();
+      $('.development_nread_count').hide();
+      $('.version_nread_count').show();
+    } else if (id == 'approval_dash_2-1') {
+      $('.no_read_cnt_s').show();
+      $('.no_read_cnt_p').hide();
+      $('.no_read_cnt_c').hide();
+      $('.no_read_cnt_b').hide();
+      $('.no_read_cnt_w').hide();
+    } else if (id == 'approval_dash_2-2') {
+      $('.no_read_cnt_s').hide();
+      $('.no_read_cnt_p').show();
+      $('.no_read_cnt_c').hide();
+      $('.no_read_cnt_b').hide();
+      $('.no_read_cnt_w').hide();
+    } else if (id == 'approval_dash_2-3') {
+      $('.no_read_cnt_s').hide();
+      $('.no_read_cnt_p').hide();
+      $('.no_read_cnt_c').show();
+      $('.no_read_cnt_b').hide();
+      $('.no_read_cnt_w').hide();
+    } else if (id == 'approval_dash_2-4') {
+      $('.no_read_cnt_s').hide();
+      $('.no_read_cnt_p').hide();
+      $('.no_read_cnt_c').hide();
+      $('.no_read_cnt_b').show();
+      $('.no_read_cnt_w').hide();
+    } else if (id == 'approval_dash_2-5') {
+      $('.no_read_cnt_s').hide();
+      $('.no_read_cnt_p').hide();
+      $('.no_read_cnt_c').hide();
+      $('.no_read_cnt_b').hide();
+      $('.no_read_cnt_w').show();
+    }
   }
 
 // [근태관리] 현재 시간 출력
@@ -1564,37 +1983,22 @@ function change_tbl(id) {
     $("#rez_date").text(getToday());
   });
 
-  var first_address=1;
-  var last_address=3;
+  var first_address = 1;
+  var last_address = "<?php echo ceil(count($user_data) / 5); ?>";
 // [주소록] < 버튼 클릭 시
   function prev_address() {
-    if(first_address<=1) {
-      // alert('첫번째');
-    } else {
-      $("#tbl_dash_3-"+(first_address)+"").hide();
-      $("#tbl_dash_3-"+(first_address+1)+"").hide();
-      $("#tbl_dash_3-"+(first_address+2)+"").hide();
-      $("#tbl_dash_3-"+(first_address-1)+"").show();
-      $("#tbl_dash_3-"+(first_address-2)+"").show();
-      $("#tbl_dash_3-"+(first_address-3)+"").show();
-      first_address -= 3;
-      last_address -= 3;
+    if(first_address != 1) {
+      $('#tbl_dash_3-'+(first_address)+'').hide();
+      $('#tbl_dash_3-'+(first_address-1)+'').show();
+      first_address--;
     }
   }
 // [주소록] > 버튼 클릭 시
   function next_address() {
-    var address_count = "<?php echo $user_data_count/3; ?>";
-    if(last_address>=address_count) {
-      // alert('마지막');
-    } else {
-      $("#tbl_dash_3-"+last_address+"").hide();
-      $("#tbl_dash_3-"+(last_address-1)+"").hide();
-      $("#tbl_dash_3-"+(last_address-2)+"").hide();
-      $("#tbl_dash_3-"+(last_address+1)+"").show();
-      $("#tbl_dash_3-"+(last_address+2)+"").show();
-      $("#tbl_dash_3-"+(last_address+3)+"").show();
-      first_address += 3;
-      last_address += 3;
+    if(first_address < last_address) {
+      $('#tbl_dash_3-'+(first_address)+'').hide();
+      $('#tbl_dash_3-'+(first_address+1)+'').show();
+      first_address++;
     }
   }
 
@@ -1614,6 +2018,11 @@ function change_tbl(id) {
 // 전자결재 게시물로 이동
   function eletronic_approval_view(seq, page) {
     window.location = "<?php echo site_url(); ?>/biz/approval/electronic_approval_doc_view?seq="+seq+"&type="+page;
+  }
+
+// 디키타카 게시물로 이동
+  function ViewDiquitaca(seq) {
+    window.location = "<?php echo site_url(); ?>/biz/diquitaca/qna_view?seq=" + seq;
   }
 
 // 날짜 +- 함수
@@ -1749,6 +2158,251 @@ function change_tbl(id) {
   }, function() {
     $(this).attr('src', '<?php echo $misc;?>img/dashboard/btn/btn_off_work_off.svg');
   })
+
+
+  function ping_mail(mode){
+
+    if(mode == 0){
+      var mail_address ="";
+      var password = "";
+      <?php if(isset($mail_key)){ ?>
+
+        mail_address = '<?php echo $mail_key->uid; ?>';
+        password = '<?php echo $mail_key->pkey; ?>';
+
+        <?php } ?>
+    } else {
+      var mail_address = $("#authMail").val();
+      var password = $("#authMail_pass").val();
+      if(mail_address == ""){
+        alert("메일주소를 입력해주세요");
+        return false;
+      }
+      if(password == ""){
+        alert("비밀번호를 입력해주세요");
+        return false;
+      }
+      $.ajax({
+        type:"POST",
+        async: false,
+        url:"/index.php/mail/make_key",
+        dataType:"json",
+        data:{input_pass : password},
+        success : function(data){
+          console.log(data);
+          password = data;
+        }
+      })
+    }
+    $.ajax({
+      // crossDomain:true,
+      // processData: false,
+
+      type:"POST",
+      async: false,
+      url:"https://mail.durianit.co.kr/index.php/biz_mail/imap_ping",
+      // contentType: 'application/x-www-form-urlencoded; charset=utf-8',
+      dataType:"json",
+      timeout: 2000,
+      data:{
+        mail_address: mail_address,
+        password : password,
+        mailbox:"INBOX"
+
+      },
+
+      success : function(data){
+
+          if(data == "false"){
+            $("#mail_title_span").show();
+            $("#mailauth_tbl").show();
+            if (mode == 1) {
+              alert("인증실패");
+            }
+          } else {
+            if(mode != 0){
+              $.ajax({
+                type:"POST",
+                async: false,
+                url:"/index.php/mail/update_key",
+                dataType:"json",
+                data:{input_pass : password},
+                success : function(data){
+                  console.log(data);
+                }
+              })
+            }
+            var unseen_cnt = data.unseen_cnt;
+            $("#all_mailcnt").text(unseen_cnt);
+            var input = "<select class='mail_select' id='mbox_input' style='height:30px;width:90%;'>";
+            var data = data.mailbox_tree;
+            var boxlen = data.length;
+            for (var i = 0; i < boxlen; i++) {
+              var input_val = data[i].id;
+              var child_num = data[i].child_num;
+              if (child_num > 0) {
+                var nbsp = "";
+                for (var j = 0; j < child_num; j++) {
+                  nbsp += "&nbsp;&nbsp;";
+                }
+                var text = nbsp + "ㄴ" + data[i].text;
+              } else {
+                var text = data[i].text;
+              }
+              input += "<option value='"+input_val+"'>"+text+"</option>";
+            }
+            input += "</select>";
+            // var img = '<img id="mail_reload_img" src="<?php echo $misc;?>img/dashboard/f5.svg" width="25" onclick="$(\'#mbox_input\').change()"; style="cursor:pointer;"/>';
+
+            $("#mlist_td").append(input);
+            // $("#f5_td").append(img);
+            $("#mbox_tr").show();
+            $("#mailauth_tbl").hide();
+            $("#mail_title_span").hide();
+            $("#mbox_input").change();
+            $("#mbox_input").niceSelect();
+            // get_mail(mail_address, password, "INBOX");
+
+          }
+       },
+      error : function(request, status, error){
+          // console.log(error);
+          $("#authMail_pass").val("");
+          $("#mailauth_tbl").show();
+          $("#mbox_tr").hide();
+        }
+    })
+  }
+
+  $(document).on("change", "#mbox_input", function(){
+    var mbox = $(this).val();
+    $.ajax({
+      type:"POST",
+      // async: false,
+      url:"/index.php/mail/get_pkey",
+      dataType:"json",
+      success : function(data){
+
+        get_mail(data.uid, data.pkey, mbox);
+      }
+    })
+  })
+
+  function get_mail(mail_address, password, mailbox){
+
+    $.ajax({
+      // crossDomain:true,
+      // processData: false,
+      type:"POST",
+      async: false,
+      url:"https://mail.durianit.co.kr/index.php/biz_mail/get_mail",
+      // contentType: 'application/x-www-form-urlencoded; charset=utf-8',
+      dataType:"json",
+      data:{
+        mail_address: mail_address,
+        password : password,
+        mailbox: mailbox
+      },
+      success : function(data){
+        if(data){
+          $("#mailauth_tbl").hide();
+          $("#mail_tbl tr").remove();
+
+          if(data == "empty"){
+            var html ="<tr onclick='event.cancelBubble=true' height='60'><td></td></tr><tr onclick='event.cancelBubble=true'><td colspan='3' align='center' class='no_list'>";
+            html += "메일함에 메일이 없습니다.";
+            html += "</td></tr>";
+            $("#mail_tbl tbody").append(html);
+            $("#minfo_td").text("");
+          }else{
+            var m_stat = data.mbox_status;
+            var m_head = data.mail_head;
+            var box_info = m_stat.unseen + " / " + m_stat.messages;
+            // console.log(m_stat);
+            for (var i = 0; i < m_head.length; i++) {
+              // console.log(m_head[i]);
+              // if(m_head[i].from_name == ''){
+              //   var from = m_head[i].from_mail;
+              // }else{
+              //   var from = m_head[i].from_name;
+              // }
+
+              if(m_head[i].from['from_name'] == ''){
+                var from = "이름없음";
+              }else{
+                var from = m_head[i].from['from_name'];
+              }
+
+              var html = "<tr class='seen"+m_head[i].read+"' data-uid='" + m_head[i].uid +"'>";
+              html+="<td class='board_title' align='left' height='30' style='text-overflow:ellipsis; overflow:hidden; white-space:nowrap;'>"+ from +"</td>";
+              html+="<td class='board_title' align='left' style='text-overflow:ellipsis; overflow:hidden; white-space:nowrap;'>"+ m_head[i].subject +"</td>";
+              html+="<td class='board_date' align='right' style='text-overflow:ellipsis; overflow:hidden; white-space:nowrap;'>"+ m_head[i].udate +"</td>";
+              html+="</tr>"
+              // console.log(html);
+              $("#mail_tbl tbody:last").append(html);
+            }
+            $("#minfo_td").text(box_info);
+          }
+
+          }
+        },
+      error : function(request, status, error){
+          console.log(error);
+
+        }
+
+    })
+  }
+
+  $(document).on("click", "#mail_tbl tr", function(){
+    var mail_address = "<?php echo $email ?>";
+    var mailbox = $("#mlist_td option:selected").val();
+    var mailid = $(this).attr("data-uid");
+
+    if($(this).hasClass("seen0")){
+      $(this).removeClass("seen0");
+      $(this).addClass("seen1");
+    }
+
+    // var seen = $(this).attr("data-seen");
+    // if(seen == 0){
+    //   $(this).removeClass("seen0");
+    //   // $(this).addClass("");
+    // }
+
+    $.ajax({
+      type:"POST",
+      async:true,
+      url:"/index.php/mail/get_pkey",
+      dataType:"json",
+      success : function(data){
+        // console.log(data);
+        var newForm = $('<form name="winName"></form>');
+        newForm.attr("method","post");
+        newForm.attr("action", "https://mail.durianit.co.kr/index.php/account/biz_login");
+        newForm.append($('<input>', {type: 'hidden', name: 'login_mode', value: 'general'}));
+        newForm.append($('<input>', {type: 'hidden', name: 'inputId', value: mail_address }));
+        newForm.append($('<input>', {type: 'hidden', name: 'inputPass', value:data.pkey }));
+        newForm.append($('<input>', {type: 'hidden', name: 'biz_mode', value:'y' }));
+        newForm.append($('<input>', {type: 'hidden', name: 'mailbox', value:mailbox }));
+        newForm.append($('<input>', {type: 'hidden', name: 'mailid', value:mailid }));
+        newForm.appendTo('#mail_tbl');
+        newForm.attr("target", "winName");
+        var gsWin = window.open("", "winName");
+        newForm.submit();
+        },
+      error : function(request, status, error){
+          console.log("AJAX_ERROR");
+        }
+
+    })
+
+
+
+});
+
+
+
 
 </script>
 </html>

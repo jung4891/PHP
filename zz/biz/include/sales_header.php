@@ -385,6 +385,9 @@ li {
 <link href="https://fonts.googleapis.com/css?family=Noto+Sans+KR" rel="stylesheet">
 <script type="text/javascript" src="/misc/js/mousetrap.js"></script> <!--  단축키 js -->
 <script src="https://cdn.jsdelivr.net/npm/inko@1.1.1/inko.min.js"></script>
+<?php
+$this->cooperation_yn = $this->phpsession->get( 'cooperation_yn', 'stc' );
+?>
 <div id="header">
   <header style="height:100%;">
       <div id="detail_menu" onclick="sidenav_view();" style="width:65px; height:65px; display:inline-block; background-color:#484848;float:left;cursor:pointer;">
@@ -404,7 +407,7 @@ li {
               SALES
           </div>
         <?php } ?>
-        <?php if($tech_lv > 0){ ?>
+        <?php if($tech_lv > 0 || (isset($this->cooperation_yn) && $this->cooperation_yn == 'Y')){ ?>
           <div id="tech_head"  OnClick="change_sidebar('tech', 'click');" <?php if(strpos($_SERVER['REQUEST_URI'],'tech/') !== false){echo "class='point_menu'";} ?> style="font-weight:500;">
               TECH
           </div>
@@ -451,6 +454,10 @@ li {
     <div name="BIZ">
       <a href="<?php echo site_url();?>/biz" class="menu1">BIZ</a>
   		<a href="<?php echo site_url();?>/biz/schedule/tech_schedule" class="menu2">일정관리</a>
+  		<a href="<?php echo site_url();?>/biz/attendance/attendance_working_hours" class="menu2">근태관리</a>
+  		<a href="<?php echo site_url();?>/biz/attendance/attendance_working_hours" class="menu3">근로시간통계</a>
+  		<a href="<?php echo site_url();?>/biz/attendance/annual_usage_status" class="menu3">휴가사용현황</a>
+  		<a href="<?php echo site_url();?>/biz/attendance/annual_usage_status_list" class="menu3">휴가사용내역</a>
   		<a href="<?php echo site_url();?>/biz/approval/electronic_approval_list?type=standby" class="menu2">전자결재</a>
   		<a href="<?php echo site_url();?>/biz/approval/electronic_approval_form_list?mode=user" class="menu3">기안</a>
   		<a href="<?php echo site_url();?>/biz/approval/electronic_approval_form_list?mode=user" class="menu4">-기안문작성</a>
@@ -461,10 +468,12 @@ li {
       <a href="<?php echo site_url();?>/biz/approval/electronic_approval_delegation_management" class="menu4"> -위임관리</a>
       <a href="<?php echo site_url();?>/biz/approval/electronic_approval_personal_storage" class="menu4"> -개인보관함관리</a>
       <a href="<?php echo site_url();?>/biz/approval/electronic_approval_personal_storage_list?seq=all" class="menu3">개인보관함</a>
-      <?php if ($biz_lv == 3 || ($parent_group =="경영지원실" || $parent_group =="영업본부" || $group =="기술연구소")){ ?>
+      <a href="<?php echo site_url();?>/biz/official_doc/official_doc_list?mode=user" class="menu3">공문함</a>
+      <?php if ($biz_lv == 3 || ($parent_group =="경영지원실" || $parent_group =="영업본부" || $parent_group =="기술연구소")){ ?>
       <a href="<?php echo site_url();?>/biz/approval/electronic_approval_list?type=admin" class="menu3">관리자</a>
-      <?php if($parent_group =="경영지원실" || $group =="기술연구소" || $group =="CEO"  ){?>
+      <?php if($parent_group =="경영지원실" || $parent_group =="기술연구소" || $group =="CEO"  ){?>
       <a href="<?php echo site_url();?>/biz/approval/electronic_approval_list?type=admin" class="menu4"> -결재문서관리</a>
+      <a href="<?php echo site_url();?>/biz/official_doc/official_doc_list?mode=admin" class="menu4"> -공문관리</a>
       <?php } ?>
       <a href="<?php echo site_url();?>/biz/approval/electronic_approval_form_list?mode=admin" class="menu4"> -양식관리</a>
       <a href="<?php echo site_url();?>/biz/approval/electronic_approval_format_category" class="menu4"> -서식함관리</a>
@@ -472,7 +481,10 @@ li {
       <?php } ?>
       <a href="<?php echo site_url();?>/biz/weekly_report/weekly_report_list" class="menu2">주간보고</a>
       <a href="<?php echo site_url();?>/biz/durian_car/car_drive_list" class="menu2">차량일지</a>
+      <a href="<?php echo site_url();?>/biz/board/notice_list?category=001" class="menu2">회의록</a>
       <a href="<?php echo site_url();?>/biz/board/notice_list?category=001" class="menu2">공지사항</a>
+      <a href="<?php echo site_url();?>/biz/diquitaca/qna_list" class="menu2">디키타카</a>
+      <a href="<?php echo site_url();?>/biz/dev_request/dev_request_list" class="menu2">개발요청</a>
       <?php } ?>
     </div>
 
@@ -490,7 +502,10 @@ li {
       <a href="<?php echo site_url();?>/tech/board/network_map_list" class="menu3">구성도</a>
       <a href="<?php echo site_url();?>/tech/tech_board/tech_doc_list?type=Y" class="menu3">기술지원보고서</a>
       <a href="<?php echo site_url();?>/tech/tech_board/request_tech_support_list" class="menu3">기술지원요청</a>
-      <?php } ?>
+    <?php }
+    if ((isset($this->cooperation_yn) && $this->cooperation_yn == 'Y')) { ?>
+      <a href="<?php echo site_url();?>/tech/tech_board/tech_doc_list?type=Y" class="menu3">기술지원보고서</a>
+    <?php } ?>
     </div>
   </div>
   <div style="width:50%;float:left;">
@@ -504,9 +519,10 @@ li {
       <a href="<?php echo site_url();?>/sales/forcasting/forcasting_list?mode=mistake" class="menu2">실주</a>
       <a href="<?php echo site_url();?>/sales/maintain/maintain_list" class="menu2">유지보수</a>
       <a href="<?php echo site_url();?>/sales/maintain/maintain_list?type=002" class="menu2">통합유지보수</a>
-      <?php if($group == "CEO" || $group=="경영지원실" || $group == "기술연구소" || $parent_group == "영업본부" ){?>
+      <?php if($group == "CEO" || $group=="경영지원실" || $parent_group == "기술연구소" || $parent_group == "영업본부" ){?>
       <a href="<?php echo site_url();?>/sales/fundreporting/fundreporting_list/page/200?company=DUIT" class="menu2">자금관리</a>
       <a href="<?php echo site_url();?>/sales/fundreporting/fundreporting_list/page/200?company=DUIT" class="menu3">두리안정보기술</a>
+      <a href="<?php echo site_url();?>/sales/fundreporting/fundreporting_list?company=DUITOLD" class="menu3">두리안정보기술(구)</a>
       <a href="<?php echo site_url();?>/sales/fundreporting/fundreporting_list?company=DUICT" class="menu3">두리안정보통신기술</a>
       <a href="<?php echo site_url();?>/sales/fundreporting/fundreporting_list?company=MG" class="menu3">더망고</a>
       <a href="<?php echo site_url();?>/sales/fundreporting/fundreporting_list?company=DBS" class="menu3">두리안정보기술부산지점</a>
@@ -519,6 +535,7 @@ li {
       <?php }} ?>
       <a href="<?php echo site_url();?>/sales/purchase_sales/purchase_sales_view" class="menu2">매입매출</a>
       <a href="<?php echo site_url();?>/sales/purchase_sales/purchase_sales_view" class="menu3">월별매입매출장</a>
+      <a href="<?php echo site_url();?>/sales/accounts_receivable_unpaid/accounts_receivable_unpaid_view" class="menu3">미수금미지급</a>
       <a href="<?php echo site_url();?>/sales/purchase_sales/quarterly_purchase_sales_view" class="menu3">분기별매입매출장</a>
     </div>
     <?php
@@ -538,6 +555,16 @@ li {
       <a href="<?php echo site_url();?>/admin/account/user" class="menu2">회원관리</a>
       <a href="<?php echo site_url();?>/admin/account/user" class="menu3">회원정보</a>
       <a href="<?php echo site_url();?>/admin/account/group_tree_management" class="menu3">조직도관리</a>
+      <?php if(($group =="경영지원실" || $parent_group == "기술연구소" || $group == "CEO" || $group == '영업본부' || $group == '사업1부' || $group == '사업2부')){?>
+      <a href="<?php echo site_url();?>/admin/management/site_management" class="menu2">사이트관리</a>
+      <?php } ?>
+      <a href="<?php echo site_url();?>/admin/attendance_admin/attendance_user_list" class="menu2">근태관리</a>
+      <a href="<?php echo site_url();?>/admin/attendance_admin/attendance_user_list" class="menu3">근태설정</a>
+      <a href="<?php echo site_url();?>/admin/attendance_admin/attendance_list" class="menu3">근태조회</a>
+      <a href="<?php echo site_url();?>/admin/attendance_admin/attendance_working_hours" class="menu3">근로시간통계</a>
+      <a href="<?php echo site_url();?>/admin/annual_admin/annual_management" class="menu2">연차관리</a>
+      <a href="<?php echo site_url();?>/admin/annual_admin/annual_usage_status" class="menu3">휴가사용현황</a>
+      <a href="<?php echo site_url();?>/admin/annual_admin/annual_usage_status_list" class="menu3">휴가사용내역</a>
     </div>
   <?php } ?>
   </div>
@@ -550,7 +577,7 @@ li {
         <h2>* 점검공지 *</h2>
         <div style="margin:30px 0px 30px 0px;font-size:14px;">
         <!-- 서버 이전 - biz.durianit.co.kr 로 접속 부탁드립니다.<br><br> -->
-        점검 일시 : <?php echo date("Y-m-d");?> 20:00 ~ 2021-07-05 08:00
+        점검 일시 : <?php echo date("Y-m-d");?> 18:00 ~ 2021-10-14 19:00
         </div>
     </div>
 </div>
@@ -599,11 +626,16 @@ li {
         <a href="<?php echo site_url();?>/biz/approval/electronic_approval_list?type=completion" >&emsp;· 완료문서함</a>
         <a href="<?php echo site_url();?>/biz/approval/electronic_approval_list?type=back" >&emsp;· 반려문서함</a>
         <a href="<?php echo site_url();?>/biz/approval/electronic_approval_list?type=reference" >&emsp;· 참조/열람문서함</a>
+        <a href="<?php echo site_url();?>/biz/approval/electronic_approval_list?type=wage" >&emsp;· 연봉계약서</a>
     </div>
   </div>
 
     <div class="side_part">
       <a href="<?php echo site_url();?>/biz/approval/electronic_approval_personal_storage_list?seq=all">개인보관함</a>
+    </div>
+
+    <div class="side_part">
+      <a href="<?php echo site_url();?>/biz/official_doc/official_doc_list?mode=user">공문함</a>
     </div>
 
     <div class="side_part">
@@ -616,15 +648,16 @@ li {
         <a href="<?php echo site_url();?>/biz/approval/electronic_approval_personal_storage" >&emsp;· 개인보관함관리</a>
       </div>
     </div>
-      <?php if ($biz_lv == 3 || ($parent_group =="경영지원실" || $parent_group =="영업본부" || $group =="기술연구소")){ ?>
+      <?php if ($biz_lv == 3 || ($parent_group =="경영지원실" || $parent_group =="영업본부" || $parent_group =="기술연구소")){ ?>
     <div class="side_part" style="margin-bottom:200px;">
       <div class = "middle_menu_div">
           <span>관리자</span>
           <img src="<?php echo $misc;?>img/sideicon/side_up.svg" height="20px;" style ="cursor:pointer; padding:15px 15px 15px 0px;" onclick="updown(this);">
       </div>
       <div class="href_div">
-      <?php if($parent_group =="경영지원실" || $group =="기술연구소" || $group =="CEO" ){?>
+      <?php if($parent_group =="경영지원실" || $parent_group =="기술연구소" || $group =="CEO" ){?>
       <a href="<?php echo site_url();?>/biz/approval/electronic_approval_list?type=admin" >&emsp;· 결재문서관리</a>
+      <a href="<?php echo site_url();?>/biz/official_doc/official_doc_list?mode=admin" >&emsp;· 공문관리</a>
       <?php } ?>
       <a href="<?php echo site_url();?>/biz/approval/electronic_approval_form_list?mode=admin" >&emsp;· 양식관리</a>
       <a href="<?php echo site_url();?>/biz/approval/electronic_approval_format_category" >&emsp;· 서식함관리</a>
@@ -689,6 +722,7 @@ li {
         </div>
         <div class="href_div">
           <a href="<?php echo site_url();?>/sales/fundreporting/fundreporting_list?company=DUIT" style="font-weight:bold;" >&emsp;· 두리안정보기술</a>
+          <a href="<?php echo site_url();?>/sales/fundreporting/fundreporting_list?company=DUITOLD" style="font-weight:bold;" >&emsp;· 두리안정보기술(구)</a>
           <a href="<?php echo site_url();?>/sales/fundreporting/fundreporting_list?company=DUICT" style="font-weight:bold;" >&emsp;· 두리안정보통신기술</a>
           <a href="<?php echo site_url();?>/sales/fundreporting/fundreporting_list?company=MG" style="font-weight:bold;" >&emsp;· 더망고</a>
           <a href="<?php echo site_url();?>/sales/fundreporting/fundreporting_list?company=DBS" style="font-weight:bold;" >&emsp;· 두리안정보기술부산지점</a>
@@ -722,7 +756,7 @@ li {
 
     <div id="attendance_admin_sidenav" class="sidenav3">
       <div style="width:100%; height:8vh; background-color:#3C3C3C;display:flex;align-items:center;justify-content:space-between">
-        <span class="sidebar_title">회원관리</span>
+        <span class="sidebar_title">근태관리</span>
         <img class="subside_btn" src="<?php echo $misc;?>img/sideicon/side_close.png" width="13px;" heigth="10px;" align="right" style ="cursor:pointer; padding:15px 15px 15px 0px;" onClick="subside_close();">
       </div>
       <div class="side_part">
@@ -778,7 +812,7 @@ li {
 
     <div id="manual_sidenav" class="sidenav3">
       <div style="width:100%; height:8vh; background-color:#3C3C3C;display:flex;align-items:center;justify-content:space-between">
-        <span class="sidebar_title">근태관리</span>
+        <span class="sidebar_title">자료실</span>
         <img class="subside_btn" src="<?php echo $misc;?>img/sideicon/side_close.png" width="13px;" heigth="10px;" align="right" style ="cursor:pointer; padding:15px 15px 15px 0px;" onClick="subside_close();">
       </div>
       <div class="side_part">
@@ -792,11 +826,32 @@ li {
       <a href="<?php echo site_url();?>/tech/tech_board/tech_device_list" style="font-weight:bold;">장비/시스템등록</a> -->
     </div>
 
+    <div id="education_sidenav" class="sidenav3">
+      <div style="width:100%; height:8vh; background-color:#3C3C3C;display:flex;align-items:center;justify-content:space-between">
+        <span class="sidebar_title">교육자료</span>
+        <img class="subside_btn" src="<?php echo $misc;?>img/sideicon/side_close.png" width="13px;" heigth="10px;" align="right" style ="cursor:pointer; padding:15px 15px 15px 0px;" onClick="subside_close();">
+      </div>
+      <div class="side_part">
+        <a href="<?php echo site_url();?>/tech/board/edudata_list" style="font-weight:bold;" >교육자료</a>
+      </div>
+      <div class="side_part">
+        <a href="<?php echo site_url();?>/tech/board/dailyWorkLog_list" style="font-weight:bold;">일일업무일지</a>
+      </div>
+      <div class="side_part">
+        <a href="<?php echo site_url();?>/tech/board/study_document_list" style="font-weight:bold;">스터디 자료</a>
+      </div>
+    </div>
+
     <div id="customer_sidenav" class="sidenav3">
       <div style="width:100%; height:8vh; background-color:#3C3C3C;display:flex;align-items:center;justify-content:space-between">
         <span class="sidebar_title">고객사</span>
         <img class="subside_btn" src="<?php echo $misc;?>img/sideicon/side_close.png" width="13px;" heigth="10px;" align="right" style ="cursor:pointer; padding:15px 15px 15px 0px;" onClick="subside_close();">
       </div>
+<?php if((isset($this->cooperation_yn) && $this->cooperation_yn == 'Y')) { ?>
+      <div class="side_part">
+        <a href="<?php echo site_url();?>/tech/tech_board/tech_doc_list?type=Y" style="font-weight:bold;" >기술지원보고서</a>
+      </div>
+<?php } else { ?>
       <div class="side_part">
         <a href="<?php echo site_url();?>/tech/maintain/maintain_list" style="font-weight:bold;" >유지보수</a>
       </div>
@@ -812,11 +867,12 @@ li {
       <div class="side_part">
         <a href="<?php echo site_url();?>/tech/tech_board/tech_issue" style="font-weight:bold;">요청/이슈</a>
       </div>
+<?php } ?>
     </div>
 
     <div id="equipment_sidenav" class="sidenav3">
       <div style="width:100%; height:8vh; background-color:#3C3C3C;display:flex;align-items:center;justify-content:space-between">
-        <span class="sidebar_title">차량관리</span>
+        <span class="sidebar_title">설비관리</span>
         <img class="subside_btn" src="<?php echo $misc;?>img/sideicon/side_close.png" width="13px;" heigth="10px;" align="right" style ="cursor:pointer; padding:15px 15px 15px 0px;" onClick="subside_close();">
       </div>
       <div class="side_part">
@@ -838,6 +894,11 @@ li {
       <div class="side_part">
         <a href="<?php echo site_url();?>/admin/account/group_tree_management" style="font-weight:bold;" >조직도관리</a>
       </div>
+      <?php if(($group =="경영지원실" || $parent_group == "기술연구소" || $group == "CEO")){?>
+      <div class="side_part">
+        <a href="<?php echo site_url();?>/admin/account/expense_list" style="font-weight:bold;" >지출통계</a>
+      </div>
+      <?php } ?>
     </div>
 
   </div>
@@ -852,9 +913,11 @@ li {
 //점검 공지 띄울때 주석 제거
 // <?php
 // if($group != "기술연구소"){
+// if(strpos($_SERVER['REQUEST_URI'], '/official_doc')!== false || strpos($_SERVER['REQUEST_URI'], '/approval')!== false){
 // ?>
 // $("#notice_modal").show();
 // <?php
+// }
 // }
 // ?>
 

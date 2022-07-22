@@ -47,7 +47,7 @@ $(document).ready(function() {
       <table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-top:70px;">
       <tr>
 				<td>
-          <select name="search1" id="search1" class="select-common select-style1" style="margin-right:10px;">
+          <select name="search1" id="search1" class="select-common select-style1">
 						<option value="000">제조사별</option>
 					 <?php
 foreach ($category  as $val) {
@@ -74,7 +74,7 @@ foreach ($category  as $val) {
         <!-- </td>
         <td> -->
         <span>
-					<input type="button" class="btn-common btn-style1" value="검색" onClick="return GoSearch();">
+					<input type="button" class="btn-common btn-style2" value="검색" onClick="return GoSearch();">
         </span>
         </td>
 			  <td align="right">
@@ -95,7 +95,7 @@ foreach ($category  as $val) {
 				<td>
 					<tr>
 						<td>
-							<table class="list_tbl" style="margin-top:20px;" width="100%" border="0" cellspacing="0" cellpadding="0">
+							<table class="list_tbl list" style="margin-top:20px;" width="100%" border="0" cellspacing="0" cellpadding="0">
 								<colgroup>
 									<col width="15%">
 									<col width="10%">
@@ -127,10 +127,10 @@ foreach ($category  as $val) {
 											$strFile = "-";
 										}
 										?>
-										<tr onMouseOver="this.style.backgroundColor='#FAFAFA'" onMouseOut="this.style.backgroundColor='#fff'">
+										<tr onMouseOver="this.style.backgroundColor='#FAFAFA'" onMouseOut="this.style.backgroundColor='#fff'" class="list">
 											<td></td>
 											<td height="40" align="center"><?php echo $i;?></td>
-											<td align="center"><a href="JavaScript:ViewBoard('<?php echo $item['seq'];?>')"><?php echo $this->common->trim_text(stripslashes($item['subject']), 100);?></a></td>
+											<td align="center"><a class="list" href="JavaScript:ViewBoard('<?php echo $item['seq'];?>')"><?php echo $this->common->trim_text(stripslashes($item['subject']), 100);?></a></td>
 											<td align="center"><?php echo $item['user_name'];?></td>
 											<td align="center"><?php echo substr($item['update_date'], 0, 10);?></td>
 											<td align="center"><?php echo $strFile;?></td>
@@ -143,7 +143,7 @@ foreach ($category  as $val) {
 									}
 								} else {
 									?>
-									<tr onMouseOver="this.style.backgroundColor='#FAFAFA'" onMouseOut="this.style.backgroundColor='#fff'">
+									<tr onMouseOver="this.style.backgroundColor='#FAFAFA'" onMouseOut="this.style.backgroundColor='#fff'" class="list">
 										<td width="100%" height="40" align="center" colspan="7">등록된 게시물이 없습니다.</td>
 									</tr>
 									<tr>

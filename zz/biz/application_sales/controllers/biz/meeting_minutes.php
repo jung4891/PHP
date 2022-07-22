@@ -13,6 +13,13 @@ class Meeting_minutes extends CI_Controller {
         $this->company = $this->phpsession->get( 'company', 'stc' );
         $this->email = $this->phpsession->get('email','stc');
         $this->pGroupName = $this->phpsession->get('pGroupName','stc');
+        $this->cooperation_yn = $this->phpsession->get( 'cooperation_yn', 'stc' );
+
+        if($this->cooperation_yn == 'Y') {
+          echo "<script>alert('권한이 없습니다.');location.href='".site_url()."'</script>";
+        }
+
+        $this->load->library('user_agent');
 
         $this->load->Model(array('tech/STC_User', 'biz/STC_mom', 'STC_Common'));
     }
@@ -79,7 +86,13 @@ function mom_list(){
   $data['start_page'] = $start_page;
   $data['end_page'] = $end_page;
   $data['type'] = $type;
-  $this->load->view( 'biz/mom_list', $data);
+
+  if($this->agent->is_mobile()) {
+    $data['title'] = '회의록';
+    $this->load->view( 'biz/mom_list_mobile', $data);
+  } else {
+    $this->load->view( 'biz/mom_list', $data);
+  }
 }
 
 
@@ -317,7 +330,17 @@ for ($i=0; $i < count($id_arr) ; $i++) {
   $data['base'] = $this->STC_mom->get_base();
   // if($mode == "view") {
   $data['mode'] = $mode;
+
+  if($this->agent->is_mobile()) {
+    if($mode == 'view') {
+      $data['title'] = '회의록';
+      $this->load->view('biz/mom_view_mobile', $data);
+    } else {
+      $this->load->view( 'biz/mom_view', $data );
+    }
+  } else {
     $this->load->view( 'biz/mom_view', $data );
+  }
   // }
 
 }

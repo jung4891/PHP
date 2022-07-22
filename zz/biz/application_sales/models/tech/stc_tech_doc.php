@@ -27,7 +27,13 @@ class STC_tech_doc extends CI_Model {
    function get_customer2() {
       // $sql = "select seq as forcasting_seq, customer_companyname as customer, customer_username, exception_saledate2 as maintain_start, exception_saledate3 as maintain_end , project_name from sales_forcasting WHERE (sub_project_add IS NULL) or (sub_project_add IS not NULL AND sub_project_add not like CONCAT('%',seq,'%')) order by binary(customer)";
       //   $sql = "select distinct (customer_companyname) as customer from sales_forcasting order by binary(customer)";
-      $sql = "select t1.seq as forcasting_seq,t1.customer_companyname as customer,t1.customer_username, t1.exception_saledate2 as maintain_start, t1.exception_saledate3 as maintain_end , t1.project_name from sales_forcasting AS t1 order by binary(customer_companyname)";
+      $cooperation_t = '';
+
+      if($this->cooperation_yn == 'Y') {
+        $cooperation_t = 'WHERE t1.seq = 199';
+      }
+
+      $sql = "select t1.seq as forcasting_seq,t1.customer_companyname as customer,t1.customer_username, t1.exception_saledate2 as maintain_start, t1.exception_saledate3 as maintain_end , t1.project_name from sales_forcasting AS t1 {$cooperation_t} order by binary(customer_companyname)";
       $query = $this->db->query($sql);
       return $query->result_array();
    }
@@ -48,6 +54,7 @@ class STC_tech_doc extends CI_Model {
      FROM sales_maintain
      WHERE CURDATE() BETWEEN exception_saledate2 AND exception_saledate3
      ORDER BY BINARY(customer_companyname))";
+
      $query = $this->db->query($sql);
      // echo $this->db->last_query();
      return $query->result_array();
@@ -84,117 +91,301 @@ class STC_tech_doc extends CI_Model {
       return $result;
    }
 
+  function make_searchstring ($target, $searchkeyword) {
+    if (strpos($searchkeyword, '+')!==false){
+       $s = explode('+', $searchkeyword);
+       $e = [];
+       foreach($s as $a) {
+          array_push($e, $target." like '%".trim($a)."%'");
+       }
+       $search = join(' AND ', $e);
+    }else if (strpos($searchkeyword, '|')!==false){
+       $s = explode('|', $searchkeyword);
+       $e = [];
+       foreach($s as $a) {
+          array_push($e, $target." like '%".trim($a)."%'");
+       }
+       $search = join(' OR ', $e);
+      $search = '('.$search.')';
+    } else {
+      $search = $target." like '%".$searchkeyword."%'";
+    }
+
+    return " AND ".$search;
+  }
+
 //기술지원보고서 리스트
-function tech_doc_list( $type, $searchkeyword, $searchkeyword2, $search1, $start_limit = 0, $offset = 0) {
-   $keyword = "%".$searchkeyword."%";
-   $keyword2 = "%".$searchkeyword2."%";
+function tech_doc_list( $type, $searchkeyword, $hashtag, $excellent_report_yn, $start_limit = 0, $offset = 0) {
+  // var_dump($searchkeyword);
+  $searchstring = '';
 
-   if($searchkeyword != "") {
-      if($search1 == "001") {
-         $searchstring = "WHERE subject LIKE '{$keyword}' "; //  수정포인트 -작업명
-      } else if($search1 == "002" ) {
-         $searchstring = "WHERE customer LIKE '{$keyword}' "; //  수정포인트 - 고객사
-      } else if($search1 == "003" ) {
-         $searchstring = "WHERE writer LIKE '{$keyword}' "; //  수정포인트 - 작성자
-      } else if($search1 == "004" ) {
-         $searchstring = "WHERE income_time LIKE '{$keyword}' "; //  수정포인트 - 작업일
-      } else if($search1 == "005" ) {
-         if($keyword=="%완료%"){
-            $keyword="기술지원 완료%";
-         }
-         $searchstring = "WHERE result LIKE '{$keyword}' "; //  수정포인트 - 결과
-      } else if($search1 == "006" ){
+  if ($searchkeyword != ''){
+    $searchkeyword= explode(',',$searchkeyword); // 하나로 합쳐진 문자열 분리
 
-        $searchstring = "WHERE produce LIKE '{$keyword}' AND version LIKE '{$keyword2}'";
+    if(trim($searchkeyword[0])!=''){ //고객사
+      $searchstring .= $this->make_searchstring('customer', $searchkeyword[0]);
+      // $searchstring .= " AND customer LIKE '%{$searchkeyword[0]}%' "; //  수정포인트 -고객사
+    }
+    if(trim($searchkeyword[1])!=''){ //작성자
+      $searchstring .= $this->make_searchstring('writer', $searchkeyword[1]);
+      // $searchstring .= " AND writer LIKE '%{$searchkeyword[1]}%' "; //  수정포인트 -직성자
+    }
+    if(trim($searchkeyword[2])!=''){ //작업명
+      $searchstring .= $this->make_searchstring('subject', $searchkeyword[2]);
+      // $searchstring .= " AND subject LIKE '%{$searchkeyword[2]}%' "; //  수정포인트 -작업명
+    }
+    if(trim($searchkeyword[3])!=''){ //작성일
+      $searchstring .= " AND insert_date LIKE '%{$searchkeyword[3]}%' "; //  수정포인트 -작성일
+    }
+    if(trim($searchkeyword[4])!=''){ //결과
+      $searchstring .= " AND result LIKE '%{$searchkeyword[4]}%' "; //  수정포인트 -결과
+    }
+    if(trim($searchkeyword[5])!=''){ //장비명
+      $searchstring .= $this->make_searchstring('produce', $searchkeyword[5]);
+      // $searchstring .= " AND produce LIKE '%{$searchkeyword[5]}%' "; //  수정포인트 -장비명
+    }
+    if(trim($searchkeyword[6])!=''){ //지원내역
+      $searchstring .= $this->make_searchstring('work_process', $searchkeyword[6]);
+      // $searchstring .= " AND work_process LIKE '%{$searchkeyword[6]}%' "; //  수정포인트 -지원내역
+    }
+
+    if(trim($searchkeyword[7])!='') { //해시태그
+      $searchhashtag = preg_replace('/[," "]+/', '', $searchkeyword[7]); //',', 모든공백 제거
+      $hashtag_arr = explode('#', $searchhashtag);
+      unset($hashtag_arr[0]);
+
+      if(count($hashtag_arr) > 1) { //여러개 검색
+        $hashtag_name = join("','", $hashtag_arr);
+        $hashtag_name = "('".$hashtag_name."')";
+        $cnt = count($hashtag_arr);
+
+        if($type == "N") { //임시저장
+          $searchstring .= "AND seq IN (
+            SELECT tb_seq FROM (SELECT tb_seq FROM hashtag_link hl JOIN hashtag h ON hl.hashtag_seq = h.seq WHERE h.hashtag_name IN {$hashtag_name} AND tb_name = 'tech_doc_basic_temporary_save'
+            ) AS ht GROUP BY tb_seq HAVING COUNT(*) = {$cnt})";
+        } else {
+          $searchstring .= "AND seq IN (
+            SELECT tb_seq FROM (SELECT tb_seq FROM hashtag_link hl JOIN hashtag h ON hl.hashtag_seq = h.seq WHERE h.hashtag_name IN {$hashtag_name} AND tb_name = 'tech_doc_basic'
+            ) AS ht GROUP BY tb_seq HAVING COUNT(*) = {$cnt})";
+        // echo $searchstring;
+        }
+
+      } else if (count($hashtag_arr) == 1) { //한개 검색
+          $hashtag_name = $hashtag_arr[1];
+          $hashtag_name = "('".$hashtag_name."')";
+
+          if($type == "N") { //임시저장
+            $searchstring .= "AND seq IN (
+              SELECT tb_seq FROM hashtag_link hl JOIN hashtag h ON hl.hashtag_seq = h.seq
+              WHERE h.hashtag_name = {$hashtag_name} AND tb_name = 'tech_doc_basic_temporary_save')";
+          } else {
+            $searchstring .= "AND seq IN (
+              SELECT tb_seq FROM hashtag_link hl JOIN hashtag h ON hl.hashtag_seq = h.seq
+              WHERE h.hashtag_name = {$hashtag_name} AND tb_name = 'tech_doc_basic')";
+          // echo $searchstring;
+          }
+
       }
 
-      if($type == "N"){
-        $searchstring .= " AND writer = '{$this->name}'";
-      }
+    }
+    if(trim($searchkeyword[8])!=''){ //지원구분
+      $searchstring .= $this->make_searchstring('work_name', $searchkeyword[8]);
+    }
+    if(trim($searchkeyword[9])!=''){ //제조사
+      $searchstring .= $this->make_searchstring('manufacturer', $searchkeyword[9]);
+    }
+    if(trim($searchkeyword[10])!=''){ //작성기간 시작일
+      $searchstring .= " AND insert_date >= '{$searchkeyword[10]}' AND CAST(insert_date as DATE) <= '{$searchkeyword[11]}'";
+    }
+    // if(trim($searchkeyword[11])!=''){ //작성기간 종료일
+    //   $searchstring .= " AND insert_date <= '{$searchkeyword[11]}'";
+    // }
+    if(trim($searchkeyword[12])!='') {
+      $searchstring .= $this->make_searchstring('version', $searchkeyword[12]);
+    }
+    if(trim($searchkeyword[13])!='') {
+      $searchstring .= $this->make_searchstring('sn', $searchkeyword[13]);
+    }
+  }
 
-   } else {
-      $searchstring = "";
-      if($type == "N"){
-        $searchstring .= "WHERE writer = '{$this->name}'";
-      }
-   }
+  if($hashtag != '') { //해시태그 눌렀을때 셀렉
+    if($type == "N") { //임시저장
+      $hashtag_table = 'tech_doc_basic_temporary_save';
+    } else {
+      $hashtag_table = 'tech_doc_basic';
+    }
+    $hashtag_string = " AND seq IN (
+      SELECT tb_seq FROM hashtag_link hl JOIN hashtag h ON hl.hashtag_seq = h.seq
+      WHERE h.hashtag_name = '{$hashtag}' AND tb_name = '{$hashtag_table}')";
+  } else {
+    $hashtag_string = '';
+  }
 
+  if($type != 'N' && $excellent_report_yn == "Y") {
+    $ex_string = ' AND ex_cnt > 0';
+  } else {
+    $ex_string = '';
+  }
 
-   // $sql = "select * from tech_doc_basic".$searchstring." order by seq desc";
+  if($this->cooperation_yn == 'Y') {
+    $coop = " AND writer_seq = {$this->seq}";
+  } else {
+    $coop = '';
+  }
+
 
    if($type == "N"){ //임시저장tbl
-     $sql = "SELECT * FROM tech_doc_basic_temporary_save {$searchstring} ORDER BY seq DESC";
+     $sql = "SELECT * FROM tech_doc_basic_temporary_save WHERE writer = '{$this->name}' {$searchstring} {$hashtag_string} ORDER BY seq DESC";
      // $my_register_list =  " AND writer = '{$this->name}'";
     // $my_register_list =  " AND register ='{$type}'  AND (writer_id = '{$this->id}' OR participant LIKE '%{$this->id}%')";
-  }else{ //기존 등록tbl
-     $sql = "SELECT * FROM tech_doc_basic {$searchstring} ORDER BY seq DESC";
+   }else{ //기존 등록tbl
+     $sql = "SELECT * FROM tech_doc_basic tdb LEFT JOIN (SELECT basic_seq, COUNT(*) as ex_cnt FROM tech_doc_excellent_report GROUP BY basic_seq) tder on tdb.seq = tder.basic_seq where 1=1 {$searchstring} {$hashtag_string} {$ex_string} {$coop} ORDER BY tdb.seq DESC";
      // $my_register_list = "";
    }
-
    // $sql = "SELECT * FROM tech_doc_basic WHERE register ='{$type}'{$my_register_list}{$searchstring} ORDER BY seq DESC";
-
+// echo $sql;
    if  ( $offset <> 0 )
       $sql = $sql." limit {$start_limit}, {$offset}";
 
-   if  ( $searchkeyword != "" )
-      if($searchkeyword2 == ""){
-         $query = $this->db->query( $sql );
-      }else{
-         $query = $this->db->query( $sql );
-      }
-   else
-      $query = $this->db->query( $sql );
-
+   $query = $this->db->query( $sql );
    return array( 'count' => $query->num_rows(), 'data' => $query->result_array() );
 }
 
 
 // 기술지원보고서 리스트개수
-function tech_doc_list_count( $type, $searchkeyword,$searchkeyword2, $search1, $start_limit = 0, $offset = 0) {
-   $keyword = "%".$searchkeyword."%";
-   $keyword2 = "%".$searchkeyword2."%";
+//컨트롤러에서 넘긴 $searchkeyword 넣어줘야해ㅜ 꼭,,넣어,,
+function tech_doc_list_count( $type, $searchkeyword, $hashtag, $excellent_report_yn, $start_limit = 0, $offset = 0) {
 
-   if($searchkeyword != "") {
-      if($search1 == "001") {
-         $searchstring = "WHERE subject LIKE '{$keyword}' "; //  수정포인트 -작업명
-      } else if($search1 == "002" ) {
-         $searchstring = "WHERE customer LIKE '{$keyword}' "; //  수정포인트 - 고객사
-      } else if($search1 == "003" ) {
-         $searchstring = "WHERE writer LIKE '{$keyword}' "; //  수정포인트 - 작성자
-      } else if($search1 == "004" ) {
-         $searchstring = "WHERE income_time LIKE '{$keyword}' "; //  수정포인트 - 작업일
-      } else if($search1 == "005" ) {
-         $searchstring = "WHERE result LIKE '{$keyword}' "; //  수정포인트 - 작업일
-      } else if($search1 == "006" ) {
-         $searchstring = "WHERE produce LIKE '{$keyword}' AND version LIKE '{$keyword2}'";
+  $searchstring = '';
+
+  if ($searchkeyword != ''){
+
+    $searchkeyword = explode(',',$searchkeyword); // 하나로 합쳐진 문자열 분리
+
+    if(trim($searchkeyword[0])!=''){ //고객사
+      $searchstring .= $this->make_searchstring('customer', $searchkeyword[0]);
+      // $searchstring .= " AND customer LIKE '%{$searchkeyword[0]}%' "; //  수정포인트 -고객사
+    }
+    if(trim($searchkeyword[1])!=''){ //작성자
+      $searchstring .= $this->make_searchstring('writer', $searchkeyword[1]);
+      // $searchstring .= " AND writer LIKE '%{$searchkeyword[1]}%' "; //  수정포인트 -직성자
+    }
+    if(trim($searchkeyword[2])!=''){ //직업명
+      $searchstring .= $this->make_searchstring('subject', $searchkeyword[2]);
+      // $searchstring .= " AND subject LIKE '%{$searchkeyword[2]}%' "; //  수정포인트 -작업명
+    }
+    if(trim($searchkeyword[3])!=''){ //작성일
+      $searchstring .= " AND insert_date LIKE '%{$searchkeyword[3]}%' "; //  수정포인트 -작성일
+    }
+    if(trim($searchkeyword[4])!=''){ //결과
+      $searchstring .= " AND result LIKE '%{$searchkeyword[4]}%' "; //  수정포인트 -결과
+    }
+    if(trim($searchkeyword[5])!=''){ //장비명
+      $searchstring .= $this->make_searchstring('produce', $searchkeyword[5]);
+      // $searchstring .= " AND produce LIKE '%{$searchkeyword[5]}%' "; //  수정포인트 -장비명
+    }
+    if(trim($searchkeyword[6])!=''){ //지원내역
+      $searchstring .= $this->make_searchstring('work_process', $searchkeyword[6]);
+      // $searchstring .= " AND work_process LIKE '%{$searchkeyword[6]}%' "; //  수정포인트 -지원내역
+    }
+    // var_dump($searchkeyword);
+    // exit;
+
+    if(trim($searchkeyword[7])!='') { //해시태그
+      $searchhashtag = preg_replace('/[," "]+/', '', $searchkeyword[7]); //',', 모든공백 제거
+      $hashtag_arr = explode('#', $searchhashtag);
+      unset($hashtag_arr[0]);
+
+      if(count($hashtag_arr) > 1) { //여러개 검색
+        $hashtag_name = join("','", $hashtag_arr);
+        $hashtag_name = "('".$hashtag_name."')";
+        $cnt = count($hashtag_arr);
+
+        if($type == "N") { //임시저장
+          $searchstring .= "AND seq IN (
+            SELECT tb_seq FROM (SELECT tb_seq FROM hashtag_link hl JOIN hashtag h ON hl.hashtag_seq = h.seq WHERE h.hashtag_name IN {$hashtag_name} AND tb_name = 'tech_doc_basic_temporary_save'
+            ) AS ht GROUP BY tb_seq HAVING COUNT(*) = {$cnt})";
+        } else {
+          $searchstring .= "AND seq IN (
+            SELECT tb_seq FROM (SELECT tb_seq FROM hashtag_link hl JOIN hashtag h ON hl.hashtag_seq = h.seq WHERE h.hashtag_name IN {$hashtag_name} AND tb_name = 'tech_doc_basic'
+            ) AS ht GROUP BY tb_seq HAVING COUNT(*) = {$cnt})";
+        // echo $searchstring;
+        }
+
+      } else if (count($hashtag_arr) == 1) { //한게 검색
+          $hashtag_name = $hashtag_arr[1];
+          $hashtag_name = "('".$hashtag_name."')";
+
+          if($type == "N") { //임시저장
+            $searchstring .= "AND seq IN (
+              SELECT tb_seq FROM hashtag_link hl JOIN hashtag h ON hl.hashtag_seq = h.seq
+              WHERE h.hashtag_name = {$hashtag_name} AND tb_name = 'tech_doc_basic_temporary_save')";
+          } else {
+            $searchstring .= "AND seq IN (
+              SELECT tb_seq FROM hashtag_link hl JOIN hashtag h ON hl.hashtag_seq = h.seq
+              WHERE h.hashtag_name = {$hashtag_name} AND tb_name = 'tech_doc_basic')";
+          // echo $searchstring;
+          }
+
       }
 
-      if($type == "N"){
-        $searchstring .= " AND writer = '{$this->name}'";
-      }
+    }
+    if(trim($searchkeyword[8])!=''){ //지원구분
+      $searchstring .= $this->make_searchstring('work_name', $searchkeyword[8]);
+      // $searchstring .= " AND writer LIKE '%{$searchkeyword[8]}%' "; //  수정포인트 -지원구분
+    }
+    if(trim($searchkeyword[9])!=''){ //제조사
+      $searchstring .= $this->make_searchstring('manufacturer', $searchkeyword[9]);
+      // $searchstring .= " AND writer LIKE '%{$searchkeyword[9]}%' "; //  수정포인트 -제조사
+    }
+    if(trim($searchkeyword[10])!=''){ //작성기간 시작일
+      // $searchstring .= $this->make_searchstring('insert_date', $searchkeyword[10]);
+      $searchstring .= " AND insert_date >= '{$searchkeyword[10]}' AND CAST(insert_date as DATE) <= '{$searchkeyword[11]}'";
 
-   } else {
-      $searchstring = "";
-      if($type == "N"){
-        $searchstring .= "WHERE writer = '{$this->name}'";
-      }
-   }
+      // $searchstring .= " AND writer LIKE '%{$searchkeyword[10]}%' "; //  수정포인트 -작성기간
+    }
+    if(trim($searchkeyword[12])!='') {
+      $searchstring .= $this->make_searchstring('version', $searchkeyword[12]);
+    }
+    if(trim($searchkeyword[13])!='') {
+      $searchstring .= $this->make_searchstring('sn', $searchkeyword[13]);
+    }
+
+  }
+
+  if($hashtag != '') { //해시태그 눌렀을때 셀렉
+    if($type == "N") { //임시저장
+      $hashtag_table = 'tech_doc_basic_temporary_save';
+    } else {
+      $hashtag_table = 'tech_doc_basic';
+    }
+    $hashtag_string = " AND seq IN (
+      SELECT tb_seq FROM hashtag_link hl JOIN hashtag h ON hl.hashtag_seq = h.seq
+      WHERE h.hashtag_name = '{$hashtag}' AND tb_name = '{$hashtag_table}')";
+  } else {
+    $hashtag_string = '';
+  }
+
+  if($type != 'N' && $excellent_report_yn == "Y") {
+    $ex_string = ' AND ex_cnt > 0';
+  } else {
+    $ex_string = '';
+  }
+
+  if($this->cooperation_yn == 'Y') {
+    $coop = " AND writer_seq = {$this->seq}";
+  } else {
+    $coop = '';
+  }
 
    if($type == "N"){ //임시저장tbl
-     $sql = "SELECT count(seq) AS ucount FROM tech_doc_basic_temporary_save {$searchstring} ORDER BY seq DESC";
+     $sql = "SELECT count(seq) AS ucount FROM tech_doc_basic_temporary_save WHERE writer = '{$this->name}' {$searchstring} {$hashtag_string} ORDER BY seq DESC";
    }else{ //기존 등록tbl
-     $sql = "SELECT count(seq) AS ucount FROM tech_doc_basic {$searchstring} ORDER BY seq DESC";
+     $sql = "SELECT count(seq) AS ucount FROM tech_doc_basic tdb LEFT JOIN (SELECT basic_seq, COUNT(*) as ex_cnt FROM tech_doc_excellent_report GROUP BY basic_seq) tder on tdb.seq = tder.basic_seq where 1=1 {$searchstring} {$hashtag_string} {$ex_string} {$coop} ORDER BY seq DESC";
    }
    // $sql = "select count(seq) as ucount from tech_doc_basic".$searchstring." order by seq desc"; //  수정포인트
-   if( $searchkeyword != "" ){
-      if( $searchkeyword2 == "" ){
-         $query = $this->db->query( $sql );
-      }else{
-         $query = $this->db->query( $sql );
-      }
-   }else{
-      $query = $this->db->query( $sql );
-   }
+   $query = $this->db->query( $sql );
+
    return $query->row();
 }
 
@@ -215,6 +406,9 @@ function tech_doc_list_count( $type, $searchkeyword,$searchkeyword2, $search1, $
             $this->db->where('seq', $seq);
             $this->db->delete('tech_doc_basic');
 
+            $this->db->where('tb_seq', $seq); //기존 해시태그링크 초기화
+            $this->db->delete('hashtag_link');
+
           }else{
             //임시저장 페이지에서 등록을 한다.
             $result = $this->db->insert('tech_doc_basic', $data );
@@ -222,6 +416,9 @@ function tech_doc_list_count( $type, $searchkeyword,$searchkeyword2, $search1, $
 
             $this->db->where('seq', $seq);
             $this->db->delete('tech_doc_basic_temporary_save');
+
+            $this->db->where('tb_seq', $seq); //기존 해시태그링크 초기화
+            $this->db->delete('hashtag_link');
           }
 
         }else{
@@ -679,6 +876,36 @@ function tech_doc_list_count( $type, $searchkeyword,$searchkeyword2, $search1, $
       return $query->result_array();
    }
 
+   //야간근무결과보고서 작성여부 확인
+   function night_document($seq) {
+     $sql = "SELECT approval_doc_status FROM electronic_approval_doc WHERE tech_seq = {$seq} AND approval_form_seq = 56";
+     $query = $this->db->query($sql);
+     $result = $query->row_array();
+     return $result;
+   }
+
+   //주말근무결과보고서 작성여부 확인
+   function weekend_document($seq) {
+     $sql = "SELECT approval_doc_status FROM electronic_approval_doc WHERE tech_seq = {$seq} AND approval_form_seq = 21";
+     $query = $this->db->query($sql);
+     $result = $query->row_array();
+     return $result;
+   }
+
+   //출장보고서 작성여부 확인
+   function trip_document($seq) {
+     $sql = "SELECT approval_doc_status FROM electronic_approval_doc WHERE tech_seq = {$seq} AND approval_form_seq = 17";
+     $query = $this->db->query($sql);
+     $result = $query->row_array();
+     return $result;
+   }
+
+   function approval_document($seq) {
+     $sql = "SELECT approval_doc_status FROM electronic_approval_doc WHERE tech_seq = {$seq} AND approval_form_seq = 74";
+     $query = $this->db->query($sql);
+     return $query->row_array();
+   }
+
    //cover delete
    function cover_delete($seq){
       $sql="delete from cover where seq ={$seq}";
@@ -894,6 +1121,106 @@ function tech_doc_list_count( $type, $searchkeyword,$searchkeyword2, $search1, $
       }
    }
 
+   //버그사항 추가 수정
+   function bug_insert($type ,$data){
+       if($type == 0){
+          return $this->db->insert('tech_bug', $data);
+       }else if($type == 1){//update
+          return $this->db->update('tech_bug', $data ,array('seq' => $data['seq']));
+       }else if ($type == 3){
+          $sql = "select * from tech_bug where tech_doc_seq = '{$data}'";
+          $query =$this->db->query($sql);
+          if ($query->num_rows() <= 0) {
+             return false;
+          } else {
+             return $query->row_array();
+          }
+       }else if ($type == 4){
+          $sql = "SELECT a.*,b.user_name from tech_bug AS a
+          left join user AS b
+          ON a.writer_id = b.user_id
+          WHERE a.result ='N' {$data}
+          order BY a.seq";
+          $query =$this->db->query($sql);
+          if ($query->num_rows() <= 0) {
+             return false;
+          } else {
+             return $query->result_array();
+          }
+       }else if ($type == 5){
+          $sql = "select * from tech_bug where seq = '{$data}'";
+          $query = $this->db->query($sql);
+          if ($query->num_rows() <= 0) {
+             return false;
+          } else {
+             return $query->row_array();
+          }
+       }
+   }
+
+
+   function hashtag_reset($insert_seq) { //해시태그수정 or 보고서삭제시 초기화
+     $this->db->where('tb_seq', $insert_seq);
+     $this->db->delete('hashtag_link');
+
+   }
+
+   function hashtag_cnt($hashtag) { //해시태그 중복여부확인위한 카운트
+     $sql = "SELECT count(*) as cnt from hashtag where hashtag_name = '{$hashtag}'";
+     $result = $this->db->query($sql);
+
+     return $result->row_array();
+   }
+
+   function hashtag_insert($data) { //해시태그테이블에 추가
+     $this->db->insert('hashtag', $data);
+     $hashtag_seq = $this->db->insert_id();
+
+     return $hashtag_seq;
+   }
+
+   function hashtag_select($hashtag) { //중복해시태그 셀렉
+     $sql = "SELECT seq FROM hashtag where hashtag_name = '{$hashtag}'";
+     $result = $this->db->query($sql);
+
+     return $result->row_array();
+   }
+
+   function hashtag_link_insert($data) { //링크테이블에 추가
+     $result = $this->db->insert('hashtag_link', $data);
+
+     return $result;
+   }
+
+   function hashtag_view($seq, $type) { //해시태그 뷰
+     if($type == "N") { //임시저장
+       $sql = "SELECT hashtag_name FROM hashtag_link AS hl JOIN hashtag AS h ON hl.hashtag_seq = h.seq
+       WHERE tb_seq = '{$seq}' AND tb_name = 'tech_doc_basic_temporary_save'";
+     } else {
+       $sql = "SELECT hashtag_name FROM hashtag_link AS hl JOIN hashtag AS h ON hl.hashtag_seq = h.seq
+       WHERE tb_seq = '{$seq}' AND tb_name = 'tech_doc_basic'";
+     }
+
+     $hashtag_name = $this->db->query($sql);
+
+     return $hashtag_name->result_array();
+   }
+
+   function bug_view($seq){ //버그 뷰
+     $sql = "SELECT contents FROM tech_bug WHERE tech_doc_seq = '{$seq}'";
+     $result = $this->db->query($sql);
+
+     return $result->row_array();
+   }
+
+   // function bug_modify($seq){ // 기지보 수정창 버그 뷰
+   //   $sql = "SELECT contents FROM tech_bug WHERE tech_doc_seq = '{$seq}'";
+   //   $result = $this->db->query($sql);
+   //
+   //   return $result->row_array();
+   // }
+
+
    //기지보 미완료 리스트
    function tech_doc_basic_incompletion($search){
      $sql ="SELECT * FROM tech_doc_basic WHERE result LIKE '%미완료%' {$search} ORDER BY seq";
@@ -939,6 +1266,170 @@ function tech_doc_list_count( $type, $searchkeyword,$searchkeyword2, $search1, $
      $query = $this->db->query($sql);
 
    }
+
+   //기술지원보고서 리스트
+   function tech_doc_list_mobile( $type, $searchkeyword, $searchkeyword2, $search1, $start_limit = 0, $offset = 0) {
+      $keyword = "%".$searchkeyword."%";
+      $keyword2 = "%".$searchkeyword2."%";
+
+      if($searchkeyword != "") {
+         if($search1 == "001") {
+            $searchstring = "WHERE subject LIKE '{$keyword}' "; //  수정포인트 -작업명
+         } else if($search1 == "002" ) {
+            $searchstring = "WHERE customer LIKE '{$keyword}' "; //  수정포인트 - 고객사
+         } else if($search1 == "003" ) {
+            $searchstring = "WHERE writer LIKE '{$keyword}' "; //  수정포인트 - 작성자
+         } else if($search1 == "004" ) {
+            $searchstring = "WHERE income_time LIKE '{$keyword}' "; //  수정포인트 - 작업일
+         } else if($search1 == "005" ) {
+            if($keyword=="%완료%"){
+               $keyword="기술지원 완료%";
+            }
+            $searchstring = "WHERE result LIKE '{$keyword}' "; //  수정포인트 - 결과
+         } else if($search1 == "006" ){
+
+           $searchstring = "WHERE produce LIKE '{$keyword}' AND version LIKE '{$keyword2}'";
+         }
+
+         if($type == "N"){
+           $searchstring .= " AND writer = '{$this->name}'";
+         }
+
+      } else {
+         $searchstring = "";
+         if($type == "N"){
+           $searchstring .= "WHERE writer = '{$this->name}'";
+         }
+      }
+
+
+      // $sql = "select * from tech_doc_basic".$searchstring." order by seq desc";
+
+      if($type == "N"){ //임시저장tbl
+        $sql = "SELECT * FROM tech_doc_basic_temporary_save {$searchstring} ORDER BY seq DESC";
+        // $my_register_list =  " AND writer = '{$this->name}'";
+       // $my_register_list =  " AND register ='{$type}'  AND (writer_id = '{$this->id}' OR participant LIKE '%{$this->id}%')";
+     }else{ //기존 등록tbl
+        $sql = "SELECT * FROM tech_doc_basic {$searchstring} ORDER BY seq DESC";
+        // $my_register_list = "";
+      }
+
+      // $sql = "SELECT * FROM tech_doc_basic WHERE register ='{$type}'{$my_register_list}{$searchstring} ORDER BY seq DESC";
+
+      if  ( $offset <> 0 )
+         $sql = $sql." limit {$start_limit}, {$offset}";
+
+      if  ( $searchkeyword != "" )
+         if($searchkeyword2 == ""){
+            $query = $this->db->query( $sql );
+         }else{
+            $query = $this->db->query( $sql );
+         }
+      else
+         $query = $this->db->query( $sql );
+
+      return array( 'count' => $query->num_rows(), 'data' => $query->result_array() );
+   }
+
+
+   // 기술지원보고서 리스트개수
+   function tech_doc_list_count_mobile( $type, $searchkeyword,$searchkeyword2, $search1, $start_limit = 0, $offset = 0) {
+      $keyword = "%".$searchkeyword."%";
+      $keyword2 = "%".$searchkeyword2."%";
+
+      if($searchkeyword != "") {
+         if($search1 == "001") {
+            $searchstring = "WHERE subject LIKE '{$keyword}' "; //  수정포인트 -작업명
+         } else if($search1 == "002" ) {
+            $searchstring = "WHERE customer LIKE '{$keyword}' "; //  수정포인트 - 고객사
+         } else if($search1 == "003" ) {
+            $searchstring = "WHERE writer LIKE '{$keyword}' "; //  수정포인트 - 작성자
+         } else if($search1 == "004" ) {
+            $searchstring = "WHERE income_time LIKE '{$keyword}' "; //  수정포인트 - 작업일
+         } else if($search1 == "005" ) {
+            $searchstring = "WHERE result LIKE '{$keyword}' "; //  수정포인트 - 작업일
+         } else if($search1 == "006" ) {
+            $searchstring = "WHERE produce LIKE '{$keyword}' AND version LIKE '{$keyword2}'";
+         }
+
+         if($type == "N"){
+           $searchstring .= " AND writer = '{$this->name}'";
+         }
+
+      } else {
+         $searchstring = "";
+         if($type == "N"){
+           $searchstring .= "WHERE writer = '{$this->name}'";
+         }
+      }
+
+      if($type == "N"){ //임시저장tbl
+        $sql = "SELECT count(seq) AS ucount FROM tech_doc_basic_temporary_save {$searchstring} ORDER BY seq DESC";
+      }else{ //기존 등록tbl
+        $sql = "SELECT count(seq) AS ucount FROM tech_doc_basic {$searchstring} ORDER BY seq DESC";
+      }
+      // $sql = "select count(seq) as ucount from tech_doc_basic".$searchstring." order by seq desc"; //  수정포인트
+      if( $searchkeyword != "" ){
+         if( $searchkeyword2 == "" ){
+            $query = $this->db->query( $sql );
+         }else{
+            $query = $this->db->query( $sql );
+         }
+      }else{
+         $query = $this->db->query( $sql );
+      }
+      return $query->row();
+   }
+
+   // 제품 정보 저장
+  function save_product_info($mode, $product_seq, $data) {
+    $this->db->where('seq', $product_seq);
+    return $this->db->update('sales_'.$mode.'_product', $data);
+  }
+
+  //제품 제조사(중복없이)가져오기
+  function product_company(){
+    $sql = "SELECT DISTINCT product_company FROM product";
+    $query = $this->db->query( $sql );
+
+    if ($query->num_rows() <= 0) {
+      return false;
+    } else {
+      return $query->result_array();
+    }
+  }
+
+  //우수보고서 선택
+  function excellentReportInsert($data){
+   return $this->db->insert('tech_doc_excellent_report', $data);
+  }
+
+  //우수보고서 취소
+  function excellentReportCancle($seq){
+    $where = array(
+      'basic_seq' => $seq,
+      'selector_seq' => $this->seq
+    );
+
+    $this->db->where($where);
+    $this->db->delete('tech_doc_excellent_report');
+  }
+
+  function excellent_check_list($seq) {
+    $sql = "SELECT tder.*, u.user_name, u.user_duty FROM tech_doc_excellent_report tder LEFT JOIN user u ON tder.selector_seq = u.seq WHERE basic_seq = {$seq}";
+
+    $query = $this->db->query($sql);
+
+    return $query->result_array();
+  }
+
+  function find_sign_img($writer) {
+    $sql = "SELECT sign_changename FROM user WHERE user_name = '{$writer}'";
+
+    $query = $this->db->query($sql);
+
+    return $query->row_array();
+  }
 }
 
 ?>

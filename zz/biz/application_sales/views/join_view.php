@@ -63,7 +63,7 @@ function PWAnnounce() {
 
 var chkForm = function () {
 	var mform = document.cform;
-	
+
 	if (mform.company_name.value == "") {
 		mform.company_name.focus();
 		alert("회사명을 입력해 주세요.");
@@ -120,20 +120,20 @@ var chkForm = function () {
 		mform.user_email.focus();
 		return false;
 	}
-	
+
 	var regex=/^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/;
-	if(regex.test(mform.user_email.value) === false) {  
+	if(regex.test(mform.user_email.value) === false) {
 		alert("잘못된 이메일 형식입니다.");
 		mform.user_email.focus();
-		return false;  
-	} 
+		return false;
+	}
 
 	if(mform.user_tel.value == ""){
 		alert("연락처를 입력해 주세요.");
 		mform.user_tel.focus();
 		return false;
 	}
-	
+
 	if(mform.pconfirm.checked == false){
 		alert("이용약관에 동의해주셔야 합니다.");
 		return false;
@@ -147,6 +147,36 @@ var chkForm = function () {
 	mform.submit();
 	return false;
 }
+
+
+// 전화번호 - 자동입력
+function inputPhoneNumber(obj) {
+
+	var number = obj.value.replace(/[^0-9]/g, "");
+	var phone = "";
+
+	if(number.length < 4) {
+		return number;
+	 } else if(number.length < 7) {
+		 phone += number.substr(0, 3);
+		 phone += "-";
+		 phone += number.substr(3);
+	  } else if(number.length < 11) {
+			 phone += number.substr(0, 3);
+			 phone += "-";
+			 phone += number.substr(3, 3);
+			 phone += "-";
+			 phone += number.substr(6);
+		  } else {
+				 phone += number.substr(0, 3);
+				 phone += "-";
+				 phone += number.substr(3, 4);
+			   phone += "-";
+				 phone += number.substr(7);
+				 }
+				 obj.value = phone;
+			  }
+
 
 </script>
 </head>
@@ -219,7 +249,7 @@ var chkForm = function () {
           <tr>
             <td height="10" colspan="2"></td>
           </tr>
-          <tr>  
+          <tr>
             <td colspan="2"><input name="user_duty" type="text" class="login_input" id="user_duty" placeholder="직급"></td>
           </tr>
           <tr>
@@ -231,8 +261,8 @@ var chkForm = function () {
           <tr>
             <td height="10" colspan="2"></td>
           </tr>
-          <tr>  
-            <td colspan="2"><input name="user_tel" type="text" class="login_input" id="user_tel" placeholder="연락처"></td>
+          <tr>
+            <td colspan="2"><input name="user_tel" type="text" class="login_input" id="user_tel" onkeyup="inputPhoneNumber(this);" maxlength="13" placeholder="연락처 (숫자만 입력해주세요)"></td>
           </tr>
 
         </table></td>

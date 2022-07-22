@@ -15,6 +15,20 @@ include $this->input->server('DOCUMENT_ROOT') . "/include/sales_top.php";
      padding-left:5px;
      padding-right:5px;
    }
+<?php if ($_GET['type'] == '5') { ?>
+ #check_product_info {
+   margin-left:10px;
+   font-size:12px;
+   font-weight: normal;
+   color: #0575E6;
+ }
+<?php } ?>
+.change_collective {
+  background-color: rgb(250, 162, 162);
+}
+.change_collective ~ span .select2-selection--single {
+  background-color: rgb(250, 162, 162) !important;
+}
 </style>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.9/css/select2.min.css" rel="stylesheet" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.9/js/select2.min.js"></script>
@@ -44,7 +58,7 @@ include $this->input->server('DOCUMENT_ROOT') . "/include/sales_top.php";
 			var id = "product_insert_field_" + $("#row_max_index2").val(); //선
 			var html = "";
 			html += '<tr id="'+id+'"><td height="40" align="center"><input type="checkbox" name="product_row" class="drop" value="'+row_num+'" /></td>';
-			html += '<td height="40" align="center" >'+$("#row_max_index2").val()+'</td>';
+			html += '<td height="40" align="center" ><span class="p_num">'+$("#row_max_index2").val()+'</span></td>';
 			html += '<td align="left">';
 			html += '<select name="product_company" id="product_company'+row_num+'" class="input7" onchange="product_type_default('+row_num+');productSearch('+row_num+');">';
 			html += '<option value="" >제조사</option>';
@@ -54,6 +68,7 @@ include $this->input->server('DOCUMENT_ROOT') . "/include/sales_top.php";
 			html += '</select></td>';
 			html += '<td align="left">';
 			html += '<select name="product_supplier" id="product_supplier'+row_num+'" class="input7">';
+      html += '<option value=""></option>';
 			<?php foreach($view_val2 as $item2){?>
 				html +=  "<option value='<?php echo $item2['main_companyname']; ?>'><?php echo $item2['main_companyname'];?></option>";
 			<?php }?>
@@ -91,6 +106,8 @@ include $this->input->server('DOCUMENT_ROOT') . "/include/sales_top.php";
 			document.documentElement.scrollTop = document.body.scrollHeight; //스크롤 맨밑으로 내려
 			filter_reload('product_table');
 			$(".select-all").prop('checked',false);
+      p_numbering();
+      check_product_info();
 		});
 	});
 
@@ -107,8 +124,18 @@ include $this->input->server('DOCUMENT_ROOT') . "/include/sales_top.php";
 		}
 		$("#product_insert_field_" + idx).remove();
 		t_forcasting_profit_change();
+    p_numbering();
+    check_product_info();
 		// $("#row_max_index2").val(Number(Number($("#row_max_index2").val()) - Number(1)));
 	}
+
+  function p_numbering() {
+    var num = 1;
+    $('.p_num').each(function() {
+      $(this).text(num);
+      num ++;
+    })
+  }
 
 	function forcasting_profit_change() {
 		var mform = document.cform;
@@ -683,6 +710,13 @@ include $this->input->server('DOCUMENT_ROOT') . "/include/sales_top.php";
 										<input type="radio" name="infor_comm_corporation" value="N" <?php if($view_val['infor_comm_corporation'] == "N"){echo "checked"; } ?> /> 미신청
 									</td>
 								</tr>
+                <tr class="tbl-tr cell-tr">
+                  <td class="tbl-title">매출종류</td>
+                  <td colspan="3" class="tbl-cell">
+                    <input type="radio" name="sales_type" value="delivery" <?php if($view_val['sales_type'] == 'delivery') {echo "checked";} ?>> 납품
+                    <input type="radio" name="sales_type" value="circulation" <?php if($view_val['sales_type'] == 'circulation') {echo "checked";} ?>> 유통
+                  </td>
+                </tr>
 							<?php }else if($_GET['type'] == '3'){?>
 								<tr>
 									<td class="tbl-sub-title">매출처 정보</td>
@@ -851,7 +885,7 @@ include $this->input->server('DOCUMENT_ROOT') . "/include/sales_top.php";
 												<tr>
 													<td style="font-weight:bold;">제조사</td>
 													<td>
-														<select id="check_product_company" class="input7" onchange="productSearch('check');">
+														<select id="check_product_company" class="input7" onchange="productSearch('check');product_collective(this);$('#check_product_name').change();">
 															<option value="" >제조사</option>
 															<?php foreach($product_company as $pc){
 																echo "<option value='{$pc['product_company']}'>{$pc['product_company']}</option>";
@@ -861,7 +895,7 @@ include $this->input->server('DOCUMENT_ROOT') . "/include/sales_top.php";
 													<td><input type="button" class="btn-common btn-style2" value="선택적용" onclick="collectiveApplication('product_company',2);" style="width:90px;cursor:pointer;" /></td>
 													<td style="font-weight:bold;">매입처</td>
 													<td>
-														<select id="check_product_supplier" class="select-common">
+														<select id="check_product_supplier" class="select-common" onchange="product_collective(this);">
 														<?php foreach($view_val2 as $item2){
 															echo "<option value='{$item2['main_companyname']}'>{$item2['main_companyname']}</option>";
 														}?>
@@ -870,7 +904,7 @@ include $this->input->server('DOCUMENT_ROOT') . "/include/sales_top.php";
 													<td><input type="button" class="btn-common btn-style2" value="선택적용" onclick="collectiveApplication('product_supplier',1);" style="width:90px;cursor:pointer;" /></td>
 													<td style="font-weight:bold;">제품상태</td>
 													<td>
-														<select id="check_product_state" class="select-common">
+														<select id="check_product_state" class="select-common" onchange="product_collective(this);">
 															<option value="0">- 제품 상태 -</option>
 															<option value="001">입고 전</option>
 															<option value="002">창고</option>
@@ -879,12 +913,14 @@ include $this->input->server('DOCUMENT_ROOT') . "/include/sales_top.php";
 														</select>
 													</td>
 													<td><input type="button" class="btn-common btn-style2" value="선택적용" onclick="collectiveApplication('product_state',1);" style="width:90px;cursor:pointer;" /></td>
-
+                          <td rowspan="2" style="padding-bottom:10px;">
+                            <input type="button" class="btn-common btn-style2" value="일괄적용" onclick="collectiveApplication_all();" style="width:90px;height:60px;" />
+                          </td>
 												</tr>
 												<tr>
 													<td style="font-weight:bold;">제품명</td>
 													<td>
-														<select id="check_product_name" class="select-common" onclick="productSearch('check',this.value);">
+														<select id="check_product_name" class="select-common" onclick="productSearch('check',this.value);" onchange="product_collective(this);">
 															<option value="" selected>제조사를 선택해주세요</option>
 														</select>
 													</td>
@@ -893,14 +929,14 @@ include $this->input->server('DOCUMENT_ROOT') . "/include/sales_top.php";
                           </td>
 													<td style="font-weight:bold;">장비매출가</td>
 													<td>
-                            <input type="text" class="input-common" id="check_product_sales" value=0 onclick="numberFormat(this);" onchange="numberFormat(this);" />
+                            <input type="text" class="input-common" id="check_product_sales" value=0 onclick="numberFormat(this);" onchange="numberFormat(this);product_collective(this);" />
                           </td>
 													<td>
                             <input type="button" class="btn-common btn-style2" value="선택적용" onclick="collectiveApplication('product_sales',0);" style="width:90px;cursor:pointer;" />
                           </td>
 													<td style="font-weight:bold;">장비매입가</td>
 													<td>
-                            <input type="text" class="input-common" id="check_product_purchase" value=0 onclick="numberFormat(this);" onchange="numberFormat(this);" />
+                            <input type="text" class="input-common" id="check_product_purchase" value=0 onclick="numberFormat(this);" onchange="numberFormat(this);product_collective(this);" />
                           </td>
 													<td>
                             <input type="button" class="btn-common btn-style2" value="선택적용" onclick="collectiveApplication('product_purchase',0);" style="width:90px;cursor:pointer;" />
@@ -911,7 +947,7 @@ include $this->input->server('DOCUMENT_ROOT') . "/include/sales_top.php";
 									</td>
 								</tr>
                 <tr>
-									<td colspan="6" class="tbl-sub-title">제품 정보</td>
+									<td colspan="6" class="tbl-sub-title">제품 정보<span id="check_product_info"></span></td>
 								</tr>
 								<tr>
 									<td colspan="6" >
@@ -967,7 +1003,7 @@ include $this->input->server('DOCUMENT_ROOT') . "/include/sales_top.php";
 															<input type="hidden" name ="product_seq" id="product_seq<?php echo $i; ?>" value="<?php echo $item3['seq']; ?>" />
 															<input type="checkbox" name="product_row" class="drop" value="<?php echo $i; ?>" />
 														</td>
-														<td><?php echo $j; ?></td>
+														<td><span class="p_num"><?php echo $j; ?></span></td>
 														<td>
 															<select name="product_company" id="product_company<?php echo $i; ?>" class="input7" onchange="product_type_default(<?php echo $i; ?>);productSearch(<?php echo $i; ?>);">
 																<option value="" >제조사</option>
@@ -982,6 +1018,7 @@ include $this->input->server('DOCUMENT_ROOT') . "/include/sales_top.php";
 														</td>
 														<td>
 															<select name="product_supplier" id="product_supplier<?php echo $i; ?>" class="select-common">
+                                <option value="" <?php if($item3['product_supplier']==''){echo 'selected';} ?>></option>
 															<?php foreach($view_val2 as $item2){
 																echo "<option value='{$item2['main_companyname']}'";
 																if($item3['product_supplier'] == $item2['main_companyname']){
@@ -1754,7 +1791,7 @@ include $this->input->server('DOCUMENT_ROOT') . "/include/sales_top.php";
 	//일괄적용
 	function collectiveApplication(column,tagName){
 		if($('input:checkbox[name="product_row"]:checked').length > 0){
-			if(confirm("일괄수정 하시겠습니까?")){
+			if(confirm("선택 수정 하시겠습니까?")){
 				if(column == "product_name"){
 					$('input:checkbox[name="product_row"]').each(function () {
 						if (this.checked == true) {
@@ -1809,6 +1846,84 @@ include $this->input->server('DOCUMENT_ROOT') . "/include/sales_top.php";
 		}
 	}
 
+  function collectiveApplication_all() {
+    if($('input:checkbox[name="product_row"]:checked').length > 0){
+      var change_t = '';
+      var change_collective = [];
+      $('.change_collective').each(function(){
+        var td = $(this).closest('td').prev();
+        var name = td.text();
+        change_t += '\n' + name;
+        change_collective.push($(this).attr('id'));
+      })
+
+			if(change_collective.length == 0) {
+				alert('변동사항이 없습니다.');
+				return false;
+			}
+
+      if(confirm('일괄수정 하시겠습니까?\n----변경사항----' + change_t)) {
+        var input_t = ['product_sales', 'product_purchase'];
+        var select_t = ['product_state', 'product_supplier'];
+        var select2_t = ['product_company', 'product_name'];
+        $('input:checkbox[name="product_row"]').each(function() {
+          if(this.checked == true) {
+            for (var i = 0; i < input_t.length; i++) {
+              var column = input_t[i];
+              if($.inArray('check_'+column, change_collective) != -1) {
+
+                var val = $('#check_'+column).val();
+
+                $("#"+column+this.value).val(val);
+                if(column=="product_sales" || column=="product_purchase" ){
+                  product_profit_change(this.value,1);
+                }else{
+                  if($("#"+column+this.value).attr('onchange') != "" && $("#"+column+this.value).attr('onchange') != undefined ){
+                    $("#"+column+this.value).trigger('change');
+                  }
+                }
+              }
+            }
+            for (var i = 0; i < select_t.length; i++) {
+              var column = select_t[i];
+              if($.inArray('check_'+column, change_collective) != -1) {
+                var val = $('#check_'+column).val();
+
+                $("#"+column+this.value).val(val).prop("selected",true);
+  							if($("#"+column+this.value).attr('onchange') != "" && $("#"+column+this.value).attr('onchange') != undefined ){
+  								$("#"+column+this.value).trigger('change');
+  							}
+              }
+            }
+            for (var i = 0; i < select2_t.length; i++) {
+              var column = select2_t[i];
+              if($.inArray('check_'+column, change_collective) != -1) {
+                var val = $('#check_'+column).val();
+
+                $("#"+column+this.value).val(val).prop("selected",true);
+  							$("#"+column+this.value).select2().val(val);
+  							if(column == "product_company"){
+  								product_type_default(this.value);
+  								productSearch(this.value);
+  							}else{
+  								if($("#"+column+this.value).attr('onchange') != "" && $("#"+column+this.value).attr('onchange') != undefined ){
+  									$("#"+column+this.value).trigger('change');
+  								}
+  							}
+              }
+            }
+          }
+        });
+        filter_reload('product_table');
+				t_forcasting_profit_change();
+				forcasting_profit_change();
+      }
+    } else {
+      alert('선택된 제품이 없습니다.');
+      return false;
+    }
+  }
+
 	//전체선택 체크박스 클릭
 	$(function () {
 		$("#allCheck").click(function () { //만약 전체 선택 체크박스가 체크된상태일경우
@@ -1824,6 +1939,7 @@ include $this->input->server('DOCUMENT_ROOT') . "/include/sales_top.php";
 			} else { //해당화면에 모든 checkbox들의 체크를해제시킨다.
 				$("input[name=product_row]").prop("checked", false);
 			}
+      check_product_info();
 		})
 	})
 
@@ -1928,6 +2044,32 @@ include $this->input->server('DOCUMENT_ROOT') . "/include/sales_top.php";
 		filter_reload(target);
 		$("#"+target).find($(".select-all:not(:checked)")).trigger("click");
 	}
+
+<?php if($_GET['type'] == '5'){ ?>
+  $(function() {
+    check_product_info();
+  })
+
+  $('#product_table input[name="product_row"]').change(function() {
+    check_product_info();
+  })
+
+  function check_product_info() {
+    var total = $('#product_table input[name="product_row"]').length;
+    var checked = $('#product_table input[name=product_row]:checked').length;
+
+    $('#check_product_info').text('선택 수 : 총 ' + total + ' 중 ' + checked + ' 건');
+  }
+<?php } ?>
+
+function product_collective(el) {
+  console.log($(el).val());
+  if($(el).val()!= '' && $(el).val()!= '0') {
+    $(el).addClass('change_collective');
+  } else if ($(el).val()=='' || $(el).val()=='0') {
+    $(el).removeClass('change_collective');
+  }
+}
 </script>
 </body>
 

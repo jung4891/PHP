@@ -13,6 +13,11 @@ class Durian_car extends CI_Controller {
         $this->company = $this->phpsession->get( 'company', 'stc' );
         $this->email = $this->phpsession->get('email','stc');
         $this->pGroupName = $this->phpsession->get('pGroupName','stc');
+        $this->cooperation_yn = $this->phpsession->get( 'cooperation_yn', 'stc' );
+
+        if($this->cooperation_yn == 'Y') {
+          echo "<script>alert('권한이 없습니다.');location.href='".site_url()."'</script>";
+        }
 
         $this->load->Model(array('tech/STC_User', 'biz/STC_tech_car'));
     }
@@ -84,11 +89,13 @@ class Durian_car extends CI_Controller {
 
         if($this->agent->is_mobile()){
           $data['mobile'] = 'true';
+          $data['title'] = '차량일지';
+          $this->load->view('biz/car_drive_list_mobile', $data );
         } else {
           $data['mobile'] = 'false';
+          $this->load->view('biz/car_drive_list', $data );
         }
 
-        $this->load->view('biz/car_drive_list', $data );
 
 
 	}
@@ -313,6 +320,47 @@ class Durian_car extends CI_Controller {
       );
       $result = $this->STC_tech_car->find_before_seq($data);
       echo json_encode($result);
+    }
+
+    function excelDownload(){
+
+      // $carname        = $this->input->post("add_carname"); // 차종
+      // // $carnum         = $this->input->post("carnum"); // 차량번호
+      // $d_point        = $this->input->post("add_d_point"); // 출발지
+      // $a_point        = $this->input->post("add_a_point"); // 도착지
+      // $d_km           = $this->input->post("add_d_km"); // 출발km
+      // $a_km           = $this->input->post("add_a_km"); // 도착km
+      // $drive_distance = $this->input->post("add_total_km");// 주행거리
+      // $driver         = $this->input->post("add_driver"); // 운행자
+      // // $writer         = $this->name // 등록자 ???
+      // $drive_date     = $this->input->post("add_drive_date");// 운행일
+      // $d_time         = $this->input->post("add_d_time"); // 출발시
+      // $a_time         = $this->input->post("add_a_time"); // 도착시
+      // $oil            = $this->input->post("add_oil"); // 주유비
+      // $drive_purpose  = $this->input->post("add_drive_purpose"); // 운행목적
+      // $etc            = $this->input->post("add_etc"); // 기타
+      //
+      // $data = array(
+  		// 	'carname'                   => $carname,
+  		// 	// 'carnum'                    => $carnum,
+      //   'd_point'                   => $d_point,
+      //   'a_point'                   => $a_point,
+      //   'd_km'                      => $d_km,
+      //   'a_km'                      => $a_km,
+      //   'drive_distance'            => $drive_distance,
+      //   'driver'                    => $driver,
+      //   // 'writer'                    => $writer,
+      //   'drive_date'                => $drive_date,
+      //   'd_time'                    => $d_time,
+      //   'a_time'                    => $a_time,
+      //   'oil'                       => $oil,
+      //   'drive_purpose'             => $drive_purpose,
+      //   'etc'                       => $etc
+  		// );
+
+      $result = $this->STC_tech_car->excelDownload();
+        echo json_encode($result);
+
     }
 
 }?>

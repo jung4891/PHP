@@ -11,6 +11,12 @@ class Attendance_admin extends CI_Controller {
       $this->id = $this->phpsession->get( 'id', 'stc' );
       $this->name = $this->phpsession->get( 'name', 'stc' );
       $this->lv = $this->phpsession->get( 'lv', 'stc' );
+      $this->cooperation_yn = $this->phpsession->get( 'cooperation_yn', 'stc' );
+
+      if($this->cooperation_yn == 'Y') {
+        echo "<script>alert('권한이 없습니다.');location.href='".site_url()."'</script>";
+      }
+      $this->load->library('user_agent');
 
       $this->load->Model(array('STC_Common', 'admin/STC_Attendance_admin'));
    }
@@ -99,6 +105,8 @@ class Attendance_admin extends CI_Controller {
       $data['list_val'] = $user_list_data['data'];
       $data['list_val_count'] = $user_list_data['count'];
 
+      $data['calc_sum'] = $this->STC_Attendance_admin->attendance_list_calc($search_keyword);
+
       $total_page = 1;
       if  ( $data['count'] % $no_page_list == 0 )
          $total_page = floor( ( $data['count'] / $no_page_list ) );
@@ -117,7 +125,10 @@ class Attendance_admin extends CI_Controller {
       $data['start_page'] = $start_page;
       $data['end_page'] = $end_page;
 
-
+      $data['parentGroup'] = $this->STC_Attendance_admin->parentGroup();
+      $data['user_group'] = $this->STC_Attendance_admin->user_group();
+      $data['userInfo'] = $this->STC_Attendance_admin->userInfo();
+      $data['userDepth'] = $this->STC_Attendance_admin->userDepth();
 
       $this->load->view('admin/attendance_list', $data );
    }
@@ -323,7 +334,12 @@ class Attendance_admin extends CI_Controller {
   $data["pgroup_name"] = $this->STC_Attendance_admin->get_pgroup();
   $data["work_data"] = $work_data;
 
-  $this->load->view('/admin/attendance_working_hours', $data);
+  if($this->agent->is_mobile()) {
+    $data['title'] = '근태관리';
+    $this->load->view('/admin/attendance_working_hours_mobile', $data);
+  } else {
+    $this->load->view('/admin/attendance_working_hours', $data);
+  }
 
      }
 
@@ -399,6 +415,15 @@ class Attendance_admin extends CI_Controller {
          $result = round($result);
          return '100,'.$result;
        }
+     }
+
+     function outside_schedule_data() {
+       $workdate = $this->input->post('workdate'); // view 606번째 줄에서 넘긴 데이터 받아왔어용
+       $user_name = $this->input->post('user_name');
+
+       $result = $this->STC_Attendance_admin->outside_schedule_data($workdate, $user_name);
+
+       echo json_encode($result);
      }
 
 }

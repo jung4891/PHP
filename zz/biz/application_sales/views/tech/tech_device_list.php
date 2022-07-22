@@ -59,13 +59,13 @@ function GoSearch(){
       <!-- </td>
       <td> -->
       <span>
-        <input type="button" class="btn-common btn-style1" value="검색" onClick="return GoSearch();">
+        <input type="button" class="btn-common btn-style2" value="검색" onClick="return GoSearch();">
       </span>
       </td>
       <td align="right">
         <span>
-          <input type="button" class="btn-common btn-color1" value="제품별 점검항목 보기" style="margin-right:10px;width:150px;" onclick="productCheckList();"/>
-          <input type="button" class="btn-common btn-color1" value="제품별 점검항목 추가" style="width:150px;" onclick="productCheckListInput();" />
+          <input type="button" class="btn-common btn-style4" value="제품별 점검항목 보기" style="margin-right:10px;width:150px;" onclick="productCheckList();"/>
+          <input type="button" class="btn-common btn-color6" value="제품별 점검항목 추가" style="width:150px;" onclick="productCheckListInput();" />
         </span>
       </td>
     </tr>
@@ -79,7 +79,7 @@ function GoSearch(){
   <table class="content_dash_tbl" align="center" width="100%" border="0" cellspacing="0" cellpadding="0">
     <tr>
       <td>
-        <table class="list_tbl" style="margin-top:20px;" width="100%" border="0" cellspacing="0" cellpadding="0">
+        <table class="list_tbl list" style="margin-top:20px;" width="100%" border="0" cellspacing="0" cellpadding="0">
           <colgroup>
             <col width="7%">
             <col width="10%">
@@ -117,7 +117,7 @@ function GoSearch(){
                 <td></td>
                 <td height="40" align="center"><?php echo $i;?></td>
                 <td align="center">
-                  <a href="JavaScript:ViewBoard('<?php echo $item['seq'];?>')">
+                  <a class="list" href="JavaScript:ViewBoard('<?php echo $item['seq'];?>')">
                     <?php echo $item['customer_companyname'];?> (<?php echo $item['project_name']; ?>)
                   </a>
                 </td>
@@ -186,9 +186,9 @@ function GoSearch(){
 <?php
 if ($cur_page > 10){
 ?>
-    <td width="19"><a href="JavaScript:GoFirstPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_first.png" width="20" height="20"/></a></td>
+    <td width="19"><a href="JavaScript:GoFirstPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_last_left.svg" width="20" height="20"/></a></td>
     <td width="2"></td>
-    <td width="19"><a href="JavaScript:GoPrevPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_left.png" width="20" height="20"/></a></td>
+    <td width="19"><a href="JavaScript:GoPrevPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_left.svg" width="20" height="20"/></a></td>
 <?php
 } else {
 ?>
@@ -220,8 +220,8 @@ if   ( floor( ( $cur_page - 1 ) / 10 ) < floor( ( $total_page - 1 ) / 10 ) ){
 ?>
 <!-- <td width="19"><a href="JavaScript:GoNextPage()"><img src="<?php echo $misc;?>img/dashboard/page_next.png" width="20" height="20"/></a></td> -->
     <td width="2"></td>
-    <td width="19"><a href="JavaScript:GoNextPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_right.png" width="20" height="20"/></a></td>
-    <td width="19"><a href="JavaScript:GoLastPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_last.png" width="20" height="20"/></a></td>
+    <td width="19"><a href="JavaScript:GoNextPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_right.svg" width="20" height="20"/></a></td>
+    <td width="19"><a href="JavaScript:GoLastPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_last_right.svg" width="20" height="20"/></a></td>
 <?php
 } else {
 ?>

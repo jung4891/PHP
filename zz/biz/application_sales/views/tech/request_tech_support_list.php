@@ -151,7 +151,6 @@ function ViewBoard(seq){
           <option value="005" <?php if($search1 == "005"){ echo "selected";}?>>진행단계</option>
           <option value="006" <?php if($search1 == "006"){ echo "selected";}?>>최종승인</option>
           <option value="007" <?php if($search1 == "007"){ echo "selected";}?>>설치일자</option>
-          <option value="008" <?php if($search1 == "008"){ echo "selected";}?>>세금계산서</option>
           <!-- <option value="009" <?php if($search1 == "009"){ echo "selected";}?>>serial</option> -->
         </select>
 
@@ -162,21 +161,21 @@ function ViewBoard(seq){
   <input  type="hidden" size="25" class="input-common" name="searchkeyword2" id="searchkeyword2" placeholder="버전명을 입력하세요." value="<?php echo str_replace('"', '&uml;', $search_keyword2 );?>" style="margin-right:10px;" />
 </span>
         <span>
-          <input type="button" class="btn-common btn-style1" value="검색" onClick="return GoSearch();">
+          <input type="button" class="btn-common btn-style2" value="검색" onClick="return GoSearch();">
         </span>
         <!-- <span>
         <input type="text" id="tax_num" style="float:right;display:none;" class="select7">
         </span> -->
         </td>
 
-        <td align="right">
-        </td>
-        <td align="right">
+        <!-- <td align="right">
+        </td> -->
+        <td align="right" style="position:relative;left:5%;">
           <?php if($tech_lv == 3){ ?>
-          <input type="button" class="btn-common btn-color1" value="삭제" style="margin-right:5px;" onclick="delete_request_tech_support();" />
-          <input type="button" class="btn-common btn-color1" value="품의서 작성" style="margin-right:5px;" onclick="write_approval();" />
-          <input type="button" class="btn-common btn-color1" value="최종승인" style="margin-right:5px;" onclick="finalApproval();" />
-          <button class="btn-common btn-color1" type="button" name="button" style="margin-right:5px;" onclick="personopen();">담당자 설정</button>
+          <input type="button" class="btn-common btn-color4" value="삭제" style="margin-right:5px;" onclick="delete_request_tech_support();" />
+          <input type="button" class="btn-common btn-color7" value="품의서 작성" style="margin-right:5px;" onclick="write_approval();" />
+          <input type="button" class="btn-common btn-color7" value="최종승인" style="margin-right:5px;" onclick="finalApproval();" />
+          <button class="btn-common btn-style5" type="button" name="button" style="margin-right:5px;" onclick="personopen();">담당자 설정</button>
         <?php } ?>
         <?php if($tech_lv > 0) {?>
           <a href="<?php echo site_url();?>/tech/tech_board/request_tech_support_input">
@@ -199,7 +198,7 @@ function ViewBoard(seq){
     <table class="content_dash_tbl" align="center" width="100%" border="0" cellspacing="0" cellpadding="0">
       <tr>
         <td>
-          <table class="list_tbl" style="margin-top:20px;" width="100%" border="0" cellspacing="0" cellpadding="0">
+          <table class="list_tbl list" style="margin-top:20px;" width="100%" border="0" cellspacing="0" cellpadding="0">
             <colgroup>
               <col width="4%">
               <col width="5%">
@@ -258,7 +257,7 @@ function ViewBoard(seq){
                   </td>
 
                   <td align="center">
-                    <a href="JavaScript:ViewBoard('<?php echo $item['seq'];?>')">
+                    <a class="list" href="JavaScript:ViewBoard('<?php echo $item['seq'];?>')">
                       <?php echo $item['customer_company'];?>
                     </a>
                   </td>
@@ -341,9 +340,9 @@ function ViewBoard(seq){
 <?php
 if ($cur_page > 10){
 ?>
-      <td width="19"><a href="JavaScript:GoFirstPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_first.png" width="20" height="20"/></a></td>
+      <td width="19"><a href="JavaScript:GoFirstPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_last_left.svg" width="20" height="20"/></a></td>
       <td width="2"></td>
-      <td width="19"><a href="JavaScript:GoPrevPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_left.png" width="20" height="20"/></a></td>
+      <td width="19"><a href="JavaScript:GoPrevPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_left.svg" width="20" height="20"/></a></td>
 <?php
 } else {
 ?>
@@ -375,8 +374,8 @@ if   ( floor( ( $cur_page - 1 ) / 10 ) < floor( ( $total_page - 1 ) / 10 ) ){
 ?>
 <!-- <td width="19"><a href="JavaScript:GoNextPage()"><img src="<?php echo $misc;?>img/dashboard/page_next.png" width="20" height="20"/></a></td> -->
       <td width="2"></td>
-      <td width="19"><a href="JavaScript:GoNextPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_right.png" width="20" height="20"/></a></td>
-      <td width="19"><a href="JavaScript:GoLastPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_last.png" width="20" height="20"/></a></td>
+      <td width="19"><a href="JavaScript:GoNextPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_right.svg" width="20" height="20"/></a></td>
+      <td width="19"><a href="JavaScript:GoLastPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_last_right.svg" width="20" height="20"/></a></td>
 <?php
 } else {
 ?>
@@ -761,6 +760,10 @@ function change_person(){
           }
           if (data.deposit_status == "Y") {
             $("#deposit_YN").text('완료');
+          } else if (data.deposit_status == 'L') {
+            $('#deposit_YN').text('부족');
+          } else if (data.deposit_status == 'O') {
+            $('#deposit_YN').text('과잉');
           } else {
             $("#deposit_YN").text('미완료');
           }

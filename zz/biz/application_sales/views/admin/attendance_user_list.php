@@ -159,9 +159,9 @@
 	<?php
 		if ($cur_page > 10){
 	?>
-							<td width="19"><a href="JavaScript:GoFirstPage()"><img src="<?php echo $misc;?>img/btn_prev.jpg" /></a></td>
+							<td width="19"><a href="JavaScript:GoFirstPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_last_left.svg" /></a></td>
 							<td width="2"></td>
-							<td width="19"><a href="JavaScript:GoPrevPage()"><img src="<?php echo $misc;?>img/btn_left.jpg" /></a></td>
+							<td width="19"><a href="JavaScript:GoPrevPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_left.svg" /></a></td>
 	<?php
 		} else {
 	?>
@@ -190,9 +190,9 @@
 							<?php
 			if   ( floor( ( $cur_page - 1 ) / 10 ) < floor( ( $total_page - 1 ) / 10 ) ){
 		?>
-		<td width="19"><a href="JavaScript:GoNextPage()"><img src="<?php echo $misc;?>img/btn_right.jpg"/></a></td>
+		<td width="19"><a href="JavaScript:GoNextPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_right.svg"/></a></td>
 							<td width="2"></td>
-							<td width="19"><a href="JavaScript:GoLastPage()"><img src="<?php echo $misc;?>img/btn_next.jpg" /></a></td>
+							<td width="19"><a href="JavaScript:GoLastPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_last_right.svg" /></a></td>
 		<?php
 			} else {
 		?>
@@ -268,7 +268,7 @@
 			</tr>
 			<tr>
 				<td colspan="2" align="right">
-					<input type="button" class="btn-common btn-color1" style="width:70px; margin-right:10px;" value="취소" onclick="$('#attendance_input').bPopup().close();">
+					<input type="button" class="btn-common btn-color4" style="width:70px; margin-right:10px;" value="취소" onclick="$('#attendance_input').bPopup().close();">
 					<input type="button" class="btn-common btn-color2" style="width:70px;" value="등록" onclick="javascript:chkForm();return false;">
 				</td>
 			</tr>

@@ -55,6 +55,11 @@
 			echo "sessionStorage.setItem('sidemanu', 'notice')";
 		}
 
+		else if(strpos($_SERVER['REQUEST_URI'],'tech/board/edudata_') !== false || strpos($_SERVER['REQUEST_URI'],'tech/board/dailyWorkLog_') !== false || strpos($_SERVER['REQUEST_URI'],'tech/board/study_document_') !== false){
+
+			echo "sessionStorage.setItem('sidemanu', 'education')";
+		}
+
 		else if(strpos($_SERVER['REQUEST_URI'],'tech/maintain/') !== false || strpos($_SERVER['REQUEST_URI'],'tech/board/network_map_') !== false || strpos($_SERVER['REQUEST_URI'],'tech/tech_board/tech_doc_') !== false || strpos($_SERVER['REQUEST_URI'],'tech/tech_board/request_tech_support_') !== false ){
 
 			echo "sessionStorage.setItem('sidemanu', 'customer')";
@@ -111,7 +116,7 @@ if(strpos($_SERVER['REQUEST_URI'],'sales/forcasting/order_completed') !== false 
 	echo "subside_open('order_completed')";
 }
 
-if(strpos($_SERVER['REQUEST_URI'],'sales/maintain/maintain_list') !== false || strpos($_SERVER['REQUEST_URI'],'sales/maintain/maintain_unissued')) {
+if(strpos($_SERVER['REQUEST_URI'],'sales/maintain/maintain_list?type=001') !== false || strpos($_SERVER['REQUEST_URI'],'sales/maintain/maintain_list?type=002') !== false || strpos($_SERVER['REQUEST_URI'],'sales/maintain/maintain_unissued')) {
 	echo "subside_open('maintain')";
 }
 
@@ -125,6 +130,10 @@ if(strpos($_SERVER['REQUEST_URI'],'sales/purchase_sales/') !== false){
 
 if(strpos($_SERVER['REQUEST_URI'],'tech/board/manual_') !== false || strpos($_SERVER['REQUEST_URI'],'tech/board/faq_') !== false){
 	echo "subside_open('notice')";
+}
+
+if(strpos($_SERVER['REQUEST_URI'],'tech/board/edudata_') !== false || strpos($_SERVER['REQUEST_URI'],'tech/board/dailyWorkLog_') !== false || strpos($_SERVER['REQUEST_URI'],'tech/board/study_document_') !== false){
+	echo "subside_open('education')";
 }
 
 if(strpos($_SERVER['REQUEST_URI'],'tech/maintain/') !== false || strpos($_SERVER['REQUEST_URI'],'tech/board/network_map_') !== false || strpos($_SERVER['REQUEST_URI'],'tech/tech_board/tech_doc_') !== false || strpos($_SERVER['REQUEST_URI'],'tech/tech_board/request_tech_support_') !== false || strpos($_SERVER['REQUEST_URI'],'tech/tech_board/tech_issue')){
@@ -229,6 +238,9 @@ var subside_open = function(menu){
 			$("#manual_sidenav").show();
 			break;
 
+		case 'education':
+			$("#education_sidenav").show();
+			break;
 
 		case 'customer':
 			$("#customer_sidenav").show();

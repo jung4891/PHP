@@ -17,10 +17,16 @@ class Approval extends CI_Controller {
         $this->pGroupName = $this->phpsession->get( 'pGroupName', 'stc' );
         $this->group = $this->phpsession->get( 'group', 'stc' );
         $this->seq = $this->phpsession->get( 'seq', 'stc' );
+        $this->cooperation_yn = $this->phpsession->get( 'cooperation_yn', 'stc' );
+
+        if($this->cooperation_yn == 'Y') {
+          echo "<script>alert('권한이 없습니다.');location.href='".site_url()."'</script>";
+        }
         $this->load->helper('form');
         $this->load->helper('url');
 
         $this->load->model('biz/STC_Approval' );
+        $this->load->model('biz/STC_Official_doc' );
         $this->load->model('tech/STC_Tech_doc' );
         $this->load->model('tech/STC_request_tech_support' );
         $this->load->model('sales/STC_Forcasting');
@@ -149,6 +155,7 @@ class Approval extends CI_Controller {
             $data['sales_val2'] = $this->STC_Forcasting->forcasting_view2($sales_seq);		//주사업자
             $data['sales_val3'] = $this->STC_Forcasting->forcasting_view3($sales_seq);		//제품명
             $data['sales_val4'] = $this->STC_Forcasting->forcasting_view4($sales_seq);   //제품 group by제품명,매입처
+            $data['sales_val5'] = $this->STC_Forcasting->forcasting_view5($sales_seq);
         }else if(isset($_GET['maintain_seq'])){
             $maintain_seq=$_GET['maintain_seq'];
             $data['sales_val'] = $this->STC_Maintain->maintain_view($maintain_seq);		//기본
@@ -158,6 +165,10 @@ class Approval extends CI_Controller {
             $data['sales_val4'] = $this->STC_Maintain->maintain_view6($maintain_seq);   //제품 group by제품명,매입처
             $data['sales_bill'] = $this->STC_Maintain->maintain_sales_bill_view($maintain_seq); //매출 세금계산서
             $data['purchase_bill'] = $this->STC_Maintain->maintain_purchase_bill_groupby_view($maintain_seq);//매입 세금계산서
+        } else if(isset($_GET['official_doc'])){
+          $official_doc_seq = str_replace("_", ",", $_GET['official_doc']);
+          $data['official_doc_seq'] = $official_doc_seq;
+          $data['official_doc'] = $this->STC_Official_doc->official_doc_data($official_doc_seq);
         }
 
         $data['seq']= $seq;
@@ -170,6 +181,13 @@ class Approval extends CI_Controller {
         $data['user_parents_group'] = $this->STC_Approval->user_parents_group_mobile();
         $data['depth1_user'] = $this->STC_Approval->depth1_user_mobile();
         $data['depth2_user'] = $this->STC_Approval->depth2_user_mobile();
+        $data['corporation_card_num'] = $this->STC_Approval->corporation_card_num($this->id);
+
+        //기지보 <-> 전자결재
+        if(isset($_GET['tech_seq'])) {
+          $tech_seq = $_GET['tech_seq'];
+          $data['tech_data_val'] = $this->STC_Approval->tech_data($tech_seq);
+        }
 
         if ($this->agent->is_mobile()) {
           $data['title'] = '전자결재';
@@ -191,6 +209,7 @@ class Approval extends CI_Controller {
 		    $writer_group = $this->input->post( 'writer_group' );
         $referrer = $this->input->post( 'referrer' );
         $approval_attach = $this->input->post( 'approval_attach' );
+        $approval_tech_doc_attach = $this->input->post('approval_tech_doc_attach');
 		    $approval_doc_name = $this->input->post( 'approval_doc_name' );
         $contents_html = $this->input->post( 'contents_html' );
         $editor_contents = $this->input->post( 'editor_contents' );
@@ -201,6 +220,15 @@ class Approval extends CI_Controller {
         $req_support_data = $this->input->post( 'req_support_data' );
         $req_file_real_name = $this->input->post( 'req_file_real_name' );
         $req_file_change_name = $this->input->post( 'req_file_change_name' );
+        $official_doc_attach = $this->input->post( 'official_doc_attach' );
+        $schedule_seq = $this->input->post( 'schedule_seq' ); //기술부일정 <-> 전자결재
+
+        if($approval_tech_doc_attach != '') {
+          $tech_arr = explode('::', $approval_tech_doc_attach);
+          $tech_seq = $tech_arr[0];
+        } else {
+          $tech_seq = null;
+        }
 
         $file_count = $_POST['file_length'];
         if($type == 1){
@@ -288,12 +316,16 @@ class Approval extends CI_Controller {
                 'file_realname' => $file_realname,
                 'file_changename' => $file_changename,
                 'approval_attach' => $approval_attach,
+                'approval_tech_doc_attach' => $approval_tech_doc_attach,
+                'official_doc_attach' => $official_doc_attach,
                 'approval_doc_status' => $approval_doc_status,
                 'writer_id' => $this->id,
                 'insert_date' => date("Y-m-d H:i:s"),
                 'sales_seq' => $sales_seq, //수주완료,유지보수에서 품의서 진행할때
                 'req_support_seq' => $req_support_seq, //기술지원요청에서 품의서 진행할때
-                'req_support_data' => $req_support_data //기술지원요청에서 품의서 진행할때
+                'req_support_data' => $req_support_data, //기술지원요청에서 품의서 진행할때
+                'schedule_seq' => $schedule_seq, //기술부일정 <-> 전자결재
+                'tech_seq' => $tech_seq //기지보 <-> 전자결재
              );
 
             $doc_seq = $this->STC_Approval->electronic_approval_doc_insert( $data, $mode = 1);
@@ -303,6 +335,112 @@ class Approval extends CI_Controller {
               for ($i=0; $i<count($req_seq_arr); $i++) {
                 $this->STC_request_tech_support->req_support_approval_complete($doc_seq,$req_seq_arr[$i]);
               }
+            }
+
+            if ($official_doc_attach != '') {
+              $oda_arr = explode('*/*', $official_doc_attach);
+              for ($i=0; $i<count($oda_arr); $i++) {
+                $oda_seq = explode('--', $oda_arr[$i]);
+                $oda_seq = $oda_seq[0];
+                $this->STC_Official_doc->official_doc_attach_approval($doc_seq, $oda_seq);
+              }
+            }
+
+            // 던킨, 지출결의서 지출내역 저장
+            if($approval_form_seq == 63 || $approval_form_seq == 6) {
+
+              $expense_list_length = $this->input->post('expense_list_length');
+              $expense_t_date = $this->input->post('expense_t_date');
+              $expense_details = $this->input->post('expense_details');
+              $expense_company = $this->input->post('expense_company');
+              $expense_use_area = $this->input->post('expense_use_area');
+              $expense_history_user = $this->input->post('expense_history_user');
+              $expense_use_where = $this->input->post('expense_use_where');
+              $expense_corporation_card = $this->input->post('expense_corporation_card');
+              $expense_personal_card = $this->input->post('expense_personal_card');
+              $expense_simple_receipt = $this->input->post('expense_simple_receipt');
+
+              if($approval_form_seq == 63) {
+                $expense_type = 'dunkin';
+              } else {
+                $expense_type = 'expense';
+              }
+
+              for($i = 0; $i < $expense_list_length; $i ++) {
+                $data = array(
+                  'approval_seq'     => $doc_seq,
+                  't_date'           => $expense_t_date[$i],
+                  'details'          => $expense_details[$i],
+                  'company'          => $expense_company[$i],
+                  'use_area'         => $expense_use_area[$i],
+                  'history_user'     => $expense_history_user[$i],
+                  'use_where'        => $expense_use_where[$i],
+                  'corporation_card' => $expense_corporation_card[$i],
+                  'personal_card'    => $expense_personal_card[$i],
+                  'simple_receipt'   => $expense_simple_receipt[$i],
+                  'user_id'          => $this->id,
+                  'type'             => $expense_type
+                );
+                $this->STC_Approval->save_expense_list($data);
+              }
+            }
+
+            if($approval_form_seq == 17 || $approval_form_seq == 74) {
+              $expense_list_length = $this->input->post('expense_list_length');
+              $expense_t_date = $this->input->post('expense_t_date');
+              $expense_details = $this->input->post('expense_details');
+              $expense_company = $this->input->post('expense_company');
+              $expense_history_user = $this->input->post('expense_history_user');
+              $expense_corporation_card = $this->input->post('expense_corporation_card');
+              $expense_personal_card = $this->input->post('expense_personal_card');
+              $expense_simple_receipt = $this->input->post('expense_simple_receipt');
+
+              for($i = 0; $i < $expense_list_length; $i++) {
+                $data = array(
+                  'approval_seq'     => $doc_seq,
+                  't_date'           => $expense_t_date[$i],
+                  'details'          => $expense_details[$i],
+                  'company'          => $expense_company[$i],
+                  'history_user'     => $expense_history_user[$i],
+                  'corporation_card' => $expense_corporation_card[$i],
+                  'personal_card'    => $expense_personal_card[$i],
+                  'simple_receipt'   => $expense_simple_receipt[$i],
+                  'user_id'          => $this->id
+                );
+                $this->STC_Approval->save_expense_list_tech($data);
+              }
+            }
+
+            // 연봉계약서
+            if($approval_form_seq == 71) {
+              $contract_year = $this->input->post('contract_year');
+              $contracting_party = $this->input->post('contracting_party');
+              $salary = $this->input->post('salary');
+
+              $contracting_party_seq = $this->STC_Approval->find_user_seq($contracting_party);
+
+              $data = array(
+                'approval_seq'          => $doc_seq,
+                'contracting_party_seq' => $contracting_party_seq['seq'],
+                'contract_year'         => $contract_year,
+                'salary'                => $salary,
+              );
+              $this->STC_Approval->save_salary_contract($data);
+            }
+
+            if($approval_form_seq == 75) {
+              $purpose_of_use = $this->input->post('purpose_of_use');
+              $required_date = $this->input->post('required_date');
+              $doc_num1 = $this->input->post('doc_num1');
+
+              $data = array(
+                'approval_seq'   => $doc_seq,
+                'doc_num1'       => $doc_num1,
+                'purpose_of_use' => $purpose_of_use,
+                'user_duty'      => $this->duty
+              );
+
+              $this->STC_Approval->save_employment_doc($data);
             }
 
             //연차신청서일 경우
@@ -317,8 +455,18 @@ class Approval extends CI_Controller {
                     'annual_cnt' => $this->input->post( 'annual_cnt' ),
                     'annual_reason' => $this->input->post( 'annual_reason' ),
                     'user_id' => $this->id,
+                    'auto_deligation' => $this->input->post( 'auto_deligation' ),
                     'insert_date' => date("Y-m-d H:i:s")
                 );
+
+                $functional_agent = $this->input->post('functional_agent');
+                if($functional_agent != '') {
+                  $functional_agent_seq = $this->STC_Approval->find_user_seq($functional_agent);
+                }
+
+                $data['functional_agent_seq'] = $functional_agent_seq['seq'];
+                $data['functional_agent'] = $functional_agent;
+                $data['annual_group'] = $this->group;
 
                 $result = $this->STC_Approval->electronic_approval_annual_insert( $data, $mode = 1);
 
@@ -369,6 +517,8 @@ class Approval extends CI_Controller {
                 'file_realname' => $file_realname,
                 'file_changename' => $file_changename,
                 'approval_attach' => $approval_attach,
+                'approval_tech_doc_attach' => $approval_tech_doc_attach,
+                'official_doc_attach' => $official_doc_attach,
                 'approval_doc_status' => $approval_doc_status,
                 'writer_id' => $this->id,
                 'insert_date' => date("Y-m-d H:i:s")
@@ -377,6 +527,107 @@ class Approval extends CI_Controller {
              if($result){
                 $doc_seq = $seq;
              }
+
+             // 던킨, 지출결의서 지출내역 저장
+             if($approval_form_seq == 63 || $approval_form_seq == 6) {
+
+               $this->STC_Approval->delete_expense_list($doc_seq);
+
+               $expense_list_length = $this->input->post('expense_list_length');
+               $expense_t_date = $this->input->post('expense_t_date');
+               $expense_details = $this->input->post('expense_details');
+               $expense_company = $this->input->post('expense_company');
+               $expense_use_area = $this->input->post('expense_use_area');
+               $expense_history_user = $this->input->post('expense_history_user');
+               $expense_use_where = $this->input->post('expense_use_where');
+               $expense_corporation_card = $this->input->post('expense_corporation_card');
+               $expense_personal_card = $this->input->post('expense_personal_card');
+               $expense_simple_receipt = $this->input->post('expense_simple_receipt');
+
+               if($approval_form_seq == 63) {
+                 $expense_type = 'dunkin';
+               } else {
+                 $expense_type = 'expense';
+               }
+
+               for($i = 0; $i < $expense_list_length; $i ++) {
+                 $data = array(
+                   'approval_seq'     => $doc_seq,
+                   't_date'           => $expense_t_date[$i],
+                   'details'          => $expense_details[$i],
+                   'company'          => $expense_company[$i],
+                   'use_area'         => $expense_use_area[$i],
+                   'history_user'     => $expense_history_user[$i],
+                   'use_where'        => $expense_use_where[$i],
+                   'corporation_card' => $expense_corporation_card[$i],
+                   'personal_card'    => $expense_personal_card[$i],
+                   'simple_receipt'   => $expense_simple_receipt[$i],
+                   'user_id'          => $this->id,
+                   'type'             => $expense_type
+                 );
+                 $this->STC_Approval->save_expense_list($data);
+               }
+             }
+
+            if($approval_form_seq == 17 || $approval_form_seq == 74) {
+              $this->STC_Approval->delete_expense_list_tech($doc_seq);
+
+              $expense_list_length = $this->input->post('expense_list_length');
+              $expense_t_date = $this->input->post('expense_t_date');
+              $expense_details = $this->input->post('expense_details');
+              $expense_company = $this->input->post('expense_company');
+              $expense_history_user = $this->input->post('expense_history_user');
+              $expense_corporation_card = $this->input->post('expense_corporation_card');
+              $expense_personal_card = $this->input->post('expense_personal_card');
+              $expense_simple_receipt = $this->input->post('expense_simple_receipt');
+
+              for($i = 0; $i < $expense_list_length; $i++) {
+                $data = array(
+                  'approval_seq'     => $doc_seq,
+                  't_date'           => $expense_t_date[$i],
+                  'details'          => $expense_details[$i],
+                  'company'          => $expense_company[$i],
+                  'history_user'     => $expense_history_user[$i],
+                  'corporation_card' => $expense_corporation_card[$i],
+                  'personal_card'    => $expense_personal_card[$i],
+                  'simple_receipt'   => $expense_simple_receipt[$i],
+                  'user_id'          => $this->id
+                );
+                $this->STC_Approval->save_expense_list_tech($data);
+              }
+            }
+
+            // 연봉계약서
+            if($approval_form_seq == 71) {
+              $contract_year = $this->input->post('contract_year');
+              $contracting_party = $this->input->post('contracting_party');
+              $salary = $this->input->post('salary');
+
+              $contracting_party_seq = $this->STC_Approval->find_user_seq($contracting_party);
+
+              $data = array(
+                'approval_seq'          => $doc_seq,
+                'contracting_party_seq' => $contracting_party_seq['seq'],
+                'contract_year'         => $contract_year,
+                'salary'                => $salary,
+              );
+              $this->STC_Approval->save_salary_contract($data);
+            }
+
+            if($approval_form_seq == 75) {
+              $purpose_of_use = $this->input->post('purpose_of_use');
+              $required_date = $this->input->post('required_date');
+              $doc_num1 = $this->input->post('doc_num1');
+
+              $data = array(
+                'doc_num1'       => $doc_num1,
+                'purpose_of_use' => $purpose_of_use,
+                'user_duty'      => $this->duty
+              );
+
+              $this->STC_Approval->update_employment_doc($data, $doc_seq);
+            }
+
             //연차신청서일 경우
             if($approval_form_seq == "annual"){
                 $data = array(
@@ -389,6 +640,7 @@ class Approval extends CI_Controller {
                     'annual_cnt' => $this->input->post( 'annual_cnt' ),
                     'annual_reason' => $this->input->post( 'annual_reason' ),
                     'user_id' => $this->id,
+                    'auto_deligation' => $this->input->post('auto_deligation'),
                     'update_date' => date("Y-m-d H:i:s")
                 );
                 $result = $this->STC_Approval->electronic_approval_annual_insert( $data, $mode = 2);
@@ -544,6 +796,20 @@ class Approval extends CI_Controller {
         $data['comment'] = $this->STC_Approval->approval_comment_select($seq);
         $data['delegation_info'] = $this->STC_Approval->delegation_info($this->seq);
 
+        if($data['view_val']['approval_form_seq'] == 71) {
+          $data['contract_party'] = $this->STC_Approval->contract_party_val($seq);
+        }
+
+        if(isset($data['contract_party']) && $data['contract_party']['contracting_party_seq'] == $this->seq) {
+          $data['sign_confirm'] = 'Y';
+        } else {
+          $data['sign_confirm'] = 'N';
+        }
+
+        if($data['view_val']['approval_form_seq'] == 75) {
+          $data['employment_doc'] = $this->STC_Approval->employment_doc_val($seq);
+        }
+
         if ($this->agent->is_mobile()) {
           $data['title'] = '전자결재';
           $this->load->view( 'biz/electronic_approval_doc_view_mobile', $data );
@@ -564,6 +830,11 @@ class Approval extends CI_Controller {
         }else{
             $data['type'] ="";
         }
+        if(isset($_GET['mode'])) {
+          $data['mode'] = $_GET['mode'];
+        } else {
+          $data['mode'] = 'attach';
+        }
         $data['seq']= $seq;
         $data['category'] = $this->STC_Approval->select_format_category();
         $data['view_val'] = $this->STC_Approval->approval_doc_view($seq);
@@ -577,6 +848,7 @@ class Approval extends CI_Controller {
         if(!empty($data['cur_approval_line'])){
             $data['mandatary'] = $this->STC_Approval->mandatary_whether($data['cur_approval_line']['user_id']);
         }
+        $data['comment'] = $this->STC_Approval->approval_comment_select($seq);
         $this->load->view( 'biz/electronic_approval_doc_preview',$data);
     }
 
@@ -597,6 +869,12 @@ class Approval extends CI_Controller {
         $data['seq']= $seq;
         $data['category'] = $this->STC_Approval->select_format_category();
         $data['view_val'] = $this->STC_Approval->approval_doc_view($seq);
+        $form_seq = $data['view_val']['approval_form_seq'];
+        if($form_seq != 'annual') {
+          $data['official_doc_yn'] = $this->STC_Official_doc->official_doc_yn($form_seq);
+        } else {
+          $data['official_doc_yn']['official_doc'] = 'N';
+        }
         $data['group_val'] = $this->STC_Approval->parentGroup();
         $data['cur_approval_line'] = $this->STC_Approval->cur_approval_line($seq);
         if(!empty($data['cur_approval_line'])){
@@ -609,6 +887,8 @@ class Approval extends CI_Controller {
         }
         $data['user_approval_line'] = $this->STC_Approval->user_approval_line_select($this->id);
         $data['user_info'] = $this->STC_Common->groupView("all");
+        $data['corporation_card_num'] = $this->STC_Approval->corporation_card_num($this->id);
+
         $this->load->view( 'biz/electronic_approval_doc_modify',$data);
     }
 
@@ -791,6 +1071,7 @@ class Approval extends CI_Controller {
         $data['no_read_cnt_c'] = $this->STC_Approval->approval_list('completion',$search_keyword,$this->seq,'no_read_cnt');//진행중인고
         $data['no_read_cnt_b'] = $this->STC_Approval->approval_list('back',$search_keyword,$this->seq,'no_read_cnt');//진행중인고
         $data['no_read_cnt_r'] = $this->STC_Approval->approval_list('reference',$search_keyword,$this->seq,'no_read_cnt');//진행중인고
+        $data['no_read_cnt_w'] = $this->STC_Approval->approval_list('wage',$search_keyword,$this->seq,'no_read_cnt');//진행중인고
 
         if(!empty($data['view_val'])){
             $data['count'] = count($data['view_val']);
@@ -1086,7 +1367,7 @@ class Approval extends CI_Controller {
 
                 $annual_data = $this->STC_Approval->electronic_approval_annual_select($approval_doc_seq);
 
-                if($annual_data['annual_status'] == "Y"){
+                if($annual_data['annual_status'] == "Y" && $annual_data['annual_type'] == '003'){
                     $year = substr($annual_data['annual_start_date'], 0, 4);
                     $result =$this->STC_Approval->user_annual_update($annual_data['annual_cnt'],$annual_data['user_id'],$year);
                 }
@@ -1131,6 +1412,26 @@ class Approval extends CI_Controller {
 
                 $result = $this->STC_Approval->insert_schedule($schedule_data);
 
+                // 자동 위임
+                $auto_deligation = $annual_data['auto_deligation'];
+
+                if($auto_deligation == 'Y') {
+                  $functional_agent_seq = $annual_data['functional_agent'];
+                  $delegation_data = array(
+                    'delegate_group'  => $annual_data['annual_group'],
+                    'start_date'        => $annual_data['annual_start_date'],
+                    'end_date'          => $annual_data['annual_end_date'],
+                    'mandatary'         => $annual_data['functional_agent'],
+                    'mandatary_seq'     => $annual_data['functional_agent_seq'],
+                    'delegation_reason' => '연차사용으로 인한 자동 등록',
+                    'status'            => 'Y',
+                    'write_id'          => $annual_data['user_id'],
+                    'insert_date'       => date('Y-m-d H:i:s')
+                  );
+
+                  $result = $this->STC_Approval->delegation_save($delegation_data,1);
+                }
+
             }else if ($approval_form_seq == "attendance"){
                 $data = array(
                     'approval_doc_seq' => $approval_doc_seq,
@@ -1159,6 +1460,19 @@ class Approval extends CI_Controller {
               for ($i=0; $i<count($req_seq_arr); $i++) {
                 $this->STC_request_tech_support->req_support_approval_complete($approval_seq,$req_seq_arr[$i]);
               }
+            }
+
+            // 공문 승인 처리
+            $official_doc_approval = $this->STC_Official_doc->official_doc_approval($approval_doc_seq);
+            if(!empty($official_doc_approval)) {
+              foreach($official_doc_approval as $oda) {
+                $this->STC_Official_doc->official_doc_approve($oda['seq']);
+              }
+            }
+
+            // 재직증명서 번호 발급
+            if($approval_form_seq == 75) {
+              $this->STC_Approval->employment_doc_approve($approval_doc_seq);
             }
 
             //최종승인 났을 때 메일 결재라인 모두에게 전송해
@@ -2018,6 +2332,7 @@ class Approval extends CI_Controller {
 		$template_name = $this->input->post('template_name');
 		$template_category = $this->input->post('template_category');
 		$template_type = $this->input->post('template_type');
+		$official_doc = $this->input->post('official_doc');
 		$template_use = $this->input->post('template_use');
         $template_sort_seq = $this->input->post('template_sort_seq');
 		$template_explanation = $this->input->post('template_explanation');
@@ -2029,6 +2344,7 @@ class Approval extends CI_Controller {
 				'template_name' => $template_name,
 				'template_category' => $template_category,
 				'template_type' => $template_type,
+				'official_doc' => $official_doc,
                 'template_use' => $template_use,
 				'template_sort_seq' => $template_sort_seq,
 				'template_explanation' => $template_explanation,
@@ -2045,6 +2361,7 @@ class Approval extends CI_Controller {
 				'template_name' => $template_name,
 				'template_category' => $template_category,
 				'template_type' => $template_type,
+				'official_doc' => $official_doc,
                 'template_use' => $template_use,
 				'template_sort_seq' => $template_sort_seq,
 				'template_explanation' => $template_explanation,
@@ -2156,6 +2473,200 @@ class Approval extends CI_Controller {
       $result = $this->STC_Common->keyword_replace($keyword, $category, $page);
 
       echo json_encode($result);
+    }
+
+    // 엑셀 다운로드
+    function electronic_approval_list_excel() {
+      $type = $this->input->post('type');
+      $search_keyword = $this->input->post('search_keyword');
+
+      $data = $this->STC_Approval->approval_list($type,$search_keyword,$this->seq,'list');
+
+      echo json_encode($data);
+    }
+
+    function expense_list_tech() {
+      $attach_seq = $this->input->post('attach_seq');
+
+      $data = $this->STC_Approval->expense_list_tech($attach_seq);
+
+      echo json_encode($data);
+    }
+
+    function tech_doc_attachment() {
+      if( $this->id === null ) {
+          redirect( 'account' );
+      }
+
+      $type = 'Y';
+
+      if(isset($_GET['cur_page'])) {
+          $cur_page = $_GET['cur_page'];
+      }
+      else {
+          $cur_page = 0;
+              }                                                                                                               //      현재 페이지
+
+      $no_page_list = 10;                                                                             //      한페이지에 나타나는 목록 개수
+
+      //체크한 seq,mailaddr
+      if(isset($_GET['mail_send'])) {
+          $mail_send = $_GET['mail_send'];
+      }
+      else {
+          $mail_send = "";
+      }
+
+      //체크한 고객사 가져올려고
+      if(isset($_GET['seq'])) {
+          $seq = $_GET['seq'];
+      }
+      else {
+          $seq = "";
+      }
+
+    if($this->agent->is_mobile()) {
+      if(isset($_GET['searchkeyword'])) {
+          $search_keyword = $_GET['searchkeyword'];
+      }
+      else {
+          $search_keyword = "";
+      }
+      if(isset($_GET['searchkeyword2'])) {
+          $search_keyword2 = $_GET['searchkeyword2'];
+      }
+      else {
+          $search_keyword2 = "";
+      }
+
+      if(isset($_GET['search1'])) {
+          $search1 = $_GET['search1'];
+      }
+      else {
+          $search1 = "";
+      }
+
+      $data['search_keyword'] = $search_keyword;
+      $data['search_keyword2'] = $search_keyword2;
+      $data['search1'] = $search1;
+    } else {
+      //검색내역들 form전송 받은거 searchkeyword로 받았다
+      if(isset($_GET['searchkeyword'])) {
+        $searchkeyword = $_GET['searchkeyword'];
+      } else {
+        $searchkeyword= '';
+      }
+      // $data['search_keyword'] = $search_keyword; //hidden으로 숨겨놓음
+      // $data['search_keyword2'] = $search_keyword2; //hidden으로 숨겨놓음
+      $data['searchkeyword'] = $searchkeyword;// 받아온 데이터
+      // $data['search1'] = $search1;
+
+      if(isset($_GET['excellent_report_yn'])) {
+          $excellent_report_yn = $_GET['excellent_report_yn'];
+      }
+      else {
+          $excellent_report_yn = "";
+      }
+
+      $data['excellent_report_yn'] = $excellent_report_yn;
+    }
+
+      $data['mail_send']=$mail_send;
+      $data['seq']=$seq;
+      if  ( $cur_page <= 0 )
+          $cur_page = 1;
+      $data['cur_page'] = $cur_page;
+
+      if(isset($_GET['hashtag'])) { //해시태그 눌렀을때
+        $hashtag = $_GET['hashtag'];
+      } else {
+        $hashtag = '';
+      }
+
+      $data['hashtag'] = $hashtag;
+
+      // 빋아온 데이터($searchkeyword 모델로 넘김)
+      // 페이징처리때문에 tech_doc_count모델에도 넘겨줘야(검색시 페이징 변화있으니)
+      if($this->agent->is_mobile()) {
+        $user_list_data = $this->STC_Tech_doc->tech_doc_list_mobile($type, $search_keyword,$search_keyword2, $search1, ( $cur_page - 1 ) * $no_page_list, $no_page_list);
+        $data['count'] = $this->STC_Tech_doc->tech_doc_list_count_mobile($type, $search_keyword, $search_keyword2, $search1)->ucount;
+      } else {
+        $user_list_data = $this->STC_Tech_doc->tech_doc_list($type, $searchkeyword, $hashtag, $excellent_report_yn, ( $cur_page - 1 ) * $no_page_list, $no_page_list);
+        $data['count'] = $this->STC_Tech_doc->tech_doc_list_count($type, $searchkeyword, $hashtag, $excellent_report_yn)->ucount;
+      }
+      $data['list_val'] = $user_list_data['data'];
+      $data['list_val_count'] = $user_list_data['count'];
+      $total_page = 1;
+      if  ( $data['count'] % $no_page_list == 0 )
+          $total_page = floor( ( $data['count'] / $no_page_list ) );
+      else
+          $total_page = floor( ( $data['count'] / $no_page_list + 1 ) );                  //      전체 페이지 개수
+
+      $start_page =  floor(($cur_page - 1 ) / 10) * 10  + 1 ;
+      $end_page = 0;
+      if  ( floor( ( $cur_page - 1 ) / 10 ) < floor( ( $total_page - 1 ) / 10 ) )
+          $end_page = ( floor( ( $cur_page - 1 ) / 10 ) + 1 ) * 10;
+      else
+          $end_page = $total_page;
+      $data['no_page_list'] = $no_page_list;
+      $data['total_page'] = $total_page;
+      $data['start_page'] = $start_page;
+      $data['end_page'] = $end_page;
+      $data['schedule_list'] = $this->STC_Tech_doc->schedule_list($this->seq);
+      $data['type'] = $type;
+      $data['product_company'] = $this->STC_Tech_doc->product_company();
+
+      $this->load->view('biz/approval_tech_doc_attachment', $data);
+    }
+
+    function tech_doc_data() {
+      $attach_seq = $this->input->post('attach_seq');
+
+      $data = $this->STC_Tech_doc->tech_doc_view($attach_seq, 'Y');
+
+      echo json_encode($data);
+    }
+
+    function salary_contract_print() {
+      $seq = $this->input->get('seq');
+      $data['approval_doc_seq'] = $seq;
+
+      $this->load->view('biz/salary_contract_print', $data);
+    }
+
+    function salary_contract_pdf() {
+      $seq = $this->input->get('seq');
+      $salary_contract_data = $this->STC_Approval->salary_contract_data($seq);
+      $data['approval_doc_seq'] = $seq;
+      $data['salary_contract_data'] = $salary_contract_data;
+      $data['contract_user_data'] = $this->STC_Approval->contract_user_data($salary_contract_data['contracting_party_seq']);
+      $data['view_val'] = $this->STC_Approval->approval_doc_view($seq);
+
+      $this->load->view('biz/salary_contract_pdf', $data);
+    }
+
+    function pwcheck() {
+      $result = $this->STC_Approval->pwcheck($this->seq);
+
+      echo json_encode($result);
+    }
+
+    function employment_doc_print() {
+      $seq = $this->input->get('seq');
+      $data['approval_doc_seq'] = $seq;
+
+      $this->load->view('biz/employment_doc_print', $data);
+    }
+
+    function employment_doc_pdf() {
+      $seq = $this->input->get('seq');
+      $employment_doc_data = $this->STC_Approval->employment_doc_val($seq);
+      $data['approval_doc_seq'] = $seq;
+      $data['employment_doc_data'] = $employment_doc_data;
+      $data['user_data'] = $this->STC_Approval->employment_doc_user_data($seq);
+      $data['view_val'] = $this->STC_Approval->approval_doc_view($seq);
+
+      $this->load->view('biz/employment_doc_pdf', $data);
     }
 }
 ?>

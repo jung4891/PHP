@@ -7,8 +7,14 @@
 ?>
 <link rel="stylesheet" href="/misc/css/view_page_common.css">
 <style>
-.list_tbl input, .list_tbl select {
+.list_tbl input:not(input[type=radio]), .list_tbl select {
 	width: 210px !important;
+}
+textarea {
+  resize:none;
+  overflow-y:hidden;
+  height:25px;
+	box-sizing: border-box;
 }
 </style>
 <script type="text/javascript" src="/misc/js/jquery.bpopup-0.1.1.min.js"></script>
@@ -79,6 +85,11 @@ function chkForm () {
 		alert("전화번호를 입력해 주세요.");
 		return false;
 	}
+	if (mform.user_birthday.value == "") {
+		mform.user_birthday.focus();
+		alert("생년월일을 입력해 주세요.");
+		return false;
+	}
 
 	if (mform.user_part.value == "004") {
 		mform.user_level.value = "3";
@@ -124,8 +135,8 @@ function chkForm2 () {
 						<input type="button" class="btn-common btn-color1" value="권한 제거" onclick="quitopen();" style="margin-right:10px">
 		<?php } ?>
 		<?php if($sales_lv == 3) {?>
-						<input type="button" class="btn-common btn-color1" value="삭제" onclick="javascript:chkForm2();return false;" style="margin-right:10px">
-						<input type="button" class="btn-common btn-color1" value="수정" onclick="javascript:chkForm();return false;" style="margin-right:10px">
+						<input type="button" class="btn-common btn-color4" value="삭제" onclick="javascript:chkForm2();return false;" style="margin-right:10px">
+						<input type="button" class="btn-common btn-color4" value="수정" onclick="javascript:chkForm();return false;" style="margin-right:10px">
 		<?php }?>
 						<input type="button" class="btn-common btn-color2" value="목록" onClick="javascript:history.go(-1)">
 					</td>
@@ -142,13 +153,15 @@ function chkForm2 () {
         			<tr>
           			<td class="tbl-title">회원구분</td>
           			<td class="tbl-cell">
+									두리안<input type="radio" name="cooperation_yn" value="N" <?php if($view_val['cooperation_yn'] == 'N'){echo 'checked';} ?>>
+									외주<input type="radio" name="cooperation_yn" value="Y" <?php if($view_val['cooperation_yn'] == 'Y'){echo 'checked';} ?>>
 							<?php
 							$num = 0;
 							for($i=0; $i<strlen($view_val['user_part']); $i++){
 								// if(substr($view_val['user_part'],$i,1) != "0"){
 									$num++;
 							?>
-									<div>
+									<div class="durian">
 								<?php
 								$part = array("비즈", "영업", "기술", "관리");
 								for($i=0; $i<count($part); $i++){ ?>
@@ -186,12 +199,8 @@ function chkForm2 () {
               <tr>
                 <td class="tbl-title">이름</td>
                 <td class="tbl-cell"><input name="user_name" type="text" class="input-common" id="user_name" value="<?php echo $view_val['user_name'];?>" disabled/></td>
-                <td class="tbl-title">직급</td>
-                <td class="tbl-cell"><input name="user_duty" type="text" class="input-common" id="user_duty" value="<?php echo $view_val['user_duty'];?>"/></td>
-              </tr>
-              <tr>
-                <td class="tbl-title">부서</td>
-                <td class="tbl-cell">
+								<td class="tbl-title durian">부서</td>
+                <td class="tbl-cell durian">
 									<select name="user_group" id="user_group" class="select-common">
 										<?php if($view_val['quit_date'] != ''){ ?>
 											<option value="<?php echo $view_val['user_group'] ?> selected"><?php echo $view_val['user_group'] ?></option>
@@ -200,26 +209,68 @@ function chkForm2 () {
 										<option value="<?php echo $group['groupName']; ?>" <?php if($view_val['user_group'] == $group['groupName']) { echo "selected"; }?>><?php echo $group['groupName']; ?></option>
 									<?php } ?>
 								</td>
-						<?php if($view_val['quit_date'] != ''){
-							$date_text = "입사일 ~ 퇴사일";
-						}else{
-							$date_text = "입사일";
-						}
-						?>
-                <td class="tbl-title"><?php echo $date_text; ?></td>
-                <td class="tbl-cell">
-									<input type="date" name="join_company_date" id="join_company_date" class="input-common" value="<?php echo $view_val['join_company_date'] ;?>" />
-						<?php if($view_val['quit_date'] != ''){ ?>
-									~ <input type="date" name="quit_date" id="quit_date" class="input-common" value="<?php echo $view_val['quit_date'] ;?>" />
-						<?php } ?>
-								</td>
               </tr>
+              <tr>
+								<td class="tbl-title">직급</td>
+                <td class="tbl-cell"><input name="user_duty" type="text" class="input-common" id="user_duty" value="<?php echo $view_val['user_duty'];?>"/></td>
+								<td class="tbl-title">직책</td>
+                <td class="tbl-cell"><input name="user_position" type="text" class="input-common" id="user_position" value="<?php echo $view_val['user_position'];?>"/></td>
+              </tr>
+							<tr class="durian">
+								<?php if($view_val['quit_date'] != ''){
+									$date_text = "입사일 ~ 퇴사일";
+								}else{
+									$date_text = "입사일";
+								}
+								?>
+		                <td class="tbl-title"><?php echo $date_text; ?></td>
+		                <td class="tbl-cell">
+											<input type="date" name="join_company_date" id="join_company_date" class="input-common" value="<?php echo $view_val['join_company_date'] ;?>" />
+								<?php if($view_val['quit_date'] != ''){ ?>
+											~ <input type="date" name="quit_date" id="quit_date" class="input-common" value="<?php echo $view_val['quit_date'] ;?>" />
+								<?php } ?>
+								<td class="tbl-title">최종진급일자</td>
+                <td class="tbl-cell"><input type="date" name="update_date" id="update_date" class="input-common" value="<?php echo $view_val['update_date'] ;?>" /></td>
+							</tr>
 							<tr>
                 <td class="tbl-title">이메일</td>
                 <td class="tbl-cell"><input name="user_email" type="text" class="input-common" id="user_email" value="<?php echo $view_val['user_email'];?>"/></td>
                 <td class="tbl-title">연락처</td>
                 <td class="tbl-cell"><input name="user_tel" type="text" class="input-common" id="user_tel" value="<?php echo $view_val['user_tel'];?>"/></td>
               </tr>
+							<tr class="durian">
+                <td class="tbl-title">내선번호</td>
+                <td class="tbl-cell"><input name="extension_number" type="text" class="input-common" id="extension_number" value="<?php echo $view_val['extension_number'];?>"/></td>
+                <td class="tbl-cell"></td>
+                <td class="tbl-cell"></td>
+              </tr>
+							<tr class="durian">
+                <td class="tbl-title">법인카드 사용</td>
+                <td class="tbl-cell">
+									미사용<input type="radio" name="corporation_card_yn" value="N" style="width:20px !important;" <?php if($view_val['corporation_card_yn'] == "N"){echo 'checked';} ?>>
+									사용<input type="radio" name="corporation_card_yn" value="Y" style="width:20px !important;" <?php if($view_val['corporation_card_yn'] == "Y"){echo 'checked';} ?>>
+								</td>
+                <td class="tbl-title corporation_card_num" style="<?php if($view_val['corporation_card_yn']=='N'){echo 'display:none;';} ?>">카드번호</td>
+                <td class="tbl-cell corporation_card_num" style="<?php if($view_val['corporation_card_yn']=='N'){echo 'display:none;';} ?>">
+									<input name="corporation_card_num" type="text" class="input-common" id="corporation_card_num" value="<?php echo $view_val['corporation_card_num'];?>"/>
+								</td>
+              </tr>
+							<tr>
+                <td class="tbl-title">생년월일</td>
+                <td class="tbl-cell"><input name="user_birthday" type="date" class="input-common" id="user_birthday" value="<?php if($view_val['user_birthday']!=''){echo $view_val['user_birthday'];}?>"/></td>
+                <td class="tbl-title">사인</td>
+                <td class="tbl-cell">
+					<?php if($view_val['sign_changename'] != '') { ?>
+									<img src="/misc/upload/user_sign/<?php echo $view_val['sign_changename']; ?>" style="height:40px;" alt="">
+					<?php } ?>
+								</td>
+              </tr>
+							<tr>
+								<td class="tbl-title">비고</td>
+								<td class="tbl-cell" colspan="3" style="padding:0px 10px;">
+									<textarea name="note" class="textarea-common" style="width:100%;box-sizing:border-box;" onkeyup="resize(this)"><?php echo $view_val['note']; ?></textarea>
+								</td>
+							</tr>
             </table>
 					</td>
 				</tr>
@@ -258,7 +309,7 @@ function chkForm2 () {
 					<tr>
 						<td style="width:17%;"></td>
 						<td align="right">
-							<input type="button" class="btn-common btn-color1" style="width:70px; margin-right:10px;" value="취소" onclick="$('#quit_div').bPopup().close();">
+							<input type="button" class="btn-common btn-color4" style="width:70px; margin-right:10px;" value="취소" onclick="$('#quit_div').bPopup().close();">
 							<input type="button" class="btn-common btn-color2" style="width:70px;" value="확인" onclick="quit_confirm();">
 						</td>
 					</tr>
@@ -272,6 +323,11 @@ function chkForm2 () {
 <?php include $this->input->server('DOCUMENT_ROOT')."/include/sales_bottom.php"; ?>
 </body>
 <script>
+$(function() {
+	$('textarea[name=note]').keyup();
+	$('input[name=cooperation_yn]').change();
+})
+
 function quitopen(){
 	$("#quit_div").bPopup({
 		speed: 450,
@@ -292,5 +348,28 @@ $("#qform").attr("action", act);
 $("#qform").submit();
 
 }
+
+$('input[name="corporation_card_yn"]').on('change', function() {
+	if($(this).val() == 'Y') {
+		$('.corporation_card_num').show();
+	} else {
+		$('.corporation_card_num').hide();
+	}
+})
+
+function resize(el) {
+	el.style.height = '26px';
+	el.style.height = el.scrollHeight + 'px';
+}
+
+$('input[name=cooperation_yn]').change(function() {
+	var chk_val = $('input[name=cooperation_yn]:checked').val();
+
+	if(chk_val == 'Y') {
+		$('.durian').hide();
+	} else {
+		$('.durian').show();
+	}
+})
 </script>
 </html>

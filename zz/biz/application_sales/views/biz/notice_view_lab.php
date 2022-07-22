@@ -4,6 +4,7 @@
 ?>
 <link rel="stylesheet" href="/misc/css/dashboard.css">
 <link rel="stylesheet" href="/misc/css/new_dash.css">
+<link rel="stylesheet" href="/misc/css/view_page_common.css">
 <style>
 .contents_tbl th{
 		border-color:#c0c0c0;
@@ -200,13 +201,13 @@ if(!empty($type_count)){
   </div>
 
 <div class="contents_item" style="margin-bottom:5vh;">
-	<img src="<?php echo $misc;?>img/dashboard/btn/btn_list.png" border="0" style="cursor:pointer" onClick="<?php if (isset($_GET['dash'])){echo "go_list('dash','".$category."');";}else{echo "go_list('notice','".$category."');";} ?>"/>
+	<button type="button" name="button" class="btn-common btn-color2" onclick="go_list('dash');">목록</button>
 
 <?php
-		if( $group == '기술연구소'){
+		if( $this->pGroupName == '기술연구소'){
 ?>
-			<img src="<?php echo $misc;?>img/dashboard/btn/btn_adjust.png" style="cursor:pointer" border="0" onClick="javascript:chkForm(0);return false;"/>
-			<img src="<?php echo $misc;?>img/dashboard/btn/btn_delete.png" style="cursor:pointer" border="0" onClick="javascript:chkForm(1);return false;"/>
+			<button type="button" class="btn-common btn-color4" name="button" onclick="javascript:chkForm(0);return false;">수정</button>
+			<button type="button" class="btn-common btn-color4" name="button" onclick="javascript:chkForm(1);return false;">삭제</button>
 <?php
 }
  ?>

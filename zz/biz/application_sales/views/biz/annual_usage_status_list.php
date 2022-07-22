@@ -40,7 +40,7 @@
 </form>
 <div class="contents_container" align="center">
   <!-- 타이틀 -->
-	<div class="contents_item dash_title" style="display:flex;">
+	<div class="dash_title" style="margin-top:30px;display:flex;">
 		<p align="left">
 			휴가사용내역
 		</p>
@@ -69,7 +69,7 @@
       <option value="004" <?php if(isset($filter)){if($filter[2] == "004"){echo "selected";}} ?>>회수</option>
       <option value="006" <?php if(isset($filter)){if($filter[2] == "006"){echo "selected";}} ?>>보류</option>
     </select>
-    <button type="submit" class="btn-common btn-style1" name="button" onclick="return GoSearch();">검 색</button>
+    <button type="submit" class="btn-common btn-style2" name="button" onclick="return GoSearch();">검색</button>
   </div>
   <!-- 본문 -->
   <div class="contents_item" style="margin-top:10px;">

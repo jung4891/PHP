@@ -293,8 +293,59 @@ WHERE issuance_status = 'Y' AND issuance_month = '{$year}-{${"month".$i}}'";
 
 	// 운병비 테이블에다가 인서트
 	function operating_insert($data){
-	  $result = $this->db->insert_batch('sales_operating_bill', $data);
-	  return $result;
+	  $result = $this->db->insert('sales_operating_bill', $data);
+		$seq = $this->db->insert_id();
+
+	  return $this->operating_fundreporting_link($seq, $data);
+	}
+
+	function operating_fundreporting_link($operating_seq, $data) {
+		$dateOfIssue = $data['issuance_date'];
+		$customer = $data['customer_name'];
+		$endUser = $data['end_user'];
+		$breakdown = $data['item'];
+		$requisition = $data['total_amount'];
+		$fund_company = $data['dept'];
+		if($fund_company == 'ICT') {
+			$fund_company = "DUICT";
+		}
+		if($data['type'] == '001') {
+			$type = '매출채권';
+		} else {
+			$type = '운영비용';
+		}
+
+		$fund_sql = "INSERT INTO fund_list (dateOfIssue, fixedDate, dueDate, type, customer, endUser, breakdown, requisition, company, id) VALUES ('{$dateOfIssue}', DATE_ADD('{$dateOfIssue}', INTERVAL 30 DAY), DATE_ADD('{$dateOfIssue}', INTERVAL 60 DAY), '{$type}', '{$customer}', '{$endUser}', '{$breakdown}', '{$requisition}', '{$fund_company}', '운영비용')";
+
+		$query = $this->db->query($fund_sql);
+
+		$fund_seq = $this->db->insert_id();
+
+		$sql3 = "INSERT INTO bill_fund_link (fund_list_seq, bill_seq) values ('{$fund_seq}', 'o_{$operating_seq}')";
+		$result3 = $this->db->query($sql3);
+	}
+
+	function operating_fundreporting_link_update($operating_seq, $data) {
+		$dateOfIssue = $data['issuance_date'];
+		$customer = $data['customer_name'];
+		$endUser = $data['end_user'];
+		$breakdown = $data['item'];
+		$requisition = $data['total_amount'];
+
+		$sql = "SELECT fund_list_seq from bill_fund_link where bill_seq = 'o_{$operating_seq}'";
+		$query = $this->db->query($sql);
+		$fund_seq = $query->row_array();
+		$fund_seq = $fund_seq['fund_list_seq'];
+
+		$sql2 = "UPDATE fund_list SET dateOfIssue = '{$dateOfIssue}', fixedDate = DATE_ADD('{$dateOfIssue}', INTERVAL 30 DAY), dueDate = DATE_ADD('{$dateOfIssue}', INTERVAL 60 DAY), customer = '{$customer}', endUser = '{$endUser}', breakdown = '{$breakdown}', requisition = '{$requisition}', id = '운영비용' WHERE idx = {$fund_seq}";
+		$query2 = $this->db->query($sql2);
+	}
+
+	function operating_fundreporting_link_delete($operating_seq) {
+		$sql = "DELETE from fund_list where idx = (select fund_list_seq from bill_fund_link where bill_seq = 'o_{$operating_seq}')";
+    $this->db->query($sql);
+    $sql2 = "DELETE from bill_fund_link where bill_seq = 'o_{$operating_seq}'";
+    $this->db->query($sql2);
 	}
 
 // 운영비 select
@@ -315,13 +366,15 @@ WHERE issuance_status = 'Y' AND issuance_month = '{$year}-{${"month".$i}}'";
 	function operating_del($seq){
 		$this->db->where('seq', $seq);
 		$this->db->delete('sales_operating_bill');
+
+		$this->operating_fundreporting_link_delete($seq);
 	}
 
 	function operating_update($data, $seq){
 
 	  $this->db->where('seq', $seq);
 	  $result = $this->db->update('sales_operating_bill', $data);
-	  return $result;
+	  return $this->operating_fundreporting_link_update($seq, $data);
 	}
 
 	// 사업부별 합계

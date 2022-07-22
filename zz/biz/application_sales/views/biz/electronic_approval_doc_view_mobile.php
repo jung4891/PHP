@@ -193,6 +193,8 @@
 		font-size: 16px;
 	}
 	</style>
+	<link href="https://fonts.googleapis.com/css?family=Noto+Sans+KR" rel="stylesheet">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/crypto-js.min.js"></script>
 	<link rel="stylesheet" href="/misc/css/view_page_common.css">
   <script>
 	function chkForm(){
@@ -218,6 +220,7 @@
     <input type="hidden" id="approver_line" name="approver_line" value="" />
     <input type="hidden" id="cur_approver_line_seq" name="cur_approver_line_seq" value="<?php if(empty($cur_approval_line) != true){echo $cur_approval_line['seq']; }?>" />
     <input type="hidden" id="next_approver_line_seq" name="next_approver_line_seq" value="<?php if(empty($next_approval_line) != true){echo $next_approval_line['seq']; } ?>" />
+		<input type="hidden" id="sign_confirm_yn" value="<?php echo $sign_confirm; ?>" />
 
     <input type="hidden" id="cancel_line_seq" value="<?php if(empty($cancel_next_line) != true){echo $cancel_next_line['seq']; } ?>">
 
@@ -381,6 +384,9 @@
 									}
 							 }
 						?>
+						<?php if($view_val['approval_form_seq'] == 71){ ?>
+									 <div><span onclick='salary_contract_view("<?php echo $seq; ?>")' style='cursor:pointer;' id="salary_contract"></span><img src='/misc/img/btn_search.jpg' style='width:18px;vertical-align:middle;cursor:pointer;margin:5px 0px 5px 10px;' onclick='salary_contract_view("<?php echo $seq; ?>")'/></div>
+						<?php } ?>
 					</td>
 				</tr>
 			</table>
@@ -693,6 +699,44 @@
 	 </div>
 </div>
 <!-- 상세보기 모달 끝 -->
+<!-- 서명확인모달 -->
+<div id="sign_confirm" class="searchModal">
+	 <div class="search-modal-content" style='height:auto; min-height:300px;overflow: auto;width:340px;'>
+			<h2>서명확인</h2>
+				 <div style="margin-top:30px;height:auto;overflow:auto;">
+	 <?php if(isset($contract_party)){ ?>
+					 <input type="hidden" id="sign_user_birthday" value="<?php echo $contract_party['user_birthday']; ?>">
+					 <input type="hidden" id="sign_user_signfile" value="<?php echo $contract_party['sign_changename']; ?>">
+	 <?php } ?>
+						<table class="basic_table" style="width:100%;">
+							<tr>
+							 <td style="font-weight:bold;text-align:center;height:40px;">생년월일</td>
+							 <td>
+								 <?php if(isset($contract_party) && $contract_party['user_birthday'] != ''){echo date('Y-m-d', strtotime($contract_party['user_birthday']));} ?>
+							 </td>
+						 </tr>
+						 <tr>
+							 <td style="font-weight:bold;text-align:center;height:40px;">서명</td>
+							 <td>
+								 <div>
+									 서명 : <span style="letter-spacing:15px;"><?php echo $this->name; ?></span><span class="stamp" style="background-image:url('/misc/upload/user_sign/<?php if(isset($contract_party)){echo $contract_party['sign_changename'];} ?>')">(인)</span>
+								 </div>
+							 </td>
+						 </tr>
+						 <tr>
+							 <td style="font-weight:bold;text-align:center;height:40px;">서명 비밀번호</td>
+							 <td>
+								 <input type="password" style="width:90%" class="input-common" id="sign_user_password" value="" onkeyup="if(window.event.keyCode==13){sign_confirm()}">
+							 </td>
+						 </tr>
+						</table>
+				 </div>
+				 <div style="margin-top:20px;">
+						<img src="<?php echo $misc;?>img/btn_cancel.jpg" style="cursor:pointer;float:right;margin-left:5px;margin-top:5px;" border="0" onClick="$('#sign_confirm').hide();"/>
+						<input type="button" value="확인" class="btn-common btn-color2" style="cursor:pointer;float:right;margin-left:5px;margin-top:5px;width:64px;height:31px;" onclick="sign_confirm();" >
+				 </div>
+	 </div>
+</div>
 
 <!-- 버튼 시작 -->
 <div style="margin-top:20px;width:100%;">
@@ -1271,12 +1315,12 @@
 	   }
 
 	   //결재 승인/반려
-	   function approval_save(t){
+		 function approval_save(t){
 	      var delegation_seq = '';
 	      <?php if(!empty($mandatary)){ ?>
 	         delegation_seq = "<?php echo $mandatary['seq']; ?>";
 	      <?php } ?>
-	      if(t == '1'){
+	      if(t == '1' && $('#sign_confirm_yn').val() == 'N'){
 	         $.ajax({
 	            type: "POST",
 	            cache: false,
@@ -1293,7 +1337,7 @@
 	               approval_doc_seq: "<?php echo $seq ;?>",
 	               final_approval: "<?php echo $final_approval; ?>",
 	               delegation_seq : delegation_seq,
-	               doc_subject: "<?php echo $view_val['approval_doc_name'];?>",
+	               doc_subject: "<?php echo str_replace('"', "'", $view_val['approval_doc_name']); ?>",
 	               writer_id : "<?php echo $view_val['writer_id']; ?>"
 	            },
 	            success: function (data) {
@@ -1305,6 +1349,40 @@
 	               }
 	            }
 	         });
+	      } else if(t == '1' && $('#sign_confirm_yn').val() == 'Y') {
+	        if($("input[name=approval_status]:checked").val() == 'N') {
+	          $.ajax({
+	             type: "POST",
+	             cache: false,
+	             url: "<?php echo site_url(); ?>/biz/approval/approval_save",
+	             dataType: "json",
+	             async :false,
+	             data: {
+	                seq : $("#cur_approver_line_seq").val(),
+	                approval_form_seq : $("#approval_form_seq").val(),
+	                next_seq : $("#next_approver_line_seq").val(),
+	                approval_status: $("input[name=approval_status]:checked").val(),
+	                approval_opinion: $("#approval_opinion").val(),
+	                details:$("#details").summernote("code"),
+	                approval_doc_seq: "<?php echo $seq ;?>",
+	                final_approval: "<?php echo $final_approval; ?>",
+	                delegation_seq : delegation_seq,
+	                doc_subject: "<?php echo str_replace('"', "'", $view_val['approval_doc_name']); ?>",
+	                writer_id : "<?php echo $view_val['writer_id']; ?>"
+	             },
+	             success: function (data) {
+	                if(data){
+	                   alert("결재가 저장되었습니다.");
+	                   location.href ="<?php echo site_url();?>/biz/approval/electronic_approval_list?type=<?php echo $_GET['type']; ?>";
+	                }else{
+	                   alert("결재저장 실패!");
+	                }
+	             }
+	          });
+	        } else {
+	          alert('결재시 계약서에 서명이 추가됩니다.\r서명과 생년월일을 확인하고 비밀번호 인증을 진행해주세요.');
+	          $('#sign_confirm').show();
+	        }
 	      }else{ //결재 취소 눌렀을때
 	         if(confirm("결재 취소 하시겠습니까?")){
 	            $.ajax({
@@ -1322,7 +1400,7 @@
 	                  approval_doc_seq: '<?php echo $seq ;?>',
 	                  details:'',
 	                  delegation_seq :'',
-	                  doc_subject: "<?php echo $view_val['approval_doc_name'];?>",
+	                  doc_subject: "<?php echo str_replace('"', "'", $view_val['approval_doc_name']); ?>",
 	                  writer_id : "<?php echo $view_val['writer_id']; ?>"
 	               },
 	               success: function (data) {
@@ -1863,5 +1941,54 @@
 	       }
 	     })
 	   })
+
+		 function tech_doc_view(seq) {
+	     window.open("<?php echo site_url();?>/tech/tech_board/tech_doc_print_page?seq="+btoa(seq), "cform", 'scrollbars=yes,width=850,height=600');
+	   }
+
+	   <?php if($view_val['approval_form_seq'] == 71){ ?>
+	     $('#salary_contract').text($('#tr6_td1_select > option:selected').val() + ' 연봉계약서');
+	   <?php } ?>
+
+	   function salary_contract_view(seq) {
+	     window.open("<?php echo site_url();?>/biz/approval/salary_contract_print?seq="+seq, "cform", 'scrollbars=yes,width=850,height=600');
+	   }
+
+	   function sign_confirm() {
+	     var user_birthday = $.trim($('#sign_user_birthday').val());
+	     var sign_file = $.trim($('#sign_user_signfile').val());
+	     var user_password = $.trim($('#sign_user_password').val());
+	     var pw =CryptoJS.SHA1(user_password);
+
+	     if(user_birthday == '') {
+	       alert('생년월일이 설정되지 않았습니다.\r회원정보수정 페이지에서 생년월일을 설정해 주세요.');
+	       return false;
+	     }
+	     if(sign_file == '') {
+	       alert('서명이 등록되지 않았습니다.\r회원정보수정 페이지에서 서명을 등록해 주세요.');
+	       return false;
+	     }
+	     if(user_password == '') {
+	       alert('비밀번호를 입력해 주세요.');
+	       return false;
+	     }
+
+	     $.ajax({
+	       type:'POST',
+	       cache: false,
+	       url: "<?php echo site_url(); ?>/biz/approval/pwcheck",
+	       dataType: "json",
+	       async: false,
+	       success: function(data) {
+	         if(data.sign_password==CryptoJS.enc.Hex.stringify(pw)){
+	           $('#sign_confirm_yn').val('N');
+	           approval_save(1);
+	         }else{
+	           alert("비밀번호가 틀렸습니다");
+	           return false;
+	         }
+	       }
+	     })
+	   }
 	</script>
 </body>

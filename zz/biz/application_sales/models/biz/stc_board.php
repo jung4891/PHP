@@ -120,14 +120,17 @@ if ($query->num_rows() <= 0) {
 	}
 
 	// 공지사항 리스트
-	function notice_list( $category, $searchkeyword, $search1, $start_limit = 0, $offset = 0) {
+	function notice_list( $category, $searchkeyword, $search1, $hide_yn, $temporary, $start_limit = 0, $offset = 0) { // 모든 게시물 보기 추가
 		$keyword = "%".$searchkeyword."%";
+		$user_seq = $this->seq;
 
 		if($searchkeyword != "") {
 			if($search1 == "001") {
 				$searchstring = " AND subject LIKE '{$keyword}' ";
 			}else if($search1 == "002"){
 				$searchstring = " AND user_name LIKE '{$keyword}' ";
+			}else if($search1 == "003"){
+				$searchstring = " AND contents LIKE '{$keyword}' ";
 			}
 
 		} else {
@@ -141,10 +144,35 @@ if ($query->num_rows() <= 0) {
 			$category_query = " category_code = '{$category}'";
 		}
 
-		// $sql = "SELECT seq, category_code, subject, user_id, user_name, file_changename, update_date FROM biz_notice_basic WHERE{$category_query}".$searchstring." ORDER BY seq DESC";
+		if($hide_yn == 'N') {
+			$hide_post = "AND hide_btn = '{$hide_yn}'";
+		} else {
+			$hide_post = " AND hide_btn = '{$hide_yn}' AND user_id = '{$this->id}'";
+		}
 
-		$sql = "SELECT seq, category_code, subject, user_id, user_name, file_changename, update_date, bnr.read_cnt FROM biz_notice_basic bnb
-left JOIN (SELECT notice_seq, COUNT(user_seq) AS read_cnt FROM biz_notice_read GROUP BY notice_seq) AS bnr ON bnb.seq = bnr.notice_seq WHERE{$category_query}".$searchstring." ORDER BY seq desc";
+		if($temporary == 'N') {
+			$temporary_query = " AND temporary = 'N'";
+		} else {
+			$temporary_query = " AND temporary = 'Y' AND user_id = '{$this->id}'";
+		}
+
+		$sql = "SELECT seq, category_code, subject, user_id, user_name, file_changename, update_date, bnr.read_cnt, bnr2.user_seq, bnb.hide_btn
+FROM biz_notice_basic bnb
+LEFT JOIN (
+SELECT notice_seq, COUNT(user_seq) AS read_cnt
+FROM biz_notice_read
+GROUP BY notice_seq) AS bnr ON bnb.seq = bnr.notice_seq
+LEFT JOIN (
+SELECT user_seq, notice_seq
+FROM biz_notice_read
+GROUP BY notice_seq, user_seq HAVING user_seq = {$user_seq}
+) AS bnr2 ON bnb.seq = bnr2.notice_seq
+WHERE{$category_query}".$searchstring.$hide_post.$temporary_query."
+ORDER BY seq DESC";
+
+// echo $sql;
+
+
 
 		if  ( $offset <> 0 ) {
 			$sql = $sql." LIMIT {$start_limit}, {$offset}";
@@ -154,7 +182,13 @@ left JOIN (SELECT notice_seq, COUNT(user_seq) AS read_cnt FROM biz_notice_read G
 	}
 
 	//공지사항 리스트개수
-	function notice_list_count($category, $searchkeyword, $search1) {
+	function notice_list_count($category, $searchkeyword, $search1, $hide_yn, $temporary) {
+		if($category == "002"){
+			$category_query = " (category_code = '002' OR category_code = '004')";
+		}else{
+			$category_query = " category_code = '{$category}'";
+		}
+
 		$keyword = "%".$searchkeyword."%";
 
 		if($searchkeyword != "") {
@@ -162,6 +196,8 @@ left JOIN (SELECT notice_seq, COUNT(user_seq) AS read_cnt FROM biz_notice_read G
 				$searchstring = " AND subject LIKE '{$keyword}' ";
 			}else if($search1 == "002"){
 				$searchstring = " AND user_name LIKE '{$keyword}' ";
+			}else if($search1 == "003"){
+				$searchstring = " AND contents LIKE '{$keyword}' ";
 			}
 
 		} else {
@@ -169,10 +205,23 @@ left JOIN (SELECT notice_seq, COUNT(user_seq) AS read_cnt FROM biz_notice_read G
 
 		}
 
-		$sql = "SELECT count(seq) AS ucount FROM biz_notice_basic WHERE category_code = '{$category}'".$searchstring." ORDER BY seq DESC";
+		if($hide_yn == 'N') {
+			$hide_post = "";
+		} else {
+			$hide_post = " and hide_btn = '{$hide_yn}' and user_id = '{$this->id}'";
+		}
+
+		if($temporary == 'N') {
+			$temporary_query = " AND temporary = 'N'";
+		} else {
+			$temporary_query = " AND temporary = 'Y' AND user_id = '{$this->id}'";
+		}
+
+		$sql = "SELECT count(seq) AS ucount FROM biz_notice_basic WHERE {$category_query}".$searchstring.$hide_post.$temporary_query." ORDER BY seq DESC";
 		$query = $this->db->query( $sql );
 		return $query->row();
 	}
+
 
 	// 공지사항 최근글표시
 	function notice_new() {

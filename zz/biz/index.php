@@ -35,7 +35,7 @@ if (defined('ENVIRONMENT'))
 		case 'development':
 			error_reporting(E_ALL);
 		break;
-	
+
 		case 'testing':
 		case 'production':
 			error_reporting(0);
@@ -84,17 +84,17 @@ if (defined('ENVIRONMENT'))
 		// // case "customer.durianit.co.kr":
 		// // $application_folder = 'application_customer';
 		// // break;
-		// case "biz.durianit.co.kr":
-		// $application_folder = 'application_admin';
-		// break;
-		// case "biz.durianit.co.kr":
-		// 	$application_folder = 'application_tech';
-		// break;
+		case "staff.the-mango.co.kr":
+		$application_folder = 'application_mango';
+		break;
+		case "biz.durianit.co.kr":
+			$application_folder = 'application_sales';
+		break;
 
 		default:
 		$application_folder = 'application_sales';
 		break;
-	
+
 	}
 
 //	$application_folder = 'application';

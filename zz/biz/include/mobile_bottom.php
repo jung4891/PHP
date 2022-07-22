@@ -36,6 +36,12 @@ function go_page(id) {
     location.href = "<?php echo site_url(); ?>";
   } else if (id=='notice') {
     location.href = "<?php echo site_url(); ?>/biz/board/notice_list?category=001";
+  } else if (id=='attendance') {
+    location.href = "<?php echo site_url(); ?>/biz/attendance/attendance_user";
+  } else if (id=='address') {
+    location.href = "<?php echo site_url(); ?>/admin/account/user";
+  } else if (id=='weeklyreport') {
+    location.href = "<?php echo site_url(); ?>/biz/weekly_report/weekly_report_list";
   } else {
     alert('준비 중입니다.');
   }

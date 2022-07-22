@@ -71,7 +71,7 @@
                       <option value="004" <?php if(isset($filter)){if($filter[5] == "004"){echo "selected";}} ?>>특별유급 휴가</option>
                       <option value="005" <?php if(isset($filter)){if($filter[5] == "005"){echo "selected";}} ?>>공가</option>
                     </select>
-                    <input type="button" style='cursor:hand;' class="btn-common btn-style1" value="검색" onclick="return GoSearch();" src="<?php echo $misc;?>img/dashboard/btn/btn_search.png" valign="top" border="0" width="28" />
+                    <input type="button" style='cursor:hand;' class="btn-common btn-style2" value="검색" onclick="return GoSearch();" src="<?php echo $misc;?>img/dashboard/btn/btn_search.png" valign="top" border="0" width="28" />
                   </div>
                 </td>
               </tr>

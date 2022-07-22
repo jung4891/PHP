@@ -53,13 +53,13 @@
 								$dept_code = 'DUIT';
 							}
 								?>
-							<select class="select-common" id="dept_code" name="dept_code" style="width:150px;">
+							<select class="select-common" id="dept_code" name="dept_code" style="width: 160px;margin-right:10px;">
 								<option value="DUIT" <?php if($dept_code=='DUIT'){echo 'selected';} ?>>두리안정보기술</option>
 								<option value="DBS" <?php if($dept_code=='DBS'){echo 'selected';} ?>>두리안정보기술 부산지점</option>
 								<option value="ICT" <?php if($dept_code=='ICT'){echo 'selected';} ?>>두리안정보통신기술</option>
 								<option value="MG" <?php if($dept_code=='MG'){echo 'selected';} ?>>더망고</option>
 							</select>
-							<select class="select-common" id="year" name="year">
+							<select class="select-common" id="year" name="year" style="margin-right:10px;width:100px;">
 							<?php
 							if(isset($_GET['year'])){
 								$year = $_GET['year'];
@@ -87,19 +87,20 @@
 								<option value="3" <?php if($quarter==3){echo 'selected';} ?>>3분기</option>
 								<option value="4" <?php if($quarter==4){echo 'selected';} ?>>4분기</option>
 							</select>
-							<input class="btn-common btn-style1" type="submit" value="검색" >
+							<input class="btn-common btn-style2" type="submit" value="검색" >
 						</form>
 					</td>
 					<td style="width:50%; text-align:right;">
             <!-- <img src="<?php echo $misc; ?>/img/dashboard/btn/excel_download.png" alt="" style="margin-right: 5%; cursor: pointer;" onclick="excel_export();"> -->
-            <input class="btn-common btn-color1" type="button" onclick="excel_export();" value="excel_download" style="width:150px;">
+            <input class="btn-common btn-updownload" type="button" onclick="excel_export();" value="엑셀 다운로드" style="width:150px;padding-left:20px;width:auto;position: relative;left: 20px;">
+						<img src="/misc/img/download_btn.svg" style="width:12px;position:relative;top: 6px;right: 90px;padding: 2px;">
           </td>
 				</tr>
 			</table>
 		</div>
 
 		<div style="margin-bottom:50px;">
-      <table id="total_tbl" class="list_tbl" cellspacing=0 cellpadding=0 width="95%">
+      <table id="total_tbl" class="list_tbl list" cellspacing=0 cellpadding=0 width="95%">
         <colgroup>
           <col width="6.2%" /><!-- 구분-->
           <col width="9%" /> <!-- 공급가액-->
@@ -119,10 +120,10 @@
         <thead>
           <tr>
             <!-- type 002 -->
-            <th colspan="8">매입(<?php echo $quarter; ?>분기)</th>
+            <th colspan="8" style="font-size:13px; color: #1c1c1c;">매입(<?php echo $quarter; ?>분기)</th>
             <th></th>
             <!-- type 001 -->
-            <th colspan="6">매출(<?php echo $quarter; ?>분기)</th>
+            <th colspan="6" style="font-size:13px; color: #1c1c1c;">매출(<?php echo $quarter; ?>분기)</th>
           </tr>
           <tr style="font-weight:bold;">
             <td class="row-color6">구분</td>
@@ -230,7 +231,7 @@ $j = 2;
 	?>
 
     <div style="margin-bottom:50px;">
-      <table id="month_tbl_<?php echo $i; ?>" class="list_tbl" cellspacing=0 cellpadding=0 width="95%">
+      <table id="month_tbl_<?php echo $i; ?>" class="list_tbl list" cellspacing=0 cellpadding=0 width="95%">
         <colgroup>
           <col width="6.2%" /><!-- 구분-->
           <col width="9%" /> <!-- 공급가액-->
@@ -250,10 +251,10 @@ $j = 2;
         <thead>
           <tr>
             <!-- type 002 -->
-            <th colspan="8">매입(<?php echo $quarter * 3 - $j;$j--; ?>월)</th>
+            <th colspan="8" style="font-size:13px; color: #1c1c1c;">매입(<?php echo $quarter * 3 - $j;$j--; ?>월)</th>
             <th></th>
             <!-- type 001 -->
-            <th colspan="6">매출(분기)</th>
+            <th colspan="6" style="font-size:13px; color: #1c1c1c;">매출(분기)</th>
           </tr>
           <tr style="font-weight:bold;">
             <td class="row-color6">구분</td>

@@ -11,33 +11,20 @@ class Account extends CI_Controller {
 		$this->lv = $this->phpsession->get( 'lv', 'stc' );
 		// $this->at = $this->phpsession->get( 'at', 'stc' );
 		$this->pg = $this->phpsession->get( 'pg', 'stc' );
+		$this->duty = $this->phpsession->get( 'duty', 'stc' );
+		$this->group = $this->phpsession->get( 'group', 'stc' );
+		$this->cooperation_yn = $this->phpsession->get( 'cooperation_yn', 'stc' );
 
-		$this->load->Model(array('admin/STC_User','STC_Common','admin/STC_Customer', 'biz/STC_Schedule'));
+		if($this->cooperation_yn == 'Y') {
+			echo "<script>alert('권한이 없습니다.');location.href='".site_url()."'</script>";
+		}
+
+		$this->load->library('user_agent');
+
+		$this->load->Model(array('STC_Common', 'admin/STC_Equipment', 'biz/STC_Schedule', 'biz/STC_Approval'));
+		$this->load->Model(array('admin/STC_User','STC_Common','admin/STC_Customer', 'admin/STC_Performanceappraisal'));
+		$this->load->Model(array('admin/STC_Expense'));
 	}
-
-	// function index( $referer = null ) {
-	// 	$data['login_status'] = "";
-	// 	$data['referer'] = $referer;
-	// 	$data['login_error'] = "";
-	// 	$data['view'] = 'login_view';
-	// 	$this->load->view('admin/login_view', $data );
-	// }
-
-	// //mail 보내주는 함수
-	// function _sendmail( $to, $fromemail, $subject, $content) {
-	// 	$charset='UTF-8';												// 문자셋 : UTF-8
-	// 	$subject="=?".$charset."?B?".base64_encode($subject)."?=\n";	// 인코딩된 제목
-	// 	$header = "MIME-Version: 1.0\n".
-	// 			"Content-Type: text/html; charset=".$charset."; format=flowed\n".
-	// 			"From: =?utf-8?B?".base64_encode("두리안정보기술센터")."?= <marketing@durianit.co.kr> \n".
-	// 			"X-sender : ".$fromemail."\n".
-	// 			"X-Mailer : PHP ".phpversion( )."\n".
-	// 			"X-Priority : 1\n".
-	// 			"Return-Path: ".$fromemail."\n".
-	// 			"Content-Transfer-Encoding: 8bit\n";
-
-	// 	return	mail( $to, $subject, $content, $header );
-	// }
 
 	//회원리스트(공통)
 	function user() {
@@ -82,13 +69,20 @@ class Account extends CI_Controller {
 		}
 		$data['resignation'] = $resignation;
 
+		if(isset($_GET['user_type'])) {
+			$user_type = $_GET['user_type'];
+		} else {
+			$user_type = 'd';
+		}
+		$data['user_type'] = $user_type;
+
 		if  ( $cur_page <= 0 )
 			$cur_page = 1;
 
 		$data['cur_page'] = $cur_page;
 
-		$user_list_data = $this->STC_User->user_list($search_keyword, $search1, $search2, ( $cur_page - 1 ) * $no_page_list, $no_page_list, $resignation);
-		$data['count'] = $this->STC_User->user_list_count($search_keyword, $search1, $search2, $resignation)->ucount;
+		$user_list_data = $this->STC_User->user_list($search_keyword, $search1, $search2, ( $cur_page - 1 ) * $no_page_list, $no_page_list, $resignation, $user_type);
+		$data['count'] = $this->STC_User->user_list_count($search_keyword, $search1, $search2, $resignation, $user_type)->ucount;
 
 		$data['list_val'] = $user_list_data['data'];
 		$data['list_val_count'] = $user_list_data['count'];
@@ -115,7 +109,12 @@ class Account extends CI_Controller {
 		$data['start_page'] = $start_page;
 		$data['end_page'] = $end_page;
 
-		$this->load->view( 'admin/user_list', $data );
+		if($this->agent->is_mobile()) {
+			$data['title'] = '회원관리';
+			$this->load->view( 'admin/user_list_mobile', $data );
+		} else {
+			$this->load->view( 'admin/user_list', $data );
+		}
 	}
 
 	// 회원 삭제
@@ -170,7 +169,12 @@ class Account extends CI_Controller {
 		$data['groupList'] = $this->STC_User->group();
 		$data['seq'] = $seq;
 
-		$this->load->view('admin/user_modify', $data );
+		if($this->agent->is_mobile()) {
+			$data['title'] = '회원관리';
+			$this->load->view('admin/user_modify_mobile', $data );
+		} else {
+			$this->load->view('admin/user_modify', $data );
+		}
 	}
 
 	//회원가입처리
@@ -183,6 +187,15 @@ class Account extends CI_Controller {
 		$user_id = $this->input->get('user_id');
 		$id_check = $this->STC_Common->check_user_id_exist( $user_id );
 
+		$user_part = $this->input->get('user_part');
+		$user_group = $this->input->get('user_group');
+
+		$cooperation_yn = $this->input->get('cooperation_yn');
+		if($cooperation_yn == 'Y') {
+			$user_part = '0000';
+			$user_group = null;
+		}
+
 		// 이미 회원가입되어 있음
 		if($id_check == 1) {
 			echo "<script>alert('해당 아이디로 가입되어 있는 회원이 있습니다.\\n\\n다른 아이디로 가입하여 주시기 바랍니다.');history.go(-1);</script>";
@@ -190,7 +203,7 @@ class Account extends CI_Controller {
 		}
 
 		$data = array(
-			'user_part' => $this->input->get('user_part'),
+			'user_part' => $user_part,
 			'user_id' => $this->input->get('user_id'),
 			'user_password' => sha1($this->input->get('user_password')),
 			'user_name' => $this->input->get('user_name'),
@@ -199,9 +212,10 @@ class Account extends CI_Controller {
 			'confirm_flag' => $this->input->get('confirm_flag'),
 			// 'user_level' => $this->input->get('user_level'),
 			'user_duty' => $this->input->get('user_duty'),
-			'user_group' => $this->input->get('user_group'),
+			'user_group' => $user_group,
 			'user_tel' => $this->input->get('user_tel'),
 			'user_email' => $this->input->get('user_email'),
+			'cooperation_yn' => $cooperation_yn,
 			'insert_date' => date("Y-m-d H:i:s"),
 			'update_date' => date("Y-m-d H:i:s")
 		 );
@@ -259,11 +273,18 @@ class Account extends CI_Controller {
 		$company_name = $this->input->get('company_name');
 		$company_num = $this->input->get('company_num');
 		$user_email = $this->input->get('user_email');
+		$extension_number = $this->input->get('extension_number');
 		$user_tel = $this->input->get('user_tel');
 		$user_duty = $this->input->get('user_duty');
+		$user_position = $this->input->get('user_position');
 		$confirm_flag = $this->input->get('confirm_flag');
 		// $user_level = $this->input->get('user_level');
 		$user_group = $this->input->get('user_group');
+		$cooperation_yn = $this->input->get('cooperation_yn');
+		if($cooperation_yn == 'Y') {
+			$user_part = '0000';
+			$user_group = null;
+		}
 
 		$join_company_date = $this->input->get('join_company_date');
 		if($join_company_date ==""){
@@ -274,36 +295,74 @@ class Account extends CI_Controller {
 		if($quit_date ==""){
 			$quit_date = null;
 		}
+
+		$promote_date = $this->input->get('promote_date');
+		if($promote_date ==""){
+			$promote_date = null;
+		}
+		$user_birthday = $this->input->get('user_birthday');
+		if($user_birthday ==""){
+			$user_birthday = null;
+		}
+
+		$corporation_card_yn = $this->input->get('corporation_card_yn');
+		if($corporation_card_yn == 'N') {
+			$corporation_card_num = null;
+		} else {
+			$corporation_card_num = $this->input->get('corporation_card_num');
+		}
+
+		$note = $this->input->get('note');
+		if($note == '') {
+			$note = null;
+		}
+
 		if($user_passwd != "") {
 			$data = array(
-				'user_part' => $user_part,
-				'user_password' => sha1($user_passwd),
-				'company_name' => $company_name,
-				'company_num' => $company_num,
-				'user_tel' => $user_tel,
-				'confirm_flag' => $confirm_flag,
-				'user_email' => $user_email,
-				'user_duty' => $user_duty,
+				'user_part'            => $user_part,
+				'user_password'        => sha1($user_passwd),
+				'company_name'         => $company_name,
+				'company_num'          => $company_num,
+				'user_tel'             => $user_tel,
+				'extension_number'     => $extension_number,
+				'confirm_flag'         => $confirm_flag,
+				'user_email'           => $user_email,
+				'user_duty'            => $user_duty,
+				'user_position'        => $user_position,
 				// 'user_level' => $user_level,
-				'update_date' => date("Y-m-d H:i:s"),
-				'user_group' => $user_group,
-				'join_company_date' => $join_company_date,
-				'quit_date' => $quit_date
+				'update_date'          => date("Y-m-d H:i:s"),
+				'user_group'           => $user_group,
+				'join_company_date'    => $join_company_date,
+				'quit_date'            => $quit_date,
+				'promote_date'         => $promote_date,
+				'user_birthday'        => $user_birthday,
+				'corporation_card_yn'  => $corporation_card_yn,
+				'corporation_card_num' => $corporation_card_num,
+				'note'                 => $note,
+				'cooperation_yn'       => $cooperation_yn
 			 );
 		} else {
 			$data = array(
-				'user_part' => $user_part,
-				'company_name' => $company_name,
-				'company_num' => $company_num,
-				'user_tel' => $user_tel,
-				'confirm_flag' => $confirm_flag,
-				'user_email' => $user_email,
-				'user_duty' => $user_duty,
+				'user_part'            => $user_part,
+				'company_name'         => $company_name,
+				'company_num'          => $company_num,
+				'user_tel'             => $user_tel,
+				'extension_number'     => $extension_number,
+				'confirm_flag'         => $confirm_flag,
+				'user_email'           => $user_email,
+				'user_duty'            => $user_duty,
+				'user_position'        => $user_position,
 				// 'user_level' => $user_level,
-				'update_date' => date("Y-m-d H:i:s"),
-				'user_group' => $user_group,
-				'join_company_date' => $join_company_date,
-				'quit_date' => $quit_date
+				'update_date'          => date("Y-m-d H:i:s"),
+				'user_group'           => $user_group,
+				'join_company_date'    => $join_company_date,
+				'quit_date'            => $quit_date,
+				'promote_date'         => $promote_date,
+				'user_birthday'        => $user_birthday,
+				'corporation_card_yn'  => $corporation_card_yn,
+				'corporation_card_num' => $corporation_card_num,
+				'note'                 => $note,
+				'cooperation_yn'       => $cooperation_yn
 			 );
 		}
 
@@ -451,7 +510,12 @@ class Account extends CI_Controller {
 		$data['userInfo']        = $this->STC_Schedule->userInfo();
 		$data['userDepth']       = $this->STC_Schedule->userDepth();
 
-		$this->load->view('admin/group_tree_management',$data);
+		if($this->agent->is_mobile()) {
+			$data['title'] = '조직도관리';
+			$this->load->view('admin/group_tree_management_mobile',$data);
+		} else {
+			$this->load->view('admin/group_tree_management',$data);
+		}
 
 	}
 
@@ -558,6 +622,203 @@ class Account extends CI_Controller {
 	}
 
 
+	// 지출통계 페이지
+	function expense_list() {
+		if(isset($_POST['cur_page']) && $_POST['cur_page'] != '') {
+			$cur_page = $_POST['cur_page'];
+		} else {
+			$cur_page = 1;
+		}
+		if(isset($_POST['lpp'])==false || $_POST['lpp']=='') {
+			$no_page_list = 10;										//	한페이지에 나타나는 목록 개수
+		} else {
+			$no_page_list = (int)$_POST['lpp'];
+		}
+		if(isset($_POST['checked_detail'])) {
+			$checked_detail = $_POST['checked_detail'];
+		} else {
+			$checked_detail = '';
+		}
+		if(isset($_POST['checked_user'])) {
+			$checked_user = $_POST['checked_user'];
+		} else {
+			$checked_user = '';
+		}
+		if(isset($_POST['search'])) {
+			$search = $_POST['search'];
+		} else {
+			$search = '';
+		}
+		if(isset($_POST['s_date'])) {
+			$s_date = $_POST['s_date'];
+		} else {
+			$s_date = '';
+		}
+		if(isset($_POST['e_date'])) {
+			$e_date = $_POST['e_date'];
+		} else {
+			$e_date = '';
+		}
+		if(isset($_POST['user_tr_open'])) {
+			$user_tr_open = $_POST['user_tr_open'];
+		} else {
+			$user_tr_open = '';
+		}
+		if(isset($_POST['details_tr_open'])) {
+			$details_tr_open = $_POST['details_tr_open'];
+		} else {
+			$details_tr_open = '';
+		}
+
+		$data['lpp'] = $no_page_list;
+		$data['cur_page'] = $cur_page;
+		$data['search'] = $search;
+		$data['checked_detail'] = $checked_detail;
+		$data['checked_user'] = $checked_user;
+		$data['s_date'] = $s_date;
+		$data['e_date'] = $e_date;
+		$data['user_tr_open'] = $user_tr_open;
+		$data['details_tr_open'] = $details_tr_open;
+
+		if($checked_user != '' && $checked_detail != '') {
+			$data['view_val'] = $this->STC_Expense->expense_list('list', $checked_user, $checked_detail, $search, $s_date, $e_date, ( $cur_page - 1 ) * $no_page_list, $no_page_list);
+			if(!empty($data['view_val'])) {
+				$data['count'] = count($this->STC_Expense->expense_list('list', $checked_user, $checked_detail, $search, $s_date, $e_date));
+			} else {
+				$data['count'] = 0;
+			}
+		} else {
+			$data['count'] = 0;
+		}
+
+		$data['sum_account'] = $this->STC_Expense->expense_list('count', $checked_user, $checked_detail, $search, $s_date, $e_date);
+
+		$total_page = 1;
+		if  ( $data['count'] % $no_page_list == 0 )
+				$total_page = floor( ( $data['count'] / $no_page_list ) );
+		else
+				$total_page = floor( ( $data['count'] / $no_page_list + 1 ) );                  //      전체 페이지 개수
+
+		$start_page =  floor(($cur_page - 1 ) / 10) * 10  + 1 ;
+		$end_page = 0;
+		if  ( floor( ( $cur_page - 1 ) / 10 ) < floor( ( $total_page - 1 ) / 10 ) )
+				$end_page = ( floor( ( $cur_page - 1 ) / 10 ) + 1 ) * 10;
+		else
+				$end_page = $total_page;
+		$data['no_page_list'] = $no_page_list;
+		$data['total_page'] = $total_page;
+		$data['start_page'] = $start_page;
+		$data['end_page'] = $end_page;
+
+		// 조직도
+		$data['user_count'] = $this->STC_Schedule->user_count();
+		$data['parentGroup'] = $this->STC_Schedule->parentGroup();
+		$data['parent_group_count'] = $this->STC_Schedule->parent_group_count();
+		$data['userInfo'] = $this->STC_Schedule->userInfo();
+		$data['user_group'] = $this->STC_Schedule->user_group();
+		$data['userDepth'] = $this->STC_Schedule->userDepth();
+		$data['user_group_count'] = $this->STC_Schedule->user_group_count();
+
+		$this->load->view('admin/expense_list', $data );
+	}
+
+	function expense_list_excel() {
+		$checked_user = $this->input->post('checked_user');
+		$checked_detail = $this->input->post('checked_detail');
+		$search = $this->input->post('search');
+		$s_date = $this->input->post('s_date');
+		$e_date = $this->input->post('e_date');
+
+		$result = $this->STC_Expense->expense_list('list', $checked_user, $checked_detail, $search, $s_date, $e_date);
+
+		echo json_encode($result);
+	}
+
+	function performanceAppraisal() {
+		$year = $this->input->get('year');
+
+		$data['year'] = $year;
+
+		$data['view_val'] = $this->STC_Performanceappraisal->performance_appraisal($year);
+
+		$this->load->view('admin/performanceAppraisal/performanceAppraisal', $data);
+	}
+
+	function return_approval_list() {
+		if( $this->id === null ) {
+				redirect( 'account' );
+		}
+		//paging
+		if(isset($_GET['cur_page'])) { //	현재 페이지
+				$cur_page = $_GET['cur_page'];
+		}else {
+				$cur_page = 1;
+		}
+
+		//check
+		//필터
+		if(isset($_GET['check'])) {
+				$check = $_GET['check'];
+		}
+		else {
+				$check = "";
+		}
+		$data['check']=$check;
+
+
+		//필터
+		if(isset($_GET['searchkeyword'])) {
+				$search_keyword = $_GET['searchkeyword'];
+		}
+		else {
+				$search_keyword = "";
+		}
+
+		$data['search_keyword'] = $search_keyword;
+
+		$no_page_list = 15; //10개씩 보여준다는고지
+
+		$data['cur_page'] = $cur_page;
+
+		$user_seq = $_GET['user_seq'];
+		$user_id = $_GET['user_id'];
+		$year = $_GET['year'];
+		$data['user_seq'] = $user_seq;
+		$data['user_id'] = $user_id;
+		$data['year'] = $year;
+
+		$data['category'] = $this->STC_Approval->select_format_category();
+		$data['view_val'] = $this->STC_Performanceappraisal->return_approval_list($user_seq, $user_id, $year, $search_keyword);//완료된고
+		if(!empty($data['view_val'])){
+				$data['count'] = count($data['view_val']);
+		}else{
+				$data['count'] = 0;
+		}
+
+		$total_page = 1;
+		if  ( $data['count'] % $no_page_list == 0 )
+				$total_page = floor( ( $data['count'] / $no_page_list ) );
+		else
+				$total_page = floor( ( $data['count'] / $no_page_list + 1 ) );			//	전체 페이지 개수
+
+		$start_page =  floor(($cur_page - 1 ) / 10) * 10  + 1 ;
+		$end_page = 0;
+		if  ( floor( ( $cur_page - 1 ) / 10 ) < floor( ( $total_page - 1 ) / 10 ) )
+				$end_page = ( floor( ( $cur_page - 1 ) / 10 ) + 1 ) * 10;
+		else
+				$end_page = $total_page;
+
+		$data['no_page_list'] = $no_page_list;
+		$data['total_page'] = $total_page;
+		$data['start_page'] = $start_page;
+		$data['end_page'] = $end_page;
+		$data['start_row'] = ( $cur_page - 1 ) * $no_page_list;
+		$data['end_row'] = $no_page_list;
+
+		//페이징 끝
+
+		$this->load->view( 'admin/performanceAppraisal/return_approval_list',$data);
+	}
 
 }
 ?>

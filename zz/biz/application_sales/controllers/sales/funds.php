@@ -10,6 +10,13 @@ class Funds extends CI_Controller {
       $this->id = $this->phpsession->get( 'id', 'stc' );
       $this->name = $this->phpsession->get( 'name', 'stc' );
       $this->lv = $this->phpsession->get( 'lv', 'stc' );
+      $this->cooperation_yn = $this->phpsession->get( 'cooperation_yn', 'stc' );
+
+      if($this->cooperation_yn == 'Y') {
+        echo "<script>alert('권한이 없습니다.');location.href='".site_url()."'</script>";
+      }
+
+      $this->load->library('user_agent');
 
       $this->load->Model('sales/STC_Funds');
     }
@@ -43,8 +50,14 @@ class Funds extends CI_Controller {
       // forcasting
       $sum_forcasting=0;
       for($i=1;$i<13;$i++){
-         $data['forcasting_'.$i] = $this->STC_Funds->funds_forcasting_sum($data['search1'],$i,$data['search2']);
-         $sum_forcasting+=$data['forcasting_'.$i][0]['sum'];
+         $forcasting = $this->STC_Funds->funds_forcasting_sum($data['search1'],$i,$data['search2']);
+         // 총 금액 - 기발행 금액,
+         // 기발행금액 월마다 더하기
+         $forcasting_minus = $this->STC_Funds->forcasting_adjust($data['search1'], $i, $data['search2'], 'minus');
+         $forcasting_plus = $this->STC_Funds->forcasting_adjust($data['search1'], $i, $data['search2'], 'plus');
+
+         $data['forcasting_'.$i] = $forcasting[0]['sum'] - $forcasting_minus['sum'] + $forcasting_plus['sum'];
+         $sum_forcasting+=$data['forcasting_'.$i];
       }
       $data['sum_forcasting']=$sum_forcasting;
 
@@ -73,6 +86,14 @@ class Funds extends CI_Controller {
       $data['sum_service']=$sum_service;
       $data['sum_support']=$sum_support;
 
+      // 유지보수 Forcasting
+      $sum_maintain_forcasting=0;
+      for($i=1;$i<13;$i++){
+         $data['maintain_forcasting'][$i] = $this->STC_Funds->maintain_forcasting_sum($data['search1'],$i,$data['search2']);
+         $sum_maintain_forcasting+=$data['maintain_forcasting'][$i][0]['sum'];
+      }
+      $data['sum_maintain_forcasting']=$sum_maintain_forcasting;
+
       // 유지보수 달성
       $sum_maintain=0;
       for($i=1;$i<13;$i++){
@@ -99,8 +120,12 @@ class Funds extends CI_Controller {
       }
       $data['sum_purchase']=$sum_purchase_forcasting + $sum_purchase_maintain + $sum_purchase_request;
 
-      $this->load->view('sales/funds_list',$data);
-
+      if($this->agent->is_mobile()) {
+        $data['title'] = '매출현황';
+        $this->load->view('sales/funds_list_mobile', $data);
+      } else {
+        $this->load->view('sales/funds_list',$data);
+      }
     }
 
   function funds_input() {
@@ -354,6 +379,112 @@ class Funds extends CI_Controller {
     $result = $this->STC_Funds->maintain_type($seq)->cnt;
 
     echo json_encode($result);
+  }
+
+  function funds_list_excel() {
+    // $this->output->enable_profiler(TRUE);
+    $data["type_0"] = array();
+    $data["type_1"] = array();
+    $data["type_2"] = array();
+    $data["type_3"] = array();
+    $data["type_4"] = array();
+
+    $year = $_POST['year'];
+    $month = $_POST['month'];
+    $company= $_POST['company'];
+    $detail_seq = $this->STC_Funds->funds_list_detail_seq($year,$month,$company);
+    // echo "<script>alert('".count($detail_seq)."')</script>";
+    if(count($detail_seq)==0){
+      $data['list_val'] = array();
+    }
+    // print_r($detail_seq);\
+    $list_data = $this->STC_Funds->funds_list_detail_data($year,$month,$company);
+// echo "<br><br>";
+//       echo $list_data[0]['seq'];
+
+    for ($i=0; $i<count($detail_seq); $i++) {
+      $d_seq = $detail_seq[$i]['seq'];
+      $data['list_val'][$i] = array();
+      for ($j=0; $j<count($list_data); $j++) {
+        if ($d_seq == $list_data[$j]['seq']) {
+          array_push($data['list_val'][$i], $list_data[$j]);
+        }
+      }
+    }
+
+    for($i=0; $i<count($data['list_val']);$i++){
+      $type = $data['list_val'][$i][0]['type'];
+      if (count($data['list_val'][$i])>1){ // 프로젝트의 매입/매출 1건 이상
+        if ($data['list_val'][$i][0]['bill_type']=="001") { // 매출이 먼저 있을 경우
+          $sum_purchase = 0;
+          for($j=0; $j<count($data['list_val'][$i]);$j++){
+            if ($data['list_val'][$i][$j]['bill_type']=="002"){ // 매입의 합계 계산
+              $sum_purchase += $data['list_val'][$i][$j]['issuance_amount'];
+            }
+          }
+          $data['list_val'][$i][0]['sum_purchase'] = $sum_purchase; // 매입의 합계를 첫번째 매출에 추가
+          foreach($data['list_val'][$i] as $lv){ // 매출 행을 변수에 입력
+            if($lv['bill_type']=="001"){
+              array_push($data["type_".$type],$lv);
+            }
+          }
+        } else { // 프로젝트의 매입만 있을 경우
+          $sum_sale_amount = 0;
+          foreach($data['list_val'][$i] as $lv) {
+            // echo count($data['list_val'][$i]).$lv['customer_companyname'];
+            // echo "<br>";
+            $sum_sale_amount += $lv['issuance_amount'];
+          }
+          // echo $sum_sale_amount.$data['list_val'][$i][0]['customer_companyname']."<br>";
+          $data['list_val'][$i][0]['issuance_amount'] = $sum_sale_amount;
+          array_push($data["type_".$type],$data['list_val'][$i][0]);
+        }
+      } else { // 프로젝트의 매입/매출이 1건일 경우
+        array_push($data["type_".$type],$data['list_val'][$i][0]);
+      }
+    }
+
+
+    // var_dump($data['type_2'][0]);
+    // echo "<br><br>";
+    // 여기여기 월, 분기에 각각 추가해야한다!!!!
+    if($company == 'IT' || $company == 'D_2') {
+      $request_data = $this->STC_Funds->request_tech_support_bill($year, $month);
+      if(isset($request_data[0])) {
+        array_push($data['type_2'], $request_data[0]);
+      }
+    }
+
+    function arr_sort( $array, $key, $sort ){
+      $keys = array();
+      $vals = array();
+      foreach( $array as $k=>$v ){
+        $i = $v[$key].'.'.$k;
+        $vals[$i] = $v;
+        array_push($keys, $k);
+      }
+      unset($array);
+      if( $sort=='asc' ){
+        ksort($vals);
+      }else{
+        krsort($vals);
+      }
+      $ret = array_combine( $keys, $vals );
+      unset($keys);
+      unset($vals);
+      return $ret;
+    }
+
+    for ($i=0;$i<5;$i++){
+      if (count($data["type_".$i])>0){
+        $data["type_".$i] = arr_sort($data['type_'.$i],'issuance_date','asc');
+      }
+      // var_dump($data["type_2"]);
+    }
+
+    $data['list_val'] = array_merge($data['type_1'],$data['type_2'],$data['type_4'],$data['type_3'],$data['type_0']);
+
+    echo json_encode($data['list_val']);
   }
 
 }

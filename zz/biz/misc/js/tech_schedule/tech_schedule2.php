@@ -126,7 +126,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
    var calendarEl = document.getElementById('calendar');
    var calendar = new FullCalendar.Calendar(calendarEl, {
-     googleCalendarApiKey:'AIzaSyBLpSLtCDQOB3mG0eAK1YrAqDjzQIjfeI0',
+     // googleCalendarApiKey:'AIzaSyBLpSLtCDQOB3mG0eAK1YrAqDjzQIjfeI0',
      locale: 'ko', //언어 설정
      selectable: true,
      // selectHelper: true,
@@ -236,7 +236,8 @@ document.addEventListener("DOMContentLoaded", function () {
       center: 'title', //중앙 버튼
       right: 'addSchedule dayGridMonth,listMonth timeGridWeek,listWeek timeGridDay,listDay' //dayGridWeek//오른쪽 버튼
     },
-    eventSources: [{
+    eventSources: [
+      {
         googleCalendarId: 'qansohiecib58ga9k1bmppvt5oi65b1q@import.calendar.google.com',
         className: 'koHolidays',
         color: '#ffe3e3',
@@ -373,23 +374,31 @@ document.addEventListener("DOMContentLoaded", function () {
         var customer = info.event.extendedProps.customer;
         var work_name = info.event.extendedProps.work_name;
         var support_method = info.event.extendedProps.support_method;
+        var outside_work = info.event.extendedProps.outside_work;
         var userName = info.event.extendedProps.user_name + " (" + info.event.extendedProps.insert_date + ")";
         var modifierName = info.event.extendedProps.modifier_name + " (" + info.event.extendedProps.modify_date + ")";
 
         title_participant = participant.split(',');
 
+        if (outside_work == 'Y') {
+          var outside_work = '[직출] ';
+        } else {
+          var outside_work = ' ';
+        }
+
         if (work_type == "tech") {
           if (participant.indexOf(",") != -1) {
-            var title = "[" + title_participant[0] + " 외 " + (title_participant.length - 1) + "명" + "] ";
+            var title = "[" + title_participant[0] + " 외 " + (title_participant.length - 1) + "명" + "]";
           } else {
-            var title = "[" + participant + "] ";
+            var title = "[" + participant + "]";
           }
 
-          title += customer + '/' + work_name + '/' + support_method;
+
+          title += outside_work + customer + '/' + work_name + '/' + support_method;
 
           var tooltipTitle = '<h3><span class="event_color_button ' + icon + info.event.extendedProps.work_color_seq + '"></span>&nbsp;' + title + '</h3><div>' + term + '</div>';
         } else {
-          var tooltipTitle = '<h3><span class="event_color_button ' + icon + info.event.extendedProps.work_color_seq + '"></span>&nbsp;' + sch_title + '</h3><div>' + term + '</div>';
+          var tooltipTitle = '<h3><span class="event_color_button ' + icon + info.event.extendedProps.work_color_seq + '"></span>&nbsp;' + outside_work + sch_title + '</h3><div>' + term + '</div>';
         }
 
         if (info.event.extendedProps.customer != '') {
@@ -920,6 +929,39 @@ document.addEventListener("DOMContentLoaded", function () {
             var end_day = details.end_day;
             var end_time = moment(details.end_time, 'HH:mm').format('HH:mm');
             // var end_time = details.end_time;
+
+            // //야간품의서 작성
+            // var c_end_time = moment(details.end_time, 'HH').format('HH');
+            //
+            // $('#c_night').hide();
+            // if((c_end_time >= 18 || start_day != end_day) && $("#night").is(":checked") == false) { //결재안돼있을때만
+            //   $('#c_night').show();
+            // }
+            //
+            // //주말품의서 작성
+            // var week = ['일', '월', '화', '수', '목', '금', '토'];
+            // var is_weekend = false;
+            // var c_start_day = new Date(start_day);
+            // var c_end_day = new Date(end_day);
+            //
+            // while(c_start_day <= c_end_day) {
+            // var strDate = moment(c_start_day).format('YYYY-MM-DD');
+            //
+            // var dayOfWeek = week[new Date(strDate).getDay()];
+            //
+            // if(dayOfWeek == '토' || dayOfWeek == '일') {
+            //   is_weekend = true;
+            // }
+            //
+            // c_start_day.setDate(c_start_day.getDate() + 1);
+            // }
+            //
+            // if(is_weekend == true && $("#weekend").is(":checked") == false) { //결재안돼있을때만
+            //   $('#c_weekend').show();
+            // } else {
+            //   $('#c_weekend').hide();
+            // } / 20220622 주석처리 / 문제없을시 삭제
+
             var work_name = details.work_name;
             var title = details.title;
             var place = details.place;
@@ -949,6 +991,8 @@ document.addEventListener("DOMContentLoaded", function () {
             var s_file_realname = details.s_file_realname;
             var e_file_changename = details.e_file_changename;
             var e_file_realname = details.e_file_realname;
+
+            var outside_work = details.outside_work;
 
             //참석자seq 받아오기
             $.ajax({
@@ -1036,6 +1080,7 @@ document.addEventListener("DOMContentLoaded", function () {
             // }
             //내용분할2
 
+            $('#c_weekend').hide();
             if (work_type == 'tech') {
               $('#de_work_type').val("tech");
               $('.de_except_company_div').show();
@@ -1044,6 +1089,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 $('.de_tech_img_div').hide();
               } else if (support_method=='현장지원'){
                 $('.de_tech_img_div').show();
+                if($("#weekend").is(":checked") == false) { //결재안돼있을때만
+                $('#c_weekend').show();
+              }
               }
               $('#de_contents_tr_0').show();
               $('.de_general_div').hide();
@@ -1093,6 +1141,14 @@ document.addEventListener("DOMContentLoaded", function () {
             $('#de_nondisclosure_sch').attr('checked', false);
             $('.de_except_nondisclosure_div').show();
           }
+
+          // 직출 체크되면 값 가져오기
+          if(outside_work == "Y") {
+            $('#de_outside_work').attr('checked', true);
+          } else {
+            $('#de_outside_work').attr('checked', false);
+          }
+
           $('#de_seq').val(seq);
           $('#de_work_type').val(work_type);
           $('#de_customer_manager').val(customer_manager);
@@ -1379,6 +1435,17 @@ document.addEventListener("DOMContentLoaded", function () {
             }
           }
 
+          var outside_eday = details.end_day;
+          var outside_today = '<?php echo date('Y-m-d'); ?>';
+          outside_eday = outside_eday.replace(/-/g, '');
+          outside_today = outside_today.replace(/-/g, '');
+
+          if (outside_eday < outside_today) {
+            $('#de_outside_work').prop('disabled', true);
+          } else {
+            $('#de_outside_work').prop('disabled', false);
+          }
+
           if(!mobile){
             if ( (start_reason != null || s_file_changename != null) && (end_reason != null || e_file_changename != null) || support_method == '원격지원' ) {
               if (tech_report == 0 && work_type == 'tech' && sday <= today) {
@@ -1401,6 +1468,42 @@ document.addEventListener("DOMContentLoaded", function () {
 
         }
       });
+
+      // $('#trip').prop('checked', false); //품의서체크박스 초기화
+      // $('#night').prop('checked', false);
+      // $("#trip_status").val(''); //진행알림창 초기화
+      // $("#night_status").val(''); / 20220622 주석처리 / 문제없을시 삭제
+      $('#weekend').prop('checked', false);
+      $("#weekend_status").val('');
+
+      $.ajax({
+        type: 'POST',
+        dataType: 'json',
+        url: "<?php echo site_url();?>/biz/schedule/create_document",
+        data: {
+          seq: seq
+        },
+        cache: false,
+        async: false,
+        success: function(data) {
+          if(data) {
+            // if(data['trip'].approval_doc_status == 002) {
+            //   $('#trip').prop('checked', true);
+            // }
+            // $("#trip_status").val(data['trip'].approval_doc_status);
+            // if(data['night'].approval_doc_status == 002) {
+            //   $('#night').prop('checked', true);
+            // }
+            // $("#night_status").val(data['night'].approval_doc_status);
+            // 20220622 주석처리 / 문제없을시 삭제
+            if(data['weekend'].approval_doc_status == 002) {
+              $('#weekend').prop('checked', true);
+            }
+            $("#weekend_status").val(data['weekend'].approval_doc_status);
+          }
+        }
+      })
+
     },
     // views: {
     //   timeGrid: {
@@ -1474,7 +1577,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       //회사 공지사항 일정 참석자 제거 or 생성
       //company
-      if (work == '공지사항') {
+      if (work == '공지일정') {
         $('.except_company_div, .de_except_company_div').hide();
         $('.lab_contents_tr, .de_lab_contents_tr').hide();
         $('.report_div, .de_report_div').hide();
@@ -1602,6 +1705,13 @@ document.addEventListener("DOMContentLoaded", function () {
       return false;
     }
 
+    // insert 직출 checked 선택했을때 y,n 값 넣어주는것
+    if( $('#'+mode+'outside_work').is(":checked") ) {
+      $('#'+mode+'outside_work').val('Y');
+    } else {
+      $('#'+mode+'outside_work').val('N');
+    }
+
     //내용분할1
     //일정 내용 분할 값과 주간보고 여부를 배열로 만들어서 보내기
     var contents = [];
@@ -1682,6 +1792,8 @@ document.addEventListener("DOMContentLoaded", function () {
     var endDay = $('#'+mode+'endDay').val();
     var endTime = $('#'+mode+'endTime').val();
     var workname = $('#'+mode+'workname').val();
+    var outside_work = $('#'+mode+'outside_work').val();
+
     //KI1@@@@@
     // var customer = $('#customer').val();
     var work_type = $('#'+mode+'work_type').val();
@@ -1885,6 +1997,7 @@ document.addEventListener("DOMContentLoaded", function () {
           endDay: endDay,
           endTime: endTime,
           work_type: work_type,
+          outside_work: outside_work,
           workname: workname,
           room_name: room_name,
           car_name: car_name,
@@ -3225,7 +3338,7 @@ function detail_modal(seq) {
       var support_method = details.support_method;
       var customer = details.customer;
       var project = details.project;
-      var participant = details.participant;
+      var participant_val = details.participant;
       var tech_report = details.tech_report;
       var user_id = details.user_id;
       var user_name = details.user_name;
@@ -3241,6 +3354,22 @@ function detail_modal(seq) {
       var s_file_realname = details.s_file_realname;
       var e_file_changename = details.e_file_changename;
       var e_file_realname = details.e_file_realname;
+
+      var outside_work = details.outside_work;
+
+      $.ajax({
+        type: "POST",
+        dataType : "json",
+        url: "<?php echo site_url();?>/biz/schedule/find_participant_seq",
+        data: {
+          participant: participant_val,
+        },
+        cache:false,
+        async:false,
+        success: function(result) {
+          participant = result;
+        }
+      });
 
       //내용분할1
       //해당 seq일정의 내용이 몇 개로 분할되어 있는지 개수 확인
@@ -3344,6 +3473,7 @@ function detail_modal(seq) {
 
       var de_participant_arr = []; //$$
       var split_de_participant = participant.split(','); //$$
+      // console.log(participant);
       for(i = 0; i < split_de_participant.length; i++){ //$$
         var split_de_participant2 = split_de_participant[i].split('_'); //$$
         var name = split_de_participant2[0]; //$$
@@ -3486,6 +3616,18 @@ function detail_modal(seq) {
           $('.e_file_view_box').hide();
         }
       }
+
+      var outside_eday = details.end_day;
+      var outside_today = '<?php echo date('Y-m-d'); ?>';
+      outside_eday = outside_eday.replace(/-/g, '');
+      outside_today = outside_today.replace(/-/g, '');
+
+      if (outside_eday < outside_today) {
+        $('#de_outside_work').prop('disabled', true);
+      } else {
+        $('#de_outside_work').prop('disabled', false);
+      }
+
       if ( ((start_reason != null || s_file_changename != null) && (end_reason != null || e_file_changename != null)) || support_method == '원격지원' ) {
         if (tech_report == 0 && work_type == 'tech' && sday <= today) {
           $('#techReportModify').show();
@@ -3986,7 +4128,8 @@ function dayOfTheWeek_in_week(target_date) {
 
     var start = target_date;
     var start_date = new Date(start);
-    var finish_date = new Date('2021-12-31');
+    var finish_year = moment(target_date).format('YYYY');
+    var finish_date = new Date(finish_year + '-12-31');
     var recurring_dayOfweek_arr = [];
     var week = new Array('일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일');
     var today = new Date(start).getDay();
@@ -4289,56 +4432,85 @@ function timeImgChk(mode, callback) {
 
       if ( varUA.indexOf("iphone") > -1||varUA.indexOf("ipad") > -1||varUA.indexOf("ipod") > -1 || (navigator.appName == 'Netscape' && varUA.indexOf('trident') != -1) || (varUA.indexOf("msie") != -1)) {
         img_date = img_date.replace(/:/gi,'/');
-        var wd = workDate.val().replace(/-/gi,'/');
+        // var wd = workDate.val().replace(/-/gi,'/');
       } else {
         img_date = img_date.replace(/:/gi,'-');
-        var wd = workDate.val();
+        // var wd = workDate.val();
       }
       var img_time = tags.DateTime.split(" ")[1];
-      var st = new Date(wd + " " + workTime.val());
-      var it = new Date(img_date + " " + img_time);
+      // var st = new Date(wd + " " + workTime.val());
+      // var it = new Date(img_date + " " + img_time);
 
-      console.log(st);
-      console.log(it);
-
-      var gepSec = it.getTime() - st.getTime();
-      var gepMin = gepSec / 1000 / 60;
-// alert(it.getTime() + st.getTime());
-      // console.log(gepMin);
-
-      if (gepMin < 0) {
-        alert('작업'+m+' 시간이 사진보다 이후입니다.\n작업'+m+' 시간을 수정해주세요.\n작업'+m+'일 : '+workDate.val()+" "+workTime.val()+"\n사진 찍은 날짜 : "+img_date+" "+img_time);
+      if(!confirm("사진 찍은 날짜 : " + img_date + " " + img_time +"\n위 시간으로 일정 " + m + " 시간이 변경됩니다.")) {
         $('#de_'+mode+"_img").val('');
         $('#de_'+mode+"_img").change();
         return false;
       }
-      if (gepMin > 30) {
-        alert('작업'+m+' 시간과 30분 이상 차이나는 사진입니다.\n작업'+m+' 시간을 수정해주세요.\n작업'+m+'일 : '+workDate.val()+" "+workTime.val()+"\n사진 찍은 날짜 : "+img_date+" "+img_time);
-        $('#de_'+mode+"_img").val('');
-        $('#de_'+mode+"_img").change();
-        return false;
-      }
-      alert(m+' 시간 일치');
-      // if (mode == 'start') {
-      //   timeImgChk('end');
-      // }
-      workDate.attr('readonly',true);
-      workDate.css('background-color','rgb(199, 199, 199)');
-      workTime.attr('readonly',true);
-      workTime.css('background-color','rgb(199, 199, 199)');
-      workDate.datepicker("destroy");
-      var clone = workTime.clone();
-      var parent = workTime.parent();
-      workTime.remove();
-      parent.append(clone);
 
-      return true;
+      if(mode == 'start') {
+        workDate.val(img_date);
+        img_time = img_time.split(':');
+        workTime.val(img_time[0]+':'+img_time[1]);
+
+        workDate.attr('readonly',true);
+        workDate.css('background-color','rgb(199, 199, 199)');
+        workTime.attr('readonly',true);
+        workTime.css('background-color','rgb(199, 199, 199)');
+        workDate.datepicker("destroy");
+        var clone = workTime.clone();
+        var parent = workTime.parent();
+        workTime.remove();
+        parent.append(clone);
+
+        return true;
+      } else if (mode == 'end') {
+        img_time = img_time.split(':');
+        var t_time = img_date + ' ' + img_time[0] + ':' + img_time[1];
+        if (dateCheck(t_time)) {
+          workDate.val(img_date);
+          workTime.val(img_time[0]+':'+img_time[1]);
+
+          workDate.attr('readonly',true);
+          workDate.css('background-color','rgb(199, 199, 199)');
+          workTime.attr('readonly',true);
+          workTime.css('background-color','rgb(199, 199, 199)');
+          workDate.datepicker("destroy");
+          var clone = workTime.clone();
+          var parent = workTime.parent();
+          workTime.remove();
+          parent.append(clone);
+
+          return true;
+        } else {
+          $('#de_'+mode+"_img").val('');
+          $('#de_'+mode+"_img").change();
+          return false;
+        }
+      }
+
     });
   };
 
   if( fileInfo ) {
     reader.readAsDataURL( fileInfo );
   }
+}
+
+function dateCheck(t_time) {
+  var startDate = $('#de_startDay').val() + ' ' + $('#de_startTime').val();
+  var endDate = t_time;
+
+  startDate = moment(startDate);
+  endDate = moment(endDate);
+
+  console.log(t_time);
+
+  if(startDate > endDate) {
+    alert('종료시간이 시작시간보다 이전입니다.');
+    return false;
+  }
+
+  return true;
 }
 
 function del_img(change_filename, type) {
@@ -4438,5 +4610,15 @@ function supportMethod_change(el) {
   }
 }
 
-
+// $(function() {
+//   var login_pgroup    = $('#login_pgroup').val();
+//   var session_id      = $('#session_id').val();
+//   var login_user_duty = $('#login_user_duty').val();
+//
+//   if(login_pgroup == '기술본부' && ( (session_id == 'kkj' || login_user_duty == '팀장') )) {
+//     $('#no_written_report').bPopup({
+//       follow: [false, false]
+//     })
+//   }
+// })
 </script>

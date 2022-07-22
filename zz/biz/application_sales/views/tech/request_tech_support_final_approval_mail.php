@@ -87,7 +87,7 @@ $to = trim($addr,',');
 $message = $html_code;
 $headers = "From: =?utf-8?B?".base64_encode("support@durianit.co.kr")."?= <support@durianit.co.kr> \n";
 $headers .= 'Cc: tech@durianit.co.kr' . "\r\n";
-$headers .= "Bcc: sylim@durianit.co.kr" ."\r\n";
+// $headers .= "Bcc: sylim@durianit.co.kr" ."\r\n";
 $headers .= 'MIME-Version: 1.0' . "\r\n";
 $headers .= 'Content-type: text/html; charset=utf-8' . "\r\n";
 $headers .= "Content-Transfer-Encoding: base64\r\n";

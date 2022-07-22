@@ -27,6 +27,14 @@ function change_list(type){
 	}else{
 			document.mform.resignation.value = "n";
 	}
+	if(type == 'cooperation') {
+		document.mform.user_type.value = 'c';
+		document.mform.resignation.value = "n";
+	}
+	if(type == 'durian') {
+		document.mform.user_type.value = 'd';
+		document.mform.resignation.value = "n";
+	}
 	document.mform.searchkeyword.value = "";
 	document.mform.action = "<?php echo site_url();?>/admin/account/user";
 	document.mform.cur_page.value = "";
@@ -43,7 +51,43 @@ $(document).ready(function(){
 			$("#hi_btn").hide();
 			<?php } ?>
 
+	<?php if($user_type == 'd') { ?>
+		$('#cooperation_btn').show();
+		$('#durian_btn').hide();
+	<?php } else { ?>
+		$('#durian_btn').show();
+		$('#cooperation_btn').hide();
+	<?php } ?>
+
 });
+
+// 전화번호 - 자동입력
+function inputPhoneNumber(obj) {
+
+	var number = obj.value.replace(/[^0-9]/g, "");
+	var phone = "";
+
+	if(number.length < 4) {
+		return number;
+	 } else if(number.length < 7) {
+		 phone += number.substr(0, 3);
+		 phone += "-";
+		 phone += number.substr(3);
+	  } else if(number.length < 11) {
+			 phone += number.substr(0, 3);
+			 phone += "-";
+			 phone += number.substr(3, 3);
+			 phone += "-";
+			 phone += number.substr(6);
+		  } else {
+				 phone += number.substr(0, 3);
+				 phone += "-";
+				 phone += number.substr(3, 4);
+			   phone += "-";
+				 phone += number.substr(7);
+				 }
+				 obj.value = phone;
+			  }
 
 
 </script>
@@ -59,6 +103,7 @@ $(document).ready(function(){
 			<input type="hidden" name="seq" value="">
 			<input type="hidden" name="mode" value="">
 			<input type="hidden" name="resignation" value="<?php echo $resignation; ?>">
+			<input type="hidden" name="user_type" value="<?php echo $user_type; ?>">
 			<tbody height="100%">
 			<!-- 타이틀 부분 시작 -->
 				<tr height="5%">
@@ -78,24 +123,25 @@ $(document).ready(function(){
 								<td>
               <!-- 검색창 -->
 									<select name="search2" id="search2" class="select-common" style="margin-right:10px; width:140px;">
-									 <option value="001" <?php if($search2 == "001"){ echo "selected";}?>>회사명</option>
-									 <option value="002" <?php if($search2 == "002"){ echo "selected";}?>>아이디</option>
-									 <option value="003" <?php if($search2 == "003"){ echo "selected";}?>>사업자등록번호</option>
-									 <option value="004" <?php if($search2 == "004"){ echo "selected";}?>>이름</option>
-									 <option value="005" <?php if($search2 == "005"){ echo "selected";}?>>이메일</option>
+									 <option value="001" <?php if($search2 == "001"){ echo "selected";}?>>부서</option>
+									 <option value="002" <?php if($search2 == "002"){ echo "selected";}?>>이름</option>
+									 <option value="003" <?php if($search2 == "003"){ echo "selected";}?>>아이디</option>
+									 <option value="004" <?php if($search2 == "004"){ echo "selected";}?>>이메일</option>
 					  		 </select>
                   <span>
 										<input type="text" style="margin-right:10px; width:240px;" class="input-common" name="searchkeyword" placeholder="검색하세요." value="<?php echo str_replace('"', '&uml;', $search_keyword );?>"/>
 									</span>
                   <span>
-										<input class="btn-common btn-style1" type="button" onclick="return GoSearch();" value="검색" >
+										<input class="btn-common btn-style2" type="button" onclick="return GoSearch();" value="검색" >
                   </span>
 								</td>
 								<td align="right">
 									<?php
 									if($admin_lv == 3) {
 										?>
-									<button id="bye_btn" type="button" name="button" class="btn-common btn-color1" style="display:none; margin-right:10px; width:100px;" onclick="change_list('bye')">미권한자 목록</button>
+									<button id="cooperation_btn" type="button" name="button" class="btn-common btn-style5" style="display:none; margin-right:10px; width:130px;" onclick="change_list('cooperation')">외주 인력 목록</button>
+									<button id="durian_btn" type="button" name="button" class="btn-common btn-style1" style="display:none; margin-right:10px; width:130px;" onclick="change_list('durian')">두리안 직원 목록</button>
+									<button id="bye_btn" type="button" name="button" class="btn-common btn-style5" style="display:none; margin-right:10px; width:100px;" onclick="change_list('bye')">미권한자 목록</button>
 									<button id="hi_btn" type="button" name="button" class="btn-common btn-color1" style="display:none; margin-right:10px; width:100px;" onclick="change_list('hi')">회원 목록</button>
 											<input class="btn-common btn-color2" type="button" onclick="$('#user_input').bPopup();" value="추가" >
 									<?php
@@ -110,25 +156,27 @@ $(document).ready(function(){
 				<!-- 콘텐트시작 -->
 				<tr height="45%">
 					<td valign="top" style="padding:15px 0px 15px 0px">
-						<table class="content_dash_tbl" align="center" width="100%" border="0" cellspacing="0" cellpadding="0">
+						<table class="content_dash_tbl list" align="center" width="100%" border="0" cellspacing="0" cellpadding="0">
 							<tr>
 								<td align="center" valign="top">
 									<tr>
 										<td>
 											<table class="month_tbl" width="100%" border="0" cellspacing="0" cellpadding="0">
 												<colgroup>
-													<col width="15%" />
-													<col width="3.5%" />
+													<col width="5%" />
+													<col width="4.5%" />
 			                    <col width="7%" />
 			                    <col width="7%" />
 			                    <col width="7%" />
 			                    <col width="7%" />
 			                    <col width="7%" />
-			                    <col width="3.5%" />
-			                    <col width="10.5%" />
+			                    <col width="4.5%" />
+			                    <col width="11.5%" />
 			                    <col width="7%" />
-			                    <col width="3.5%" />
-			                    <col width="15%" />
+			                    <col width="4.5%" />
+			                    <col width="5%" />
+			                    <!-- <col width="5%" /> -->
+			                    <col width="6%" />
 	                  		</colgroup>
 			                  <tr class="t_top row-color1">
 													<th></th>
@@ -144,6 +192,8 @@ $(document).ready(function(){
 			                    <th align="center">이메일</th>
 			                    <th align="center">연락처</th>
 			                    <th align="center">승인여부</th>
+			                    <!-- <th align="center">생년월일</th> -->
+			                    <th align="center">등록사인</th>
 													<th></th>
 			                  </tr>
 <?php
@@ -167,6 +217,12 @@ $(document).ready(function(){
 			} else if($item['confirm_flag'] == "N") {
 				$strConfirm = "미승인";
 			}
+
+			if($item['sign_changename'] == '') {
+				$signFile = '미등록';
+			} else {
+				$signFile = '등록';
+			}
 ?>
 			                 <tr onmouseover="this.style.backgroundColor='#FAFAFA'" onmouseout="this.style.backgroundColor='#fff'" style="cursor:pointer" onclick="ViewBoard('<?php echo $item['seq'];?>')">
 												  <td></td>
@@ -181,6 +237,8 @@ $(document).ready(function(){
 			                    <td align="center"><?php echo $item['user_email'];?></td>
 			                    <td align="center"><?php echo $item['user_tel'];?></td>
 			                    <td align="center"><?php echo $strConfirm;?></td>
+			                    <!-- <td align="center"><?php echo $item['user_birthday'];?></td> -->
+			                    <td align="center" style="<?php if($signFile == '미등록'){echo 'color:red;';} ?>"><?php echo $signFile;?></td>
 													<td></td>
 			                  </tr>
 <?php
@@ -263,13 +321,13 @@ function ViewBoard (seq){
 ?>
 		                    <td width="19">
 													<a href="JavaScript:GoFirstPage()">
-														<img src="<?php echo $misc;?>img/dashboard/btn/btn_first.png"  width="20" height="20"/>
+														<img src="<?php echo $misc;?>img/dashboard/btn/btn_last_left.svg"  width="20" height="20"/>
 													</a>
 												</td>
 		                    <td width="2"></td>
 		                    <td width="19">
 													<a href="JavaScript:GoPrevPage()">
-														<img src="<?php echo $misc;?>img/dashboard/btn/btn_left.png"  width="20" height="20"/>
+														<img src="<?php echo $misc;?>img/dashboard/btn/btn_left.svg"  width="20" height="20"/>
 													</a>
 												</td>
 <?php
@@ -303,13 +361,13 @@ function ViewBoard (seq){
 ?>
 												<td width="19">
 													<a href="JavaScript:GoNextPage()">
-														<img src="<?php echo $misc;?>img/dashboard/btn/btn_right.png" width="20" height="20"/>
+														<img src="<?php echo $misc;?>img/dashboard/btn/btn_right.svg" width="20" height="20"/>
 													</a>
 												</td>
 		                    <td width="2"></td>
 		                    <td width="19">
 													<a href="JavaScript:GoLastPage()">
-														<img src="<?php echo $misc;?>img/dashboard/btn/btn_last.png" width="20" height="20"/>
+														<img src="<?php echo $misc;?>img/dashboard/btn/btn_last_right.svg" width="20" height="20"/>
 													</a>
 												</td>
 <?php
@@ -365,7 +423,10 @@ function ViewBoard (seq){
         <!-- <td align="left" valign="top" style="width:5%; font-weight:bold;"> -->
           회원구분
         </td>
-				<td align="left" style="padding-right:20px;">
+				<td align="left" style="padding-right:20px;vertical-align:top;">
+					두리안<input type="radio" name="cooperation_yn" value="N" checked>
+					외주<input type="radio" name="cooperation_yn" value="Y">
+					<div class="durian">
 					<?php
 					$part = array("비즈", "영업", "기술", "관리");
 					for($i=0; $i<count($part); $i++){ ?>
@@ -377,6 +438,7 @@ function ViewBoard (seq){
 							<option value=3>관리자(<?php echo $part[$i];?>)</option>
 						</select><br>
 					<?php } ?>
+					</div>
 				</td>
         <td align="left" valign="top" style="font-weight:bold;">
           승인요청
@@ -431,7 +493,7 @@ function ViewBoard (seq){
 					<input style="width:150px" name="user_duty" type="text" class="input-common" id="user_duty"/>
 				</td>
       </tr>
-			<tr>
+			<tr class="durian">
         <td align="left" valign="center" style="font-weight:bold;">
           부서
         </td>
@@ -456,13 +518,13 @@ function ViewBoard (seq){
           연락처
         </td>
 				<td>
-					<input style="width:150px" name="user_tel" type="text" class="input-common" id="user_tel"/>
+					<input style="width:150px" name="user_tel" type="text" class="input-common" onkeyup="inputPhoneNumber(this);" maxlength="13" id="user_tel" placeholder="숫자만 입력해주세요"/>
 				</td>
       </tr>
 			<tr>
 				<td colspan="4" align="right">
 					<!--지원내용 추가 버튼-->
-					<input type="button" class="btn-common btn-color1" style="width:70px; margin-right:10px;" value="취소" onclick="$('#user_input').bPopup().close()">
+					<input type="button" class="btn-common btn-color4" style="width:70px; margin-right:10px;" value="취소" onclick="$('#user_input').bPopup().close()">
 					<input type="button" class="btn-common btn-color2" style="width:70px;" value="등록" onclick="javascript:chkForm();return false;">
         </td>
       </tr>
@@ -598,5 +660,14 @@ function chkForm () {
 	return false;
 }
 
+$('input[name=cooperation_yn]').change(function() {
+	var chk_val = $('input[name=cooperation_yn]:checked').val();
+
+	if(chk_val == 'Y') {
+		$('.durian').hide();
+	} else {
+		$('.durian').show();
+	}
+})
 </script>
 </html>

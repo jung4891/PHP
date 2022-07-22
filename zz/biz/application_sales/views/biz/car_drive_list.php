@@ -191,11 +191,15 @@
   }
 @media screen and (min-width:1700px) {
   .input-common {
-    width: 160px;
+    width: 155px;
   }
   .select-common {
-    width: 165px;
+    width: 160px;
   }
+}
+
+#input_tbl td {
+  padding-right: 10px;
 }
 </style>
 <script language="javascript">
@@ -253,6 +257,178 @@ $(function(){
 //$(document).ready(function() {
 //   $('li > ul').show();
 //});
+
+
+// var carname = ''; // 자종
+// var carnum = ''; // 차량번호
+// var d_point = ''; // 출발지
+// var a_point = ''; // 목적지
+// var d_km = ''; // 출발km
+// var a_km = ''; // 도착km
+// var drive_distance = ''; // 주행거리
+// var dirver = ''; // 운행자
+// var writer = ''; // 등록자
+// var drive_date = ''; // 운행일
+// var d_time = ''; // 츨발시
+// var a_time = ''; // 도착시
+// var oil = ''; // 주유비
+// var drive_purpose = ''; // 운행목적
+// var etc = ''; // 기타
+//
+// <?php if(strpos($_SERVER['REQUEST_URI'],'/search') !== false) {?>
+// 	var carname = '<?php echo $carname; ?>';
+// 	var carnum = '<?php echo $carnum; ?>';
+// 	var d_point = '<?php echo $d_point; ?>';
+// 	var a_point = '<?php echo $a_point; ?>';
+// 	var d_km = '<?php echo $d_km; ?>';
+// 	var a_km = '<?php echo $a_km; ?>';
+// 	var drive_distance = '<?php echo $drive_distance; ?>';
+//   var dirver = '<?php echo $dirver; ?>';
+//   var writer = '<?php echo $writer; ?>';
+//   var drive_date = '<?php echo $drive_date; ?>';
+// 	var d_time = '<?php echo $d_time; ?>';
+// 	var a_time = '<?php echo $a_time; ?>';
+//   var oil = '<?php echo $oil; ?>';
+//   var drive_purpose = '<?php echo $drive_purpose; ?>';
+//   var etc = '<?php echo $etc; ?>';
+// <?php } ?>
+// var page = '<?php echo $this->uri->segment(3); ?>';
+
+// 엑셀 파일 저장
+function excelDownload(id, title) {
+  var excel_download_table = "";
+
+  $.ajax({
+		 type: "POST",
+		 cache: false,
+		 url: '<?php echo site_url(); ?>/biz/durian_car/excelDownload',
+		 dataType: "json",
+		 // async: false,
+     contentType: false,
+     processData: false,
+		 data: {
+
+		 },
+		 success: function (data) {
+			 if(data){
+         excel_download_table += '<table id="excelTable" class="exportTable" style="display:none;" style="width:100%;"><colgroup><col style="width:5%"><col style="width:9%"><col style="width:9%"><col style="width:9%"><col style="width:7%"><col style="width:7%"><col style="width:5%"><col style="width:5%"><col style="width:5%"><col style="width:5%"><col style="width:4%"><col style="width:4%"><col style="width:5%"><col style="width:6%"><col style="width:3%"></colgroup>';
+         excel_download_table += '<tr bgcolor="f8f8f9" class="t_top"><td height="60" align="center">NO</td><td height="60" align="center">차종</td><td height="60" align="center">출발지</td><td height="60" align="center">목적지</td><td height="60" align="center">출발시km</td><td height="60" align="center">도착시km</td><td height="60" align="center">주행거리</td><td height="60" align="center">운행자</td><td height="60" align="center">등록자</td><td height="60" align="center">운행일</td><td height="60" align="center">출발시</td><td height="60" align="center">도착시</td><td height="60" align="center">주유비</td><td height="60" align="center">운행목적</td><td height="60" align="center">기타</td>';
+
+
+         for(var i=0; i<data.length; i++){
+           if(data[i].seq==null){
+             data[i].seq = '';
+           }
+           if(data[i].carname==null){
+             data[i].carname = '';
+           }
+           if(data[i].carnum==null){
+             data[i].carnum = '';
+           }
+           if(data[i].d_point==null){
+             data[i].d_point = '';
+           }
+           if(data[i].a_point==null){
+             data[i].a_point = '';
+           }
+           if(data[i].d_km==null){
+             data[i].d_km = '';
+           }
+           if(data[i].a_km==null){
+             data[i].a_km = '';
+           }
+           if(data[i].drive_distance==null){
+             data[i].drive_distance = '';
+           }
+           if(data[i].driver==null){
+             data[i].driver = '';
+           }
+           if(data[i].writer==null){
+             data[i].writer = '';
+           }
+           if(data[i].drive_date==null){
+             data[i].drive_date = '';
+           }
+           if(data[i].d_time==null){
+             data[i].d_time = '';
+           }
+           if(data[i].a_time==null){
+             data[i].a_time = '';
+           }
+           if(data[i].oil==null){
+             data[i].oil = '';
+           }
+           if(data[i].drive_purpose==null){
+             data[i].drive_purpose = '';
+           }
+           if(data[i].etcetc==null){
+             data[i].etc = '';
+           }
+           excel_download_table += '<tr>';
+           excel_download_table += '<td scope="row" class="cell1" style="text-align:left;">'+data[i].seq+'</td>';
+           excel_download_table += '<td scope="row" class="cell1" style="text-align:left;">'+(data[i].carname+' / '+data[i].carnum)+'</td>';
+           // excel_download_table += '<td scope="row" class="cell1" style="text-align:left;">'+data[i].carnum+'</td>';
+           excel_download_table += '<td scope="row" class="cell1" style="text-align:left;">'+data[i].d_point+'</td>';
+           excel_download_table += '<td scope="row" class="cell1" style="text-align:left;">'+data[i].a_point+'</td>';
+           excel_download_table += '<td scope="row" class="cell1" style="text-align:left;">'+data[i].d_km+'</td>';
+           excel_download_table += '<td scope="row" class="cell1" style="text-align:left;">'+data[i].a_km+'</td>';
+           excel_download_table += '<td scope="row" class="cell1" style="text-align:left;">'+(data[i].a_km-data[i].d_km)+'</td>';
+           excel_download_table += '<td scope="row" class="cell1" style="text-align:left;">'+data[i].driver+'</td>';
+           excel_download_table += '<td scope="row" class="cell1" style="text-align:left;">'+data[i].writer+'</td>';
+           excel_download_table += '<td scope="row" class="cell1" style="text-align:left;">'+data[i].drive_date+'</td>';
+           excel_download_table += '<td scope="row" class="cell1" style="text-align:left;">'+data[i].d_time+'</td>';
+           excel_download_table += '<td scope="row" class="cell1" style="text-align:left;">'+data[i].a_time+'</td>';
+           excel_download_table += '<td scope="row" class="cell1" style="text-align:left;">'+data[i].oil+'</td>';
+           excel_download_table += '<td scope="row" class="cell1" style="text-align:left;">'+data[i].drive_purpose+'</td>';
+           excel_download_table += '<td scope="row" class="cell1" style="text-align:left;">'+data[i].etc+'</td>';
+           excel_download_table += '</tr>';
+
+         }
+			 }
+       console.log(excel_download_table);
+       $("#tablePlus").append(excel_download_table);
+
+       var tab_text = '<html xmlns:x="urn:schemas-microsoft-com:office:excel">';
+       tab_text = tab_text + '<head><meta http-equiv="content-type" content="application/vnd.ms-excel; charset=UTF-8">';
+       tab_text = tab_text + '<xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet>'
+       tab_text = tab_text + '<x:Name>Test Sheet</x:Name>';
+       tab_text = tab_text + '<x:WorksheetOptions><x:Panes></x:Panes></x:WorksheetOptions></x:ExcelWorksheet>';
+       tab_text = tab_text + '</x:ExcelWorksheets></x:ExcelWorkbook></xml></head><body>';
+       tab_text = tab_text + "<table border='1px'>";
+       var exportTable = $('#' + id).clone();
+       exportTable.find('input').each(function(index, elem) {
+         $(elem).remove();
+       });
+       tab_text = tab_text + exportTable.html();
+       tab_text = tab_text + '</table></body></html>';
+       var data_type = 'data:application/vnd.ms-excel';
+       var ua = window.navigator.userAgent;
+       var msie = ua.indexOf("MSIE ");
+       var fileName = title + '.xls';
+       //Explorer 환경에서 다운로드
+       if (msie > 0 || !!navigator.userAgent.match(/Trident.*rv\:11\./)) {
+         if (window.navigator.msSaveBlob) {
+           var blob = new Blob([tab_text], {
+             type: "application/csv;charset=utf-8;"
+           });
+           navigator.msSaveBlob(blob, fileName);
+         }
+       } else {
+         var blob2 = new Blob([tab_text], {
+           type: "application/csv;charset=utf-8;"
+         });
+         var filename = fileName;
+         var elem = window.document.createElement('a');
+         elem.href = window.URL.createObjectURL(blob2);
+         elem.download = filename;
+         document.body.appendChild(elem);
+         elem.click();
+         document.body.removeChild(elem);
+       }
+			}
+		});
+
+}
 </script>
 <style media="screen">
   .input_border{
@@ -289,6 +465,13 @@ $(function(){
       <!-- <input type="button" id="car_input_btn" name="car_input_btn" value="글쓰기" style="width:95%; height:40%; font-weight:bold; background-color:#41beeb; color:#fff; border-radius:10px; border:none;" onclick="input_popup();"> -->
   </tr>
 <?php } ?>
+<!-- 엑셀다운로드 -->
+<!-- <tr>
+  <div style="width:33%;float:right;">
+    <input type="button" class="btn-common btn-updownload" value="엑셀 다운로드" style="width:auto;float:left;padding-left:20px;" onclick="excelDownload('excelTable','차량운행일지');">
+    <img src="/misc/img/download_btn.svg" style="float:left; width:12px;position:relative;top:7px; right:105px; padding:2px;">
+  </div>
+</tr> -->
 <!-- 검색창 -->
 <tr height="10%">
   <td align="left" valign="bottom">
@@ -307,7 +490,7 @@ $(function(){
         </span>
         <span>
           <!-- <input type="image" style='cursor:hand; margin-bottom:8px;' onClick="return GoSearch();" src="<?php echo $misc;?>img/dashboard/btn/btn_search.png" width="20px" height="20px" align="middle" border="0" /> -->
-          <input type="button" class="btn-common btn-style1" value="검색" onClick="return GoSearch();">
+          <input type="button" class="btn-common btn-style2" value="검색" onClick="return GoSearch();">
         </span>
         </td>
       </tr>
@@ -315,11 +498,11 @@ $(function(){
   </td>
 </tr>
 </form>
-<!-- 입력창 -->
+<!-- 검색창 -->
 <?php if($mobile == 'false'){ ?>
 <tr height="10%">
   <td align="left" valign="bottom">
-    <table width="100%" border="0" cellspacing="0" cellpadding="0" class="none_mobile" style="font-weight:bold;margin-top:30px;">
+    <table id="input_tbl" border="0" cellspacing="0" cellpadding="0" class="none_mobile search_title" style="font-weight:bold;margin-top:30px;">
       <tr>
         <td>차종</td>
         <td>
@@ -331,23 +514,23 @@ $(function(){
         </td>
         <td>출발지</td>
         <td>
-          <input type="text" class="input-common" style="" id="add_d_point" name="add_d_point">
+          <input type="text" class="input-common" style="margin-right:20px" id="add_d_point" name="add_d_point">
         </td>
         <td>출발시km</td>
         <td>
-          <input type="text" class="input-common" style="" id="add_d_km" name="add_d_km">
+          <input type="text" class="input-common" style="margin-right:20px" id="add_d_km" name="add_d_km">
         </td>
         <td>주행거리</td>
         <td>
-          <input type="text" class="input-common" style="" id="add_total_km" name="add_total_km" value="" readonly>
+          <input type="text" class="input-common" style="margin-right:20px" id="add_total_km" name="add_total_km" value="" readonly>
         </td>
         <td>운행일</td>
         <td>
-          <input type="text" class="input-common datepicker" style="" id="add_drive_date" name="add_drive_date">
+          <input type="text" class="input-common datepicker" style="margin-right:20px" id="add_drive_date" name="add_drive_date">
         </td>
         <td>출발시</td>
         <td>
-          <input type="text" class="input-common timepicker" style="" id="add_d_time" name="add_d_time">
+          <input type="text" class="input-common timepicker" style="margin-right:20px" id="add_d_time" name="add_d_time">
         </td>
         <td>주유비</td>
         <td>
@@ -357,27 +540,27 @@ $(function(){
       <tr>
         <td>등록자</td>
         <td>
-          <input type="text" class="input-common" style="" value="<?php echo $this->name; ?>" readonly>
+          <input type="text" class="input-common" style="margin-right:20px" value="<?php echo $this->name; ?>" readonly>
         </td>
         <td>목적지</td>
         <td>
-          <input type="text" class="input-common" style="" id="add_a_point" name="add_a_point">
+          <input type="text" class="input-common" style="margin-right:20px" id="add_a_point" name="add_a_point">
         </td>
         <td>도착시km</td>
         <td>
-          <input type="text" class="input-common" style="" id="add_a_km" name="add_a_km" onkeyup="input_a_km();">
+          <input type="text" class="input-common" style="margin-right:20px" id="add_a_km" name="add_a_km" onkeyup="input_a_km();">
         </td>
         <td>운행자</td>
         <td>
-          <input type="text" class="input-common" style="" id="add_driver" name="add_driver">
+          <input type="text" class="input-common" style="margin-right:20px" id="add_driver" name="add_driver">
         </td>
         <td>운행목적</td>
         <td>
-          <input type="text" class="input-common" style="" id="add_drive_purpose" name="add_drive_purpose">
+          <input type="text" class="input-common" style="margin-right:20px" id="add_drive_purpose" name="add_drive_purpose">
         </td>
         <td>도착시</td>
         <td>
-          <input type="text" class="input-common timepicker" style="" id="add_a_time" name="add_a_time">
+          <input type="text" class="input-common timepicker" style="margin-right:20px" id="add_a_time" name="add_a_time">
         </td>
         <td>기타</td>
         <td>
@@ -399,7 +582,7 @@ $(function(){
       <tr>
           <td align="center" valign="top">
             <tr>
-              <td>
+              <td id="tablePlus">
               <table class="drive_list" width="100%" border="0" cellspacing="0" cellpadding="0" id="car_list_table" style="<?php if($mobile=="false"){ echo 'margin-top:20px;'; }?>">
                 <colgroup>
                 <?php if($mobile=="false"){ ?>
@@ -521,7 +704,7 @@ $(function(){
                     <input type="hidden" id="hidden_a_time" name="hidden" value="<?php echo $item['a_time'];?>">
                   </td>
                   <td align="center" align="center" class="none_mobile">
-                    <input type="text" class="input_border" name="oil" id="oil" value="<?php echo $item['oil'];?>" style="width:60px; height:18px; text-align:center;"  onchange="modifyInput(this);" onfocusin="in_text_align(this);" onfocusout="out_text_align(this)" title="<?php echo $item['oil'];?>">
+                    <input type="text" class="input_border" name="oil" id="oil" value="<?php if($item['oil'] != ''){echo number_format($item['oil']);}?>" style="width:60px; height:18px; text-align:center;"  onchange="modifyInput(this);" onFocus="deCommaStr(this);" onfocusin="in_text_align(this);" onfocusout="out_text_align(this);commaStr(this);" onkeyup="onlyNumber(this)" title="<?php if($item['oil'] != ''){echo number_format($item['oil']);}?>">
                     <input type="hidden" id="hidden_oil" name="hidden" value="<?php echo $item['oil'];?>">
                   </td>
                   <td align="center" class="none_mobile">
@@ -597,6 +780,9 @@ function ViewBoard (seq){
 
       </tr>
    </table>
+
+
+
 </td>
 </tr>
 <!-- 컨텐트 테이블 끝 -->
@@ -615,9 +801,9 @@ function ViewBoard (seq){
 <?php
 if ($cur_page > 10){
 ?>
-      <td width="19"><a href="JavaScript:GoFirstPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_first.png" width="20" height="20"/></a></td>
+      <td width="19"><a href="JavaScript:GoFirstPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_last_left.svg" width="20" height="20"/></a></td>
       <td width="2"></td>
-      <td width="19"><a href="JavaScript:GoPrevPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_left.png" width="20" height="20"/></a></td>
+      <td width="19"><a href="JavaScript:GoPrevPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_left.svg" width="20" height="20"/></a></td>
 <?php
 } else {
 ?>
@@ -649,8 +835,8 @@ if   ( floor( ( $cur_page - 1 ) / 10 ) < floor( ( $total_page - 1 ) / 10 ) ){
 ?>
 <!-- <td width="19"><a href="JavaScript:GoNextPage()"><img src="<?php echo $misc;?>img/dashboard/page_next.png" width="20" height="20"/></a></td> -->
       <td width="2"></td>
-      <td width="19"><a href="JavaScript:GoNextPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_right.png" width="20" height="20"/></a></td>
-      <td width="19"><a href="JavaScript:GoLastPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_last.png" width="20" height="20"/></a></td>
+      <td width="19"><a href="JavaScript:GoNextPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_right.svg" width="20" height="20"/></a></td>
+      <td width="19"><a href="JavaScript:GoLastPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_last_right.svg" width="20" height="20"/></a></td>
 <?php
 } else {
 ?>
@@ -679,6 +865,13 @@ if   ( floor( ( $cur_page - 1 ) / 10 ) < floor( ( $total_page - 1 ) / 10 ) ){
   <td height="10"></td>
 </tr>
 </td>
+</tr>
+<!-- 엑셀 다운로드 버튼 -->
+<tr>
+  <div style="width:33%;float:right;">
+    <input type="button" class="btn-common btn-updownload" value="엑셀 다운로드" style="width:auto;float: right;padding-left: 20px;position: relative;top: 20px;" onclick="excelDownload('excelTable','차량운행일지');">
+    <img src="/misc/img/download_btn.svg" style="float: right; width:12px;position:relative;top: 28px; left: 20px; padding: 1px;">
+  </div>
 </tr>
 </table>
 </td>
@@ -873,6 +1066,10 @@ if   ( floor( ( $cur_page - 1 ) / 10 ) < floor( ( $total_page - 1 ) / 10 ) ){
   </div>
 <?php } ?>
 
+<div id="excel_div">
+
+</div>
+
 <?php include $this->input->server('DOCUMENT_ROOT')."/include/sales_bottom.php"; ?>
 <script>
 // function changekm(){
@@ -1000,7 +1197,7 @@ function save_action(){
       var driver = tr.find('#driver').val();
       var drive_date = tr.find('#drive_date').val();
       var drive_purpose = tr.find('#drive_purpose').val();
-      var oil = tr.find('#oil').val();
+      var oil = tr.find('#oil').val().replace(/,/g, "");
       var etc = tr.find('#etc').val();
 
       if(carname == null){
@@ -1456,6 +1653,39 @@ function modalClose(tbl){
 //     console.log(td);
 //   }
 // }
+
+function commaStr(el) {
+  var n = $(el).val();
+  var reg = /(^[+-]?\d+)(\d{3})/;
+  n += '';
+
+  while (reg.test(n))
+    n = n.replace(reg, '$1' + ',' + '$2');
+  $(el).val(n);
+}
+
+// 금액 부분 콤마 제거
+function deCommaStr(obj) {
+  num = obj.value + "";
+  if (obj.value != "") {
+    obj.value = obj.value.replace(/,/g, "");
+  }
+  if (typeof obj.selectionStart == "number") {
+    obj.selectionStart = obj.selectionEnd = obj.value.length;
+  } else if (typeof obj.createTextRange != "undefined") {
+    obj.focus();
+    var range = obj.createTextRange();
+    range.collapse(false);
+    range.select();
+  }
+}
+
+// 숫자만 입력 함수
+function onlyNumber(obj) {
+  var val = obj.value;
+  var re = /[^0-9]/gi;
+  obj.value = val.replace(re, "");
+}
 </script>
 </body>
 </html>

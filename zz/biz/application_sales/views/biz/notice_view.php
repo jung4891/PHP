@@ -48,17 +48,17 @@ function chkForm( type ) {
 	<td align="right">
 	<?php
 		if($category == '002' || $category == '003'){
-			if( $group == '기술연구소'){
+			if( $this->pGroupName == '기술연구소'){
 	?>
-				<input type="button" class="btn-common btn-color1" value="삭제" onClick="javascript:chkForm(1);return false;" style="margin-right:10px;">
-				<input type="button" class="btn-common btn-color1" value="수정" onClick="javascript:chkForm(0);return false;"style="margin-right:10px;">
+				<input type="button" class="btn-common btn-color4" value="삭제" onClick="javascript:chkForm(1);return false;" style="margin-right:10px;">
+				<input type="button" class="btn-common btn-color4" value="수정" onClick="javascript:chkForm(0);return false;"style="margin-right:10px;">
 	<?php
 			}
 		}else{
 			if( $view_val['user_id'] == $this->id ) {
 	?>
-			<input type="button" class="btn-common btn-color1" value="삭제" onClick="javascript:chkForm(1);return false;"style="margin-right:10px;">
-			<input type="button" class="btn-common btn-color1" value="수정" onClick="javascript:chkForm(0);return false;"style="margin-right:10px;">
+			<input type="button" class="btn-common btn-color4" value="삭제" onClick="javascript:chkForm(1);return false;"style="margin-right:10px;">
+			<input type="button" class="btn-common btn-color4" value="수정" onClick="javascript:chkForm(0);return false;"style="margin-right:10px;">
 	<?php
 			}
 		}
@@ -113,6 +113,18 @@ function chkForm( type ) {
 										<td align="center" class="row-color1" style="font-weight:bold;">등록자</td>
 										<td align="center"><?php echo $view_val['user_name'];?></td>
                   </tr>
+									<tr>
+										<td height="40" align="center" class="row-color1" style="font-weight:bold;">숨김</td>
+										<td align="left" style="padding-left:10px;">
+											<!-- <input type="hidden" name="hide_btn" value="N"> -->
+											<input type="checkbox" id="hide_btn" name="hide_btn" value="<?php echo $view_val['hide_btn']?>" <?php if ($view_val['hide_btn'] == 'Y') {
+												echo "checked";
+											} ?> onclick="return false">
+											<input type="hidden" name="hide_btn" value="<?php echo $view_val['hide_btn']?>">
+										</td>
+										<td></td>
+										<td></td>
+									</tr>
                   <tr>
                     <td valign="top" colspan="4" style="padding:20px;"><?php echo $view_val['contents'];?></td>
                   </tr>

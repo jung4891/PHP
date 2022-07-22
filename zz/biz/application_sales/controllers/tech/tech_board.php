@@ -17,7 +17,9 @@ class Tech_board extends CI_Controller {
         $this->company = $this->phpsession->get( 'company', 'stc' );
         $this->email = $this->phpsession->get('email','stc'); //김수성추가
         $this->pGroupName = $this->phpsession->get( 'pGroupName', 'stc' );
+        $this->duty = $this->phpsession->get( 'duty', 'stc' );
         $this->seq = $this->phpsession->get('seq', 'stc');
+        $this->cooperation_yn = $this->phpsession->get( 'cooperation_yn', 'stc' );
         $this->load->helper('form');
         $this->load->helper('url');
 
@@ -94,6 +96,23 @@ class Tech_board extends CI_Controller {
 
         $no_page_list = 10;                                                                             //      한페이지에 나타나는 목록 개수
 
+        //체크한 seq,mailaddr
+        if(isset($_GET['mail_send'])) {
+            $mail_send = $_GET['mail_send'];
+        }
+        else {
+            $mail_send = "";
+        }
+
+        //체크한 고객사 가져올려고
+        if(isset($_GET['seq'])) {
+            $seq = $_GET['seq'];
+        }
+        else {
+            $seq = "";
+        }
+
+      if($this->agent->is_mobile()) {
         if(isset($_GET['searchkeyword'])) {
             $search_keyword = $_GET['searchkeyword'];
         }
@@ -113,33 +132,55 @@ class Tech_board extends CI_Controller {
         else {
             $search1 = "";
         }
-        //체크한 seq,mailaddr
-        if(isset($_GET['mail_send'])) {
-            $mail_send = $_GET['mail_send'];
-        }
-        else {
-            $mail_send = "";
-        }
-
-        //체크한 고객사 가져올려고
-        if(isset($_GET['seq'])) {
-            $seq = $_GET['seq'];
-        }
-        else {
-            $seq = "";
-        }
 
         $data['search_keyword'] = $search_keyword;
         $data['search_keyword2'] = $search_keyword2;
         $data['search1'] = $search1;
+      } else {
+        //검색내역들 form전송 받은거 searchkeyword로 받았다
+        if(isset($_GET['searchkeyword'])) {
+          $searchkeyword = $_GET['searchkeyword'];
+        } else {
+          $searchkeyword= '';
+        }
+        // $data['search_keyword'] = $search_keyword; //hidden으로 숨겨놓음
+        // $data['search_keyword2'] = $search_keyword2; //hidden으로 숨겨놓음
+        $data['searchkeyword'] = $searchkeyword;// 받아온 데이터
+        // $data['search1'] = $search1;
+
+        if(isset($_GET['excellent_report_yn'])) {
+            $excellent_report_yn = $_GET['excellent_report_yn'];
+        }
+        else {
+            $excellent_report_yn = "";
+        }
+
+        $data['excellent_report_yn'] = $excellent_report_yn;
+      }
+
         $data['mail_send']=$mail_send;
         $data['seq']=$seq;
         if  ( $cur_page <= 0 )
             $cur_page = 1;
         $data['cur_page'] = $cur_page;
 
-        $user_list_data = $this->STC_tech_doc->tech_doc_list($type, $search_keyword,$search_keyword2, $search1, ( $cur_page - 1 ) * $no_page_list, $no_page_list);
-        $data['count'] = $this->STC_tech_doc->tech_doc_list_count($type, $search_keyword, $search_keyword2, $search1)->ucount;
+        if(isset($_GET['hashtag'])) { //해시태그 눌렀을때
+          $hashtag = $_GET['hashtag'];
+        } else {
+          $hashtag = '';
+        }
+
+        $data['hashtag'] = $hashtag;
+
+        // 빋아온 데이터($searchkeyword 모델로 넘김)
+        // 페이징처리때문에 tech_doc_count모델에도 넘겨줘야(검색시 페이징 변화있으니)
+        if($this->agent->is_mobile()) {
+          $user_list_data = $this->STC_tech_doc->tech_doc_list_mobile($type, $search_keyword,$search_keyword2, $search1, ( $cur_page - 1 ) * $no_page_list, $no_page_list);
+          $data['count'] = $this->STC_tech_doc->tech_doc_list_count_mobile($type, $search_keyword, $search_keyword2, $search1)->ucount;
+        } else {
+          $user_list_data = $this->STC_tech_doc->tech_doc_list($type, $searchkeyword, $hashtag, $excellent_report_yn, ( $cur_page - 1 ) * $no_page_list, $no_page_list);
+          $data['count'] = $this->STC_tech_doc->tech_doc_list_count($type, $searchkeyword, $hashtag, $excellent_report_yn)->ucount;
+        }
         $data['list_val'] = $user_list_data['data'];
         $data['list_val_count'] = $user_list_data['count'];
         $total_page = 1;
@@ -160,7 +201,14 @@ class Tech_board extends CI_Controller {
         $data['end_page'] = $end_page;
         $data['schedule_list'] = $this->STC_tech_doc->schedule_list($this->seq);
         $data['type'] = $type;
-        $this->load->view('tech/tech_doc_list', $data );
+        $data['product_company'] = $this->STC_tech_doc->product_company();
+
+        if($this->agent->is_mobile()) {
+          $data['title'] = '기술지원보고서';
+          $this->load->view('tech/tech_doc_list_mobile', $data);
+        } else {
+          $this->load->view('tech/tech_doc_list', $data );
+        }
 
     }
 
@@ -284,6 +332,8 @@ class Tech_board extends CI_Controller {
         // $data['customer'] = $this->STC_tech_doc->get_customer();
         $data['customer'] = $this->STC_tech_doc->get_customer3();
         $data['customer2'] = $this->STC_tech_doc->get_customer2();
+
+        $data['product_company'] = $this->STC_tech_doc->product_company();
 
         //로고파일 읽어오기
         $dir2= $this->input->server('DOCUMENT_ROOT')."/misc/img/logo";
@@ -445,6 +495,22 @@ class Tech_board extends CI_Controller {
             $work_process .= ";;";
         }
     }
+
+    if($this->input->post('work_name') == '장애지원') {
+      $failure_data = '';
+
+      $failure_title = $this->input->post('failure_title');
+      $failure_content = $this->input->post('failure_content');
+
+      for($i = 0; $i < count($failure_title); $i++) {
+        if($i > 0) {
+          $failure_data .= '*/*';
+        }
+        $failure_data .= $failure_title[$i].':::'.$failure_content[$i];
+      }
+    } else {
+      $failure_data = null;
+    }
         // insert / modify 기본 내용
 
     $s = $this->input->post('start_time');
@@ -514,6 +580,8 @@ class Tech_board extends CI_Controller {
             'sn'                            => $this->input->post('serial'),
             'version'                       => $this->input->post('version'),
             'license'                       => $this->input->post('license'),
+            'manufacturer'                  => $this->input->post('manufacturer'),
+            'duplication_yn'                => $this->input->post('duplication_yn'),
             'work_name'                     => $this->input->post('work_name'),
             'doc_num'                       => $doc_final,
             'total_time'                    => $total_time,
@@ -544,7 +612,8 @@ class Tech_board extends CI_Controller {
             'some_inspection'               => $some_inspection,
             //KI1
             'schedule_seq'                  => $schedule_seq,
-            'end_work_day'                  => $end_work_day
+            'end_work_day'                  => $end_work_day,
+            'failure_contents'              => $failure_data
             // 'schedule_seq'                  => $sch_seq
             //KI2
 
@@ -564,6 +633,8 @@ class Tech_board extends CI_Controller {
             'sn'                            => $this->input->post('serial'),
             'version'                       => $this->input->post('version'),
             'license'                       => $this->input->post('license'),
+            'manufacturer'                  => $this->input->post('manufacturer'),
+            'duplication_yn'                => $this->input->post('duplication_yn'),
             'work_name'                     => $this->input->post('work_name'),
             'doc_num'                       => $doc_final,
             'total_time'                    => $total_time,
@@ -592,7 +663,8 @@ class Tech_board extends CI_Controller {
             'some_inspection'               => $some_inspection,
             //KI1
             'schedule_seq'                  => $schedule_seq,
-            'end_work_day'                  => $end_work_day
+            'end_work_day'                  => $end_work_day,
+            'failure_contents'              => $failure_data
             // 'schedule_seq'                  => $sch_seq
             //KI2
         );
@@ -602,6 +674,7 @@ class Tech_board extends CI_Controller {
         if ($seq == null) {                     // insert 모드
             $data2 = array(
                 'writer'                    => $this->name,
+                'writer_seq'                => $this->seq,
                 'insert_date'               => date("Y-m-d H:i:s")
                 );
 
@@ -614,7 +687,7 @@ class Tech_board extends CI_Controller {
                 $data['db_name'] = 'N';
                 $result = $this->STC_tech_doc->tech_doc_insert($data, $mode = 0);
                 // $result = $this->STC_tech_doc->tech_doc_insert($data, $mode = 0);
-                // $insert_seq = $result;
+                $insert_seq = $result;
                 // return true;
 
               }else{ //기존 등록tbl
@@ -645,7 +718,8 @@ class Tech_board extends CI_Controller {
 
         } else {                                        // modify 모드
             $data2 = array(
-                'writer'                    => $this->input->post('writer')
+                'writer'                    => $this->input->post('writer'),
+                'writer_seq'                => $this->seq,
             );
 
             $data = array_merge($data1, $data2);
@@ -661,6 +735,7 @@ class Tech_board extends CI_Controller {
                 }else{ //임시저장 페이지에서 등록을 한다.
                   $data['db_name'] = 'Y';
                   $result = $this->STC_tech_doc->tech_doc_insert($data, $mode = 0, $seq);
+                  $insert_seq = $result;
 
                   if ($result && (($this->input->post('work_name')=='정기점검' || $this->input->post('work_name')=='정기점검2') && $this->group != '기술연구소')){
                     $result = $this->STC_tech_doc->maintain_result($some_inspection,$data);
@@ -685,6 +760,7 @@ class Tech_board extends CI_Controller {
                 if($type == 'N'){ //등록 페이지에서 임시저장을 한다.
                   $data['db_name'] = 'N';
                   $result = $this->STC_tech_doc->tech_doc_insert($data, $mode = 0, $seq);
+                  $insert_seq = $result;
 
                   //KI1 기지보 혹은 일정에서 작성 완료했을때 해당 일정 +1해줌
                   if($data['schedule_seq'] != null){
@@ -712,9 +788,10 @@ class Tech_board extends CI_Controller {
 
         }
 
-        // 요청사항 && 이슈 추가
+        // 요청사항 && 이슈 && 버그추가
         $request = trim($this->input->post('request'));
         $issue = trim($this->input->post('issue'));
+        $bug = trim($this->input->post('bug'));
         if(!isset($insert_seq)){
             $insert_seq = $seq;
         }
@@ -758,6 +835,141 @@ class Tech_board extends CI_Controller {
             $result = $this->STC_tech_doc->issue_insert(1,$issue_data);
         }
 
+        $bugging = $this->STC_tech_doc->bug_insert(3,$insert_seq);
+        if(empty($bugging) && $bug != ""){
+            $bug_data = array(
+                'tech_doc_seq' => $insert_seq,
+                'customer_companyname' =>$data['customer'],
+                'contents' => $bug,
+                'insert_date' => date("Y-m-d H:i:s"),
+                'writer_id' => $this->id
+            );
+            $result = $this->STC_tech_doc->bug_insert(0,$bug_data);
+        }else if(!empty($bugging)){
+            $bug_data = array(
+                'seq' => $bugging['seq'],
+                'contents' => $bug,
+                'update_date' => date("Y-m-d H:i:s"),
+                'writer_id' => $this->id
+            );
+            $result = $this->STC_tech_doc->bug_insert(1,$bug_data);
+        }
+
+        // // 요청사항, 이슈, 버그에 내용이 있으면 메일전송
+        // if($request_data || $issue_data || $bug_data){
+        //   $mail_data = $this->STC_tech_doc->send_mail($tech_doc_seq); // 근데 request_data엔 tech_doc_seq가 없다..
+        //   $mail_address = $writer_id."@durianit.co.kr";
+        //   // for($i=0; $i<count($mail_data); $i++){
+        //   //     $mail_address .= ";".$mail_data[$i]['user_email'];
+        //   // }
+        //   if(trim($mail_address) != ""){
+        //
+        //       //메일 제목 작성
+        //       $subject = "[기술지원보고서]요청사항/이슈/버그사항";
+        //       $subject = "=?EUC-KR?B?".base64_encode(iconv("UTF-8","EUC-KR",$subject))."?=\r\n";
+        //
+        //
+        //       //메일 본문 작성
+        //       $html_code = "<!DOCTYPE html PUBLIC '-//W3C//DTD XHTML 1.0 Transitional//EN' 'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'>
+        //       <html xmlns='http://www.w3.org/1999/xhtml'>
+        //       <head>
+        //           <title>두리안정보기술센터-sales Center</title>
+        //           <meta http-equiv='Content-Type' content='text/html; charset=utf-8' />
+        //       </head>
+        //       <body>";
+        //
+        //       $html_code .= "<h3>* [기술지원보고서]요청사항/이슈/버그사항 알림 </h3>";
+        //
+        //       $html_code .=
+        //           "<table style='width:1000px;border-collapse:collapse;border:1px solid;border-color:#d7d7d7'>
+        //               <tr>
+        //                   <td width='200px' bgcolor='f8f8f9' style='padding:0px 10px 0px 10px;border:1px solid;border-color:#d7d7d7;'>해당서비스</td>
+        //                   <td width='500px' style='padding:0px 10px 0px 10px;border:1px solid;border-color:#d7d7d7;'>기술지원보고서</td>
+        //               </tr>
+        //               <tr>
+        //                   <td bgcolor='f8f8f9' style='padding:0px 10px 0px 10px;border:1px solid;border-color:#d7d7d7;'>요청사항</td>
+        //                   <td style='padding:0px 10px 0px 10px;border:1px solid;border-color:#d7d7d7;'>{$request}</td>
+        //               </tr>";
+        //
+        //       $html_code .= "
+        //           <tr>
+        //               <td bgcolor='f8f8f9' style='padding:0px 10px 0px 10px;border:1px solid;border-color:#d7d7d7;'>이슈</td>
+        //               <td style='padding:0px 10px 0px 10px;border:1px solid;border-color:#d7d7d7;'>{$issue }</td>
+        //           </tr>
+        //           <tr>
+        //               <td bgcolor='f8f8f9' style='padding:0px 10px 0px 10px;border:1px solid;border-color:#d7d7d7;'>버그</td>
+        //               <td style='padding:0px 10px 0px 10px;border:1px solid;border-color:#d7d7d7;'>{$bug}</td>
+        //           </tr>";
+        //
+        //
+        //       $html_code .= "</table>
+        //       <br><br><br>
+        //       <div style='width:100%;text-align:center;'>
+        //           <a href='http://sales.durianit.co.kr/index.php/tech/tech_board/tech_issue' style='margin:auto;display:inline-block;padding:10px 10px 10px 10px;color:#fff;font-weight:bold;text-align:center;text-decoration:none;border-radius:2px;font-size:1em;background:#cc282b;'>요청/이슈/버그 바로가기</a>
+        //       </div>
+        //       </body>
+        //       </html>";
+        //
+        //       $body = str_replace("send_address",$mail_address,$html_code);
+        //
+        //       $headers = "From: =?utf-8?B?".base64_encode("sale@durianit.co.kr")."?= <sale@durianit.co.kr> \n";
+        //       // $headers .= 'Cc: sylim@durianit.co.kr' . "\r\n";
+        //       $headers .= 'MIME-Version: 1.0' . "\r\n";
+        //       $headers .= 'Content-type: text/html; charset=utf-8' . "\r\n";
+        //       $headers .= "Content-Transfer-Encoding: base64\r\n";
+        //
+        //       //메일 보내기
+        //       $result = mail($mail_address, $subject, chunk_split(base64_encode($body)), $headers);
+        //   }
+        // }
+
+        // #해시태그 추가
+        $hashtag = $this->input->post('hashtag');
+        $hashtag = preg_replace('/[," "]+/', '', $hashtag);  //',', 모든공백 제거
+        $hashtag_arr = explode('#', $hashtag);
+
+        if($insert_seq != null) {
+          $insert_seq = $insert_seq;
+        } else {
+          $insert_seq = $seq;
+        }
+
+        $this->STC_tech_doc->hashtag_reset($insert_seq); //초기화
+
+        if(!empty($hashtag_arr)) {
+          for($i = 0; $i < count($hashtag_arr); $i++) {
+            $hashtag = $hashtag_arr[$i];
+            if ($hashtag != '') {
+              $hashtag_cnt = $this->STC_tech_doc->hashtag_cnt($hashtag);
+              if ($hashtag_cnt['cnt'] == 0) {
+                $hashtag_data['hashtag_name'] = $hashtag;
+                $hashtag_seq = $this->STC_tech_doc->hashtag_insert($hashtag_data);
+              } else {
+                $hashtag_seq = $this->STC_tech_doc->hashtag_select($hashtag);
+                $hashtag_seq = $hashtag_seq['seq'];
+              }
+
+                if($type == 'N'){  //임시저장
+                  $hashtag_info = array(
+                   'hashtag_seq' => $hashtag_seq,
+                   'tb_name' => 'tech_doc_basic_temporary_save',
+                   'tb_seq' => $insert_seq
+                  );
+
+                } else {
+                  $hashtag_info = array(
+                   'hashtag_seq' => $hashtag_seq,
+                   'tb_name' => 'tech_doc_basic',
+                   'tb_seq' => $insert_seq
+                  );
+
+                }
+
+              $result = $this->STC_tech_doc->hashtag_link_insert($hashtag_info);
+            }
+          }
+        }
+
         if ($result) {
             echo "<script>alert('정상적으로 처리 되었습니다.');location.href='".site_url()."/tech/tech_board/tech_doc_list?type={$type}';</script>";
         } else {
@@ -786,6 +998,12 @@ class Tech_board extends CI_Controller {
         // }
 
         $data['view_val'] = $this->STC_tech_doc->tech_doc_view($seq, $type);
+        $data['hashtag'] = $this->STC_tech_doc->hashtag_view($seq, $type); //해시태그 뷰
+        $data['bug_val'] = $this->STC_tech_doc->bug_view($seq);// 기지보 뷰 버그
+        $data['product_company'] = $this->STC_tech_doc->product_company();
+
+        $data['sign_img'] = $this->STC_tech_doc->find_sign_img($data['view_val']['writer']);
+
         if( $data['view_val']['schedule_seq'] != '' ){
           $data['schedule'] = $this->STC_tech_doc->schedule_file_info($data['view_val']['schedule_seq']);
         };
@@ -797,8 +1015,13 @@ class Tech_board extends CI_Controller {
         $data['group_member'] = $this->STC_User ->same_group_member($this->group);
         $data['request'] = $this->STC_tech_doc ->request_insert(3,$seq);//요청사항
         $data['issue'] = $this->STC_tech_doc -> issue_insert(3,$seq);//이슈사항
+        $data['excellent_check'] = $this->STC_tech_doc->excellent_check_list($seq);
         if($mode == "view") {
             $data['cover'] = $this->STC_tech_doc->cover_select( $data['view_val']['cover'] );
+            // $data['night'] = $this->STC_tech_doc->night_document($seq); //야간근무결과보고서
+            // $data['weekend'] = $this->STC_tech_doc->weekend_document($seq); //주말근무결과보고서
+            // $data['trip'] = $this->STC_tech_doc->trip_document($seq); //출장보고서
+            $data['approval_document'] = $this->STC_tech_doc->approval_document($seq); // 근무결과보고서
             $this->load->view('tech/tech_doc_view', $data );
         } else {
             //로고파일 읽어오기
@@ -877,6 +1100,12 @@ class Tech_board extends CI_Controller {
             }
         }
         $data['view_val'] = $this->STC_tech_doc->tech_doc_view($seq, 'Y');
+        $sign = $this->STC_tech_doc->find_sign_img($data['view_val']['writer']);
+        if($sign['sign_changename'] != '') {
+          $data['sign_path'] = "/misc/upload/user_sign/{$sign['sign_changename']}";
+        } else {
+          $data['sign_path'] = "/misc/img/{$data['view_val']['writer']}.png";
+        }
         $this->load->view('tech/tech_doc_print', $data );
     }
 
@@ -914,6 +1143,12 @@ class Tech_board extends CI_Controller {
 
         $data['view_val'] = $this->STC_tech_doc->tech_doc_view($seq, 'Y');
         $data['cover'] = $this->STC_tech_doc->cover_select($data['view_val']['cover']);
+        $sign = $this->STC_tech_doc->find_sign_img($data['view_val']['writer']);
+        if($sign['sign_changename'] != '') {
+          $data['sign_path'] = "/misc/upload/user_sign/{$sign['sign_changename']}";
+        } else {
+          $data['sign_path'] = "/misc/img/{$data['view_val']['writer']}.png";
+        }
         $this->load->view('tech/tech_doc_pdf', $data );
     }
 
@@ -1038,6 +1273,7 @@ class Tech_board extends CI_Controller {
             }
             //KI2
             $tdata = $this->STC_tech_doc->tech_doc_delete($seq, $type);
+            $this->STC_tech_doc->hashtag_reset($seq); //해시태그링크도 삭제
         }
         if ($tdata) {
             echo "<script>alert('삭제완료 되었습니다.');location.href='".site_url()."/tech/tech_board/tech_doc_list?type={$type}';</script>";
@@ -1057,6 +1293,9 @@ class Tech_board extends CI_Controller {
         if( $this->id === null ) {
             redirect( 'account' );
         }
+        if($this->cooperation_yn == 'Y') {
+    			echo "<script>alert('권한이 없습니다.');location.href='".site_url()."'</script>";
+    		}
 
         // $this->load->Model(array('STC_tech_doc'));
         if(isset($_GET['cur_page'])) {
@@ -1120,6 +1359,9 @@ class Tech_board extends CI_Controller {
         if( $this->id === null ) {
             redirect( 'account' );
         }
+        if($this->cooperation_yn == 'Y') {
+    			echo "<script>alert('권한이 없습니다.');location.href='".site_url()."'</script>";
+    		}
 
         // $this->load->Model(array('STC_tech_doc'));
         $mode = $this->input->get( 'mode' );
@@ -1150,6 +1392,9 @@ class Tech_board extends CI_Controller {
         if( $this->id === null ) {
             redirect( 'account' );
         }
+        if($this->cooperation_yn == 'Y') {
+    			echo "<script>alert('권한이 없습니다.');location.href='".site_url()."'</script>";
+    		}
         // $this->load->Model(array('STC_tech_doc'));
 
         //포캐스팅+유지보수
@@ -1162,6 +1407,9 @@ class Tech_board extends CI_Controller {
         if( $this->id === null ) {
             redirect( 'account' );
         }
+        if($this->cooperation_yn == 'Y') {
+    			echo "<script>alert('권한이 없습니다.');location.href='".site_url()."'</script>";
+    		}
         // $this->load->Model(array( 'STC_tech_doc' ));
         $seq = $this->input->post('seq');
 
@@ -1196,6 +1444,9 @@ class Tech_board extends CI_Controller {
         if( $this->id === null ) {
             redirect( 'account' );
         }
+        if($this->cooperation_yn == 'Y') {
+    			echo "<script>alert('권한이 없습니다.');location.href='".site_url()."'</script>";
+    		}
 
         $this->load->helper('alert');
         // $this->load->Model(array( 'STC_tech_doc' ));
@@ -1218,17 +1469,26 @@ class Tech_board extends CI_Controller {
     //   $data = $this->db->query("select * ,t2.seq AS product_seq from sales_forcasting as t1 join sales_forcasting_product as t2 join product as t3 on t1.seq = t2.forcasting_seq and t2.product_code = t3.seq WHERE (((SELECT sub_project_add FROM sales_forcasting where seq='".$tmp."') is null and t1.seq='".$tmp."') OR ((SELECT sub_project_add FROM sales_forcasting where seq='".$tmp."')IS not NULL AND t1.sub_project_add=(SELECT sub_project_add FROM sales_forcasting where seq='".$tmp."'))) AND (t2.maintain_target IS null OR t2.maintain_target ='Y')")->result();
     //   $data = $this->db->query("select * ,t2.seq AS product_seq from sales_forcasting as t1 join sales_forcasting_product as t2 join product as t3 on t1.seq = t2.forcasting_seq and t2.product_code = t3.seq WHERE (((SELECT sub_project_add FROM sales_forcasting where seq='".$tmp."') is null and t1.seq='".$tmp."') OR ((SELECT sub_project_add FROM sales_forcasting where seq='".$tmp."') IS not NULL AND t1.sub_project_add=(SELECT sub_project_add FROM sales_forcasting where seq='".$tmp."')))")->result();
       if($mode == "maintain"){
-        $data = $this->db->query("(SELECT sp.seq AS product_seq,sp.integration_maintain_seq, sp.product_code, sp.product_supplier, sp.product_licence, sp.product_serial, sp.product_state, p.product_company, p.product_type, p.product_name, sp.maintain_begin,sp.maintain_expire,sp.product_version,sp.custom_title,sp.custom_detail,sp.maintain_yn,sp.maintain_target,sp.product_check_list,sp.product_host,sp.product_sales,sp.product_purchase,sp.product_profit,p.product_item FROM sales_maintain_product sp, product p where sp.product_code = p.seq and sp.maintain_seq = {$seq} ORDER BY sp.seq asc, p.product_company DESC)
+        $sql = "(SELECT sp.seq AS product_seq,sp.integration_maintain_seq, sp.product_code, sp.product_supplier, sp.product_licence, sp.product_serial, sp.product_state, p.product_company, p.product_type, p.product_name, sp.maintain_begin,sp.maintain_expire,sp.product_version,sp.custom_title,sp.custom_detail,sp.maintain_yn,sp.maintain_target,sp.product_check_list,sp.product_host,sp.product_sales,sp.product_purchase,sp.product_profit,p.product_item, sp.fortigate_licence, sp.duplicate_yn FROM sales_maintain_product sp, product p where sp.product_code = p.seq and sp.maintain_seq = {$seq} ORDER BY sp.seq asc, p.product_company DESC)
         UNION
-        (SELECT sp.seq AS product_seq,sp.integration_maintain_seq, sp.product_code, sp.product_supplier, sp.product_licence, sp.product_serial, sp.product_state, ip.product_company, ip.product_type, ip.product_name, sp.maintain_begin,sp.maintain_expire,sp.product_version,sp.custom_title,sp.custom_detail,sp.maintain_yn,sp.maintain_target,sp.product_check_list,sp.product_host,sp.product_sales,sp.product_purchase,sp.product_profit,ip.product_item AS product_item FROM sales_maintain_product sp, sales_integration_maintain_product ip where ip.seq = sp.integration_maintain_product_seq and sp.maintain_seq = {$seq} ORDER BY sp.seq asc, ip.product_company DESC)")->result();
+        (SELECT sp.seq AS product_seq,sp.integration_maintain_seq, sp.product_code, sp.product_supplier, sp.product_licence, sp.product_serial, sp.product_state, ip.product_company, ip.product_type, ip.product_name, sp.maintain_begin,sp.maintain_expire,sp.product_version,sp.custom_title,sp.custom_detail,sp.maintain_yn,sp.maintain_target,sp.product_check_list,sp.product_host,sp.product_sales,sp.product_purchase,sp.product_profit,ip.product_item AS product_item, sp.fortigate_licence, duplicate_yn FROM sales_maintain_product sp, sales_integration_maintain_product ip where ip.seq = sp.integration_maintain_product_seq and sp.maintain_seq = {$seq} ORDER BY sp.seq asc, ip.product_company DESC)";
+
+        $data['input'] = $this->db->query($sql)->result_array();
       }else{
-        $data = $this->db->query("SELECT *,t2.seq AS product_seq FROM sales_forcasting AS t1 join sales_forcasting_product AS t2 JOIN product AS t3 ON t1.seq=t2.forcasting_seq AND t2.product_code=t3.seq WHERE t1.seq= {$seq}")->result();
+        $data['input'] = $this->db->query("SELECT *,t2.seq AS product_seq FROM sales_forcasting AS t1 join sales_forcasting_product AS t2 JOIN product AS t3 ON t1.seq=t2.forcasting_seq AND t2.product_code=t3.seq WHERE t1.seq= {$seq}")->result_array();
       }
-      $this->load->view('tech/search_device',array('input'=>$data));
+
+      $data['product_company'] = $this->STC_tech_doc->product_company();
+
+      $this->load->view( 'tech/search_device',$data );
     }
 
     function search_se(){
-      $data = $this->db->query("SELECT * FROM user WHERE company_name LIKE '%두리안정보%';")->result();
+      if($this->cooperation_yn == 'N') {
+        $data = $this->db->query("SELECT * FROM user WHERE company_name LIKE '%두리안정보%' and quit_date is null and cooperation_yn = 'N';")->result();
+      } else {
+        $data = $this->db->query("SELECT * FROM user WHERE cooperation_yn = 'Y'")->result();
+      }
       $this->load->view('tech/search_se',array('input'=>$data));
     }
 
@@ -1289,6 +1549,9 @@ class Tech_board extends CI_Controller {
         if( $this->id === null ) {
             redirect( 'account' );
         }
+        if($this->cooperation_yn == 'Y') {
+    			echo "<script>alert('권한이 없습니다.');location.href='".site_url()."'</script>";
+    		}
         // $this->load->Model(array( 'STC_tech_doc' ));
         $seq = $this->input->get('seq');
         $data['check_item']= $this->STC_tech_doc->check_list_template($seq);
@@ -1301,6 +1564,9 @@ class Tech_board extends CI_Controller {
         if( $this->id === null ) {
             redirect( 'account' );
         }
+        if($this->cooperation_yn == 'Y') {
+    			echo "<script>alert('권한이 없습니다.');location.href='".site_url()."'</script>";
+    		}
         // $this->load->Model(array( 'STC_tech_doc' ));
         $data['check_item']= $this->STC_tech_doc->check_list_template("all");
 
@@ -1312,6 +1578,9 @@ class Tech_board extends CI_Controller {
         if( $this->id === null ) {
             redirect( 'account' );
         }
+        if($this->cooperation_yn == 'Y') {
+    			echo "<script>alert('권한이 없습니다.');location.href='".site_url()."'</script>";
+    		}
         // $this->load->Model(array( 'STC_tech_doc' ));
         $seq = $this->input->get('seq');
         $data['view_val']= $this->STC_tech_doc->check_list_template($seq);
@@ -1324,6 +1593,9 @@ class Tech_board extends CI_Controller {
         if( $this->id === null ) {
             redirect( 'account' );
         }
+        if($this->cooperation_yn == 'Y') {
+    			echo "<script>alert('권한이 없습니다.');location.href='".site_url()."'</script>";
+    		}
         // $this->load->Model(array( 'STC_tech_doc' ));
         $seq =  $this->input->get('seq');
         $result = $this->STC_tech_doc->product_check_list_delete($seq);
@@ -1339,6 +1611,9 @@ class Tech_board extends CI_Controller {
         if( $this->id === null ) {
             redirect( 'account' );
         }
+        if($this->cooperation_yn == 'Y') {
+    			echo "<script>alert('권한이 없습니다.');location.href='".site_url()."'</script>";
+    		}
         // $this->load->Model(array( 'STC_tech_doc' ));
         $seq = $this->input->get('seq');
         $data['view_val']= $this->STC_tech_doc->check_list_template($seq);
@@ -1350,6 +1625,9 @@ class Tech_board extends CI_Controller {
         if( $this->id === null ) {
             redirect( 'account' );
         }
+        if($this->cooperation_yn == 'Y') {
+    			echo "<script>alert('권한이 없습니다.');location.href='".site_url()."'</script>";
+    		}
         // $this->load->Model(array( 'STC_tech_doc' ));
         $data['seq'] = $this->input->post('seq');
         $data['product_name'] = $this->input->post('product_name');
@@ -1369,6 +1647,9 @@ class Tech_board extends CI_Controller {
         if( $this->id === null ) {
             redirect( 'account' );
         }
+        if($this->cooperation_yn == 'Y') {
+    			echo "<script>alert('권한이 없습니다.');location.href='".site_url()."'</script>";
+    		}
         // $this->load->Model(array( 'STC_tech_doc' ));
         $data['cover'] = $this->STC_tech_doc->cover_select();
         $this->load->view('tech/cover_upload',$data);
@@ -1379,6 +1660,9 @@ class Tech_board extends CI_Controller {
         if( $this->id === null ) {
             redirect( 'account' );
         }
+        if($this->cooperation_yn == 'Y') {
+    			echo "<script>alert('권한이 없습니다.');location.href='".site_url()."'</script>";
+    		}
         // $this->load->Model(array( 'STC_tech_doc' ));
         // $data['check_item']= $this->STC_tech_doc->check_list_template("all");
 
@@ -1431,6 +1715,9 @@ class Tech_board extends CI_Controller {
         if( $this->id === null ) {
             redirect( 'account' );
         }
+        if($this->cooperation_yn == 'Y') {
+    			echo "<script>alert('권한이 없습니다.');location.href='".site_url()."'</script>";
+    		}
 
         // $this->load->Model(array( 'STC_tech_doc' ));
         unlink($this->input->server('DOCUMENT_ROOT')."/misc/img/cover/".$_GET['filename']);
@@ -1450,6 +1737,9 @@ class Tech_board extends CI_Controller {
         if( $this->id === null ) {
             redirect( 'account' );
         }
+        if($this->cooperation_yn == 'Y') {
+    			echo "<script>alert('권한이 없습니다.');location.href='".site_url()."'</script>";
+    		}
         // $this->load->Model(array( 'STC_tech_doc' ));
 
         $seq = $this->input->post('seq');
@@ -1479,6 +1769,9 @@ class Tech_board extends CI_Controller {
         if( $this->id === null ) {
             redirect( 'account' );
         }
+        if($this->cooperation_yn == 'Y') {
+    			echo "<script>alert('권한이 없습니다.');location.href='".site_url()."'</script>";
+    		}
         // $this->load->Model(array( 'STC_tech_doc' ));
 
         //표지파일 읽어오기
@@ -1509,6 +1802,9 @@ class Tech_board extends CI_Controller {
         if( $this->id === null ) {
             redirect( 'account' );
         }
+        if($this->cooperation_yn == 'Y') {
+    			echo "<script>alert('권한이 없습니다.');location.href='".site_url()."'</script>";
+    		}
         // $this->load->Model(array( 'STC_tech_doc' ));
         // $data['check_item']= $this->STC_tech_doc->check_list_template("all");
 
@@ -1520,6 +1816,9 @@ class Tech_board extends CI_Controller {
         if( $this->id === null ) {
             redirect( 'account' );
         }
+        if($this->cooperation_yn == 'Y') {
+    			echo "<script>alert('권한이 없습니다.');location.href='".site_url()."'</script>";
+    		}
         // $this->load->Model(array( 'STC_tech_doc' ));
         // $data['check_item']= $this->STC_tech_doc->check_list_template("all");
 
@@ -1532,6 +1831,9 @@ class Tech_board extends CI_Controller {
         if( $this->id === null) {
             redirect( 'account' );
         }
+        if($this->cooperation_yn == 'Y') {
+    			echo "<script>alert('권한이 없습니다.');location.href='".site_url()."'</script>";
+    		}
         // $this->load->Model(array( 'STC_tech_doc' ));
         $data['cover']= $this->STC_tech_doc->cover_select($_GET['seq']);
 
@@ -1551,6 +1853,9 @@ class Tech_board extends CI_Controller {
                 redirect( 'account' );
             }
         }
+        if($this->cooperation_yn == 'Y') {
+    			echo "<script>alert('권한이 없습니다.');location.href='".site_url()."'</script>";
+    		}
 
         // $this->load->Model(array('STC_tech_doc','STC_request_tech_support'));
         if(isset($_GET['cur_page'])) {
@@ -1615,7 +1920,13 @@ class Tech_board extends CI_Controller {
         $data['end_page'] = $end_page;
         $data['responsibility'] = $this->STC_request_tech_support->responsibility();
         $data['durian_engineer'] = $this->STC_request_tech_support->durian_engineer('all');
-        $this->load->view('tech/request_tech_support_list', $data );
+
+        if($this->agent->is_mobile()) {
+          $data['title'] = '기술지원요청';
+          $this->load->view('tech/request_tech_support_list_mobile', $data);
+        } else {
+          $this->load->view('tech/request_tech_support_list', $data );
+        }
 
 
     }
@@ -1633,6 +1944,9 @@ class Tech_board extends CI_Controller {
                 redirect( 'account' );
             }
         }
+        if($this->cooperation_yn == 'Y') {
+    			echo "<script>alert('권한이 없습니다.');location.href='".site_url()."'</script>";
+    		}
 
         // $this->load->Model(array( 'STC_request_tech_support' ));
         $data['cooperative_company'] = $this->STC_request_tech_support->cooperative_company();
@@ -1673,6 +1987,9 @@ class Tech_board extends CI_Controller {
                 redirect( 'account' );
             }
         }
+        if($this->cooperation_yn == 'Y') {
+    			echo "<script>alert('권한이 없습니다.');location.href='".site_url()."'</script>";
+    		}
 
          // $this->load->Model(array( 'STC_request_tech_support' ));
          $seq = $this->input->post('seq');
@@ -1853,6 +2170,9 @@ class Tech_board extends CI_Controller {
                 redirect( 'account' );
             }
         }
+        if($this->cooperation_yn == 'Y') {
+    			echo "<script>alert('권한이 없습니다.');location.href='".site_url()."'</script>";
+    		}
 
         // $this->load->Model('STC_request_tech_support');
         $seq = $this->input->get( 'seq' );
@@ -1887,6 +2207,9 @@ class Tech_board extends CI_Controller {
                 redirect( 'account' );
             }
         }
+        if($this->cooperation_yn == 'Y') {
+    			echo "<script>alert('권한이 없습니다.');location.href='".site_url()."'</script>";
+    		}
 
         // $this->load->Model('STC_request_tech_support');
         $seq = $this->input->get( 'seq' );
@@ -1901,6 +2224,9 @@ class Tech_board extends CI_Controller {
         if( $this->id === null) {
             redirect( 'account' );
         }
+        if($this->cooperation_yn == 'Y') {
+    			echo "<script>alert('권한이 없습니다.');location.href='".site_url()."'</script>";
+    		}
         $this->load->helper('alert');
         // $this->load->Model(array( 'STC_request_tech_support' ));
         $seq = $this->input->get( 'seq' );
@@ -1978,12 +2304,12 @@ class Tech_board extends CI_Controller {
         } else {
             $fdata2 = $this->STC_request_tech_support->request_tech_support_del($seq);
             if($fdata2) {
-                // unlink("/var/www/html/stc/misc/upload/tech/tech/".$fdata['file_change_name']);
-                $connection = ssh2_connect('192.168.0.80', 22);
-                ssh2_auth_password($connection, 'root', 'durian12#');
-                $sftp = ssh2_sftp($connection);
-
-                ssh2_sftp_unlink($sftp,"/var/www/html/stc/misc/upload/tech/request_tech_support/".$fdata['file_change_name']);
+                unlink("/var/www/html/stc/misc/upload/tech/request_tech_support/".$fdata['file_change_name']);
+                // $connection = ssh2_connect('192.168.0.80', 22);
+                // ssh2_auth_password($connection, 'root', 'durian12#');
+                // $sftp = ssh2_sftp($connection);
+                //
+                // ssh2_sftp_unlink($sftp,"/var/www/html/stc/misc/upload/tech/request_tech_support/".$fdata['file_change_name']);
             }
             alert('파일이 정상적으로 삭제되었습니다.', site_url().'/tech/tech_board/request_tech_support_view?seq='.$seq );
         }
@@ -2002,6 +2328,9 @@ class Tech_board extends CI_Controller {
                 redirect( 'account' );
             }
         }
+        if($this->cooperation_yn == 'Y') {
+    			echo "<script>alert('권한이 없습니다.');location.href='".site_url()."'</script>";
+    		}
 
         // $this->load->Model('STC_request_tech_support');
         $seq = $this->input->get( 'seq' );
@@ -2161,6 +2490,33 @@ class Tech_board extends CI_Controller {
 	// 	echo json_encode($result);
 	// }
 
+    // 우수보고서 선택
+  function excellentReportInsert(){
+    $seq = $this->input->post( 'seq' );
+    $selector_seq = $this->seq;
+
+    $data = array(
+        'basic_seq' => $seq,
+        'selector_seq' =>$selector_seq
+    );
+
+    $result = $this->STC_tech_doc->excellentReportInsert($data);
+    echo json_encode($result);
+  }
+
+  // 우수보고서 취소
+  function excellentReportCancle(){
+    $seq = $this->input->post( 'seq' );
+
+    if( $seq == null ) {
+      redirect('');
+    } else {
+      $result = $this->STC_tech_doc->excellentReportCancle($seq);
+      echo json_encode($result);
+    }
+
+  }
+
 	//템플릿 가져오깅
 	function template(){
 		// $this->load->Model(array('STC_tech_doc', 'STC_Common'));
@@ -2199,6 +2555,9 @@ class Tech_board extends CI_Controller {
         if( $this->id === null ) {
             redirect( 'account' );
         }
+        if($this->cooperation_yn == 'Y') {
+    			echo "<script>alert('권한이 없습니다.');location.href='".site_url()."'</script>";
+    		}
 
         $type = "request";
         if(isset($_GET['type'])){
@@ -2277,6 +2636,8 @@ class Tech_board extends CI_Controller {
             $data['view_val'] = $this->STC_tech_doc->request_insert(4,$search);
         }else if ($type == "issue"){
             $data['view_val'] = $this->STC_tech_doc->issue_insert(4,$search);
+        }else if($type == "bug"){
+            $data['view_val'] = $this->STC_tech_doc->bug_insert(4,$search);
         }else if ($type == "incompletion"){
             $data['view_val'] = $this->STC_tech_doc->tech_doc_basic_incompletion($search);
         }
@@ -2311,7 +2672,12 @@ class Tech_board extends CI_Controller {
         // $data['customer'] = $this->STC_tech_doc->get_customer();//고객사 불러오는고
         $data['customer'] = $this->STC_tech_doc->get_customer3();//고객사 불러오는고
 
-	    $this->load->view('tech/tech_issue',$data);
+      if($this->agent->is_mobile()) {
+        $data['title'] = '요청/이슈';
+        $this->load->view('tech/tech_issue_mobile',$data);
+      } else {
+        $this->load->view('tech/tech_issue',$data);
+      }
 
     }
 
@@ -2320,8 +2686,10 @@ class Tech_board extends CI_Controller {
 		$type = $this->input->post( 'type' );
         if($type == "request"){
             $result = $this->STC_tech_doc->request_insert(5,$seq);
-        }else{
+        }else if($type == "issue"){
             $result = $this->STC_tech_doc->issue_insert(5,$seq);
+        }else if($type == "bug"){
+            $result = $this->STC_tech_doc->bug_insert(5,$seq);
         }
 
 		echo json_encode($result);
@@ -2336,6 +2704,7 @@ class Tech_board extends CI_Controller {
         $result = $this->input->post( 'result' );
         $comment = $this->input->post( 'comment' );
 
+
         $data = array(
             'seq' => $seq,
             'customer_companyname' =>$customer_companyname,
@@ -2346,8 +2715,10 @@ class Tech_board extends CI_Controller {
         );
         if($type == "request"){
             $res = $this->STC_tech_doc->request_insert(1,$data);
-        }else{
+        }else if($type == "issue"){
             $res = $this->STC_tech_doc->issue_insert(1,$data);
+        }else if($type == "bug"){
+            $res = $this->STC_tech_doc->bug_insert(1,$data);
         }
 
         echo json_encode($res);
@@ -2370,8 +2741,10 @@ class Tech_board extends CI_Controller {
 
         if($type == "request"){
             $res = $this->STC_tech_doc->request_insert(0,$data);
-        }else{
+        }else if($type == "issue"){
             $res = $this->STC_tech_doc->issue_insert(0,$data);
+        }else if($type == "bug"){
+            $res = $this->STC_tech_doc->bug_insert(0,$data);
         }
 
         echo json_encode($res);
@@ -2451,6 +2824,29 @@ class Tech_board extends CI_Controller {
         $data['update_date'] = date("Y-m-d H:i:s");
         $result = $this->STC_request_tech_support->save_request_support_bill($data, 'update', $bill_seq);
       }
+      echo json_encode($result);
+    }
+
+    // 제품 정보 저장
+    function save_product_info() {
+      $mode            = $this->input->post('mode');
+      $product_seq     = $this->input->post('product_seq');
+      $fortigate_licence = $this->input->post('fortigate_licence');
+
+      if($fortigate_licence == '') {
+        $fortigate_licence = null;
+      }
+
+      $data = array (
+        'product_version'   => $this->input->post('product_version'),
+        'product_serial'    => $this->input->post('product_serial'),
+        'fortigate_licence' => $fortigate_licence,
+        'duplicate_yn'      => $this->input->post('duplicate_yn'),
+        'modify_id'         => $this->id
+      );
+
+      $result = $this->STC_tech_doc->save_product_info($mode, $product_seq, $data);
+
       echo json_encode($result);
     }
 

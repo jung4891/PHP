@@ -148,9 +148,10 @@
 		<td class="dash_title">
 			<div class="main_title">
 				<?php if(isset($_GET['type'])){$type = $_GET['type'];}else{$type="request";} ?>
-				<a onclick ="moveList('request')" style='cursor:pointer;margin-right:10px;color:<?php if($type == "request"){echo "#1C1C1C";}else{echo "#DEDEDE";}?>'>요청사항</a>
-				<a onclick ="moveList('issue')" style='cursor:pointer;margin-right:10px;color:<?php if($type == "issue"){echo "#1C1C1C";}else{echo "#DEDEDE";}?>'>이슈</a>
-				<a onclick ="moveList('incompletion')" style='cursor:pointer;margin-right:10px;color:<?php if($type == "incompletion"){echo "#1C1C1C";}else{echo "#DEDEDE";}?>'>미완료</a>
+				<a onclick ="moveList('request')" style='cursor:pointer;margin-right:10px;color:<?php if($type == "request"){echo "#1C1C1C";}else{echo "#DEDEDE;font-weight:normal;";}?>'>요청사항</a>
+				<a onclick ="moveList('issue')" style='cursor:pointer;margin-right:10px;color:<?php if($type == "issue"){echo "#1C1C1C";}else{echo "#DEDEDE;font-weight:normal;";}?>'>이슈</a>
+				<a onclick ="moveList('bug')" style='cursor:pointer;margin-right:10px;color:<?php if($type == "bug"){echo "#1C1C1C";}else{echo "#DEDEDE;font-weight:normal;";}?>'>버그</a>
+				<a onclick ="moveList('incompletion')" style='cursor:pointer;margin-right:10px;color:<?php if($type == "incompletion"){echo "#1C1C1C";}else{echo "#DEDEDE;font-weight:normal;";}?>'>미완료</a>
 			</div>
 		</td>
 	</tr>
@@ -178,7 +179,7 @@
 			<?php } ?>
 			<span><input  type="text" size="25" class="input-common" name="searchkeyword" placeholder="검색하세요." value="<?php echo str_replace('"', '&uml;', $search_keyword );?>" style="margin-right:10px;"/></span>
 			<span>
-				<input type="button" class="btn-common btn-style1" value="검색" onClick="return GoSearch();">
+				<input type="button" class="btn-common btn-style2" value="검색" onClick="return GoSearch();">
 			</span>
 		</td>
 		<?php if ($type!="incompletion"){?>
@@ -221,6 +222,8 @@
 							echo "요청사항" ;
 						}else if($type == "issue"){
 							echo "이슈";
+						}else if($type == 'bug') {
+							echo '버그';
 						}
 					?>
 					</th>
@@ -359,9 +362,9 @@
 						<?php
 						if ($cur_page > 10){
 						?>
-									<td width="19"><a href="JavaScript:GoFirstPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_first.png" width="20" height="20"/></a></td>
+									<td width="19"><a href="JavaScript:GoFirstPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_last_left.svg" width="20" height="20"/></a></td>
 									<td width="2"></td>
-									<td width="19"><a href="JavaScript:GoPrevPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_left.png" width="20" height="20"/></a></td>
+									<td width="19"><a href="JavaScript:GoPrevPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_left.svg" width="20" height="20"/></a></td>
 						<?php
 						} else {
 						?>
@@ -390,9 +393,9 @@
 									<?php
 						if   ( floor( ( $cur_page - 1 ) / 10 ) < floor( ( $total_page - 1 ) / 10 ) ){
 						?>
-						<td width="19"><a href="JavaScript:GoNextPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_right.png" width="20" height="20"/></a></td>
+						<td width="19"><a href="JavaScript:GoNextPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_right.svg" width="20" height="20"/></a></td>
 									<td width="2"></td>
-									<td width="19"><a href="JavaScript:GoLastPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_last.png" width="20" height="20"/></a></td>
+									<td width="19"><a href="JavaScript:GoLastPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_last_right.svg" width="20" height="20"/></a></td>
 						<?php
 						} else {
 						?>
@@ -470,8 +473,10 @@
 						<?php
 						if($type=="request"){
 							echo "요청사항";
-						}else{
+						}else if($type=="issue"){
 							echo "이슈";
+						}else if($type=="bug"){
+							echo "버그";
 						}?>
 						등록</h2>
 						<div style="margin-top:30px;height:auto;min-height:200px;">
@@ -487,7 +492,7 @@
 											foreach ($customer as $val) {
 												if (strtotime(date("Y-m-d")) > strtotime(date($val['maintain_end']))) {
 												echo '<a style="color:red;" ';
-												echo 'onclick ="clickCustomerName(this,' . strtotime(date($val['maintain_end'])) . ','.$val['maintain_seq'].','.$val['forcasting_seq'].')" >' . $val['customer'].' - '.addslashes($val['project_name']).'</a>';
+												echo 'onclick ="clickCustomerName(this,' . strtotime(date($val['maintain_end'])) . ','.$val['maintain_seq'].','.$val['forcasting_seq'].')" >'. $val['customer'].' - '.addslashes($val['project_name']).'</a>';
 												} else {
 												echo '<a ';
 												echo 'onclick ="clickCustomerName(this,' . strtotime(date($val['maintain_end'])) . ','.$val['maintain_seq'].','.$val['forcasting_seq'].')" >'. $val['customer'].' - '.addslashes($val['project_name']).'</a>';

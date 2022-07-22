@@ -48,16 +48,16 @@ $(document).ready(function() {
             <table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-top:70px;">
             <tr>
       				<td>
-                <select name="search1" id="search1" class="select-common select-style1" style="margin-right:10px;">
+                <select name="search1" id="search1" class="select-common select-style1" style="margin-right:10px;width:auto;">
       						<option value="000">제조사별</option>
       					 <?php
       foreach ($category  as $val) {
-      	echo '<option value="'.$val['code'].'"';
-      	if( $search1 && ( $val['code'] == $search1 ) ) {
+      	echo '<option value="'.$val['seq'].'"';
+      	if( $search1 && ( $val['seq'] == $search1 ) ) {
       		echo ' selected';
       	}
 
-      	echo '>'.$val['code_name'].'</option>';
+      	echo '>'.$val['company_name'].'</option>';
       }
       ?>
                 </select>
@@ -75,10 +75,10 @@ $(document).ready(function() {
               <!-- </td>
               <td> -->
               <span>
-                <input type="button" class="btn-common btn-style1" value="검색" onClick="return GoSearch();">
+                <input type="button" class="btn-common btn-style2" value="검색" onClick="return GoSearch();">
               </span>
               </td>
-            <?php if($tech_lv == 3) {?>
+            <?php if($this->pGroupName == '기술본부' || $this->pGroupName == 'CEO' || $this->pGroupName == '기술연구소') {?>
               <td align="right">
       					<a href="<?php echo site_url();?>/tech/board/manual_input">
       						<input type="button" class="btn-common btn-color2" value="글쓰기">
@@ -96,20 +96,22 @@ $(document).ready(function() {
           <table class="content_dash_tbl" align="center" width="100%" border="0" cellspacing="0" cellpadding="0">
             <tr>
               <td>
-                <table class="list_tbl" style="margin-top:20px;" width="100%" border="0" cellspacing="0" cellpadding="0">
+                <table class="list_tbl list" style="margin-top:20px;" width="100%" border="0" cellspacing="0" cellpadding="0">
                   <colgroup>
                     <col width="15%">
+                    <col width="5%">
                     <col width="10%">
                     <col width="30%">
                     <col width="10%">
                     <col width="10%">
-                    <col width="10%">
+                    <col width="5%">
                     <col width="15%">
                   </colgroup>
 
                   <tr class="t_top row-color1">
                     <th></th>
                     <th height="40" align="center">NO</th>
+                    <th align="center">카테고리</th>
                     <th align="center">제목</th>
                     <th align="center">등록자</th>
                     <th align="center">날짜</th>
@@ -131,6 +133,7 @@ $(document).ready(function() {
                       <tr onMouseOver="this.style.backgroundColor='#FAFAFA'" onMouseOut="this.style.backgroundColor='#fff'">
                         <td></td>
                         <td height="40" align="center"><?php echo $i;?></td>
+                        <td height="40" align="center"><?php echo $item['category_name'];?></td>
                         <td align="center"><a href="JavaScript:ViewBoard('<?php echo $item['seq'];?>')"><?php echo $this->common->trim_text(stripslashes($item['subject']), 100);?></a></td>
                         <td align="center"><?php echo $item['user_name'];?></td>
                         <td align="center"><?php echo substr($item['insert_date'], 0, 10);?></td>

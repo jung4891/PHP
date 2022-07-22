@@ -20,6 +20,9 @@ include $this->input->server('DOCUMENT_ROOT')."/include/sales_top.php";
   .log_mod{
     background-color: #FFFFF2;
   }
+  .paging strong {
+    color:#0575E6;
+	}
 </style>
 
 <script type="text/javascript">
@@ -119,7 +122,7 @@ $(function() {
                   <option value = "id">ID</option>
                 </select>
                 <input type="text" id="keyword2" name="keyword2" value="" class="input-common" style="width:100px;">
-                <input class="btn-common btn-style1" type="submit" id="search_btn" name="submit" value="검색">
+                <input class="btn-common btn-style2" type="submit" id="search_btn" name="submit" value="검색">
               </div>
             </form>
           </td>

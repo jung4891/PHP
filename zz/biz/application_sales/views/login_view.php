@@ -202,6 +202,7 @@ $(document).ready(function() {
 		}
 	});
 });
+console.log('<?php echo gethostbyname($_SERVER["HTTP_HOST"]); ?>')
 </script>
 </head>
 <body>

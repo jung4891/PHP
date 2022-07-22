@@ -68,7 +68,7 @@ function GoSearch(){
               </span>
               <span id="searchPlace2" <?php if($search_keyword2 == ""){echo "style='display:none'";} ?>>월<input type="text" class="input-common" name="searchkeyword2" placeholder="검색하세요." value="<?php echo str_replace('"', '&uml;', $search_keyword2);?>"/>주차</span>
               <span>
-                <input type="button" class='btn-common btn-style1' onClick="return GoSearch();" value="검색" />
+                <input type="button" class='btn-common btn-style2' onClick="return GoSearch();" value="검색" />
               </span>
               <!-- <img src="<?php echo $misc;?>img/dashboard/btn/btn_write.png" width="90" height="35" style="cursor:pointer;" onClick="$('#weekly_report_input').bPopup();"/> -->
               <input type="button" class="btn-common btn-color2" value="글쓰기" onClick="$('#weekly_report_input').bPopup();" style="float:right;">
@@ -87,7 +87,7 @@ function GoSearch(){
             <td align="center" valign="top">
               <tr>
                 <td>
-                  <table class="list_tbl" style="margin-top:20px;" width="100%" border="0" cellspacing="0" cellpadding="0">
+                  <table class="list_tbl list" style="margin-top:20px;" width="100%" border="0" cellspacing="0" cellpadding="0">
                     <colgroup>
                       <col width="15%">
                       <col width="5%">
@@ -103,7 +103,7 @@ function GoSearch(){
                       <th></th>
                       <th height="40" align="center">No.</th>
                       <th align="center">관리팀</th>
-                      <th align="center">내용</th>
+                      <th align="center">제목</th>
                       <th align="center">보고자</th>
                       <th align="center">작성일</th>
                       <th align="center">결재</th>
@@ -115,16 +115,22 @@ function GoSearch(){
     $icounter = 0;
 
     foreach ( $list_val as $item ) {
+      if($item['user_seq'] == '') {
+        $read = "font-weight:bold;";
+      } else {
+        $read = '';
+      }
 ?>
-                    <tr onMouseOver="this.style.backgroundColor='#EAEAEA'" onMouseOut="this.style.backgroundColor='#fff'">
+                    <tr onMouseOver="this.style.backgroundColor='#EAEAEA'" onMouseOut="this.style.backgroundColor='#fff'"
+                    style="cursor:pointer;<?php echo $read; ?>">
                       <td></td>
                       <td height="40" align="center"><?php echo $i;?></td>
                       <td align="center">
-                        <a href="JavaScript:ViewBoard('<?php echo $item['seq'];?>')">
+                        <a class="list" href="JavaScript:ViewBoard('<?php echo $item['seq'];?>')">
                           <?php echo $item['group_name']; ?>
                         </a>
                       </td>
-                      <td align="center">
+                      <td align="center" onclick="ViewBoard('<?php echo $item['seq'];?>')" style="cursor:pointer;">
 <?php
 	$tmp=explode(" ",$item['s_date']);
 	$tmp2=explode("-",$tmp[0]);
@@ -149,7 +155,7 @@ function GoSearch(){
   } else {
 ?>
                     <tr onMouseOver="this.style.backgroundColor='#FAFAFA'" onMouseOut="this.style.backgroundColor='#fff'">
-                      <td width="100%" height="40" align="center" colspan="6">등록된 게시물이 없습니다.</td>
+                      <td width="100%" height="40" align="center" colspan="8">등록된 게시물이 없습니다.</td>
                     </tr>
                     <tr>
                       <td height="10"></td>
@@ -220,13 +226,13 @@ if ($count > 0) {
 ?>
               <td width="19">
                 <a href="JavaScript:GoFirstPage()">
-                  <img src="<?php echo $misc;?>img/dashboard/btn/btn_first.png"  width="20" height="20"/>
+                  <img src="<?php echo $misc;?>img/dashboard/btn/btn_last_left.svg"  width="20" height="20"/>
                 </a>
               </td>
               <td width="2"></td>
               <td width="19">
                 <a href="JavaScript:GoPrevPage()">
-                  <img src="<?php echo $misc;?>img/dashboard/btn/btn_left.png" width="20" height="20" />
+                  <img src="<?php echo $misc;?>img/dashboard/btn/btn_left.svg" width="20" height="20" />
                 </a>
               </td>
 <?php
@@ -261,13 +267,13 @@ if ($count > 0) {
 ?>
               <td width="19">
                 <a href="JavaScript:GoNextPage()">
-                  <img src="<?php echo $misc;?>img/dashboard/btn/btn_right.png" width="20" height="20"/>
+                  <img src="<?php echo $misc;?>img/dashboard/btn/btn_right.svg" width="20" height="20"/>
                 </a>
               </td>
               <td width="2"></td>
               <td width="19">
                 <a href="JavaScript:GoLastPage()">
-                  <img src="<?php echo $misc;?>img/dashboard/btn/btn_last.png" width="20" height="20"/>
+                  <img src="<?php echo $misc;?>img/dashboard/btn/btn_last_right.svg" width="20" height="20"/>
                 </a>
               </td>
 <?php
@@ -350,7 +356,7 @@ if ($count > 0) {
 
           <img src="<?php echo $misc;?>img/dashboard/btn/btn_cancel.png" width="64" height="31" style="cursor:pointer; padding:0 5px;" onClick="$('#weekly_report_input').bPopup().close();" /> -->
           <input type="button" class="btn-common btn-color2" name="" value="등록" onClick="report_input_action();" style="float:right;">
-          <input type="button" class="btn-common btn-color1" name="" value="취소" onClick="$('#weekly_report_input').bPopup().close();" style="float:right;margin-right:10px;">
+          <input type="button" class="btn-common btn-color4" name="" value="취소" onClick="$('#weekly_report_input').bPopup().close();" style="float:right;margin-right:10px;">
         </td>
       </tr>
     </table>

@@ -9,6 +9,7 @@
 <link rel="stylesheet" href="/misc/css/view_page_common.css">
 <link href="https://fonts.googleapis.com/css?family=Noto+Sans+KR" rel="stylesheet">
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script type="text/javascript" src="/misc/js/jquery.bpopup-0.1.1.min.js"></script>
 <script language="javascript">
 
 // window.onload = function () {
@@ -82,10 +83,14 @@ function GoSearch() {
 											<option value="ICT" <?php if($search2 == "ICT"){ echo "selected";}?>>두리안정보통신기술</option>
 											<option value="MG" <?php if($search2 == "MG"){ echo "selected";}?>>더망고</option>
 										</select>
-										<input class="btn-common btn-style1" type="button" onclick="return GoSearch();" value="검색" >
+										<input class="btn-common btn-style2" type="button" onclick="return GoSearch();" value="검색" >
 										<input type="button" class="btn-common btn-color2" value="작성" onclick="location.href='<?php echo site_url();?>/sales/funds/funds_input';" style="float:right;width:80px;">
 										<!-- <a href="<?php echo site_url();?>/sales/funds/funds_input" class="btn-common">작성</a> -->
-										<input type="button" class="btn-common btn-color1" value="상세내역보기" style="float:right;margin-right:10px;width:120px;" onclick="detailView();" >
+
+										<input type="button" class="btn-common btn-updownload" value="엑셀 다운로드" style="float:right;margin-right:10px;padding-left:20px;width:auto;" onclick="$('#excel_div').bPopup();">
+										<img src="/misc/img/download_btn.svg" width="12px;" style="float: right; position:relative; top:10px; left: 18px; margin-left: -10px;">
+
+										<input type="button" class="btn-common btn-style4" value="상세내역보기" style="float:right;margin-right:10px;width:120px;" onclick="detailView();" >
 										<select id="detail_view_month" class="select-common" style="float:right; margin-right:10px;<?php if($_GET['mode']=='division'){echo 'display:none';} ?>">
 											<option value="">해당월 선택</option>
 											<?php for($i=1; $i<=12; $i++){ ?>
@@ -112,7 +117,7 @@ function GoSearch() {
 									<td>
 
 												<!-- 월별보기 -->
-												<table id="month_tbl" class="month_tbl" width="100%" cellspacing="0" cellpadding="0" style="<?php if($_GET['mode']=='division'){echo 'display:none';} ?>">
+												<table id="month_tbl" class="month_tbl list" width="100%" cellspacing="0" cellpadding="0" style="<?php if($_GET['mode']=='division'){echo 'display:none';} ?>">
 													<colgroup>
 														<col width="5.3%" /> <!-- 연 -->
 				                    <col width="7.19%" /> <!-- 1 -->
@@ -157,18 +162,18 @@ function GoSearch() {
 
 													<tr>
 														<td align="center" style="font-weight:bold;">Forcasting</td>
-														<td class="money_td" align="right"><?php echo number_format($forcasting_1[0]['sum']);?></td>
-														<td class="money_td" align="right"><?php echo number_format($forcasting_2[0]['sum']);?></td>
-														<td class="money_td" align="right"><?php echo number_format($forcasting_3[0]['sum']);?></td>
-														<td class="money_td" align="right"><?php echo number_format($forcasting_4[0]['sum']);?></td>
-														<td class="money_td" align="right"><?php echo number_format($forcasting_5[0]['sum']);?></td>
-														<td class="money_td" align="right"><?php echo number_format($forcasting_6[0]['sum']);?></td>
-														<td class="money_td" align="right"><?php echo number_format($forcasting_7[0]['sum']);?></td>
-														<td class="money_td" align="right"><?php echo number_format($forcasting_8[0]['sum']);?></td>
-														<td class="money_td" align="right"><?php echo number_format($forcasting_9[0]['sum']);?></td>
-														<td class="money_td" align="right"><?php echo number_format($forcasting_10[0]['sum']);?></td>
-														<td class="money_td" align="right"><?php echo number_format($forcasting_11[0]['sum']);?></td>
-														<td class="money_td" align="right"><?php echo number_format($forcasting_12[0]['sum']);?></td>
+														<td class="money_td" align="right"><?php echo number_format($forcasting_1);?></td>
+														<td class="money_td" align="right"><?php echo number_format($forcasting_2);?></td>
+														<td class="money_td" align="right"><?php echo number_format($forcasting_3);?></td>
+														<td class="money_td" align="right"><?php echo number_format($forcasting_4);?></td>
+														<td class="money_td" align="right"><?php echo number_format($forcasting_5);?></td>
+														<td class="money_td" align="right"><?php echo number_format($forcasting_6);?></td>
+														<td class="money_td" align="right"><?php echo number_format($forcasting_7);?></td>
+														<td class="money_td" align="right"><?php echo number_format($forcasting_8);?></td>
+														<td class="money_td" align="right"><?php echo number_format($forcasting_9);?></td>
+														<td class="money_td" align="right"><?php echo number_format($forcasting_10);?></td>
+														<td class="money_td" align="right"><?php echo number_format($forcasting_11);?></td>
+														<td class="money_td" align="right"><?php echo number_format($forcasting_12);?></td>
 														<td class="money_td" align="right"><?php echo number_format($sum_forcasting);?></td>
 													</tr>
 
@@ -197,6 +202,15 @@ function GoSearch() {
 														<td class="money_td" align="right"><?php if($forcasting['support'][$i][0]['sum']==0){echo "-";}else{echo number_format($forcasting["support"][$i][0]['sum']);} ?></td>
 													<?php } ?>
 														<td class="money_td" align="right"><?php echo number_format($sum_support);?></td>
+													</tr>
+
+													<tr>
+														<td align="center" style="font-weight:bold;">유지보수<br>Forcasting</td>
+											<?php
+													for($i=1; $i<13; $i++) { ?>
+														<td class="money_td" align="right"><?php if( ($maintain[$i][0]['sum'] + $maintain_forcasting[$i][0]['sum']) ==0 ){echo "-";}else{echo number_format($maintain[$i][0]['sum'] + $maintain_forcasting[$i][0]['sum']);} ?></td>
+											<?php } ?>
+														<td class="money_td" align="right"><?php echo number_format($sum_maintain + $sum_maintain_forcasting);?></td>
 													</tr>
 
 													<tr>
@@ -305,7 +319,7 @@ function GoSearch() {
 												</table>
 
 												<!-- 분기별보기 -->
-												<table id="division_tbl" class="division_tbl" width="100%" border="0" cellspacing="0" cellpadding="0" style="<?php if($_GET['mode']=='month'){echo 'display:none';} ?>">
+												<table id="division_tbl" class="division_tbl list" width="100%" border="0" cellspacing="0" cellpadding="0" style="<?php if($_GET['mode']=='month'){echo 'display:none';} ?>">
 													<colgroup>
 														<col width="6.19%" /> <!-- 연 -->
 				                    <col width="21.14%" /> <!-- 1 분기 -->
@@ -334,10 +348,10 @@ function GoSearch() {
 
 													<tr>
 														<td align="center" style="font-weight:bold;">Forcasting</td>
-														<td class="money_td" align="right"><?php echo number_format($forcasting_1[0]['sum']+$forcasting_2[0]['sum']+$forcasting_3[0]['sum']);?></td>
-														<td class="money_td" align="right"><?php echo number_format($forcasting_4[0]['sum']+$forcasting_5[0]['sum']+$forcasting_6[0]['sum']);?></td>
-														<td class="money_td" align="right"><?php echo number_format($forcasting_7[0]['sum']+$forcasting_8[0]['sum']+$forcasting_9[0]['sum']);?></td>
-														<td class="money_td" align="right"><?php echo number_format($forcasting_10[0]['sum']+$forcasting_11[0]['sum']+$forcasting_12[0]['sum']);?></td>
+														<td class="money_td" align="right"><?php echo number_format($forcasting_1+$forcasting_2+$forcasting_3);?></td>
+														<td class="money_td" align="right"><?php echo number_format($forcasting_4+$forcasting_5+$forcasting_6);?></td>
+														<td class="money_td" align="right"><?php echo number_format($forcasting_7+$forcasting_8+$forcasting_9);?></td>
+														<td class="money_td" align="right"><?php echo number_format($forcasting_10+$forcasting_11+$forcasting_12);?></td>
 														<td class="money_td" align="right"><?php echo number_format($sum_forcasting);?></td>
 													</tr>
 
@@ -393,6 +407,25 @@ function GoSearch() {
 													</td>
 												<?php } ?>
 													<td class="money_td" align="right"><?php echo number_format($sum_support);?></td>
+													</tr>
+
+													<tr>
+														<td align="center" style="font-weight:bold;">유지보수<br>Forcasting</td>
+														<?php
+														for($i=1; $i<13; $i+=3) {
+															$m = $maintain[$i][0]['sum'] + $maintain[$i+1][0]['sum'] + $maintain[$i+2][0]['sum'];
+															$m += $maintain_forcasting[$i][0]['sum'] + $maintain_forcasting[$i+1][0]['sum'] + $maintain_forcasting[$i+2][0]['sum'];
+															?>
+															<td class="money_td" align="right">
+														<?php
+														if($m==0){
+															echo "-";
+														}else{
+															echo number_format($m);
+														} ?>
+													</td>
+												<?php } ?>
+													<td class="money_td" align="right"><?php echo number_format($sum_maintain + $sum_maintain_forcasting);?></td>
 													</tr>
 
 													<tr>
@@ -561,7 +594,107 @@ function GoSearch() {
 	</div>
 </div>
 
+<div id="excel_div" style="display:none; position: absolute; background-color: white; width: auto; height: auto;">
+  <table width="400px" height="100%" style="padding:20px 18px;" border="0" cellspacing="0" cellpadding="0">
+		<colgroup>
+			<col width=20%>
+			<col width=80%>
+		</colgroup>
+    <tr>
+      <td colspan="3" align="left" valign="top" class="tbl-sub-title">엑셀 다운</td>
+    </tr>
+		<tr class="tbl-tr border-b">
+      <td align="left" style="font-weight:bold;font-size:14px;padding-bottom:5px;">기간 선택</td>
+			<td align="left">
+				<input type="month" class="input-common" id="s_month" style="width:110px;" value="">
+				<span style="margin-left:10px;margin-right:10px;font-weight:bold;font-size:15px;">~</span>
+				<input type="month" class="input-common" id="e_month" style="width:110px;" value="">
+			</td>
+		</tr>
 
+		<tr class="tbl-tr border-b">
+    	<td align="left" style="font-weight:bold;font-size:14px;padding-bottom:5px;">업체 선택</td>
+			<td align="left">
+				<select name="excel_depth" id="excel_depth" class="select-common" style="width:150px;margin-right:10px;">
+					<option value=""> 업체 선택</option>
+					<option value="IT">두리안정보기술</option>
+					<option value="D_1">사업1부</option>
+					<option value="D_2">사업2부</option>
+					<option value="ICT">두리안정보통신기술</option>
+					<option value="MG">더망고</option>
+				</select>
+			</td>
+		</tr>
+    <tr>
+      <td colspan="3" align="right" style="padding-top:30px;">
+				<input type="button" class="btn-common btn-color1" value="취소" onClick="$('#excel_div').bPopup().close()">
+				<input type="button" class="btn-common btn-color2" value="다운로드" onclick="excel_down();">
+      </td>
+    </tr>
+  </table>
+</div>
+<table id="excel_table" width="100%" border="0" cellspacing="0" cellpadding="0" class="list_tbl" style="display:none;">
+	<colgroup>
+		<col width="3%" />  <!--번    호-->
+		<col width="3%" />	<!--종    류-->
+		<col width="10%" />	<!--고 객 사-->
+		<col width="10%" />	<!--프로젝트-->
+		<col width="5%" />	<!--매 출 처-->
+		<col width="5%" />	<!--제 조 사-->
+		<col width="5%" />	<!--제 품 명-->
+		<col width="5%" />	<!--계산서발행일자-->
+		<col width="5%" />	<!--진척단계-->
+		<col width="5%" />	<!--발행회차-->
+		<col width="7%" />	<!--매출금액-->
+		<col width="7%" />	<!--매입금액-->
+		<col width="8%" />	<!--마진금액-->
+		<col width="4%" />	<!--마 진 율-->
+		<col width="8%" />	<!--업    체-->
+		<col width="5%" />	<!--사업부-->
+		<col width="5%" />	<!--영업담당자-->
+	</colgroup>
+	<thead>
+		<tr class="row-color1">
+			<th rowspan="2" align="center" class="">번호</th>
+			<th rowspan="2" align="center" class="apply-filter no-sort">종류</th>
+			<th rowspan="2" align="center" class="apply-filter no-sort">고객사</th>
+			<th rowspan="2" align="center" class="apply-filter no-sort">프로젝트</th>
+			<th rowspan="2" align="center" class="apply-filter no-sort">매출처</th>
+			<th colspan="2" align="center" class="" style="height:30px;">제안제품</th>
+			<th rowspan="2" align="center" class="apply-filter no-sort" filter_column="1">계산서발행일자</th>
+			<th rowspan="2" align="center" class="">진척단계</th>
+			<th rowspan="2" align="center" class="apply-filter no-sort" filter_column="2">발행회차</th>
+			<th rowspan="2" align="center" class="">매출금액</th>
+			<th rowspan="2" align="center" class="">매입금액</th>
+			<th rowspan="2" align="center" class="">마진금액</th>
+			<th rowspan="2" align="center" class="">마진율</th>
+			<th rowspan="2" align="center" class="">업체</th>
+			<th rowspan="2" align="center" class="apply-filter no-sort last-th" filter_column="3">사업부</th>
+			<th rowspan="2" align="center" class="apply-filter no-sort last-th" filter_column="4">영업담당자</th>
+		</tr>
+		<tr>
+			<th style="border-top:1px solid #797c88; height:30px;" bgcolor="#f8f8f9" align="center" class="">제조사</th>
+			<th style="border-top:1px solid #797c88; height:30px;" bgcolor="#f8f8f9" align="center" class="">제품명</th>
+		</tr>
+	</thead>
+	<tbody id="excel_table_body">
+	</tbody>
+</table>
+
+<div id="wrap-loading" style="z-index: 10000;display:none;">
+	<table>
+		<tr>
+			<td align="center">
+				<img src="<?php echo $misc; ?>img/loading_img.gif" alt="Loading..." style="width:50px;border:0; left:50%; top:50%;" />
+			</td>
+		</tr>
+		<tr>
+			<td align="center" style="font-weight:bold;font-size:14px;">
+				다운로드중..(<span id="percent"></span>)
+			</td>
+		</tr>
+	</table>
+</div>
 <!--하단-->
 <?php include $this->input->server('DOCUMENT_ROOT')."/include/sales_bottom.php"; ?>
 <!--하단-->
@@ -675,7 +808,7 @@ function GoSearch() {
 				j++;
 			}
 		}
-		console.log(chart_contents);
+		// console.log(chart_contents);
 
 		var data = new google.visualization.DataTable();
 		data.addColumn('string', 'Month');
@@ -699,6 +832,246 @@ function GoSearch() {
 		var chart = new google.visualization.ComboChart(document.getElementById('chart_div'));
 		chart.draw(data, options);
 	}
+
+	function excel_down() {
+		var s_month = $('#s_month').val();
+		var e_month = $('#e_month').val();
+
+		s_month = s_month.split('-');
+		e_month = e_month.split('-');
+
+		var depth = $('#excel_depth').val();
+		var target = $('#excel_depth option:checked').text();
+
+		if(s_month == '' || e_month == '') {
+			alert('기간을 선택해 주세요.');
+			return false;
+		}
+
+		if(Number(e_month[0]+e_month[1]) < Number(s_month[0]+s_month[1])) {
+			alert('시작월이 종료월보다 이후 입니다.');
+			return false;
+		}
+
+		if(depth == '') {
+			alert('부서를 선택해 주세요.');
+			return false;
+		}
+
+		var monthArr = dateRange(s_month[0]+'-'+s_month[1], e_month[0]+'-'+e_month[1]);
+
+		$("#wrap-loading").bPopup({modalClose:false,opacity:0});
+
+		const timer = ms => new Promise(res => setTimeout(res, ms));
+
+		async function load() {
+			for(var i = 0; i < monthArr.length; i++) {
+				if(i == 0) {
+					$('#excel_table_body').empty();
+					$('#percent').text('0%');
+				} else {
+					var percent = (100 / monthArr.length) * i;
+					$('#percent').text(Math.round(percent) + '%');
+				}
+				var dateArr = monthArr[i].split('-');
+				var year = dateArr[0];
+				var month = dateArr[1].replace(/^0+/, '');
+
+				$.ajax({
+					type: "POST",
+					cache: false,
+					url: "<?php echo site_url(); ?>/sales/funds/funds_list_excel",
+					dataType: "json",
+					data: {
+						year: year,
+						month: month,
+						company: depth
+					},
+					success: function(data) {
+						var text = '';
+
+						for(var j = 0; j < data.length; j++) {
+							var d = data[j];
+
+							if(d.type==1){
+								var strType = "판매";
+							}else if(d.type==2){
+								var strType = "용역";
+							}else if(d.type==3){
+								var strType = "유지보수";
+							}else if(d.type==4){
+								var strType = "조달";
+							}else{
+								var strType = "미지정";
+							}
+
+							if(d.progress_step == "001") {
+								var strStep = "영업보류(0%)";
+							} else if(d.progress_step == "002") {
+								var strStep = "고객문의(5%)";
+							} else if(d.progress_step == "003") {
+								var strStep = "영업방문(10%)";
+							} else if(d.progress_step == "004") {
+								var strStep = "일반제안(15%)";
+							} else if(d.progress_step == "005") {
+								var strStep = "견적제출(20%)";
+							} else if(d.progress_step == "006") {
+								var strStep = "맞춤제안(30%)";
+							} else if(d.progress_step == "007") {
+								var strStep = "수정견적(35%)";
+							} else if(d.progress_step == "008") {
+								var strStep = "RFI(40%)";
+							} else if(d.progress_step == "009") {
+								var strStep = "RFP(45%)";
+							} else if(d.progress_step == "010") {
+								var strStep = "BMT(50%)";
+							} else if(d.progress_step == "011") {
+								var strStep = "DEMO(55%)";
+							} else if(d.progress_step == "012") {
+								var strStep = "가격경쟁(60%)";
+							} else if(d.progress_step == "013") {
+								var strStep = "Spen in(70%)";
+							} else if(d.progress_step == "014") {
+								var strStep = "수의계약(80%)";
+							} else if(d.progress_step == "015") {
+								var strStep = "수주완료(85%)";
+							} else if(d.progress_step == "016") {
+								var strStep = "매출발생(90%)";
+							} else if(d.progress_step == "017") {
+								var strStep = "미수잔금(95%)";
+							} else if(d.progress_step == "018") {
+								var strStep = "수금완료(100%)";
+							} else if(d.progress_step == '') {
+								var strStep = '';
+							}
+
+							text += '<tr>';
+							text += '<td align="center"><span class="p_num"></span></td>';
+							text += '<td align="center">'+strType+'</td>';
+							text += '<td align="center">'+d.customer_companyname+'</td>';
+							text += '<td align="center">'+d.project_name+'</td>';
+							text += '<td align="center">'+d.sales_companyname+'</td>';
+							text += '<td align="center">'+d.product_company+'</td>';
+							text += '<td align="center">'+d.product_name+'</td>';
+							text += '<td align="center">'+d.issuance_date+'</td>';
+							text += '<td align="center">'+strStep+'</td>';
+							text += '<td align="center" bgcolor="#FFFFF2">'+d.pay_session+'</td>';
+							text += '<td align="center">';
+							if(d.bill_type == '001') {
+								text += number_format(d.issuance_amount);
+							}
+							text += '</td>';
+							text += '<td align="center">';
+							if(d.sum_purchase != undefined) {
+								text += number_format(d.sum_purchase);
+							} else if (d.bill_type == '002') {
+								text += number_format(d.issuance_amount);
+							}
+							text += '</td>';
+							text += '<td align="center">';
+							if(d.bill_type == '001' && d.sum_purchase != undefined) {
+								var margin = Number(d.issuance_amount) - Number(d.sum_purchase);
+								text += number_format(margin);
+							}
+							text += '</td>';
+							text += '<td align="center">';
+							if(d.bill_type == '001' && d.sum_purchase != undefined) {
+								text += Math.round(Number(margin)/Number(d.issuance_amount) * 100) + '%';
+							}
+							text += '</td>';
+							text += '<td align="center">'+d.cooperation_companyname+'</td>';
+							text += '<td align="center">'+d.dept+'</td>';
+							text += '<td align="center">'+d.cooperation_username+'</td>';
+							text += '</tr>';
+						}
+
+						$('#excel_table_body').append(text);
+					}
+				})
+				await timer(4000);
+			}
+			$('#percent').text('100%');
+			p_numbering();
+			$("#wrap-loading").bPopup().close();
+			excelDownload('excel_table', target + ' ' + s_month[0]+'년'+s_month[1] + '월 ~ ' + e_month[0]+'년'+e_month[1] + '월 매출현황');
+		}
+
+		load();
+	}
+
+	function dateRange(startDate, endDate) {
+		var start      = startDate.split('-');
+	  var end        = endDate.split('-');
+	  var startYear  = parseInt(start[0]);
+	  var endYear    = parseInt(end[0]);
+	  var dates      = [];
+
+	  for(var i = startYear; i <= endYear; i++) {
+	    var endMonth = i != endYear ? 11 : parseInt(end[1]) - 1;
+	    var startMon = i === startYear ? parseInt(start[1])-1 : 0;
+	    for(var j = startMon; j <= endMonth; j = j > 12 ? j % 12 || 11 : j+1) {
+	      var month = j+1;
+	      var displayMonth = month < 10 ? '0'+month : month;
+	      dates.push([i, displayMonth].join('-'));
+	    }
+  	}
+  	return dates;
+	}
+
+	function number_format(x) {
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+	}
+
+	function p_numbering() {
+		var num = 1;
+		$('.p_num').each(function() {
+			$(this).text(num);
+			num ++;
+		})
+	}
+
+	function excelDownload(id, title) {
+    var tab_text = '<html xmlns:x="urn:schemas-microsoft-com:office:excel">';
+    tab_text = tab_text + '<head><meta http-equiv="content-type" content="application/vnd.ms-excel; charset=UTF-8">';
+    tab_text = tab_text + '<xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet>'
+    tab_text = tab_text + '<x:Name>Test Sheet</x:Name>';
+    tab_text = tab_text + '<x:WorksheetOptions><x:Panes></x:Panes></x:WorksheetOptions></x:ExcelWorksheet>';
+    tab_text = tab_text + '</x:ExcelWorksheets></x:ExcelWorkbook></xml></head><body>';
+    tab_text = tab_text + "<table border='1px'>";
+    var exportTable = $('#' + id).clone();
+    exportTable.find('input').each(function (index, elem) {
+      $(elem).remove();
+    });
+    exportTable.find('.dropdown-filter-item').each(function (index, elem) {
+      $(elem).remove();
+    });
+    tab_text = tab_text + exportTable.html();
+    tab_text = tab_text + '</table></body></html>';
+    var data_type = 'data:application/vnd.ms-excel';
+    var ua = window.navigator.userAgent;
+    var msie = ua.indexOf("MSIE ");
+    var fileName = title + '.xls';
+    //Explorer 환경에서 다운로드
+    if (msie > 0 || !!navigator.userAgent.match(/Trident.*rv\:11\./)) {
+      if (window.navigator.msSaveBlob) {
+        var blob = new Blob([tab_text], {
+          type: "application/csv;charset=utf-8;"
+        });
+        navigator.msSaveBlob(blob, fileName);
+      }
+    } else {
+      var blob2 = new Blob([tab_text], {
+        type: "application/csv;charset=utf-8;"
+      });
+      var filename = fileName;
+      var elem = window.document.createElement('a');
+      elem.href = window.URL.createObjectURL(blob2);
+      elem.download = filename;
+      document.body.appendChild(elem);
+      elem.click();
+      document.body.removeChild(elem);
+    }
+  }
 </script>
 </body>
 </html>

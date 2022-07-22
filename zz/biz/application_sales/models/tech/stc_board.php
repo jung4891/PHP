@@ -395,7 +395,7 @@ class STC_Board extends CI_Model {
 			$searchstring = '';
 		}
 
-		$sql = "select seq, category_code, subject, user_id, user_name, file_changename, insert_date from customer_manual_basic".$searchstring." order by seq desc";
+		$sql = "select seq, category_code, subject, user_id, user_name, file_changename, insert_date, (select company_name from sales_customer_basic where seq = category_code) as category_name from customer_manual_basic".$searchstring." order by seq desc";
 		if  ( $offset <> 0 )
 			$sql = $sql." limit ?, ?";
 
@@ -512,7 +512,7 @@ class STC_Board extends CI_Model {
 			$searchstring = '';
 		}
 
-		$sql = "select seq, category_code, subject, user_id, user_name, file_changename, insert_date from customer_manageredu_basic".$searchstring." order by seq desc";
+		$sql = "select seq, category_code, subject, user_id, user_name, file_changename, insert_date, (select company_name from sales_customer_basic where seq = category_code) as category_name from customer_manageredu_basic".$searchstring." order by seq desc";
 		if  ( $offset <> 0 )
 			$sql = $sql." limit ?, ?";
 
@@ -679,7 +679,7 @@ class STC_Board extends CI_Model {
 			$searchstring = '';
 		}
 
-		$sql = "select seq, category_code, subject, user_id, user_name, file_changename, insert_date from customer_faq_basic".$searchstring." order by seq desc";
+		$sql = "select seq, category_code, subject, user_id, user_name, file_changename, insert_date, (select company_name from sales_customer_basic where seq = category_code) as category_name from customer_faq_basic".$searchstring." order by seq desc";
 		if  ( $offset <> 0 )
 			$sql = $sql." limit ?, ?";
 
@@ -852,7 +852,7 @@ class STC_Board extends CI_Model {
 			$searchstring = '';
 		}
 
-		$sql = "select seq, category_code, subject, user_id, user_name, file_changename, cnum, insert_date from tech_release_note_basic".$searchstring." order by seq desc";
+		$sql = "select seq, category_code, subject, user_id, user_name, file_changename, cnum, insert_date, (select company_name from sales_customer_basic where seq = category_code) as category_name from tech_release_note_basic".$searchstring." order by seq desc";
 		if  ( $offset <> 0 )
 			$sql = $sql." limit ?, ?";
 			if  ( $searchkeyword != "" )
@@ -1941,6 +1941,163 @@ echo "test";
 
 
 
+	}
+
+	function dailyWorkLog_list( $searchkeyword, $search1, $start_limit = 0, $offset = 0) {
+		$keyword = "%".$searchkeyword."%";
+		if($searchkeyword != "") {
+			if ($search1 == "001") {
+				$searchString = " AND u.user_name like '{$keyword}'";
+			}
+		} else {
+			$searchString = '';
+		}
+
+		$sql = "SELECT tdwl.*, u.user_name, u.user_duty FROM tech_daily_work_log tdwl LEFT JOIN user u on tdwl.write_id = u.user_id WHERE 1=1 {$searchString} ORDER BY seq DESC";
+
+		if  ( $offset <> 0 )
+			$sql = $sql." limit ?, ?";
+
+		$query = $this->db->query( $sql, array( $start_limit, $offset ) );
+
+		return array( 'count' => $query->num_rows(), 'data' => $query->result_array() );
+	}
+
+	//교육자료 리스트개수
+	function dailyWorkLog_list_count($searchkeyword, $search1) {
+		$keyword = "%".$searchkeyword."%";
+		if($searchkeyword != "") {
+			if ($search1 == "001") {
+				$searchString = " AND u.user_name like '{$keyword}'";
+			}
+		} else {
+			$searchString = '';
+		}
+
+		$sql = "SELECT count(*) as ucount FROM tech_daily_work_log tdwl LEFT JOIN user u on tdwl.write_id = u.user_id WHERE 1=1 {$searchString} ORDER BY tdwl.seq DESC";
+
+		$query = $this->db->query( $sql );
+
+		return $query->row();
+	}
+
+	function dailyWorkLog_insert( $data, $mode = 0 , $seq = 0) {
+		if( $mode == 0 ) {
+			$this->db->insert('tech_daily_work_log', $data );
+			return $this->db->insert_id();
+		}
+		else {
+			return $this->db->update('tech_daily_work_log', $data, array('seq' => $seq));
+		}
+	}
+
+	function truncate_dailyWorkLog_content($seq) {
+		$sql = "DELETE FROM tech_daily_work_log_content WHERE daily_work_log_seq = {$seq}";
+
+		return $this->db->query($sql);
+	}
+
+	function insert_dailyWorkLog_content($data) {
+		return $this->db->insert('tech_daily_work_log_content', $data);
+	}
+
+	function dailyWorkLog_view($seq) {
+		$sql = "SELECT tdwl.*, u.user_duty, u.user_name FROM tech_daily_work_log tdwl LEFT JOIN user u ON tdwl.write_id = u.user_id WHERE tdwl.seq = {$seq}";
+
+		$query = $this->db->query($sql);
+
+		return $query->row_array();
+	}
+
+	function dailyWorkLog_view_content($seq, $where) {
+		$sql = "SELECT * FROM tech_daily_work_log_content WHERE daily_work_log_seq = {$seq} AND type = '{$where}' ORDER BY seq";
+
+		$query = $this->db->query($sql);
+
+		return $query->result_array();
+	}
+
+	function dailyWorkLog_delete($seq) {
+		$sql = "DELETE FROM tech_daily_work_log WHERE seq = {$seq}";
+
+		return $this->db->query($sql);
+	}
+
+	function study_document_list($search_year, $search_week, $searchkeyword, $search1, $start_limit = 0, $offset = 0) {
+		$keyword = "%".$searchkeyword."%";
+		$searchString = '';
+		if($search_year != '') {
+			$searchString .= " AND tsd.year = {$search_year}";
+		}
+		if($search_week != '') {
+			$searchString .= " AND tsd.week = {$search_week}";
+		}
+		if($searchkeyword != "") {
+			if ($search1 == "001") {
+				$searchString = " AND u.user_name like '{$keyword}'";
+			}
+		}
+
+		$sql = "SELECT tsd.*, u.user_name, u.user_duty FROM tech_study_document tsd LEFT JOIN user u on tsd.write_id = u.user_id WHERE 1=1 {$searchString} ORDER BY year DESC, week DESC, seq DESC";
+
+		if  ( $offset <> 0 )
+			$sql = $sql." limit ?, ?";
+
+		$query = $this->db->query( $sql, array( $start_limit, $offset ) );
+
+		return array( 'count' => $query->num_rows(), 'data' => $query->result_array() );
+	}
+
+	//교육자료 리스트개수
+	function study_document_list_count($search_year, $search_week, $searchkeyword, $search1) {
+		$keyword = "%".$searchkeyword."%";
+		$searchString = '';
+		if($search_year != '') {
+			$searchString .= " AND tsd.year = {$search_year}";
+		}
+		if($search_week != '') {
+			$searchString .= " AND tsd.week = {$search_week}";
+		}
+		if($searchkeyword != "") {
+			if ($search1 == "001") {
+				$searchString = " AND u.user_name like '{$keyword}'";
+			}
+		}
+
+		$sql = "SELECT count(*) as ucount FROM tech_study_document tsd LEFT JOIN user u on tsd.write_id = u.user_id WHERE 1=1 {$searchString} ORDER BY tsd.seq DESC";
+
+		$query = $this->db->query( $sql );
+
+		return $query->row();
+	}
+
+	function study_document_insert( $data, $mode = 0 , $seq = 0) {
+		if( $mode == 0 ) {
+			$this->db->insert('tech_study_document', $data );
+			return $this->db->insert_id();
+		}
+		else {
+			return $this->db->update('tech_study_document', $data, array('seq' => $seq));
+		}
+	}
+
+	function study_document_view($seq) {
+		$sql = "SELECT tsd.*, u.user_duty, u.user_name FROM tech_study_document tsd LEFT JOIN user u ON tsd.write_id = u.user_id WHERE tsd.seq = {$seq}";
+
+		$query = $this->db->query($sql);
+
+		return $query->row_array();
+	}
+
+	function study_document_delete($seq) {
+		$sql = "DELETE FROM tech_study_document WHERE seq = {$seq}";
+
+		return $this->db->query($sql);
+	}
+
+	function doc_approval($seq, $target, $data) {
+		$this->db->where('seq', $seq);
+		return $this->db->update($target, $data);
 	}
 
 }

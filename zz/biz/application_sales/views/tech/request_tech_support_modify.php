@@ -119,8 +119,8 @@ $this->cooperative_id = $this->phpsession->get( 'cooperative_id', 'stc' );
 			</tr>
 			<tr>
 				<td align="right" style="padding-right:15%;">
-					<input type="button" class="btn-common btn-color1" value="수정" onClick="javascript:chkForm();return false;">
-					<input type="button" class="btn-common btn-color2" value="취소" onClick="javascript:history.go(-1)">
+					<input type="button" class="btn-common btn-color4" value="수정" onClick="javascript:chkForm();return false;">
+					<input type="button" class="btn-common btn-color4" value="취소" onClick="javascript:history.go(-1)">
 				</td>
 			</tr>
       <tr>
@@ -541,8 +541,8 @@ $this->cooperative_id = $this->phpsession->get( 'cooperative_id', 'stc' );
 			</tr>
       <tr>
 				<td align="right" style="padding-right:15%;">
-					<input type="button" class="btn-common btn-color1" value="수정" onClick="javascript:chkForm();return false;">
-					<input type="button" class="btn-common btn-color2" value="취소" onClick="javascript:history.go(-1)">
+					<input type="button" class="btn-common btn-color4" value="수정" onClick="javascript:chkForm();return false;">
+					<input type="button" class="btn-common btn-color4" value="취소" onClick="javascript:history.go(-1)">
 				</td>
 			</tr>
       <tr>
@@ -658,7 +658,7 @@ $this->cooperative_id = $this->phpsession->get( 'cooperative_id', 'stc' );
 
     function filedel(seq, filename) {
       if (confirm("정말 삭제하시겠습니까?") == true) {
-        location.href = "<?php echo site_url(); ?>/tech_board/request_tech_support_del/" + seq + "/" + filename;
+        location.href = "<?php echo site_url(); ?>/tech/tech_board/request_tech_support_del/" + seq + "/" + filename;
         return false;
       }
     }

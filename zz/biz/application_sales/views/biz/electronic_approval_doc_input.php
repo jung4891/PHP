@@ -2,6 +2,7 @@
   include $this->input->server('DOCUMENT_ROOT')."/include/base.php";
   include $this->input->server('DOCUMENT_ROOT')."/include/sales_top.php";
   $duty = $this->phpsession->get( 'duty', 'stc' );
+  $tech_approval = [17, 21, 56, 74];
 ?>
 <style>
    p, div, span, a, a:hover, a:visited, a:active, label, input, h1,h2,h3,h4,h5,h6{
@@ -111,6 +112,11 @@
    <input type="hidden" id="req_support_data" name="req_support_data" value="" />
    <input type="hidden" id="req_file_real_name" name="req_file_real_name" value="" />
    <input type="hidden" id="req_file_change_name" name="req_file_change_name" value="" />
+   <?php if(isset($_GET['schedule_seq'])) { ?>
+   <input type="hidden" id="schedule_seq" name="schedule_seq" value="<?php echo $_GET['schedule_seq']; ?>" /> <?php } ?>
+   <?php if(isset($_GET['tech_seq'])) { ?>
+   <input type="hidden" id="tech_seq" name="tech_seq" value="<?php echo $_GET['tech_seq']; ?>" />
+   <?php } ?>
    <table width="100%" height="100%" border="0" cellspacing="0" cellpadding="0">
       <tr>
          <td align="center" valign="top">
@@ -134,9 +140,19 @@
                                  <div style="text-align:right">
                                     <input type="button" class="btn-common btn-color2" value="결재선" onclick="select_approval_modal();" />
                                     <input type="button" class="btn-common btn-color2" value="결재요청" onclick="chkForm('request');" />
+                              <?php if(in_array($seq, $tech_approval) || (isset($_GET['tech_seq']) && $_GET['tech_seq'] != '')) { ?>
+                                    <input type="button" class="btn-common btn-color1" style="width:auto;" value="기술지원보고서첨부" onclick="techDocAttachment();">
+                              <?php } ?>
                                     <input type="button" class="btn-common btn-color1" value="기결재첨부" onclick="approvalAttachment();">
+                              <?php if(isset($view_val) && $view_val['official_doc'] == "Y") { ?>
+                                    <input type="button" class="btn-common btn-color1" value="발송공문" onclick="officialDocAttachment();">
+                              <?php } ?>
                                     <input type="button" class="btn-common btn-color1" value="임시저장" onclick="chkForm('temporary');" />
-                                    <input type="button" class="btn-common btn-color1" value="취소" onclick="cancel();">
+                              <?php if($seq == 6 && $corporation_card_num['corporation_card_yn'] == "Y") { ?>
+                                    <input type="button" class="btn-common btn-color1" value="카드내역서업로드" style="width:auto;" onclick="excelUpload();" />
+                                    <input style="display:none;" type="file" id="excelFile" onchange="excelImport(event)" />
+                              <?php } ?>
+                                    <input type="button" class="btn-common btn-color4" value="취소" onclick="cancel();">
                                  </div>
                                  <div style="text-align:center;font-size:30px;height:40px;">
                                     <?php if($seq == "annual"){
@@ -192,10 +208,56 @@
                                              <div id="approval_attach_list" name="approval_attach_list"> </div>
                                           </td>
                                        </tr>
+                                       <input id="approval_tech_doc_attach" name="approval_tech_doc_attach" type="hidden" value="<?php if(isset($_GET['tech_seq']) && $_GET['tech_seq'] != ''){echo $tech_data_val['seq'].'::'.$tech_data_val['subject'];} ?>"/>
+                               <?php if((isset($_GET['tech_seq']) && $_GET['tech_seq'] != '') || in_array($seq, $tech_approval)) { ?>
+                                        <tr>
+                                          <td width="15%" align="center" height=40 class="basic_td" bgcolor="f8f8f9">기술지원보고서첨부</td>
+                                          <td colspan=3 class="basic_td">
+                                            <div id="approval_tech_doc_attach_list" name="approval_tech_doc_attach_list">
+                                      <?php if(isset($_GET['tech_seq']) && $_GET['tech_seq'] != '') { ?>
+                                              <div id='attach_tech_doc_<?php echo $tech_data_val['seq']; ?>'>
+                                                <span name='attach_name'><?php echo $tech_data_val['subject']; ?></span>
+                                                <img src='/misc/img/btn_search.jpg' style='width:18px;vertical-align:middle;cursor:pointer;margin:5px 0px 5px 10px;' onclick='tech_doc_view("<?php echo $tech_data_val['seq']; ?>")'/>
+                                                <img src='<?php echo $misc; ?>/img/btn_del2.jpg' style='vertical-align:middle;cursor:pointer;margin-left:5px;' onclick='attachTechDocRemove(<?php echo $tech_data_val['seq']; ?>)'/>
+                                              </div>
+                                      <?php } ?>
+                                            </div>
+                                          </td>
+                                        </tr>
+                               <?php } ?>
+
                                        <tr>
                                           <td width="15%" align="center" height=40 class="basic_td" bgcolor="f8f8f9">문서제목</td>
-                                          <td colspan=3 class="basic_td"><input type="text" id="approval_doc_name" name="approval_doc_name" class="input7" value="<?php if(isset($sales_val)){echo "[IT-".$group."]".$sales_val['customer_companyname'].' '.$sales_val['project_name']; }?>"></td>
+                                          <td colspan=3 class="basic_td"><input type="text" id="approval_doc_name" name="approval_doc_name" class="input7" value="<?php
+                                          if(isset($sales_val)){
+                                            echo "[";
+                                            if($sales_val['cooperation_companyname']=='더망고'){
+                                              echo 'MG';
+                                            } else if ($sales_val['cooperation_companyname']=='두리안정보통신기술') {
+                                              echo 'ICT';
+                                            } else {
+                                              echo 'IT';
+                                            }
+                                            echo "-".$group."]".$sales_val['customer_companyname'].' '.$sales_val['project_name']; }
+                                          ?>"></td>
                                        </tr>
+                                       <input type="hidden" name="official_doc_attach" id="official_doc_attach" value="<?php if(isset($official_doc_seq)){echo ','.$official_doc_seq;} ?>">
+                                       <?php if(isset($view_val) && $view_val['official_doc'] == "Y") { ?>
+                                         <tr>
+                                           <td width="15%" align="center" height=40 class="basic_td" bgcolor="f8f8f9">발송공문</td>
+                                           <td colspan=3 class="basic_td">
+                                             <div id="official_doc_attach_list" name="official_doc_attach_list">
+                                               <?php if(isset($official_doc) && count($official_doc) > 0){
+                                                 foreach($official_doc as $od) {?>
+                                                   <div id="<?php echo "officialDoc_".$od['seq']; ?>">
+                                                     <span name="attach_name"><?php echo $od['subject']; ?></span>
+                                                     <img src='<?php echo $misc; ?>/img/btn_del2.jpg' style='vertical-align:middle;cursor:pointer;margin-left:5px;' onclick='officialDocRemove("<?php echo $od['seq']; ?>")'/>
+                                                   </div>
+                                                 <?php }} ?>
+                                               </div>
+                                             </td>
+                                           </tr>
+                                         <?php } ?>
                                     </table>
                                  </div>
                                  <div id="formLayoutDiv" style="margin-top:30px;">
@@ -246,7 +308,15 @@
                                           <div style='margin:30px 0px 10px 0px;'>
                                              * 직무대행자
                                           </div>
-                                          <table class="basic_table" width="100%" >
+                                          <table class="basic_table" width="100%" style="table-layout:fixed;">
+                                            <colgroup>
+                                              <col width="12%">
+                                              <col width="21%">
+                                              <col width="12%">
+                                              <col width="21%">
+                                              <col width="12%">
+                                              <col width="21%">
+                                            </colgroup>
                                              <tr>
                                                 <td align="center" bgcolor="f8f8f9" height=40 class="basic_td"><span style='color:red'>*</span>성명/소속</td>
                                                 <td height=40 class="basic_td">
@@ -263,6 +333,11 @@
                                                 <td align="center" bgcolor="f8f8f9" height=40 class="basic_td"><span style='color:red'>*</span>긴급연락처</td>
                                                 <td height=40 class="basic_td">
                                                    <input type="text" id="emergency_phone_num" name="emergency_phone_num" class="input2" onchange="regex(this,'phone_num');" required />
+                                                </td>
+                                                <td align="center" bgcolor="f8f8f9" height=40 class="basic_td"><span style='color:red'>*</span>자동위임</td>
+                                                <td height=40 class="basic_td">
+                                                  사용<input type="radio" name="auto_deligation" value="Y" style="margin-right:10px;" checked>
+                                                  미사용<input type="radio" name="auto_deligation" value="N">
                                                 </td>
                                              </tr>
                                           </table>
@@ -340,9 +415,12 @@
                                  <div style="text-align:right;margin-top:30px;">
                                     <input type="button" class="btn-common btn-color2" value="결재선" onclick="select_approval_modal();">
                                     <input type="button" class="btn-common btn-color2" value="결재요청" onclick="chkForm('request');">
-                                    <input type="button" class="btn-common btn-color1" value="기결재첨부">
+                              <?php if(in_array($seq, $tech_approval) || (isset($_GET['tech_seq']) && $_GET['tech_seq'] != '')) { ?>
+                                    <input type="button" class="btn-common btn-color1" style="width:auto;" value="기술지원보고서첨부" onclick="techDocAttachment();">
+                              <?php } ?>
+                                    <input type="button" class="btn-common btn-color1" value="기결재첨부" onclick="approvalAttachment();">
                                     <input type="button" class="btn-common btn-color1" value="임시저장" onclick="chkForm('temporary');">
-                                    <input type="button" class="btn-common btn-color1" value="취소">
+                                    <input type="button" class="btn-common btn-color4" value="취소" onclick="cancel();">
                                  </div>
                               </div>
                            </td>
@@ -606,6 +684,59 @@
          placeholder: '검색어 입력'
       });
    // }
+
+   <?php if(isset($tech_data_val)) { ?> //기지보에서 작성 시
+    <?php if($seq == 17) { ?>
+            var target_e = 'tr1_td1';
+    <?php } else if($seq == 21) { ?>
+            var target_e = 'tr3_td2';
+    <?php } else if($seq == 74) { ?>
+            var target_e = 'tr1_td1';
+    <?php } ?>
+   $(document).ready(function(){
+     $("#" + target_e).val('<?php echo $tech_data_val["engineer"]; ?>');
+      //사용자선택 있으면 하자
+      // if($(".user_select").length > 1){
+         var option = '<option value=""></option>';
+         <?php foreach ($user_info as $ui) {?>
+         option += "<option value='<?php echo $ui['user_name'].' '.$ui['user_duty'];?>'><?php echo $ui['user_name'].' '.$ui['user_duty']; ?></option>";
+         <?php } ?>
+
+         for(var i=0; i < $(".user_select").length; i++){
+            var id = $(".user_select").eq(i).attr("id").replace("_select","");
+            if(id == target_e) {
+              $(".user_select").eq(i).html(option);
+              $(".user_select").eq(i).select2({
+                placeholder: '검색어 입력'
+              });
+
+              var val = $("#"+id).val();
+              console.log(val);
+              if(val != ""){
+                // $("#"+id+"_select").val(val);
+                var txtarr = val.split(", ")
+                for (var j = 0; j < txtarr.length; j++) {
+                  var txt = txtarr[j].split(' ');
+                  txt = txt[0];
+                  console.log(txt);
+                  // alert(txt);
+                  $("#"+id+"_select > option[value^='"+txt+"']").attr("selected","selected");
+                }
+                $("#"+id+"_select").select2().val(txtarr);
+                $(".select2-container--below").hide(); //이거 왜해야하는지 모르겠음
+                $('.user_select').eq(i).siblings('.select2-container').each(function(i) {
+                  console.log(i);
+                  if(i>0) {
+                    $(this).remove();
+                  }
+                })
+
+              }
+            }
+          }
+      // }
+   })
+   <?php } ?>
 
    //사용자 선택 select2 multi
    function referrerSelect(name,obj){
@@ -1049,6 +1180,10 @@
    //결재선 추가
    function approver_add(){
       var duplicate_check = false;
+      if($("#click_user_seq").val() == "<?php echo $_SESSION['stc']['seq']; ?>") { //기안자 중복방지
+        duplicate_check = true;
+      }
+
       for(i=0; i<$(".select_approver").length; i++){
          if($(".select_approver").eq(i).html().indexOf($("#click_user").html())!= -1){
             duplicate_check = true
@@ -1201,6 +1336,12 @@
                }
             }
          });
+
+         var functional_agent = $('#functional_agent_select').val();
+         if(functional_agent.length > 1) {
+           alert('직무대행자는 한명만 입력해주세요.');
+           return false;
+         }
       }
 
       if(check == false){ // 필수 값 체크
@@ -1249,7 +1390,18 @@
          }
 
          $("#approval_attach").val(approval_attach_val);
+<?php if(isset($view_val) && $view_val['official_doc'] == "Y") { ?>
+         var official_doc_attach_val = '';
+         if($("#official_doc_attach").val() != ''){
+            var official_doc_attach = $("#official_doc_attach").val().replace(',','').split(',');
+            for(i=0; i<official_doc_attach.length; i++){
+               official_doc_attach_val += '*/*'+official_doc_attach[i]+'--'+$("span[name=attach_name]").eq(i).text();
+            }
+            official_doc_attach_val = official_doc_attach_val.replace('*/*','');
+         }
 
+         $("#official_doc_attach").val(official_doc_attach_val);
+<?php } ?>
          if(t == "request"){
             $("#approval_doc_status").val("001");
          }else{
@@ -1299,6 +1451,95 @@
             }
 
          }
+
+// 연차신청서 자동위임
+<?php if($seq == 'annual') { ?>
+        formData.append('functional_agent', $('#functional_agent').val());
+<?php } ?>
+
+// 던킨, 지출결의서 지출내역 저장
+<?php if($seq == 63 || $seq == 6) { ?>
+  <?php if($seq == 63) { ?>
+          var t = 'tr3';
+  <?php } else { ?>
+          var t = 'tr2';
+  <?php } ?>
+
+        var expense_list_length = $('.'+t+'_td1').length;
+        formData.append('expense_list_length', expense_list_length);
+
+        for (var i = 0; i < expense_list_length; i++) {
+          formData.append('expense_t_date[]', $('.'+t+'_td1').eq(i).val());
+          formData.append('expense_details[]', $('.'+t+'_td2').eq(i).val());
+          formData.append('expense_company[]', $('.'+t+'_td3').eq(i).val());
+          formData.append('expense_use_area[]', $('.'+t+'_td4').eq(i).val());
+          formData.append('expense_history_user[]', $('.'+t+'_td5').eq(i).val());
+          formData.append('expense_use_where[]', $('.'+t+'_td6').eq(i).val());
+          formData.append('expense_corporation_card[]', $('.'+t+'_td7').eq(i).val().replace(/,/gi, ""));
+          formData.append('expense_personal_card[]', $('.'+t+'_td8').eq(i).val().replace(/,/gi, ""));
+          formData.append('expense_simple_receipt[]', $('.'+t+'_td9').eq(i).val().replace(/,/gi, ""));
+        }
+<?php } ?>
+// 출장보고서 지출내역 저장
+<?php if($seq == 17) { ?>
+        var expense_list_length = $('.tr8_td1').length;
+        formData.append('expense_list_length', expense_list_length);
+
+        for (var i = 0; i < expense_list_length; i++) {
+          formData.append('expense_t_date[]', $('.tr8_td1').eq(i).val());
+          formData.append('expense_details[]', $('.tr8_td2').eq(i).val());
+          formData.append('expense_company[]', $('.tr4_td1').val());
+          formData.append('expense_history_user[]', $('.tr8_td5').eq(i).val());
+          formData.append('expense_corporation_card[]', $('.tr8_td4').eq(i).val().replace(/,/gi, ""));
+          formData.append('expense_personal_card[]', $('.tr8_td6').eq(i).val().replace(/,/gi, ""));
+          formData.append('expense_simple_receipt[]', $('.tr8_td7').eq(i).val().replace(/,/gi, ""));
+        }
+<?php } ?>
+// 출장보고서 지출내역 저장
+<?php if($seq == 74) { ?>
+        var expense_list_length = $('.tr9_td1').length;
+        formData.append('expense_list_length', expense_list_length);
+
+        for (var i = 0; i < expense_list_length; i++) {
+          formData.append('expense_t_date[]', $('.tr9_td1').eq(i).val());
+          formData.append('expense_details[]', $('.tr9_td2').eq(i).val());
+          formData.append('expense_company[]', $('.tr3_td1').val());
+          formData.append('expense_history_user[]', $('.tr9_td7').eq(i).val());
+          formData.append('expense_corporation_card[]', $('.tr9_td4').eq(i).val().replace(/,/gi, ""));
+          formData.append('expense_personal_card[]', $('.tr9_td5').eq(i).val().replace(/,/gi, ""));
+          formData.append('expense_simple_receipt[]', $('.tr9_td6').eq(i).val().replace(/,/gi, ""));
+        }
+<?php } ?>
+
+// 연봉꼐약서
+<?php if($seq == 71) { ?>
+        var contract_year = $('.tr5_td1').val();
+        var contracting_party = $('#tr5_td2').val();
+        var salary = $('.tr5_td3').val().replace(/,/gi, '');
+
+        formData.append('contract_year', contract_year);
+        formData.append('contracting_party', contracting_party);
+        formData.append('salary', salary);
+<?php } ?>
+
+<?php if($seq == 75) { ?>
+        var purpose_of_use = $('input[name=tr1_td1]:checked').val();
+        var required_date = $('.tr2_td1').val();
+        var a_company = $('input[name=tr1_td2]:checked').val();
+        if(a_company == '두리안정보기술') {
+          var doc_num1 = 'DIT';
+        } else if (a_company == '두리안정보통신기술') {
+          var doc_num1 = 'DICT';
+        } else if (a_company == '더망고') {
+          var doc_num1 = 'MG';
+        } else if (a_company == '던킨(더망고)') {
+          var doc_num1 = 'DD';
+        }
+
+        formData.append('purpose_of_use', purpose_of_use);
+        formData.append('required_date', required_date);
+        formData.append('doc_num1', doc_num1);
+<?php } ?>
 
          $.ajax({
             url: "<?php echo site_url(); ?>/biz/approval/electronic_approval_doc_input_action",
@@ -1453,13 +1694,50 @@
       window.open('<?php echo site_url();?>/biz/approval/approval_attachment','_blank',"width = 1200, height = 500, top = 100, left = 400, location = no,status=no,status=no,toolbar=no,scrollbars=no");
    }
 
+   function techDocAttachment(){
+      window.open('<?php echo site_url();?>/biz/approval/tech_doc_attachment?type=Y','_blank',"width = 1200, height = 500, top = 100, left = 400, location = no,status=no,status=no,toolbar=no,scrollbars=no");
+   }
+
+   function officialDocAttachment(){
+      window.open('<?php echo site_url();?>/biz/official_doc/official_doc_attachment','_blank',"width = 1200, height = 500, top = 100, left = 400, location = no,status=no,status=no,toolbar=no,scrollbars=no");
+   }
+
    //기결재 첨부 삭제
    function attachRemove(seq){
+     if($('tr[class=attach_'+seq+']').length > 0) {
+       if(confirm("기결재와 연결된 " + $('tr[class=attach_'+seq+']').length + '건의 지출 내역도 삭제됩니다.\r삭제하시겠습니까?')) {
+         if($('tr[name=multi_row2]').length - 1 <= $('tr[class=attach_'+seq+']').length) {
+           var tr = $('.tr2_td1').last().closest('tr');
+           tr.attr('class', '');
+           for(j=0; j<$(tr).find($("input")).length; j++){
+             $(tr).find($("input")).eq(j).val('');
+           }
+         }
+         $('tr[class=attach_'+seq+']').remove();
+         $('.tr2_td7, .tr2_td8, .tr2_td9').change()
+       } else {
+         return false;
+       };
+     }
       $("#attach_"+seq).remove();
       if($("#approval_attach").val().indexOf(','+seq) != -1){
          $("#approval_attach").val($("#approval_attach").val().replace(','+seq,''))
       }else{
          $("#approval_attach").val($("#approval_attach").val().replace(seq+',',''));
+      }
+   }
+
+  function attachTechDocRemove(seq) {
+    $('#attach_tech_doc_'+seq).remove();
+    $('#approval_tech_doc_attach').val('');
+  }
+   //공문 첨부 삭제
+   function officialDocRemove(seq){
+      $("#officialDoc_"+seq).remove();
+      if($("#official_doc_attach").val().indexOf(','+seq) != -1){
+         $("#official_doc_attach").val($("#official_doc_attach").val().replace(','+seq,''))
+      }else{
+         $("#official_doc_attach").val($("#official_doc_attach").val().replace(seq+',',''));
       }
    }
 
@@ -1670,7 +1948,14 @@
      <?php } ?>
       var purchase_tb=  $('#html .basic_table td:contains("매입처")').closest("table");
       var sales_tb=  $('#html .basic_table td:contains("매출처")').closest("table");
-   <?php if(isset($_GET['sales_seq'])){
+   <?php if(isset($_GET['sales_seq'])){ ?>
+     var sales_type = '<?php echo $sales_val['sales_type'] ?>';
+     if(sales_type == 'delivery') {
+       $('input:radio[name="tr17_td1"][value="납품"]').attr('checked', true);
+     } else if (sales_type == 'circulation') {
+       $('input:radio[name="tr17_td1"][value="유통"]').attr('checked', true);
+     }
+   <?php
    if(isset($sales_val2)){?>
       var sales_val_cnt = <?php echo count($sales_val2); ?>;
       <?php for($i=0; $i<count($sales_val2); $i++){ ?>
@@ -1732,12 +2017,13 @@
    $(sales_tb).find("tr:eq(1) td:first input").val('<?php echo $sales_val['sales_companyname'];?>');
    <?php
    $product_name = $sales_val3[0]['product_name'];
+   $distinct_product_cnt = $sales_val5[0]['cnt'];
    $product_cnt = 1;
-   if(count($sales_val4) == 1){
+   if($distinct_product_cnt == 1){
       $product_cnt = count($sales_val3);
    }else{
       if(count($sales_val3) > 1){
-      $product_name .= " 외";
+        $product_name .= " 외";
       }
    }?>
     <?php if($seq !=39){ ?>
@@ -1920,6 +2206,232 @@
     }
   })
 <?php } ?>
+
+<?php if($seq == 45) { ?>
+  $('.tr2_td1').change(function() {
+    var val = $('.tr2_td1 option:selected').val();
+
+    if (val == '화환(근조)') {
+      var txt = '1. 회사명/소속/직함/이름/ :\n2. 고인(관계): \n3. 받는 곳 주소 : \n4. 발인날짜: ';
+    } else if (val == '화환(축하)') {
+      var txt = '1. 회사명/소속/이름(신랑신부구분) :\n2. 받는 곳 주소(예식장):\n3. 예식 시간: ';
+    } else if (val == '난(승진)') {
+      var txt = '1. 회사명/소속/이름 :\n2. 받는곳 주소: ';
+    } else if (val == '화분(개업)') {
+      var txt = '1. 회사명/소속/이름 :\n2. 받는곳 주소: ';
+    } else if (val == '과일바구니(출산)') {
+      var txt = '1. 회사명/소속/이름 :\n2. 받는곳 주소: ';
+    }
+
+    $('.tr4_td1').text(txt);
+  })
+
+  $('.tr2_td1').change();
+<?php } ?>
+
+// 지출결의서 <-> 출장보고서 연동
+<?php if($seq == 6) { ?>
+  $('#approval_attach').change(function() {
+    var attach_seq = $(this).val().replace(',', '');
+    var attach_seq_arr = attach_seq.split(',');
+    var attach_seq_arr_adjust = [];
+    for(i=0; i<attach_seq_arr.length; i++) {
+      if($('.attach_'+attach_seq_arr[i]).length == 0) {
+        attach_seq_arr_adjust.push(attach_seq_arr[i]);
+      }
+    }
+    attach_seq = attach_seq_arr_adjust.join(',');
+    console.log(attach_seq);
+    $.ajax({
+      type:"POST",
+      cache:false,
+      url:"<?php echo site_url(); ?>/biz/approval/expense_list_tech",
+      dataType:"json",
+      async:false,
+      data:{
+        attach_seq: attach_seq
+      },
+      success: function(data) {
+        if(data) {
+          var last_blank = true;
+          var last_tr = $('.tr2_td1').last().closest('tr');
+          var last_value = '';
+          last_tr.find('input').each(function() {
+            if($.trim($(this).val()) != '') {
+              last_blank = false;
+            }
+          });
+
+          for(var i = 0; i < data.length; i++) {
+            var t = $('.tr2_td1').last().closest('tr');
+
+            if(last_blank) {
+              t.addClass('attach_'+data[i].approval_seq);
+              t.find('.tr2_td1').val(data[i].t_date);
+              t.find('.tr2_td2').val(data[i].details);
+              t.find('.tr2_td3').val(data[i].company);
+              t.find('.tr2_td5').val(data[i].history_user);
+              t.find('.tr2_td7').val(commaStr(data[i].corporation_card));
+              t.find('.tr2_td8').val(commaStr(data[i].personal_card));
+              t.find('.tr2_td9').val(commaStr(data[i].simple_receipt));
+              t.find('.tr2_td7, .tr2_td8, .tr2_td9').change();
+              last_blank = false;
+            } else {
+              var tr = $('.tr2_td1').last().closest('tr');
+              var tr_name = tr.attr('name');
+              var tr_last = $('tr[name='+tr_name+']')[$('tr[name='+tr_name+']').length-1];
+              var tr_last_html = tr_last.outerHTML;
+              $(tr).after(tr_last_html);
+              var new_tr = $('tr[name='+tr_name+']')[$('tr[name='+tr_name+']').length-1];
+              $(new_tr).find("img").show();
+              for(j=0; j<$(new_tr).find($("input")).length; j++){
+                 // if($(new_tr).find($("input")).eq(i).val().indexOf("express") != -1){
+                    $(new_tr).find($("input")).eq(j).val(''); //표현식 들어있는 input 비워
+                 // }
+              }
+              $(new_tr).attr('class', '');
+              $(new_tr).addClass('attach_'+data[i].approval_seq);
+              $(new_tr).find('.tr2_td1').val(data[i].t_date);
+              $(new_tr).find('.tr2_td2').val(data[i].details);
+              $(new_tr).find('.tr2_td3').val(data[i].company);
+              $(new_tr).find('.tr2_td5').val(data[i].history_user);
+              $(new_tr).find('.tr2_td7').val(commaStr(data[i].corporation_card));
+              $(new_tr).find('.tr2_td8').val(commaStr(data[i].personal_card));
+              $(new_tr).find('.tr2_td9').val(commaStr(data[i].simple_receipt));
+              $(new_tr).find('.tr2_td7, .tr2_td8, .tr2_td9').change();
+            }
+          }
+        }
+      }
+    })
+  })
+<?php } ?>
+
+// 금액 부분 콤마 추가
+function commaStr(n) {
+  var reg = /(^[+-]?\d+)(\d{3})/;
+  n += "";
+
+  while (reg.test(n))
+    n = n.replace(reg, "$1" + "," + "$2");
+  return n;
+}
+
+<?php if(in_array($seq, $tech_approval)) { ?>
+  $('#approval_tech_doc_attach').change(function() {
+    var approval_form_seq = $('#approval_form_seq').val();
+    var attach_seq = $(this).val();
+    attach_seq = attach_seq.split('::')[0];
+
+    $.ajax({
+      type:'POST',
+      cache:false,
+      url:"<?php echo site_url(); ?>/biz/approval/tech_doc_data",
+      dataType:'json',
+      async:false,
+      data: {
+        attach_seq: attach_seq
+      },
+      success: function(data) {
+        if(data) {
+          if(approval_form_seq == 56) {
+            var start_time = data.start_time;
+            var end_time = data.end_time;
+            start_time = start_time.substr(0, 5);
+            end_time = end_time.substr(0, 5);
+            if(start_time < '19:00') {
+              start_time = '19:00';
+            }
+            $('.tr3_td1').val(start_time);
+            $('.tr3_td2').val(end_time);
+          } else if (approval_form_seq == 21) {
+            var start_day = data.income_time;
+            start_day = start_day.substring(0, 10);
+            $('input[name=tr3_td1]').val(start_day);
+          } else if (approval_form_seq == 17) {
+            var start_day = data.income_time;
+            var end_day = data.end_work_day;
+            start_day = start_day.substring(0, 10);
+            end_day = end_day.substring(0, 10);
+            $('input[name=tr2_td1]').val(start_day);
+            $('input[name=tr2_td2]').val(end_day);
+          } else if (approval_form_seq == 74) {
+            var start_day = data.income_time;
+            var end_day = data.end_work_day;
+            start_day = start_day.substring(0, 10);
+            end_day = end_day.substring(0, 10);
+            $('.tr8_td1').val(start_day);
+            $('.tr8_td2').val(end_day);
+          }
+        }
+      }
+    })
+
+  })
+
+  $('#approval_tech_doc_attach').trigger('change');
+<?php } ?>
+
+<?php if(isset($tech_data_val)) { //기지보에서 작성 시
+  if($seq == 17) { ?>
+    $('.tr4_td1').val('<?php echo $tech_data_val["customer"]; ?>'); //출장처
+    $('input[name=tr2_td1]').val('<?php echo substr($tech_data_val['income_time'], 0, 10);?>'); //출장시작일
+<?php if($tech_data_val['end_work_day'] == NULL) { ?> //출장종료일
+    $('input[name=tr2_td2]').val('<?php echo substr($tech_data_val['income_time'], 0, 10);?>');
+<?php } else { ?>
+    $('input[name=tr2_td2]').val('<?php echo substr($tech_data_val['end_work_day'], 0, 10);?>');
+<?php }
+  } else if ($seq == 21) { ?>
+    $('input[name=tr3_td1]').val('<?php echo substr($tech_data_val['end_work_day'], 0, 10); ?>');
+<?php
+  } else if ($seq == 56) { ?>
+    $('.tr3_td1').val('<?php if(substr($tech_data_val['start_time'], 0, 5) < '19:00' ){echo '19:00';} else {echo substr($tech_data_val['start_time'], 0, 5);} ?>')
+    $('.tr3_td2').val('<?php echo substr($tech_data_val['end_time'], 0, 5); ?>')
+<?php
+  } else if ($seq == 74) { ?>
+    $('.tr3_td1').val('<?php echo $tech_data_val["customer"]; ?>'); //출장처
+    $('.tr8_td1').val('<?php echo substr($tech_data_val['income_time'], 0, 10);?>'); //출장시작일
+<?php if($tech_data_val['end_work_day'] == NULL) { ?> //출장종료일
+      $('.tr8_td2').val('<?php echo substr($tech_data_val['income_time'], 0, 10);?>');
+<?php } else { ?>
+      $('.tr8_td2').val('<?php echo substr($tech_data_val['end_work_day'], 0, 10);?>');
+<?php }
+  }
+} ?>
+
+// 사직원 퇴사계획일 30일 이후 선택 가능
+<?php if($seq == 73) { ?>
+  $(function() {
+    var tDay = new Date();
+    var target_date = new Date(tDay.setDate(tDay.getDate() + 30));
+
+    $('.tr6_td2').change( function() {
+      var val = $(this).val();
+
+      if(val != '') {
+        var d = new Date(val);
+
+        if(d < target_date) {
+          alert('퇴사계획일은 30일 이후부터 선택 가능합니다.');
+          $(this).val('');
+          return false;
+        }
+      }
+    })
+
+    $('.tr6_td2').change();
+  })
+<?php } ?>
+
+function tech_doc_view(seq) {
+  window.open("<?php echo site_url();?>/tech/tech_board/tech_doc_print_page?seq="+btoa(seq), "cform", 'scrollbars=yes,width=850,height=600');
+}
 </script>
+
+<!-- 지출결의서 엑셀 임포트 -->
+<?php
+if($seq == 6) {
+  include $this->input->server('DOCUMENT_ROOT')."/misc/js/approval_excel_import.php";
+} ?>
 </body>
 </html>

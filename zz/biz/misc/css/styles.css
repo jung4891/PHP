@@ -291,7 +291,11 @@ body {
 
 .t_top{
 	 font-weight:bold;
+   color: #1c1c1c;
+   font-size: 13px;
+   font-family: "Noto Sans (Medium) KR", !important;
 }
+
 .t_title {
 	 font-weight:normal;
 	 font-size:12px;
@@ -317,7 +321,7 @@ body {
 }
 
 a {
-	color: #333333;
+	color: #1c1c1c;
 	text-decoration:none;}
 
 a:hover {

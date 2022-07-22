@@ -79,7 +79,7 @@
                         <tr>
                            <td align="center" valign="top">
                              <!--내용-->
-                                  <table class="list_tbl" width="100%" style="font-family:Noto Sans KR" border="0" cellspacing="0" cellpadding="0">
+                                  <table class="list_tbl list" width="100%" style="font-family:Noto Sans KR" border="0" cellspacing="0" cellpadding="0">
                                     <colgroup>
                                       <col width="15%">
                                       <col width="15%">
@@ -117,12 +117,12 @@
                               <tr>
                                 <td style="float:right;">
                                   <!-- <img src="<?php echo $misc; ?>img/dashboard/btn/btn_unset.png" style="cursor:pointer;margin-top:100px;" onclick="unset();"> -->
-                                  <input type="button" class="btn-common btn-color1" value="설정해제" style="cursor:pointer;margin-top:100px;margin-bottom:10px;" onclick="unset();">
+                                  <input type="button" class="btn-common btn-color5" value="설정해제" style="cursor:pointer;margin-top:100px;margin-bottom:10px;" onclick="unset();">
                                 </td>
                               </tr>
                               <tr>
                                 <td>
-                                  <table class="list_tbl" width="100%" style="font-family:Noto Sans KR;text-align:center;"  border="0" cellspacing="0" cellpadding="0">
+                                  <table class="list_tbl list" width="100%" style="font-family:Noto Sans KR;text-align:center;"  border="0" cellspacing="0" cellpadding="0">
                                      <tr class="row-color1">
                                         <th height="40px" class="basic_td t_top"><input type="checkbox" id='allCheck'></th>
                                         <th class="basic_td t_top">NO</th>
@@ -178,9 +178,9 @@
                                      <?php
                                         if ($cur_page > 10){
                                      ?>
-                                           <td width="19"><a href="JavaScript:GoFirstPage()"><img src="<?php echo $misc;?>img/btn_prev.jpg" /></a></td>
+                                           <td width="19"><a href="JavaScript:GoFirstPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_last_left.svg" width="20" height="20"/></a></td>
                                            <td width="2"></td>
-                                           <td width="19"><a href="JavaScript:GoPrevPage()"><img src="<?php echo $misc;?>img/btn_left.jpg" /></a></td>
+                                           <td width="19"><a href="JavaScript:GoPrevPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_left.svg" width="20" /></a></td>
                                      <?php
                                         } else {
                                      ?>
@@ -209,9 +209,9 @@
                                            <?php
                                            if   ( floor( ( $cur_page - 1 ) / 10 ) < floor( ( $total_page - 1 ) / 10 ) ){
                                         ?>
-                                        <td width="19"><a href="JavaScript:GoNextPage()"><img src="<?php echo $misc;?>img/btn_right.jpg"/></a></td>
+                                        <td width="19"><a href="JavaScript:GoNextPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_right.svg" width="20"/></a></td>
                                            <td width="2"></td>
-                                           <td width="19"><a href="JavaScript:GoLastPage()"><img src="<?php echo $misc;?>img/btn_next.jpg" /></a></td>
+                                           <td width="19"><a href="JavaScript:GoLastPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_last_right.svg" width="20" /></a></td>
                                         <?php
                                            } else {
                                         ?>
@@ -640,7 +640,7 @@ function detail_view(seq,mendatary,date,reason){
                html += "</td>";
                html += "<td class ='basic_td'>"+"유형"+"</td>";
                html += "<td class ='basic_td' onclick='doc_view("+data[i].seq+");' style='cursor:pointer;' >"+data[i].approval_doc_name+"</td>";
-               html += "<td class ='basic_td'>"+data[i].writer_id+"</td>";
+               html += "<td class ='basic_td'>"+data[i].writer_name+"</td>";
                html += "<td class ='basic_td'>"+data[i].write_date+"</td>";
                if(data[i].approval_doc_status == "001"){
                   html += "<td class ='basic_td'>진행중</td>";
@@ -687,7 +687,7 @@ function closeModal(){
 
 //기안문보기
 function doc_view(seq){
-   window.open("<?php echo site_url(); ?>/biz/approval/electronic_approval_doc_view?seq="+seq, "popup_window", "width = 1200, height = 500, top = 100, left = 400, location = no,status=no,status=no,toolbar=no,scrollbars=no");
+   window.open("<?php echo site_url(); ?>/biz/approval/electronic_approval_doc_view?type=completion&seq="+seq, "popup_window", "width = 1200, height = 500, top = 100, left = 400, location = no,status=no,status=no,toolbar=no,scrollbars=no");
 }
 
 function GoFirstPage (){

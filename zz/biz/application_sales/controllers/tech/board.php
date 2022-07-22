@@ -12,10 +12,15 @@ class Board extends CI_Controller {
 		$this->id = $this->phpsession->get( 'id', 'stc' );
 		$this->name = $this->phpsession->get( 'name', 'stc' );
 		$this->lv = $this->phpsession->get( 'lv', 'stc' );
-	        $this->company = $this->phpsession->get( 'company', 'stc' );
+    $this->company = $this->phpsession->get( 'company', 'stc' );
+		$this->pGroupName = $this->phpsession->get( 'pGroupName', 'stc' );
 		$this->email = $this->phpsession->get('email','stc'); //김수성추가
 		$this->load->library('user_agent');
+		$this->cooperation_yn = $this->phpsession->get( 'cooperation_yn', 'stc' );
 
+		if($this->cooperation_yn == 'Y') {
+			echo "<script>alert('권한이 없습니다.');location.href='".site_url()."'</script>";
+		}
 		$this->load->Model(array('tech/STC_Board', 'STC_Common', 'tech/STC_tech_doc'));
 	}
 
@@ -476,7 +481,7 @@ class Board extends CI_Controller {
 		else
 			$end_page = $total_page;
 
-		$data['category'] = $this->STC_Common->get_category();
+		$data['category'] = $this->STC_Common->get_manufacturing_com();
 
 		$data['no_page_list'] = $no_page_list;
 		$data['total_page'] = $total_page;
@@ -586,7 +591,7 @@ class Board extends CI_Controller {
 		}
 
 		// $this->load->Model(array('STC_Board', 'STC_Common'));
-		$data['category'] = $this->STC_Common->get_category();
+		$data['category'] = $this->STC_Common->get_manufacturing_com();
 		$this->load->view('tech/manual_input', $data );
 	}
 
@@ -597,7 +602,7 @@ class Board extends CI_Controller {
 		}
 
 		// $this->load->Model(array('STC_Board', 'STC_Common'));
-		$data['category'] = $this->STC_Common->get_category();
+		$data['category'] = $this->STC_Common->get_manufacturing_com();
 //		$user_id = $this->idx;
 
 		$seq = $this->input->get( 'seq' );
@@ -704,7 +709,7 @@ class Board extends CI_Controller {
 		else
 			$end_page = $total_page;
 
-		$data['category'] = $this->STC_Common->get_category();
+		$data['category'] = $this->STC_Common->get_manufacturing_com();
 
 		$data['no_page_list'] = $no_page_list;
 		$data['total_page'] = $total_page;
@@ -815,7 +820,7 @@ class Board extends CI_Controller {
 		}
 
 		// $this->load->Model(array('STC_Board', 'STC_Common'));
-		$data['category'] = $this->STC_Common->get_category();
+		$data['category'] = $this->STC_Common->get_manufacturing_com();
 		$this->load->view('tech/edudata_input', $data );
 	}
 
@@ -826,7 +831,7 @@ class Board extends CI_Controller {
 		}
 
 		// $this->load->Model(array('STC_Board', 'STC_Common'));
-		$data['category'] = $this->STC_Common->get_category();
+		$data['category'] = $this->STC_Common->get_manufacturing_com();
 //		$user_id = $this->idx;
 
 		$seq = $this->input->get( 'seq' );
@@ -929,7 +934,7 @@ class Board extends CI_Controller {
 		else
 			$end_page = $total_page;
 
-		$data['category'] = $this->STC_Common->get_category();
+		$data['category'] = $this->STC_Common->get_manufacturing_com();
 
 		$data['no_page_list'] = $no_page_list;
 		$data['total_page'] = $total_page;
@@ -1046,7 +1051,7 @@ class Board extends CI_Controller {
 		}
 
 		// $this->load->Model(array('STC_Board', 'STC_Common'));
-		$data['category'] = $this->STC_Common->get_category();
+		$data['category'] = $this->STC_Common->get_manufacturing_com();
 		$this->load->view('tech/faq_input', $data );
 	}
 
@@ -1057,7 +1062,7 @@ class Board extends CI_Controller {
 		}
 
 		// $this->load->Model(array('STC_Board', 'STC_Common'));
-		$data['category'] = $this->STC_Common->get_category();
+		$data['category'] = $this->STC_Common->get_manufacturing_com();
 //		$user_id = $this->idx;
 
 		$seq = $this->input->get( 'seq' );
@@ -2374,7 +2379,7 @@ class Board extends CI_Controller {
 			$end_page = ( floor( ( $cur_page - 1 ) / 10 ) + 1 ) * 10;
 		else
 			$end_page = $total_page;
-			$data['category'] = $this->STC_Common->get_category();
+			$data['category'] = $this->STC_Common->get_manufacturing_com();
 
 		$data['no_page_list'] = $no_page_list;
 		$data['total_page'] = $total_page;
@@ -2503,7 +2508,7 @@ class Board extends CI_Controller {
 		}
 
 		// $this->load->Model(array('STC_Board', 'STC_Common'));
-		$data['category'] = $this->STC_Common->get_category();
+		$data['category'] = $this->STC_Common->get_manufacturing_com();
 		$this->load->view('tech/release_note_input', $data );
 	}
 
@@ -2514,7 +2519,7 @@ class Board extends CI_Controller {
 		}
 
 		// $this->load->Model(array('STC_Board', 'STC_Common'));
-		$data['category'] = $this->STC_Common->get_category();
+		$data['category'] = $this->STC_Common->get_manufacturing_com();
 //		$user_id = $this->idx;
 
 		$seq = $this->input->get( 'seq' );
@@ -2638,10 +2643,451 @@ class Board extends CI_Controller {
 
 	}
 
-	function test(){
-		$this->load->view('tech/test');
+	function dailyWorkLog_list(){
+		if( $this->id === null ) {
+			redirect( 'account' );
+		}
+
+		// $this->load->Model(array('STC_Board', 'STC_Common'));
+//		$cur_page = $this->input->get( 'cur_page' );			//	현재 페이지
+		if(isset($_GET['cur_page'])) {
+			$cur_page = $_GET['cur_page'];
+		}
+		else {
+			$cur_page = 0;
+		}														//	현재 페이지
+		$no_page_list = 10;										//	한페이지에 나타나는 목록 개수
+
+		if(isset($_GET['searchkeyword'])) {
+			$search_keyword = $_GET['searchkeyword'];
+		}
+		else {
+			$search_keyword = "";
+		}
+
+		if(isset($_GET['search1'])) {
+			$search1 = $_GET['search1'];
+		}
+		else {
+			$search1 = "";
+		}
+
+		$data['search_keyword'] = $search_keyword;
+		$data['search1'] = $search1;
+
+		if  ( $cur_page <= 0 )
+			$cur_page = 1;
+
+		$data['cur_page'] = $cur_page;
+
+		$user_list_data = $this->STC_Board->dailyWorkLog_list($search_keyword, $search1, ( $cur_page - 1 ) * $no_page_list, $no_page_list);
+		$data['count'] = $this->STC_Board->dailyWorkLog_list_count($search_keyword, $search1)->ucount;
+
+		$data['list_val'] = $user_list_data['data'];
+		$data['list_val_count'] = $user_list_data['count'];
+
+		$total_page = 1;
+		if  ( $data['count'] % $no_page_list == 0 )
+			$total_page = floor( ( $data['count'] / $no_page_list ) );
+		else
+			$total_page = floor( ( $data['count'] / $no_page_list + 1 ) );			//	전체 페이지 개수
+
+		$start_page =  floor(($cur_page - 1 ) / 10) * 10  + 1 ;
+		$end_page = 0;
+		if  ( floor( ( $cur_page - 1 ) / 10 ) < floor( ( $total_page - 1 ) / 10 ) )
+			$end_page = ( floor( ( $cur_page - 1 ) / 10 ) + 1 ) * 10;
+		else
+			$end_page = $total_page;
+
+		$data['no_page_list'] = $no_page_list;
+		$data['total_page'] = $total_page;
+		$data['start_page'] = $start_page;
+		$data['end_page'] = $end_page;
+
+		$this->load->view('tech/dailyWorkLog_list', $data);
 	}
 
+	function dailyWorkLog_input() {
+
+		$this->load->view('tech/dailyWorkLog_input');
+	}
+
+	function dailyWorkLog_input_action() {
+		if( $this->id === null ) {
+			redirect( 'account' );
+		}
+
+		$seq = $this->input->post('seq');
+		$type = $this->input->post( 'type' );
+
+		$file_count = $_POST['file_length'];
+		if($type == 1){
+				$file_realname='';
+				$file_changename='';
+		}else{
+				$file_realname = $_POST['file_realname'];
+				$file_changename = $_POST['file_changename'];
+		}
+
+		if($file_count > 0){
+			for($i=0; $i<$file_count; $i++){
+				// $csize = $_FILES["files".$i]["size"];
+				$f = "files".$i;
+				$cname = $_FILES[$f]["name"];
+				$ext = substr(strrchr($cname,"."),1);
+				$ext = strtolower($ext);
+
+				$upload_dir = "/var/www/html/stc/misc/upload/tech/dailyWorkLog";
+				$conf_file['upload_path'] = $upload_dir;
+				$conf_file['allowed_types'] = '*';
+				$conf_file['overwrite']  = false;
+				$conf_file['encrypt_name']  = true;
+				$conf_file['remove_spaces']  = true;
+
+				$this->load->library('upload', $conf_file );
+				$result = $this->upload->do_upload($f);
+				if($result) {
+						$file_data = array('upload_data' => $this->upload->data());
+						$file_realname .= '*/*'.$file_data['upload_data']['orig_name'];
+						$file_changename .= '*/*'.$file_data['upload_data']['file_name'];
+				} else {
+						// alert('업로드 파일에 문제가 있습니다. 다시 처리해 주시기 바랍니다.');
+						echo json_encode(false);
+						exit;
+				}
+			}
+			$file_realname = trim($file_realname,'*/*');
+			$file_changename = trim($file_changename,'*/*');
+		}
+
+		$data = array(
+			'log_date'        => $this->input->post('log_date'),
+			'etc'             => addslashes($this->input->post('etc')),
+			'file_changename' => $file_changename,
+			'file_realname'   => $file_realname
+		);
+
+		if ($seq == null) {
+
+			$data['write_id'] = $this->id;
+			$data['write_date'] = date('Y-m-d H:i:s');
+
+			$result_seq = $this->STC_Board->dailyWorkLog_insert($data, $mode = 0);
+		} else {
+			$result = $this->STC_Board->dailyWorkLog_insert($data, $mode = 1, $seq);
+			$result_seq = $seq;
+		}
+
+		$this->STC_Board->truncate_dailyWorkLog_content($result_seq);
+
+		$t_title = $this->input->post('t_title');
+		$t_stime = $this->input->post('t_stime');
+		$t_etime = $this->input->post('t_etime');
+		$t_content = $this->input->post('t_content');
+
+		$n_title = $this->input->post('n_title');
+		$n_stime = $this->input->post('n_stime');
+		$n_etime = $this->input->post('n_etime');
+		$n_content = $this->input->post('n_content');
+
+		for($i = 0; $i < count($t_title); $i++) {
+			$tdata = array(
+				"daily_work_log_seq" => $result_seq,
+				"type"               => 'today',
+				"title"              => $t_title[$i],
+				'start_time'         => $t_stime[$i],
+				'end_time'           => $t_etime[$i],
+				'content'            => $t_content[$i]
+			);
+
+			$result = $this->STC_Board->insert_dailyWorkLog_content($tdata);
+		}
+
+		for($i = 0; $i < count($n_title); $i++) {
+			$ndata = array(
+				"daily_work_log_seq" => $result_seq,
+				"type"               => 'nextday',
+				"title"              => $n_title[$i],
+				'start_time'         => $n_stime[$i],
+				'end_time'           => $n_etime[$i],
+				'content'            => $n_content[$i]
+			);
+
+			$result = $this->STC_Board->insert_dailyWorkLog_content($ndata);
+		}
+
+		if($result) {
+			echo json_encode($result);
+		} else {
+			echo json_encode($result);
+		}
+
+	}
+
+	function dailyWorkLog_view() {
+		if( $this->id === null ) {
+			redirect( 'account' );
+		}
+
+		$seq = $this->input->get( 'seq' );
+
+		$data['view_val'] = $this->STC_Board->dailyWorkLog_view($seq);
+		$data['content_val_t'] = $this->STC_Board->dailyWorkLog_view_content($seq, 'today');
+		$data['content_val_n'] = $this->STC_Board->dailyWorkLog_view_content($seq, 'nextday');
+		$data['seq'] = $seq;
+
+		$this->load->view('tech/dailyWorkLog_view', $data );
+	}
+
+	function dailyWorkLog_delete_action() {
+		if( $this->id === null ) {
+			redirect( 'account' );
+		}
+
+		$this->load->helper('alert');
+		$seq = $this->input->get( 'seq' );
+
+		if ($seq != null) {
+			$tdata = $this->STC_Board->dailyWorkLog_delete($seq);
+			$tdata = $this->STC_Board->truncate_dailyWorkLog_content($seq);
+		}
+
+		if ($tdata) {
+			echo "<script>alert('삭제완료 되었습니다.');location.href='".site_url()."/tech/board/dailyWorkLog_list'</script>";
+		} else {
+			alert("정상적으로 처리되지 못했습니다.\n다시 시도해 주세요.");
+		}
+	}
+
+	function dailyWorkLog_modify() {
+		if( $this->id === null ) {
+			redirect( 'account' );
+		}
+
+		$seq = $this->input->get( 'seq' );
+
+		$data['view_val'] = $this->STC_Board->dailyWorkLog_view($seq);
+		$data['content_val_t'] = $this->STC_Board->dailyWorkLog_view_content($seq, 'today');
+		$data['content_val_n'] = $this->STC_Board->dailyWorkLog_view_content($seq, 'nextday');
+		$data['seq'] = $seq;
+
+		$this->load->view('tech/dailyWorkLog_modify', $data );
+	}
+
+	function study_document_list(){
+		if( $this->id === null ) {
+			redirect( 'account' );
+		}
+
+		// $this->load->Model(array('STC_Board', 'STC_Common'));
+//		$cur_page = $this->input->get( 'cur_page' );			//	현재 페이지
+		if(isset($_GET['cur_page'])) {
+			$cur_page = $_GET['cur_page'];
+		}
+		else {
+			$cur_page = 0;
+		}														//	현재 페이지
+		$no_page_list = 10;										//	한페이지에 나타나는 목록 개수
+
+		if(isset($_GET['search_year'])) {
+			$search_year = $_GET['search_year'];
+		} else {
+			$search_year = '';
+		}
+
+		if(isset($_GET['search_week'])) {
+			$search_week = $_GET['search_week'];
+		} else {
+			$search_week = '';
+		}
+
+		if(isset($_GET['searchkeyword'])) {
+			$search_keyword = $_GET['searchkeyword'];
+		}
+		else {
+			$search_keyword = "";
+		}
+
+		if(isset($_GET['search1'])) {
+			$search1 = $_GET['search1'];
+		}
+		else {
+			$search1 = "";
+		}
+
+		$data['search_year'] = $search_year;
+		$data['search_week'] = $search_week;
+		$data['search_keyword'] = $search_keyword;
+		$data['search1'] = $search1;
+
+		if  ( $cur_page <= 0 )
+			$cur_page = 1;
+
+		$data['cur_page'] = $cur_page;
+
+		$user_list_data = $this->STC_Board->study_document_list($search_year, $search_week, $search_keyword, $search1, ( $cur_page - 1 ) * $no_page_list, $no_page_list);
+		$data['count'] = $this->STC_Board->study_document_list_count($search_year, $search_week, $search_keyword, $search1)->ucount;
+
+		$data['list_val'] = $user_list_data['data'];
+		$data['list_val_count'] = $user_list_data['count'];
+
+		$total_page = 1;
+		if  ( $data['count'] % $no_page_list == 0 )
+			$total_page = floor( ( $data['count'] / $no_page_list ) );
+		else
+			$total_page = floor( ( $data['count'] / $no_page_list + 1 ) );			//	전체 페이지 개수
+
+		$start_page =  floor(($cur_page - 1 ) / 10) * 10  + 1 ;
+		$end_page = 0;
+		if  ( floor( ( $cur_page - 1 ) / 10 ) < floor( ( $total_page - 1 ) / 10 ) )
+			$end_page = ( floor( ( $cur_page - 1 ) / 10 ) + 1 ) * 10;
+		else
+			$end_page = $total_page;
+
+		$data['no_page_list'] = $no_page_list;
+		$data['total_page'] = $total_page;
+		$data['start_page'] = $start_page;
+		$data['end_page'] = $end_page;
+
+		$this->load->view('tech/study_document_list', $data);
+	}
+
+	function study_document_input() {
+
+		$this->load->view('tech/study_document_input');
+	}
+
+	function study_document_input_action() {
+		if( $this->id === null ) {
+			redirect( 'account' );
+		}
+
+		$seq = $this->input->post('seq');
+		$type = $this->input->post( 'type' );
+
+		$file_count = $_POST['file_length'];
+		if($type == 1){
+				$file_realname='';
+				$file_changename='';
+		}else{
+				$file_realname = $_POST['file_realname'];
+				$file_changename = $_POST['file_changename'];
+		}
+
+		if($file_count > 0){
+			for($i=0; $i<$file_count; $i++){
+				// $csize = $_FILES["files".$i]["size"];
+				$f = "files".$i;
+				$cname = $_FILES[$f]["name"];
+				$ext = substr(strrchr($cname,"."),1);
+				$ext = strtolower($ext);
+
+				$upload_dir = "/var/www/html/stc/misc/upload/tech/study_document";
+				// $upload_dir = "c:/xampp/htdocs/biz/misc/upload/tech/study_document";
+				$conf_file['upload_path'] = $upload_dir;
+				$conf_file['allowed_types'] = '*';
+				$conf_file['overwrite']  = false;
+				$conf_file['encrypt_name']  = true;
+				$conf_file['remove_spaces']  = true;
+
+				$this->load->library('upload', $conf_file );
+				$result = $this->upload->do_upload($f);
+				if($result) {
+						$file_data = array('upload_data' => $this->upload->data());
+						$file_realname .= '*/*'.$file_data['upload_data']['orig_name'];
+						$file_changename .= '*/*'.$file_data['upload_data']['file_name'];
+				} else {
+						// alert('업로드 파일에 문제가 있습니다. 다시 처리해 주시기 바랍니다.');
+						echo json_encode(false);
+						exit;
+				}
+			}
+			$file_realname = trim($file_realname,'*/*');
+			$file_changename = trim($file_changename,'*/*');
+		}
+
+		$data = array(
+			'year'            => $this->input->post('year'),
+			'week'            => $this->input->post('week'),
+			'subject'         => addslashes($this->input->post('subject')),
+			'content'         => $this->input->post('contents'),
+			'file_changename' => $file_changename,
+			'file_realname'   => $file_realname
+		);
+
+		if ($seq == null) {
+
+			$data['write_id'] = $this->id;
+			$data['write_date'] = date('Y-m-d H:i:s');
+
+			$result = $this->STC_Board->study_document_insert($data, $mode = 0);
+		} else {
+			$result = $this->STC_Board->study_document_insert($data, $mode = 1, $seq);
+		}
+
+		if($result) {
+			echo json_encode($result);
+		} else {
+			echo json_encode($result);
+		}
+
+	}
+
+	function study_document_view() {
+		if( $this->id === null ) {
+			redirect( 'account' );
+		}
+
+		$seq = $this->input->get( 'seq' );
+
+		$data['view_val'] = $this->STC_Board->study_document_view($seq);
+		$data['seq'] = $seq;
+
+		$this->load->view('tech/study_document_view', $data );
+	}
+
+	function study_document_delete_action() {
+		if( $this->id === null ) {
+			redirect( 'account' );
+		}
+
+		$this->load->helper('alert');
+		$seq = $this->input->get( 'seq' );
+
+		if ($seq != null) {
+			$tdata = $this->STC_Board->study_document_delete($seq);
+		}
+
+		if ($tdata) {
+			echo "<script>alert('삭제완료 되었습니다.');location.href='".site_url()."/tech/board/study_document_list'</script>";
+		} else {
+			alert("정상적으로 처리되지 못했습니다.\n다시 시도해 주세요.");
+		}
+	}
+
+	function study_document_modify() {
+		if( $this->id === null ) {
+			redirect( 'account' );
+		}
+
+		$seq = $this->input->get( 'seq' );
+
+		$data['view_val'] = $this->STC_Board->study_document_view($seq);
+		$data['seq'] = $seq;
+
+		$this->load->view('tech/study_document_modify', $data );
+	}
+
+	function doc_approval() {
+		$seq = $this->input->post('seq');
+		$target = $this->input->post('target');
+		$data = array(
+			'approval_yn' => $this->input->post('val')
+		);
+		$result = $this->STC_Board->doc_approval($seq, $target, $data);
+
+		echo json_encode($result);
+	}
 
 }
 ?>

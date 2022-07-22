@@ -6,6 +6,8 @@ class Crontab extends CI_Controller {
 	function __construct() {
 		parent::__construct();
 		$this->load->Model("STC_Crontab");
+		$this->load->Model("sales/STC_Forcasting");
+		$this->load->Model("sales/STC_Maintain");
 	}
 
 	// 공휴일 저장 크론
@@ -215,6 +217,90 @@ class Crontab extends CI_Controller {
 		// var_dump($result);
 	}
 
+	// 무상보증종료된 수주완료 유지보수 자동 생성 크론
+	function forcasting_duplication() {
+		$today = date('Y-m-d');
+		$target_seq = $this->STC_Crontab->maintain_auto_generate_target($today);
+		var_dump($target_seq);
+
+		if(!empty($target_seq)) {
+			foreach($target_seq as $ts) {
+				$forcasting_info = $this->STC_Forcasting->forcasting_view($ts['seq']);
+				$data = array(
+					'forcasting_seq' => $ts['seq'],
+					'project_name'   => $forcasting_info['project_name'],
+					'progress_step'  => NULL,
+					'generate_type'  => $forcasting_info['type'],
+					'insert_date'    => date('Y-m-d H:i:s')
+				);
+
+				$result = $this->STC_Crontab->forcasting_duplication($data);
+			}
+		}
+	}
+
+	function maintain_setting() {
+		$today = date('Y-m-d');
+		$target_seq = $this->STC_Crontab->maintain_auto_renewal($today);
+
+		// var_dump($target_seq);
+		// echo count($target_seq);
+
+		foreach($target_seq as $ts) {
+			$maintain_term = $this->STC_Maintain->maintain_term($ts['seq']);
+			// if ($maintain_term['nom'] == '') {
+			// 	$maintain_term['nom'] = 0;
+			// }
+			$result = $this->STC_Maintain->generate_maintain_forcasting($ts['seq'], $maintain_term['nom']);
+		}
+	}
+
+	// function maintain_renewal() {
+	// 	$today = date('Y-m-d');
+	// 	$target_seq = $this->STC_Crontab->maintain_auto_renewal($today);
+	//
+	// 	var_dump($target_seq);
+	// }
+
+	function fund_list_paysession_update() {
+		$target = $this->STC_Crontab->fund_list_paysession_target();
+
+		foreach($target as $t) {
+			$paysession = $this->STC_Crontab->paysession($t['bill_seq']);
+
+			$result = $this->STC_Crontab->fund_list_paysession_update($t['idx'], $t['breakdown'], $paysession['pay_session']);
+		}
+	}
+
+	function all_read_board() {
+		$user = $this->STC_Crontab->user_list();
+		$board_list = $this->STC_Crontab->board_list();
+var_dump($user);
+		foreach($user as $u) {
+			foreach($board_list as $bl) {
+				// echo $u['seq'];
+				$data = array(
+					'user_seq' => $u['seq'],
+					'notice_seq' => $bl['seq'],
+					'read_time' => date('Y-m-d H:i:s')
+				);
+				$this->STC_Crontab->all_read_baord($data);
+			}
+		}
+	}
+
+	// 출장품의서 데이터 추출
+	function cron_data_extract() {
+		$data['approval_list'] = $this->STC_Crontab->cron_data_extract();
+
+		$this->load->view('cron_data_extract', $data);
+	}
+
+	function cron_data_extract_schedule() {
+		$data['schedule_list'] = $this->STC_Crontab->cron_data_extract_schedule();
+
+		$this->load->view('cron_data_extract_schedule', $data);
+	}
 
 }
 ?>

@@ -11,6 +11,11 @@ class Annual_admin extends CI_Controller {
       $this->id = $this->phpsession->get( 'id', 'stc' );
       $this->name = $this->phpsession->get( 'name', 'stc' );
       $this->lv = $this->phpsession->get( 'lv', 'stc' );
+      $this->cooperation_yn = $this->phpsession->get( 'cooperation_yn', 'stc' );
+
+      if($this->cooperation_yn == 'Y') {
+        echo "<script>alert('권한이 없습니다.');location.href='".site_url()."'</script>";
+      }
 
       $this->load->Model(array('STC_Common', 'admin/STC_Annual_admin'));
    }
@@ -26,7 +31,13 @@ class Annual_admin extends CI_Controller {
 			$search_keyword = "";
 		}
       $data['search_keyword']=$search_keyword;
-      $data['view_val'] = $this->STC_Annual_admin->annual_management(0,$search_keyword);
+      if(isset($_POST['quit_user'])) {
+        $quit_user = $_POST['quit_user'];
+      } else {
+        $quit_user = 'N';
+      }
+      $data['quit_user'] = $quit_user;
+      $data['view_val'] = $this->STC_Annual_admin->annual_management(0,$search_keyword,$quit_user);
       $this->load->view('admin/annual_management', $data );
    }
 

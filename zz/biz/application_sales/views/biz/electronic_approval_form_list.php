@@ -63,7 +63,7 @@
         <tr height="7%">
           <td align="left" valign="bottom">
           <!-- <td width="100%" style="align:left; float:left"> -->
-            <table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-top:70px;font-size:14px;margin-bottom:10px;">
+            <table class="search_title" width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-top:70px;font-size:14px;margin-bottom:10px;">
               <tr>
                 <td style="padding-top:20px;font-weight:bold">
                   서식명 : <select class="select-common select-style1 filter" onchange="categoryFilter();" style="margin-right:10px;">
@@ -81,7 +81,7 @@
                      ?>
                   </select>
                   양식명 : <input class="input-common filter" value="<?php if(isset($_GET['filter']) && count($filter) > 1){echo $filter[1];}?>" onKeypress="javascript:if(event.keyCode==13){categoryFilter();}"/>
-                    <input type="button" class="btn-common btn-style1" value="검색" onclick="categoryFilter();" style="cursor:pointer;" >
+                    <input type="button" class="btn-common btn-style2" value="검색" onclick="categoryFilter();" style="cursor:pointer;" >
                   <!-- <img src="<?php echo $misc?>img/dashboard/btn/btn_search.png" valign=top border=0 width="28" > -->
                 </td>
                 <td style="float:right;">
@@ -114,7 +114,7 @@
                 <td align="center" valign="top">
                   <tr>
                     <td>
-                      <table class="list_tbl" width="100%" border="0" cellspacing="0" cellpadding="0">
+                      <table class="list_tbl list" width="100%" border="0" cellspacing="0" cellpadding="0">
                         <colgroup>
                         <?php if($mode != 'admin'){ ?>
                           <col width="15%">

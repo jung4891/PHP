@@ -16,6 +16,22 @@
 
    }
 
+   #icon_inf p {
+     font-size: 14px;
+     line-height: 0.7;
+   }
+
+   #icon_inf .title {
+     font-weight: bold;
+     font-size: 16px;
+   }
+
+   #icon_inf .content {
+     color: #B0B0B0;
+     padding-left: 10px;
+     padding-bottom: 10px;
+   }
+
 </style>
 <!-- <link rel="stylesheet" href="/misc/css/dashboard.css"> -->
 <link rel="stylesheet" href="/misc/css/view_page_common.css">
@@ -23,6 +39,7 @@
 
 <script>
 </script>
+<script type="text/javascript" src="/misc/js/jquery.bpopup-0.1.1.min.js"></script>
 <body>
 <?php include $this->input->server('DOCUMENT_ROOT')."/include/sales_header.php"; ?>
 
@@ -33,29 +50,14 @@
         <tr>
           <td class="dash_title">
             서식함관리
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <p style="line-height: 0.5;margin-top:40px;color:#626262;">
-              서식함 생성 방법 : '추가 + ' 버튼 클릭 후 서식함명을 작성 후 ‘저장’ 버튼을 클릭합니다..
-            </p>
-            <p style="line-height: 0.5;color:#626262;">
-              서식함 수정 방법 : 수정할 서식함을 선택하고 우측에 표시되는 정보를 확인/수정한 후 ‘저장’ 버튼을 클릭합니다.
-            </p>
-            <p style="line-height: 0.5;color:#626262;">
-              서식함 삭제 방법 : 삭제할 서식함을 선택하고 ‘삭제’ 버튼을 클릭합니다.
-            </p>
-            <p style="line-height: 0.5;color:#626262;">
-              서식함 이동 방법 : 이동할 서식함함을 선택하여 Drag & Drop으로 이동할 수 있습니다.
-            </p>
+            <img style="cursor:pointer;vertical-align:middle;" src="/misc/img/dashboard/btn/btn_info.svg" width="25" onclick="open_inf(this);"/>
           </td>
         </tr>
         <tr>
           <td style="float:right;margin-top:30px;">
             <!-- <img src="<?php echo $misc; ?>img/dashboard/btn/btn_save.png" onclick="categorySave(0);" style="cursor:pointer"/>
             <img src="<?php echo $misc; ?>img/dashboard/btn/btn_delete.png" onclick="categorySave(2);" style="cursor:pointer"/> -->
-            <input type="button" class="btn-common btn-color1" value="삭제" onclick="categorySave(2);" style="cursor:pointer;margin-right:10px;">
+            <input type="button" class="btn-common btn-color4" value="삭제" onclick="categorySave(2);" style="cursor:pointer;margin-right:10px;">
             <input type="button" class="btn-common btn-color2" value="저장" onclick="categorySave(0);" style="cursor:pointer">
           </td>
         </tr>
@@ -96,6 +98,28 @@
 
 <!--하단-->
 <?php include $this->input->server('DOCUMENT_ROOT')."/include/sales_bottom.php"; ?>
+
+<!-- 아이콘 모달 -->
+<div id="icon_inf" style="display: none; position: absolute;background-color: white;border: 2px solid grey;
+border-radius: 3px; font-size: medium;">
+<!-- <div id="car_input" style="display:none; position: absolute; background-color: white; width: auto; height: auto;"> -->
+<span style="cursor: pointer;float: right;margin-right: 10px;margin-top: 10px;" onclick="$('#icon_inf').bPopup().close();">×</span>
+    <div style="padding: 20px 20px 15px 20px;">
+      <!-- 개인보관함 이동 방법 : 트리에서 이동할 개인보관함을 선택하여 Drag & Drop으로 이동할 수 있습니다. *아직 미완성* -->
+      <p class="title">· 서식함 생성 방법</p>
+      <p class="content">'추가 + ' 버튼 클릭 후 서식함명을 작성 후 ‘저장’ 버튼을 클릭합니다.</p>
+
+      <p class="title">· 서식함 수정 방법</p>
+      <p class="content">수정할 서식함을 선택하고 우측에 표시되는 정보를 확인/수정한 후 ‘저장’ 버튼을 클릭합니다.</p>
+
+      <p class="title">· 서식함 삭제 방법</p>
+      <p class="content">삭제할 서식함을 선택하고 ‘삭제’ 버튼을 클릭합니다.</p>
+
+      <p class="title">· 서식함 이동 방법</p>
+      <p class="content">이동할 서식함을 선택하여 Drag & Drop으로 이동할 수 있습니다.</p>
+    </div>
+</div>
+
 <script>
 //sortable tr 상하이동
 $(".sortable").sortable({
@@ -212,6 +236,19 @@ function categorySave(type){
    }
 
 }
+
+//아이콘 클릭
+function open_inf(el){
+  var position = $(el).offset();
+
+ $('#icon_inf').bPopup({
+   opacity:0,
+   follow:[false,false],
+   modalClose: false,
+   position:[position.left+25, position.top+25]
+ });
+}
+
 </script>
 </body>
 </html>

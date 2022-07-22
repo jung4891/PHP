@@ -1,9 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-  <g id="그룹_418" data-name="그룹 418" transform="translate(-832 -454.4)">
-    <g id="clock" transform="translate(834.439 456.449)">
-      <path id="패스_502" data-name="패스 502" d="M9.756,18.292A8.536,8.536,0,1,0,1.219,9.756,8.536,8.536,0,0,0,9.756,18.292Zm9.756-8.536A9.756,9.756,0,1,1,9.756,0,9.756,9.756,0,0,1,19.512,9.756Z" fill="#626262" fill-rule="evenodd"/>
-      <path id="패스_503" data-name="패스 503" d="M16.36,6.75a.61.61,0,0,1,.61.61v6.354l3.961,2.263a.61.61,0,0,1-.6,1.059L16.057,14.6a.61.61,0,0,1-.307-.53V7.36A.61.61,0,0,1,16.36,6.75Z" transform="translate(-7.214 -3.092)" fill="#626262" fill-rule="evenodd"/>
-    </g>
-    <rect id="사각형_1020" data-name="사각형 1020" width="24" height="24" transform="translate(832 454.4)" fill="none" opacity="0.5"/>
-  </g>
-</svg>

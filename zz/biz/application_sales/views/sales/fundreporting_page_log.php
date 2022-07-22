@@ -5,6 +5,11 @@
 <link rel="stylesheet" href="/misc/css/fundReporting.css">
 <!-- <link rel="stylesheet" href="/misc/css/dashboard.css"> -->
 <link rel="stylesheet" href="/misc/css/view_page_common.css">
+<style media="screen">
+.paging strong {
+  color:#0575E6;
+}
+</style>
 <script type="text/javascript">
 var sl = 0;
 $(function() {
@@ -80,7 +85,7 @@ $(function() {
                 <option value selected disabled hidden>선택하세요</option>
               </select>
               <!-- <input class="btn-primary fundBtn" type="submit" id="search_btn" name="submit" value="검색" height="23"> -->
-              <input class="btn-common btn-style1" type="submit" id="search_btn" name="submit" value="검색">
+              <input class="btn-common btn-style2" type="submit" id="search_btn" name="submit" value="검색">
             </form>
           </td>
         </tr>
@@ -88,7 +93,7 @@ $(function() {
           <td>
             <div class="his-container" style="width:100%">
               <div id="hisTblHead">
-                <table style="width:100%;border-top:none;margin-top:20px;" class="list_tbl">
+                <table style="width:100%;border-top:none;margin-top:20px;" class="list_tbl list">
                   <colgroup>
                     <col style="width: 10%">
                     <col style="width: 20%">
@@ -110,7 +115,7 @@ $(function() {
                 </table>
               </div>
               <div id="hisTbl">
-                <table style="width:100%;" class="list_tbl">
+                <table style="width:100%;" class="list_tbl list">
                   <colgroup>
                     <col style="width: 10%">
                     <col style="width: 20%">

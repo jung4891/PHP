@@ -13,6 +13,13 @@ class Attendance extends CI_Controller {
     $this->lv = $this->phpsession->get( 'lv', 'stc' );
     $this->pGroupName = $this->phpsession->get( 'pGroupName', 'stc' );
     $this->group = $this->phpsession->get( 'group', 'stc' );
+    $this->cooperation_yn = $this->phpsession->get( 'cooperation_yn', 'stc' );
+
+    if($this->cooperation_yn == 'Y') {
+      echo "<script>alert('권한이 없습니다.');location.href='".site_url()."'</script>";
+    }
+
+    $this->load->library('user_agent');
 
     $this->load->Model(array('STC_Common', 'biz/STC_Attendance'));
   }
@@ -22,7 +29,20 @@ class Attendance extends CI_Controller {
       redirect( 'account' );
     }
 
-    $this->load->view('biz/attendance_user');
+    if($this->agent->is_mobile()) {
+      $t_month = date('Ym');
+      if ($this->input->get('month')) {
+        $t_month = $this->input->get('month');
+        $t_month = str_replace('-', '', $t_month);
+      }
+
+      $data['list_val'] = $this->STC_Attendance->attendance_user_mobile($t_month);
+
+      $data['title'] = '근태관리';
+      $this->load->view('biz/attendance_user_mobile', $data);
+    } else {
+      $this->load->view('biz/attendance_user');
+    }
   }
 
   function attendance_user_val(){
@@ -271,7 +291,12 @@ class Attendance extends CI_Controller {
  $data["pgroup_name"] = $this->STC_Attendance->get_pgroup();
  $data["work_data"] = $work_data;
 
- $this->load->view('/biz/attendance_working_hours', $data);
+    if($this->agent->is_mobile()) {
+      $data['title'] = '근태관리';
+      $this->load->view('/biz/attendance_working_hours_mobile', $data);
+    } else {
+      $this->load->view('/biz/attendance_working_hours', $data);
+    }
 
     }
 
@@ -390,7 +415,13 @@ class Attendance extends CI_Controller {
     }
     $data['view_val'] = $this->STC_Attendance->annual_usage_status();
     $data['annual_status'] = $this->STC_Attendance->annual_management();
-    $this->load->view('biz/annual_usage_status', $data );
+
+    if($this->agent->is_mobile()) {
+      $data['title'] = '근태관리';
+      $this->load->view('biz/annual_usage_status_mobile', $data);
+    } else {
+      $this->load->view('biz/annual_usage_status', $data );
+    }
   }
 
   //휴가 사용 내역
@@ -409,7 +440,21 @@ class Attendance extends CI_Controller {
     $data['search_keyword'] = $search_keyword;
 
     $data['view_val'] = $this->STC_Attendance->annual_usage_status_list($search_keyword);
-    $this->load->view('biz/annual_usage_status_list', $data );
+    if($this->agent->is_mobile()) {
+      $data['title'] = '근태관리';
+      $this->load->view('biz/annual_usage_status_list_mobile', $data );
+    } else {
+      $this->load->view('biz/annual_usage_status_list', $data );
+    }
+ }
+
+ // 모바일 달력 선택 해당일 연차 사용 내역
+ function annual_usage_status_day() {
+   $date = $this->input->post('date');
+
+   $result = $this->STC_Attendance->annual_usage_status_day($date);
+
+   echo json_encode($result);
  }
 
 }

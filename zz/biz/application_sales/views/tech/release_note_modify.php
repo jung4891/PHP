@@ -3,6 +3,8 @@ include $this->input->server('DOCUMENT_ROOT')."/include/base.php";
 include $this->input->server('DOCUMENT_ROOT')."/include/sales_top.php";
 ?>
 <link rel="stylesheet" href="/misc/css/view_page_common.css">
+<link rel="stylesheet" href="/misc/daumeditor-7.4.9/css/editor.css" type="text/css" charset="utf-8"/>
+<script src="/misc/daumeditor-7.4.9/js/editor_loader.js" type="text/javascript" charset="utf-8"></script>
 <script language="javascript">
 function filedel(seq, filename) {
 	if (confirm("정말 삭제하시겠습니까?") == true){
@@ -17,8 +19,8 @@ $(document).ready(function() {
  $('li > ul').show();
 });
 </script>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.12/summernote-lite.css" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.12/summernote-lite.js"></script>
+<!-- <link href="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.12/summernote-lite.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.12/summernote-lite.js"></script> -->
 <body>
   <?php
   include $this->input->server('DOCUMENT_ROOT')."/include/sales_header.php";
@@ -26,7 +28,7 @@ $(document).ready(function() {
 <div align="center">
 	<div class="dash1-1">
 		<table width="95%" height="100%" border="0" cellspacing="0" cellpadding="0" class="dash_tbl1-1">
-			<form id="cform" name="cform" action="<?php echo site_url();?>/tech/board/release_note_input_action" method="post" enctype="multipart/form-data" onSubmit="javascript:chkForm();return false;">
+			<form id="tx_editor_form" name="tx_editor_form" action="<?php echo site_url();?>/tech/board/release_note_input_action" method="post" enctype="multipart/form-data" onSubmit="javascript:chkForm();return false;">
 				<input type="hidden" name="seq" value="<?php echo $seq;?>">
 				<input type="hidden" id="type" name="type" value="0" />
 				<tr height="5%">
@@ -39,7 +41,7 @@ $(document).ready(function() {
 				</tr>
     		<tr>
       		<td width="100%" align="center" valign="top">
-						<table class="list_tbl" width="100%" border="0" cellspacing="0" cellpadding="0" style="table-layout:fixed; word-break:break-all;border: thin solid #DFDFDF;margin-bottom:50px;margin-top:20px;">
+						<table class="list_tbl" width="100%" border="0" cellspacing="0" cellpadding="0" style="table-layout:fixed; word-break:break-all;border-top: thin solid #DFDFDF;margin-bottom:50px;margin-top:20px;">
 							<colgroup>
 								<col width="15%">
 								<col width="35%">
@@ -47,34 +49,34 @@ $(document).ready(function() {
 								<col width="35%">
 							</colgroup>
         			<tr>
-          			<td class="tbl-title">카테고리</td>
+          			<td class="tbl-title border-l">카테고리</td>
           			<td class="tbl-cell">
 									<select name="category_code" id="category_code" class="select-common">
 										<?php
 										foreach ($category  as $val) {
-											echo '<option value="'.$val['code'].'"';
-											if( $view_val['category_code'] && ( $val['code'] == $view_val['category_code'] ) ) {
-												echo ' selected';
+											echo '<option value="'.$val['seq'].'"';
+											if ($view_val['category_code'] && ( $view_val['category_code'] == $val['seq'] )) {
+												echo 'selected';
 											}
-
-											echo '>'.$val['code_name'].'</option>';
+                      echo '>'.$val['company_name'].'</option>';
 										}
 										?>
 									</select>
 								</td>
           			<td class="tbl-title">날짜</td>
-          			<td class="tbl-mid"><?php echo $view_val['insert_date'];?></td>
+          			<td class="tbl-mid border-r"><?php echo $view_val['insert_date'];?></td>
               </tr>
               <tr>
-                <td class="tbl-title">제목</td>
+                <td class="tbl-title border-l">제목</td>
                 <td class="tbl-cell"><input type="text" name="subject" id="subject" class="input-common" value="<?php echo stripslashes($view_val['subject']);?>"/></td>
                 <td class="tbl-title">등록자</td>
-                <td class="tbl-mid"><?php echo $view_val['user_name'];?></td>
+                <td class="tbl-mid border-r"><?php echo $view_val['user_name'];?></td>
               </tr>
               <tr>
-                <td colspan="4">
-									<div id="summernote"><?php echo $view_val['contents'];?></div>
-									<input type="hidden" name="contents" id="contents" >
+								<td colspan="4" style="border-bottom:none">
+									<textarea name="content" id="content" style="display:none;"><?php echo $view_val['contents'];?></textarea>
+									<input type="hidden" name="contents" id="contents" value="">
+									<?php include $this->input->server('DOCUMENT_ROOT')."/misc/daumeditor-7.4.9/editor.php"; ?>
 								</td>
               </tr>
             </table>
@@ -116,8 +118,8 @@ $(document).ready(function() {
 				</tr>
 				<tr>
 					<td align="right">
-						<input type="button" class="btn-common btn-color1" value="취소" onClick="javascript:history.go(-1)" style="margin-right:10px">
-						<input type="button" class="btn-common btn-color2" value="수정" onClick="javascript:chkForm();return false;">
+						<input type="button" class="btn-common btn-color4" value="취소" onClick="javascript:history.go(-1)" style="margin-right:10px">
+						<input type="button" class="btn-common btn-color4" value="수정" onClick="javascript:chkForm();return false;">
 					</td>
 				</tr>
 			</form>
@@ -133,5 +135,5 @@ var file_changename = "<?php echo $view_val['file_changename']; ?>".split("*/*")
 var request_url = "<?php echo site_url(); ?>/tech/board/release_note_input_action";
 var response_url = "<?php echo site_url(); ?>/tech/board/release_note_list";
 </script>
-<script type="text/javascript" src="/misc/js/board/board_script.js"></script>
+<script type="text/javascript" src="/misc/js/board/board_script_daum.js"></script>
 </html>

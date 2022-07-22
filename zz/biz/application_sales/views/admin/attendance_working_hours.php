@@ -84,7 +84,7 @@
         <option value="<?php echo $wa['start']." ~ ".$wa['end']; ?>" <?php if(($today>=$wa['start'])&&($today<=$wa['end'])){echo 'selected';} ?>><?php echo $wa['start']." ~ ".$wa['end']; ?></option>
       <?php } ?>
     </select>
-		<button type="submit" name="button" class="btn-common btn-style1">검색</button>
+		<button type="submit" name="button" class="btn-common btn-style2">검색</button>
 
     <!-- <span>
       <input type="image" style='cursor:hand; margin-bottom:8px;' onclick="return GoSearch();" src="<?php echo $misc;?>img/dashboard/btn/btn_search.png" width="20px" height="20px" align="middle" border="0"/>
@@ -94,16 +94,7 @@
   <div class="contents_item" valign="top" style="margin-top:10px;">
 
 		<table width="100%" height="100%" border="0" cellspacing="0" cellpadding="0" class="contents_tbl">
-											<colgroup>
-												<col width="8.75%" />
-												<col width="8.75%" />
-												<col width="8.75%" />
-												<col width="8.75%" />
-												<col width="8.75%" />
-												<col width="8.75%" />
-												<col width="8.75%" />
-												<col width="8.75%" />
-											</colgroup>
+
 											<tr>
 												<th colspan="6">누적 근로시간</th>
 												<th colspan="2">잔여 근로시간</th>
@@ -113,7 +104,7 @@
 												<td>소속</td>
 												<td>소정근로시간</td>
 												<td>소정외근로시간</td>
-												<td colspan="2">총근로시간</td>
+												<td>총근로시간</td>
 												<!-- <th class="border_l">통계</th> -->
 												<td>소정근로시간</td>
 												<td>소정외근로시간</td>
@@ -134,7 +125,7 @@
 												<td align="center"><?php echo $wd['work_hour'] ?></td>
 												<td align="center"><?php echo $wd['over_time'] ?></td>
 												<td align="center"><?php echo $wd['total_time'] ?></td>
-												<td align="center">
+												<!-- <td align="center">
 													<div style="display:flex;width:100%;height:60%;">
 														<div style="width:75%;height:100%;background-color:#d4d2d2;border-right:solid 2px;">
 															<div style="max-width: 100%;width:<?php  echo $wd['work_per'] ?>%;height:100%;background-color:#007BCB"></div>
@@ -143,7 +134,7 @@
 															<div style="max-width: 100%;width:<?php  echo $wd['over_per'] ?>%;height:100%;background-color:#E53737"></div>
 														</div>
 													</div>
-												</td>
+												</td> -->
 												<td align="center"><?php echo $wd['rest_worktime'] ?></td>
 											  <td align="center"><?php echo $wd['rest_overtime'] ?></td>
 

@@ -199,7 +199,7 @@ include $this->input->server('DOCUMENT_ROOT')."/include/base.php";
                         <td>지원 엔지니어</td>
                         <td width=100><?php echo $view_val['writer'];?></td>
                         <td width=100>
-                            <?php if($view_val['sign_consent']=="true"){echo "<img src='".$misc."img/".$view_val['writer'].".png' width = '60' height = '60'>";}?>
+                            <?php if($view_val['sign_consent']=="true"){echo "<img src='{$sign_path}' width = '60' height = '60'>";}?>
                         </td>
                     </tr>
                     <tr height="65">
@@ -661,6 +661,23 @@ for($j=1; $j<count($process_text1); $j++){
     </table>
     <?php } ?>
     <?php if($view_val['work_name'] != "정기점검2"){ ?>
+
+    <?php
+  if($view_val['work_name'] == '장애지원' && $view_val['failure_contents'] != '') {
+    $failure_data = explode('*/*', $view_val['failure_contents']);
+		foreach($failure_data as $fd) {
+			$fd_arr = explode(':::', $fd);
+			$failure_title = $fd_arr[0];
+			$failure_content = $fd_arr[1]; ?>
+      <tr height=55 style='mso-height-source:userset;min-height:41.25pt'>
+          <td colspan=4 height=55 class=xl8023169 style='min-height:41.25pt'><?php echo $failure_title; ?></td>
+          <td colspan=21 class=xl8223169 width=619 style='border-right:.5pt solid black;width:467pt'><?php echo nl2br($failure_content);?></td>
+      </tr>
+<?php
+    }
+  }
+    ?>
+
     <tr height=55 style='mso-height-source:userset;min-height:41.25pt'>
         <td colspan=4 height=55 class=xl8023169 style='min-height:41.25pt'>지원의견</td>
         <td colspan=21 class=xl8223169 width=619 style='border-right:.5pt solid black;width:467pt'>

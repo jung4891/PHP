@@ -153,6 +153,15 @@ function openDaumPostcode2() {
 		}
 	}).open();
 }
+
+	function ynCheck(obj){
+		if($(obj).is(":checked")){
+			$("input[name=manufacturing_com]").val('Y');
+		} else {
+			$("input[name=manufacturing_com]").val('N');
+		}
+	}
+
 </script>
 <body>
 <?php
@@ -213,7 +222,7 @@ function openDaumPostcode2() {
                   </tr>
                    <tr>
                     <td height="40" align="center" bgcolor="f8f8f9" style="font-weight:bold;">업체구분</td>
-                    <td align="left" colspan="3" class="t_border" style="padding-left:10px;">
+                    <td align="left" class="t_border" style="padding-left:10px;">
 											<select name="company_part" id="company_part" class="select7" style="width:255px;">
 	                      <option value="001">전체</option>
 	                      <option value="002">고객사</option>
@@ -221,7 +230,12 @@ function openDaumPostcode2() {
                     	</select>
 											<span style="color:#999; font-size:10px;"></span>
 										</td>
-                  </tr>
+										<td height="40" align="center" bgcolor="f8f8f9" class="t_border" style="font-weight:bold;">제조사</td>
+										<td align="left" class="t_border" style="padding-left:10px;">
+											<input type="checkbox" onclick="ynCheck(this);">
+											<input type="hidden" name="manufacturing_com" value="N">
+										</td>
+                  	</tr>
                   <tr>
                     <td colspan="4" height="1" bgcolor="#e8e8e8"></td>
                   </tr>
@@ -711,21 +725,15 @@ function openDaumPostcode2() {
                   	<td height="40" align="center" bgcolor="f8f8f9" style="font-weight:bold;">출생년월일</td>
                     <td align="left" class="t_border" style="padding-left:10px;">
 											<input name="birth_date" type="date" class="input2" id="birth_date" style="float:left;" /><!-- <img src="<?php echo $misc;?>img/btn_calendar.jpg" /> --></td>
-                    <td height="40" align="center" bgcolor="f8f8f9" class="t_border" style="font-weight:bold;">출신고교</td>
-                    <td align="left" class="t_border" style="padding-left:10px;"><input name="highschool" type="text" class="input2" id="highschool"/></td>
                   </tr>
 
                   <tr>
                     <td colspan="4" height="1" bgcolor="#e8e8e8"></td>
                   </tr>
                   <tr>
-                  	<td height="40" align="center" bgcolor="f8f8f9" style="font-weight:bold;">출신대학교</td>
-                    <td align="left" class="t_border" style="padding-left:10px;">
-											<input name="university" type="text" class="input2" id="university"/>
-										</td>
-                    <td height="40" align="center" bgcolor="f8f8f9" class="t_border" style="font-weight:bold;">전공</td>
-                    <td align="left" class="t_border" style="padding-left:10px;">
-											<input name="specialty" type="text" class="input2" id="specialty"/>
+                  	<td height="40" align="center" bgcolor="f8f8f9" style="font-weight:bold;">비고</td>
+                    <td colspan="3" align="left" class="t_border" style="padding-left:10px;">
+											<input name="note" type="text" class="input2" id="note" style="width:100%"/>
 										</td>
                   </tr>
 									<tr>

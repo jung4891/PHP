@@ -241,6 +241,8 @@ function fold_modal(el) {
     var selector = $(".modal_select_Loan_div");
   } else if (type=="투자금") {
     var selector = $(".modal_select_invest_div");
+  } else if (type == "자산(건물)") {
+    var selector = $(".modal_select_building_div");
   }
 
   if (status=="▼") {
@@ -545,6 +547,16 @@ function delRowCheck(el) {
       depositSum = Number(depositSum) + Number(deposit);
       withdrawSum = Number(withdrawSum) + Number(withdraw);
       cnt++;
+
+      if(tr.find('input[name=bill_seq]').val() != '') {
+        var requisition = tr.find('#requisition').val().replace(/,/g, "");
+        if(tr.find('#type').val() == '매출채권') {
+          depositSum = Number(depositSum) + Number(requisition);
+        }
+        if(tr.find('#type').val() == '매입채무' || tr.find('#type').val() == '운영비용') {
+          withdrawSum = Number(withdrawSum) + Number(requisition);
+        }
+      }
     }
   })
   var deSum = commaStr(depositSum);
@@ -1056,6 +1068,7 @@ function saveList() {
         var requisition = tr.find("#requisition").val().replace(/,/g, '');
         var deposit = tr.find("#deposit").val().replace(/,/g, '');
         var withdraw = tr.find("#withdraw").val().replace(/,/g, '');
+        var link_seq = tr.find('.link_seq').val();
 
         $.ajax({
           type: "POST",
@@ -1075,7 +1088,8 @@ function saveList() {
             breakdown: breakdown,
             requisition: requisition,
             deposit: deposit,
-            withdraw: withdraw
+            withdraw: withdraw,
+            link_seq: link_seq
           },
           success: function(data) {
             if (data == 'false') {
@@ -1230,7 +1244,24 @@ for (var i = 0; i < values.length; i++) {
 // 추가, 한줄복사 버튼 클릭 시
 function newRow(paste) {
   if (paste == 'paste'){
-    var tr = $(".accountlist tr:last-child");
+    var check_num = $('input[name=delRow]:checked').length;
+    if (check_num == 0) {
+      alert('복사할 행을 선택해 주세요.');
+      return false;
+    } else if (check_num > 1) {
+      alert('복사할 행을 하나만 선택해 주세요.');
+      return false;
+    }
+
+    var tr = $('input[name=delRow]:checked').closest('tr');
+    if (tr.attr('class') == 'row_accountlist') {
+      var link_seq = tr.find('#idx').val();
+    } else {
+      var link_seq = tr.find('.link_seq').val();
+      if (link_seq == 'undefined') {
+        var link_seq = '';
+      }
+    }
     var dateOfIssue = tr.find("#dateOfIssue").val();
     var fixedDate = tr.find("#fixedDate").val();
     var dueDate = tr.find("#dueDate").val();
@@ -1249,10 +1280,13 @@ function newRow(paste) {
     }
     deposit = commaStr(deposit);
     withdraw = commaStr(withdraw);
+  } else {
+    var link_seq = '';
   }
 
   var contents = '';
   contents += '<tr class="newRow" name="newRow">';
+  contents += '<input type="hidden" class="link_seq" value="' + link_seq + '">';
   contents += '<td class="cell0" scope="row"><input type="checkbox" name="delRow" id="rowCheck" onchange="delRowCheck(this);"/></td>';
   contents += '<td class="cell1" scope="row">';
   contents += '<input type="text" class="input mousetrap" style="width:100%; text-align:left;" id="dateOfIssue" name="dateOfIssue" value="' + nullCheck(dateOfIssue) + '" maxlength="10" onchange="plusDate(this);" onkeyup="onlyNumHipen(this)" onkeypress="auto_datetime_format(event, this);" onmouseover="genDatepicker(this);"/></td>';
@@ -1283,7 +1317,13 @@ function newRow(paste) {
   contents += '<td class="cell8" scope="row">';
   contents += '<input class="input mousetrap" style="width:100%; text-align:left;" type="text" id="breakdown" name="breakdown" value="' + nullCheck(breakdown) + '" title="' + nullCheck(breakdown) + '" /></td>';
   contents += '<td class="cell9" scope="row">';
-  contents += '<input class="input mousetrap" style="width:70%; text-align:right;" type="text" id="requisition" name="requisition" value="' + nullCheck(requisition) + '" title="' + nullCheck(requisition) + '" onFocus="deCommaStr(this);" onBlur="this.value = commaStr(this.value);" onkeyup="onlyNumber(this);" /></td>';
+  contents += '<input class="input mousetrap" style="width:70%; text-align:right;" type="text" id="requisition" name="requisition" value="' + nullCheck(requisition) + '" title="' + nullCheck(requisition) + '" onFocus="deCommaStr(this);" onBlur="this.value = commaStr(this.value);" onkeyup="';
+  if(getParam('company') == 'DK') {
+    contents += 'onlyNumHipen';
+  } else {
+    contents += 'onlyNumber';
+  }
+  contents += '(this);" /></td>';
   contents += '<td class="cell10 mousetrap" scope="row">';
   contents += '<input class="input mousetrap" style="width:70%; text-align:right;" type="text" id="deposit" name="deposit" class="deposit" value="' + nullCheck(deposit) + '" title="' + nullCheck(deposit) + '" onchange="calcBalance();" onFocus="deCommaStr(this);" onBlur="this.value = commaStr(this.value);" onkeyup="onlyNumber(this);" /></td>';
   contents += '<td class="cell11 mousetrap" scope="row">';

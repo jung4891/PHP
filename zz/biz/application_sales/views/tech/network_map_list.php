@@ -58,7 +58,7 @@ document.mform.submit();
             <!-- </td>
             <td> -->
             <span>
-              <input type="button" class="btn-common btn-style1" value="검색" onClick="return GoSearch();">
+              <input type="button" class="btn-common btn-style2" value="검색" onClick="return GoSearch();">
             </span>
             </td>
           <?php if($tech_lv > 0) {?>
@@ -79,7 +79,7 @@ document.mform.submit();
         <table class="content_dash_tbl" align="center" width="100%" border="0" cellspacing="0" cellpadding="0">
           <tr>
             <td>
-              <table class="list_tbl" style="margin-top:20px;" width="100%" border="0" cellspacing="0" cellpadding="0">
+              <table class="list_tbl list" style="margin-top:20px;" width="100%" border="0" cellspacing="0" cellpadding="0">
                 <colgroup>
                   <col width="12%">
                   <col width="8%">
@@ -117,8 +117,8 @@ document.mform.submit();
                     <tr onmouseover="this.style.backgroundColor='#FAFAFA'" onmouseout="this.style.backgroundColor='#fff'">
                       <td></td>
                       <td height="40" align="center"><?php echo $i;?></td>
-                      <td align="center"><a href="JavaScript:ViewBoard('<?php echo $item['seq'];?>')"><?php echo $item['category_code']?></a></td>
-                      <td align="center"><a href="JavaScript:ViewBoard('<?php echo $item['seq'];?>')"><?php echo $this->common->trim_text(stripslashes($item['subject']), 100);?></a></td>
+                      <td align="center"><a class="list" href="JavaScript:ViewBoard('<?php echo $item['seq'];?>')"><?php echo $item['category_code']?></a></td>
+                      <td align="center"><a class="list" href="JavaScript:ViewBoard('<?php echo $item['seq'];?>')"><?php echo $this->common->trim_text(stripslashes($item['subject']), 100);?></a></td>
                       <td align="center"><?php echo $item['user_name'];?></td>
                       <td align="center"><?php echo substr($item['insert_date'], 0, 10);?></td>
                       <td align="center"><?php echo $strFile;?></td>

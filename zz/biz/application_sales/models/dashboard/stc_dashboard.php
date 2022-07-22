@@ -22,6 +22,10 @@ class STC_Dashboard extends CI_Model {
 
 		$sql = "SELECT seq, category_code, subject, user_id, user_name, file_changename, update_date FROM biz_notice_basic WHERE{$category_query} ORDER BY seq DESC LIMIT 5";
 
+		$sql = "SELECT bnb.seq, bnb.category_code, bnb.subject, bnb.user_id, bnb.user_name, bnb.file_changename, bnb.update_date, bnr2.user_seq FROM biz_notice_basic bnb LEFT JOIN ( SELECT user_seq, notice_seq FROM biz_notice_read GROUP BY notice_seq, user_seq HAVING user_seq = ".$this->seq." ) AS bnr2 ON bnb.seq = bnr2.notice_seq WHERE{$category_query} ORDER BY seq DESC LIMIT 5";
+
+		$sql = "SELECT bnb.seq, bnb.category_code, bnb.subject, bnb.user_id, bnb.user_name, bnb.file_changename, bnb.update_date, bnr2.user_seq FROM biz_notice_basic bnb LEFT JOIN ( SELECT user_seq, notice_seq FROM biz_notice_read GROUP BY notice_seq, user_seq HAVING user_seq = ".$this->seq." ) AS bnr2 ON bnb.seq = bnr2.notice_seq WHERE{$category_query} AND hide_btn = 'N' AND temporary = 'N' ORDER BY seq DESC LIMIT 5";
+
 		$query = $this->db->query($sql);
 
     return $query->result_array();
@@ -33,7 +37,20 @@ class STC_Dashboard extends CI_Model {
 		}else{
 			$category_query = " category_code = '{$category_code}'";
 		}
-		$sql = "SELECT count(seq) AS ucount FROM biz_notice_basic WHERE$category_query ORDER BY seq DESC";
+		$sql = "SELECT count(seq) AS ucount FROM biz_notice_basic WHERE$category_query AND hide_btn = 'N' AND temporary = 'N' ORDER BY seq DESC";
+
+		$query = $this->db->query($sql);
+
+		return $query->row();
+	}
+
+	function notice_list_nread_count($category_code) {
+		if($category_code == "002"){
+			$category_query = " (category_code = '002' OR category_code = '004')";
+		}else{
+			$category_query = " category_code = '{$category_code}'";
+		}
+		$sql = "SELECT COUNT(*) AS ucount FROM biz_notice_basic bnb LEFT JOIN ( SELECT user_seq, notice_seq FROM biz_notice_read GROUP BY notice_seq, user_seq HAVING user_seq = ".$this->seq." ) AS bnr2 ON bnb.seq = bnr2.notice_seq WHERE$category_query AND user_seq IS null AND hide_btn = 'N'  AND temporary = 'N' ORDER BY seq DESC;";
 
 		$query = $this->db->query($sql);
 
@@ -41,7 +58,7 @@ class STC_Dashboard extends CI_Model {
 	}
 
 	function user_data(){
-		$sql = "SELECT user_id, user_name, user_duty, user_email, user_tel, user_group FROM user WHERE quit_date is null ORDER BY seq";
+		$sql = "SELECT user_id, user_name, user_duty, user_email, user_tel, extension_number, user_group FROM user WHERE quit_date is null ORDER BY seq";
 
 		$query = $this->db->query($sql);
 
@@ -180,19 +197,103 @@ class STC_Dashboard extends CI_Model {
 	}
 
 	function weekly_report_list() {
-		$sql = "SELECT * FROM weekly_report ORDER BY seq DESC LIMIT 10";
+		$user_seq = $this->seq;
+		$user_group = $this->group;
+		$pGroupName = $this->pGroupName;
+
+		if($user_group == "CEO" || $pGroupName == "기술연구소") {
+			$group = "";
+		} else if($pGroupName == '기술본부') { //김갑진 이사님
+			$group = " WHERE group_name like '기술%' and group_name != '기술연구소'";
+		} else if($pGroupName == '영업본부') {
+			$group = " WHERE group_name like '사업%'";
+		} else {
+			$group = " WHERE group_name = '{$user_group}'";
+		}
+
+		$sql = "SELECT * FROM weekly_report LEFT JOIN (SELECT user_seq, notice_seq FROM weekly_report_read GROUP BY notice_seq, user_seq HAVING user_seq = {$user_seq}) AS wrr ON seq = wrr.notice_seq".$group." ORDER BY seq DESC LIMIT 10";
 
 		$query = $this->db->query($sql);
 
 		return $query->result_array();
 	}
 
+	function weekly_report_list_nread_count() {
+		$user_seq = $this->seq;
+		$user_group = $this->group;
+		$pGroupName = $this->pGroupName;
+
+		if($user_group == "CEO" || $pGroupName == "기술연구소") {
+			$group = "";
+		} else if($pGroupName == '기술본부') { //김갑진 이사님
+			$group = " AND group_name like '기술%' and group_name != '기술연구소'";
+		} else if($pGroupName == '영업본부') {
+			$group = " AND group_name like '사업%'";
+		} else {
+			$group = " AND group_name = '{$user_group}'";
+		}
+
+		$sql = "SELECT count(*) as cnt FROM weekly_report LEFT JOIN (SELECT user_seq, notice_seq FROM weekly_report_read GROUP BY notice_seq, user_seq HAVING user_seq = {$user_seq}) AS wrr ON seq = wrr.notice_seq WHERE wrr.user_seq is null ".$group." ORDER BY seq DESC";
+
+		$query = $this->db->query($sql);
+
+		return $query->row_array();
+	}
+
 	function weekly_report_list_count() {
-		$sql = "SELECT count(*) AS cnt FROM weekly_report";
+		$user_seq = $this->seq;
+		$user_group = $this->group;
+		$pGroupName = $this->pGroupName;
+
+		if($user_group == "CEO" || $pGroupName == "기술연구소") {
+			$group = "";
+		} else if($pGroupName == '기술본부') { //김갑진 이사님
+			$group = " WHERE group_name like '기술%' and group_name != '기술연구소'";
+		} else if($pGroupName == '영업본부') {
+			$group = " WHERE group_name like '사업%'";
+		} else {
+			$group = " WHERE group_name = '{$user_group}'";
+		}
+
+		$sql = "SELECT count(*) AS cnt FROM weekly_report".$group;
 
 		$query = $this->db->query($sql);
 
 		return $query->row();
+	}
+
+	function diquitaca_qna_list() {
+		$sql = "SELECT dq.*, u.user_name, dqc.comment_cnt, dqr.user_seq, dc.category_name, dc.color FROM diquitaca_qna dq LEFT JOIN user u ON dq.insert_id = u.user_id LEFT JOIN (SELECT qna_seq, COUNT(*) AS comment_cnt FROM diquitaca_qna_comment GROUP BY qna_seq) dqc ON dq.seq = dqc.qna_seq LEFT JOIN (SELECT user_seq, notice_seq FROM diquitaca_qna_read GROUP BY notice_seq, user_seq HAVING user_seq = {$this->seq}) AS dqr ON dq.seq = dqr.notice_seq LEFT JOIN diquitaca_category dc ON dq.category = dc.seq order by dq.seq desc limit 3";
+// echo $sql;
+		$query = $this->db->query($sql);
+
+		return $query->result_array();
+	}
+
+	function diquitaca_qna_list_nread_count() {
+		$sql = "SELECT count(*) as cnt FROM diquitaca_qna dq LEFT JOIN user u ON dq.insert_id = u.user_id LEFT JOIN (SELECT qna_seq, COUNT(*) AS comment_cnt FROM diquitaca_qna_comment GROUP BY qna_seq) dqc ON dq.seq = dqc.qna_seq LEFT JOIN (SELECT user_seq, notice_seq FROM diquitaca_qna_read GROUP BY notice_seq, user_seq HAVING user_seq = {$this->seq}) AS dqr ON dq.seq = dqr.notice_seq where dqr.user_seq is null";
+
+		$query = $this->db->query($sql);
+
+		return $query->row_array();
+	}
+
+	function fortigate_project() {
+		$sql = "(SELECT sf.customer_companyname, sf.project_name, sf.manage_team, sf.maintain_user
+FROM product p
+JOIN sales_forcasting_product sfp ON p.seq = sfp.product_code
+JOIN sales_forcasting sf ON sfp.forcasting_seq = sf.seq
+WHERE (p.product_name LIKE '%fortigate%' || p.product_name LIKE '%fg-%') AND (sfp.fortigate_licence IS NULL || sfp.fortigate_licence = '') AND progress_step > '014' GROUP BY sf.seq)
+UNION
+(SELECT sm.customer_companyname, sm.project_name, sm.manage_team, sm.maintain_user
+FROM product p
+JOIN sales_maintain_product smp ON p.seq = smp.product_code
+JOIN sales_maintain sm ON smp.maintain_seq = sm.seq
+WHERE (p.product_name LIKE '%fortigate%' || p.product_name LIKE '%fg-%') AND (smp.fortigate_licence IS NULL || smp.fortigate_licence = '') AND progress_step > '014' GROUP BY sm.seq) order by manage_team desc";
+
+		$query = $this->db->query($sql);
+
+		return $query->result_array();
 	}
 
 }

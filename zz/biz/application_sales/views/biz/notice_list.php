@@ -75,15 +75,17 @@ function GoSearch(){
 <input type="hidden" name="seq" value="">
 <input type="hidden" name="mode" value="">
 <input type="hidden" name="category" value="<?php echo $category; ?>">
+<input type="hidden" name="hide_yn" value="<?php echo $hide_yn; ?>">
+<input type="hidden" name="temporary" value="<?php echo $temporary; ?>">
 <tbody height="100%">
 	<!-- 타이틀 이미지 tr -->
 <tr height="5%">
   <td class="dash_title">
 		<!-- <img src="<?php echo $misc;?>img/dashboard/title_notice_list.png"/> -->
 			 <!-- <input id="tab-1" type="radio" name="radio-set" class="tab-selector-1 tabs_input" onclick ="moveList('standby')" > -->
-			 <a onclick ="moveList('001')" style='cursor:pointer;margin-right:10px;color:<?php if($category == "001"){echo "#1C1C1C";}else{echo "#DEDEDE";}?>'>운영공지</a>
-			 <a onclick ="moveList('002')" style='cursor:pointer;margin-right:10px;color:<?php if($category == "002"){echo "#1C1C1C";}else{echo "#DEDEDE";}?>'>개발공지</a>
-			 <a onclick ="moveList('003')" style='cursor:pointer;margin-right:10px;color:<?php if($category == "003"){echo "#1C1C1C";}else{echo "#DEDEDE";}?>'>버전관리</a>
+			 <a onclick ="moveList('001')" style='cursor:pointer;margin-right:10px;color:<?php if($category == "001"){echo "#1C1C1C";}else{echo "#DEDEDE;font-weight:normal;";}?>'>운영공지</a>
+			 <a onclick ="moveList('002')" style='cursor:pointer;margin-right:10px;color:<?php if($category == "002"){echo "#1C1C1C";}else{echo "#DEDEDE;font-weight:normal;";}?>'>개발공지</a>
+			 <a onclick ="moveList('003')" style='cursor:pointer;margin-right:10px;color:<?php if($category == "003"){echo "#1C1C1C";}else{echo "#DEDEDE;font-weight:normal;";}?>'>버전관리</a>
 	</td>
 </tr>
 <!-- <tr>
@@ -99,6 +101,7 @@ function GoSearch(){
 			<td> -->
 			<select name="search1" id="search1" class="select-common select-style1">
 			<option value="001" <?php if($search1 == "001"){ echo "selected";}?>>제목</option>
+			<option value="003" <?php if($search1 == "003"){ echo "selected";}?>>내용</option>
 			<option value="002" <?php if($search1 == "002"){ echo "selected";}?>>등록자</option>
 		</select>
 			<!-- </td>
@@ -107,22 +110,30 @@ function GoSearch(){
 
 					<input  type="text" size="25" class="input-common" name="searchkeyword" placeholder="검색하세요." value="<?php echo str_replace('"', '&uml;', $search_keyword );?>"/>
 					<!-- <input type="image" style='cursor:hand; margin-bottom:8px;' onClick="return GoSearch();" src="<?php echo $misc;?>img/dashboard/btn/btn_search.png" width="20px" height="20px" align="middle" border="0" /> -->
-					<input type="button" class="btn-common btn-style1" value="검색" onClick="return GoSearch();">
+					<input type="button" class="btn-common btn-style2" value="검색" onClick="return GoSearch();">
 
 			<!-- </table> -->
 			<?php if($category == "002" ){
-						if($this->group =='기술연구소'){
+						if($this->pGroupName =='기술연구소'){
 				?>
 				<a style="float:right;" href="<?php echo site_url();?>/biz/board/notice_input_lab">
 					<!-- <img src="<?php echo $misc;?>img/dashboard/btn/btn_write.png" width="90" height="35" style="cursor:pointer;"> -->
 					<input type="button" class="btn-common btn-color2" value="글쓰기">
 				</a>
-			<?php }}else{ ?>
+
+			<?php }
+					} else { ?>
 				<a style="float:right;" href="<?php echo site_url();?>/biz/board/notice_input">
 					<!-- <img src="<?php echo $misc;?>img/dashboard/btn/btn_write.png" width="90" height="35" style="cursor:pointer;"> -->
 					<input type="button" class="btn-common btn-color2" value="글쓰기">
 				</a>
-
+				<!-- 운영공지에만 띄우기 -->
+			<?php if($category == '001'){ ?>
+				<span style="float:right; position:relative; right:15px; top:5px; font-weight:bold;">임시저장 게시글 보기</span>
+				<input type="checkbox" value="" style="float:right; position:relative; right:20px; top:5px;" onchange="temporary_post(this);" <?php if($temporary == 'Y'){echo 'checked';} ?>>
+				<span style="float:right; position:relative; right:15px; top:5px; font-weight:bold;margin-right:10px;">숨김 게시글 보기</span>
+				<input type="checkbox" value="" style="float:right; position:relative; right:20px; top:5px;" onchange="hide_post(this);" <?php if($hide_yn == 'Y'){echo 'checked';} ?>>
+			<?php } ?>
 			<?php } ?>
 		</td>
 		</tr>
@@ -130,9 +141,7 @@ function GoSearch(){
 </td>
 </tr>
 <!-- 검색 끝 -->
-<!-- <tr>
-  <td height="10"></td>
-</tr> -->
+
 
 <!-- 콘텐트 시작 -->
 <tr height="45%">
@@ -144,16 +153,16 @@ function GoSearch(){
             <td align="center" valign="top">
 
               <tr>
-                <td><table class="list_tbl" width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-top:20px;">
+                <td><table class="list_tbl list" width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-top:20px;">
 									<colgroup>
-	                  <col width="15%">
+	                  <col width="10%">
 	                  <col width="9%">
-	                  <col width="25%">
-	                  <col width="9%">
-	                  <col width="9%">
+	                  <col width="35%">
 	                  <col width="9%">
 	                  <col width="9%">
-	                  <col width="15%">
+	                  <col width="9%">
+	                  <col width="9%">
+	                  <col width="10%">
 	                </colgroup>
                   <tr class="t_top row-color1">
 										<th></th>
@@ -177,11 +186,17 @@ function GoSearch(){
 						} else {
 							$strFile = "-";
 						}
+
+						if($item['user_seq'] == '') {
+							$read = "font-weight:bold;";
+						} else {
+							$read = '';
+						}
 			?>
-                  <tr onMouseOver="this.style.backgroundColor='#FAFAFA'" onMouseOut="this.style.backgroundColor='#fff'">
+                  <tr onMouseOver="this.style.backgroundColor='#FAFAFA'" onMouseOut="this.style.backgroundColor='#fff'" style="<?php echo $read; ?>">
 										<td></td>
                     <td height="40" align="center"><?php echo $i;?></td>
-                    <td style="padding-left:10px;" align="center"><a href="JavaScript:ViewBoard('<?php echo $item['seq'];?>','<?php echo $item['category_code']; ?>')"><?php echo $this->common->trim_text(stripslashes($item['subject']), 100);?></a></td>
+                    <td style="padding-left:20px;" align="left"><a class="list" href="JavaScript:ViewBoard('<?php echo $item['seq'];?>','<?php echo $item['category_code']; ?>')"><?php echo stripslashes($item['subject']);?></a></td>
                     <td align="center"><?php echo $item['user_name'];?></td>
                     <td align="center"><?php echo substr($item['update_date'], 0, 10);?></td>
 						<?php if($item['read_cnt']==''){?>
@@ -199,7 +214,7 @@ function GoSearch(){
 				} else {
 			?>
 				<tr onMouseOver="this.style.backgroundColor='#FAFAFA'" onMouseOut="this.style.backgroundColor='#fff'">
-                    <td width="100%" height="40" align="center" colspan="7">등록된 게시물이 없습니다.</td>
+                    <td width="100%" height="40" align="center" colspan="8">등록된 게시물이 없습니다.</td>
                   </tr>
 
 			<?php
@@ -258,6 +273,31 @@ function ViewBoard (seq, lab){
 
 	document.mform.submit();
 }
+
+function hide_post(obj){
+	document.mform.cur_page.value = 1;
+
+	if ($(obj).is(':checked')) {
+		document.mform.hide_yn.value = 'Y';
+	} else {
+		document.mform.hide_yn.value = 'N';
+	}
+
+	document.mform.submit();
+
+}
+
+function temporary_post(obj) {
+	document.mform.cur_page.value = 1;
+
+	if( $(obj).is(':checked') ) {
+		document.mform.temporary.value = 'Y';
+	} else {
+		document.mform.temporary.value = 'N';
+	}
+
+	document.mform.submit();
+}
 </script>
 
 
@@ -284,9 +324,9 @@ function ViewBoard (seq, lab){
 						<?php
 						if ($cur_page > 10){
 						?>
-									<td width="19"><a href="JavaScript:GoFirstPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_first.png" width="20" height="20"/></a></td>
+									<td width="19"><a href="JavaScript:GoFirstPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_last_left.svg" width="20" height="20"/></a></td>
 									<td width="2"></td>
-									<td width="19"><a href="JavaScript:GoPrevPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_left.png" width="20" height="20"/></a></td>
+									<td width="19"><a href="JavaScript:GoPrevPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_left.svg" width="20" height="20"/></a></td>
 						<?php
 						} else {
 						?>
@@ -315,9 +355,9 @@ function ViewBoard (seq, lab){
 									<?php
 						if   ( floor( ( $cur_page - 1 ) / 10 ) < floor( ( $total_page - 1 ) / 10 ) ){
 						?>
-						<td width="19"><a href="JavaScript:GoNextPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_right.png" width="20" height="20"/></a></td>
+						<td width="19"><a href="JavaScript:GoNextPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_right.svg" width="20" height="20"/></a></td>
 									<td width="2"></td>
-									<td width="19"><a href="JavaScript:GoLastPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_last.png" width="20" height="20"/></a></td>
+									<td width="19"><a href="JavaScript:GoLastPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_last_right.svg" width="20" height="20"/></a></td>
 						<?php
 						} else {
 						?>
@@ -401,5 +441,7 @@ function ViewBoard (seq, lab){
 
 		$('#reader_popup').bPopup();
 	}
+
+
 </script>
 </html>

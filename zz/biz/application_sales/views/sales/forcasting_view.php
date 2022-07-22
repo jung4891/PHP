@@ -275,11 +275,21 @@ include $this->input->server('DOCUMENT_ROOT')."/include/sales_header.php";
 									</tr>
 									<tr class="tbl-tr cell-tr">
 										<td class="tbl-title">정보통신공사업</td>
-                    <td class="tbl-cell" colspan="7">
+                    <td class="tbl-cell" colspan="3">
                 <?php if($view_val['infor_comm_corporation'] == "Y"){
 												echo "신청";
 											}else{
 												echo "미신청";
+											} ?>
+										</td>
+										<td class="tbl-title">매출종류</td>
+										<td class="tbl-cell" colspan="3">
+								<?php if($view_val['sales_type'] == 'delivery') {
+												echo "납품";
+											} else if($view_val['sales_type'] == 'circulation') {
+												echo "유통";
+											} else {
+												echo "미지정";
 											} ?>
 										</td>
 									</tr>

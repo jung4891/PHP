@@ -143,5 +143,260 @@ WHERE annual_status = 'Y' AND card_num = '{$card_num}' AND '{$date}' BETWEEN ann
 		$this->db->insert('adt_attendance', $data);
 	}
 
+	function maintain_auto_generate_target($today) {
+		$sql = "SELECT seq
+						FROM sales_forcasting
+						WHERE warranty_end_date IS NOT NULL
+						AND warranty_end_date != ''
+						AND ((TYPE = '4' OR TYPE = '1') AND sales_type = 'delivery')
+						AND warranty_end_date = DATE_ADD('{$today}', INTERVAL -6 MONTH)
+						ORDER BY seq";
+// echo $sql;
+		$query = $this->db->query($sql);
+		return $query->result_array();
+	}
+
+	//포캐스팅 테이블 -> 유지보수 테이블 복사(sales_forcasting,sales_forcasting_proudct,sales_forcasting_mocompany)
+	function forcasting_duplication($data){
+		$seq = $data['forcasting_seq'];
+		$sql = "INSERT INTO sales_maintain
+		(forcasting_seq,
+		TYPE,
+		generate_type,
+		customer_seq,
+		customer_companyname,
+		customer_username,
+		customer_tel,
+		customer_email,
+		project_name,
+		progress_step,
+		upper_seq,
+		sales_companyname,
+		sales_username,
+		dept,
+		sales_tel,
+		sales_email,
+		cooperation_companyname,
+		cooperation_username,
+		cooperation_tel,
+		cooperation_email,
+		first_saledate,
+		exception_saledate,
+		exception_saledate2,
+		exception_saledate3,
+		complete_status,
+		cnum,
+		company_num,
+		manage_team,
+		maintain_cycle,
+		maintain_date,
+		maintain_user,
+		maintain_type,
+		maintain_result,
+		maintain_comment,
+		procurement_sales_amount,
+		forcasting_sales,
+		forcasting_purchase,
+		forcasting_profit,
+		division_month,
+		sub_project_add,
+		file) SELECT seq as forcasting_seq,
+		TYPE,
+		'신규' as generate_type,
+		customer_seq,
+		customer_companyname,
+		customer_username,
+		customer_tel,
+		customer_email,
+		'{$data['project_name']}' as project_name,
+		'{$data['progress_step']}' as progress_step,
+		upper_seq,
+		sales_companyname,
+		sales_username,
+		dept,
+		sales_tel,
+		sales_email,
+		cooperation_companyname,
+		cooperation_username,
+		cooperation_tel,
+		cooperation_email,
+		first_saledate,
+		exception_saledate,
+		exception_saledate2,
+		DATE_ADD(exception_saledate2, INTERVAL 1 YEAR) as exception_saledate3,
+		complete_status,
+		cnum,
+		company_num,
+		manage_team,
+		maintain_cycle,
+		maintain_date,
+		maintain_user,
+		maintain_type,
+		maintain_result,
+		maintain_comment,
+		procurement_sales_amount,
+		0 as forcasting_sales,
+		0 as forcasting_purchase,
+		0 as forcasting_profit,
+		division_month,
+		sub_project_add,
+		file FROM sales_forcasting WHERE seq = {$seq} ";
+		$query1 = $this->db->query($sql);
+		$maintain_seq = $this->db->insert_id();
+
+		$sql2 = "INSERT INTO sales_maintain_product
+		(forcasting_seq,
+		org_maintain_seq,
+		maintain_seq,
+		forcasting_product_seq,
+		product_code,
+		product_supplier,
+		product_count,
+		product_serial,
+		product_state,
+		product_licence,
+		product_version,
+		product_purpose,
+		product_host,
+		maintain_begin,
+		maintain_expire,
+		maintain_yn,
+		maintain_target,
+		insert_date,
+		custom_title,
+		custom_detail,
+		product_sales,
+		product_purchase,
+		product_profit,
+		product_check_list
+		) SELECT forcasting_seq,
+		{$maintain_seq} AS maintain_seq,
+		{$maintain_seq} AS org_maintain_seq,
+		seq as forcasting_product_seq,
+		product_code,
+		product_supplier,
+		product_count,
+		product_serial,
+		product_state,
+		product_licence,
+		product_version,
+		product_purpose,
+		product_host,
+		maintain_begin,
+		maintain_expire,
+		maintain_yn,
+		maintain_target,
+		insert_date,
+		custom_title,
+		custom_detail,
+		0 as product_sales,
+		0 as product_purchase,
+		0 as product_profit,
+		product_check_list FROM sales_forcasting_product WHERE forcasting_seq = {$seq}";
+
+		$sql3 = "INSERT INTO sales_maintain_mcompany
+		(forcasting_seq,
+		maintain_seq,
+		main_companyname,
+		main_username,
+		main_tel,
+		main_email,
+		insert_date
+		)
+		SELECT forcasting_seq,
+		{$maintain_seq} as maintain_seq,
+		main_companyname,
+		main_username,
+		main_tel,
+		main_email,
+		now() as insert_date
+	    FROM sales_forcasting_mcompany WHERE forcasting_seq = {$seq}";
+
+		// $sql4 = "UPDATE sales_maintain set write_id = '{$this->id}' where seq = {$maintain_seq}";
+
+		$query2 = $this->db->query($sql2);
+		$query3 = $this->db->query($sql3);
+		// $query4 = $this->db->query($sql4);
+
+		if($query1 == true && $query2 == true && $query3 == true){
+			return $maintain_seq;
+		}else{
+			return false;
+		}
+	}
+
+	function maintain_auto_renewal($today) {
+		// $sql = "SELECT seq FROM sales_maintain WHERE (exception_saledate2 is not null and exception_saledate2 != '') and exception_saledate3 < '{$today}' AND (progress_step > '014' and progress_step is not null and progress_step != '' )";
+
+		$sql = "SELECT seq FROM sales_maintain WHERE (forcasting_seq, seq) IN (SELECT forcasting_seq, MAX(seq) AS seq FROM sales_maintain GROUP BY forcasting_seq) AND (exception_saledate2 is not null and exception_saledate2 != '') and (exception_saledate3 is not null and exception_saledate3 != '') AND (forcasting_sales > 0 or forcasting_purchase > 0) ORDER BY seq DESC";
+echo $sql;
+		$query = $this->db->query($sql);
+
+		return $query->result_array();
+	}
+
+	function fund_list_paysession_target() {
+		$sql = "SELECT
+REPLACE(bfl.bill_seq, 'm_', '') AS bill_seq, fl.*
+FROM bill_fund_link bfl
+JOIN fund_list fl ON bfl.fund_list_seq = fl.idx
+WHERE breakdown NOT LIKE '%회차%' AND bill_seq LIKE '%m_%'";
+
+		$query = $this->db->query($sql);
+
+		return $query->result_array();
+	}
+
+	function paysession($seq) {
+		$sql = "SELECT pay_session FROM sales_maintain_bill where seq = $seq";
+
+		$query = $this->db->query($sql);
+
+		return $query->row_array();
+	}
+
+	function fund_list_paysession_update($idx, $breakdown, $paysession) {
+		$breakdown = addslashes($breakdown);
+		$sql = "UPDATE fund_list SET breakdown = '{$breakdown} ({$paysession}회차)' where idx = $idx";
+
+		$this->db->query($sql);
+	}
+
+	function user_list() {
+		$sql = "select seq from user";
+
+		$query = $this->db->query($sql);
+
+		return $query->result_array();
+	}
+
+	function board_list() {
+		$sql = "select seq from weekly_report where concat(year, month, week) != '202232'";
+
+		$query = $this->db->query($sql);
+
+		return $query->result_array();
+	}
+
+	function all_read_baord($data) {
+		$this->db->insert('weekly_report_read', $data);
+	}
+
+	function cron_data_extract() {
+		$sql = "SELECT * FROM electronic_approval_doc WHERE approval_form_seq = 16 AND approval_doc_status = '002' order by seq desc";
+
+		$query = $this->db->query($sql);
+
+		return $query->result_array();
+	}
+
+	function cron_data_extract_schedule() {
+		$sql = "SELECT * FROM tech_schedule_list WHERE work_type = 'tech' ORDER BY start_day, start_time";
+
+		$query = $this->db->query($sql);
+
+		return $query->result_array();
+	}
+
 }
 ?>

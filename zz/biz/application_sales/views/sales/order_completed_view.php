@@ -73,6 +73,7 @@ if(!empty($bill_val)){
 </style>
 <link rel="stylesheet" href="<?php echo $misc;?>css/view_page_common.css">
 <script src="<?php echo $misc;?>js/excel/excel-bootstrap-table-filter-bundle.js"></script>
+<script type="text/javascript" src="/misc/js/jquery.bpopup-0.1.1.min.js"></script>
 <link rel="stylesheet" href="<?php echo $misc;?>js/excel/excel-bootstrap-table-filter-style.css" />
 <script language="javascript">
 	function chkDel() {
@@ -188,8 +189,12 @@ if(!empty($bill_val)){
 														고객사 정보
 														<img src="<?php echo $misc; ?>img/pencil_btn.png" width="15" height="15" style="margin-left:5px;"/>
 														</span>
+													<!-- <?php //if(($view_val['type'] != '1' && $view_val['sales_type'] != 'delivery') || ($view_val['type'] != '4' && $view_val['sales_type'] != 'delivery')){ ?> -->
+														<input type="button" style="width:110px;float:right;margin-left:10px;" class="btn-common btn-color2" value="유지보수 생성" onClick="maintainDuplicate();">
+													<!-- <?php //} ?> -->
 														<input type="button" style="float:right;" class="btn-common btn-color2" value="목록" onClick="javascript:history.go(-1)">
-														<input type="button" style="float:right;margin-right:10px;" class="btn-common btn-color1" value="삭제" onclick="javascript:chkDel();return false;">
+														<?php if(empty($approval_doc) || ($approval_doc['approval_doc_status'] != "001" && $approval_doc['approval_doc_status'] != "002")) { ?>
+														<input type="button" style="float:right;margin-right:10px;" class="btn-common btn-color1" value="삭제" onclick="javascript:chkDel();return false;"> <?php } ?>
                           </td>
 												</tr>
 												<!--시작라인-->
@@ -276,7 +281,7 @@ if(!empty($bill_val)){
 												</tr>
 												<tr class="tbl-tr cell-tr">
 													<td class="tbl-title">정보통신공사업</td>
-                          <td class="tbl-cell" <?php if($view_val['type'] ==3){echo "colspan='7'";} ?>>
+                          <td class="tbl-cell" <?php if($view_val['type'] ==3){echo "colspan='3'";} ?>>
                       <?php if($view_val['infor_comm_corporation'] == "Y"){
 															echo "신청";
 														}else{
@@ -285,7 +290,7 @@ if(!empty($bill_val)){
 													</td>
 												<?php if($view_val['type'] !=3){ ?>
 													<td class="tbl-title">품의서작성여부</td>
-													<td class="tbl-cell" <?php if($view_val['type'] !=3){echo "colspan='5'";} ?>>
+													<td class="tbl-cell">
                       <?php if(empty($approval_doc)){
 															echo "미작성";
 														}else if($approval_doc['approval_doc_status'] == "001" ){
@@ -308,6 +313,16 @@ if(!empty($bill_val)){
 														<?php } ?>
 													</td>
 												<?php } ?>
+													<td class="tbl-title">매출종류</td>
+													<td class="tbl-cell" colspan="3">
+												<?php if($view_val['sales_type'] == 'delivery'){
+																echo "납품";
+															} else if($view_val['sales_type'] == 'circulation') {
+																echo "유통";
+															} else {
+																echo '미지정';
+															} ?>
+													</td>
 												</tr>
 												<tr>
 													<td height=30></td>
@@ -455,7 +470,10 @@ if(!empty($bill_val)){
 													</td>
 												</tr>
 												<tr>
-													<td height="60" colspan="9" align="left"><span style='cursor:pointer;' onclick="productView(this);">제품 정보 보기 ▼</span></td>
+													<td height="60" colspan="9" align="left">
+														<!-- <span style='cursor:pointer;' onclick="productView(this);">제품 정보 보기 ▼</span> -->
+														<input type="checkbox" style="cursor:pointer;'" onclick="productView(this);">제품 정보 보기
+													</td>
 												</tr>
 												<tr id="product_field" style="display:none;">
 													<td colspan="9">
@@ -815,6 +833,10 @@ if(!empty($bill_val)){
 													<td height="40" class="border-r" align="center" filter_column="12">
 														<?php if($bill['deposit_status'] == "Y"){
 															echo "완료";
+														} else if($bill['deposit_status'] == "O"){
+															echo "과잉";
+														} else if($bill['deposit_status'] == "L"){
+															echo "부족";
 														}else{
 															echo "미완료";
 														} ?>
@@ -850,6 +872,10 @@ if(!empty($bill_val)){
 													<td height="40" class="border-r" align="center" filter_column="12">
 															<?php if($bill['deposit_status'] == "Y"){
 																echo "완료";
+															} else if($bill['deposit_status'] == "O"){
+																echo "과잉";
+															} else if($bill['deposit_status'] == "L"){
+																echo "부족";
 															}else{
 																echo "미완료";
 															} ?>
@@ -924,7 +950,7 @@ if(!empty($bill_val)){
 										<th height="40" class="basic_td apply-filter no-sort" align="center" bgcolor="f8f8f9" filter_column="8" style="font-weight:bold;">발행월</th>
 										<th height="40" class="basic_td apply-filter no-sort" align="center" bgcolor="f8f8f9" filter_column="9" style="font-weight:bold;">발행일자</th>
 										<th height="40" class="basic_td apply-filter no-sort" align="center" bgcolor="f8f8f9" filter_column="10" style="font-weight:bold;">발행여부</th>
-										<th height="40" class="basic_td apply-filter no-sort" align="center" bgcolor="f8f8f9" filter_column="11" style="font-weight:bold;">입금일자</th>
+										<th height="40" class="basic_td apply-filter no-sort" align="center" bgcolor="f8f8f9" filter_column="11" style="font-weight:bold;">지급일자</th>
 										<th height="40" class="basic_td apply-filter no-sort" align="center" bgcolor="f8f8f9" filter_column="12" style="font-weight:bold;">입금여부</th>
 									</tr>
 								</thead>
@@ -989,6 +1015,10 @@ if(!empty($bill_val)){
 													<td align="center" filter_column="12">
 														<?php if($bill['deposit_status'] == "Y"){
 																echo "완료";
+														} else if($bill['deposit_status'] == "O"){
+															echo "과잉";
+														} else if($bill['deposit_status'] == "L"){
+															echo "부족";
 														}else{
 															echo "미완료";
 														} ?>
@@ -1023,6 +1053,10 @@ if(!empty($bill_val)){
 													<td align="center" filter_column="12">
 														<?php if($bill['deposit_status'] == "Y"){
 																echo "완료";
+														} else if($bill['deposit_status'] == "O"){
+															echo "과잉";
+														} else if($bill['deposit_status'] == "L"){
+															echo "부족";
 														}else{
 															echo "미완료";
 														} ?>
@@ -1072,9 +1106,33 @@ if(!empty($bill_val)){
 					<tr>
 						<td>&nbsp;</td>
 					</tr>
-					<tr>
-						<td>&nbsp;</td>
-					</tr>
+					<!--첨부파일-->
+							<table width="100%" border="0" cellspacing="0" cellpadding="0">
+								<form name="attach_form" method="post">
+									<input type="hidden" name="seq" value="<?php echo $seq; ?>">
+									<tr>
+										<td class="tbl-sub-title">첨부파일</td>
+									</tr>
+									<tr>
+										<td>
+											<table width="100%" border="0" cellspacing="0" cellpadding="5" style='border: thin solid #DFDFDF;'>
+												<colgroup>
+													<col width="10%">
+													<col width="90%">
+												</colgroup>
+												<tr>
+													<td></td>
+													<td class="answer2" colspan="3" align="center">
+														<textarea name="comment" id="comment" rows="5" class="input_answer1" style="width:100%;"></textarea>
+													</td>
+												</tr>
+											</table>
+										</td>
+									</tr>
+								</form>
+							</table>
+						</table>
+					<!--첨부파일-->
 					<!--댓글-->
 							<table width="100%" border="0" cellspacing="0" cellpadding="0">
 								<form name="rform" method="post">
@@ -1151,6 +1209,67 @@ if(!empty($bill_val)){
 	</tr>
 </table>
 </div>
+</div>
+
+<!-- 유지보수 생성 모달 시작 -->
+<div id="add_maintain_div" style="display:none; position: absolute; background-color: white; width: auto; height: auto;">
+	<form name="cform" action="<?php echo site_url();?>/sales/maintain/forcasting_duplication" method="post" onSubmit="javascript:chkForm();return false;">
+    <table width="700px" height="100%" style="padding:20px 18px;" border="0" cellspacing="0" cellpadding="0">
+			<colgroup>
+				<col width=20%>
+				<col width=70%>
+				<col width=10%>
+			</colgroup>
+      <tr>
+        <td colspan="3" align="left" valign="top" class="tbl-sub-title">유지보수 생성</td>
+      </tr>
+			<tr class="tbl-tr border-b">
+        <td align="left" style="font-weight:bold;font-size:14px;padding-bottom:5px;">포캐스팅</td>
+				<td align="left">
+					<input type="hidden" name="forcasting_seq" value="<?php echo $seq; ?>">
+		<?php echo $view_val['customer_companyname'].'('.$view_val['project_name'].')'; ?>
+				</td>
+			</tr>
+
+			<tr class="tbl-tr border-b">
+      	<td align="left" style="font-weight:bold;font-size:14px;padding-bottom:5px;">프로젝트</td>
+				<td align="left">
+					<input name="project_name" type="text" class="input-common" id="project_name" style="width:90%" value="<?php echo $view_val['project_name']; ?>"/>
+				</td>
+				<td></td>
+			</tr>
+
+			<tr class="tbl-tr border-b">
+				<td align="left" style="font-weight:bold;font-size:14px;padding-bottom:5px;">진척단계</td>
+				<td align="left">
+					<select name="progress_step" id="progress_step" class="select-common" style="width:92%">
+						<option value="0">-진척단계-</option>
+						<option value="001">영업보류(0%)</option>
+						<option value="002">고객문의(5%)</option>
+						<option value="003">영업방문(10%)</option>
+						<option value="004">일반제안(15%)</option>
+						<option value="005">견적제출(20%)</option>
+						<option value="006">맞춤제안(30%)</option>
+						<option value="007">수정견적(35%)</option>
+						<option value="008">RFI(40%)</option>
+						<option value="009">RFP(45%)</option>
+						<option value="010">BMT(50%)</option>
+						<option value="011">DEMO(55%)</option>
+						<option value="012">가격경쟁(60%)</option>
+						<option value="013">Spec in(70%)</option>
+						<option value="014">수의계약(80%)</option>
+					</select>
+				</td>
+				<td></td>
+			</tr>
+      <tr>
+        <td colspan="3" align="right" style="padding-top:30px;">
+					<input type="button" class="btn-common btn-color1" value="취소" onClick="$('#add_maintain_div').bPopup().close()">
+					<input type="button" class="btn-common btn-color2" value="등록" onclick="javascript:add_maintain();return false;">
+        </td>
+      </tr>
+    </table>
+  </form>
 </div>
 <!--하단-->
 <?php include $this->input->server('DOCUMENT_ROOT') . "/include/sales_bottom.php"; ?>
@@ -1646,6 +1765,59 @@ if(!empty($bill_val)){
 		}
 	  $(el).closest("div").find(".file_span").text(filename);
 	}
+
+	//유지보수 생성
+	function maintainInput(){
+		location.href = "<?php echo site_url(); ?>/sales/maintain/maintain_input";
+	 }
+
+	 // 유지보수인풋에서 옮겨 온거
+	 var add_maintain = function () {
+	 	var mform = document.cform;
+
+	 	if (mform.forcasting_seq.value == "") {
+	 		mform.forcasting_seq.focus();
+	 		alert("포캐스팅을 선택해 주세요.");
+	 		return false;
+	 	}
+	 	if (mform.project_name.value == "") {
+	 		mform.project_name.focus();
+	 		alert("프로젝트명을 입력해주세요");
+	 		return false;
+	 	}
+	 	if (mform.progress_step.value == 0) {
+	 		mform.progress_step.focus();
+	 		alert("진척단계를 선택해 주세요.");
+	 		return false;
+	 	}
+
+	 	mform.submit();
+	 	return false;
+	 }
+
+	 //유지보수 중복 여부
+	 function maintainDuplicate(){
+		 var seq = '<?php echo $seq; ?>';
+		 $.ajax({
+			 type: "POST",
+			 cache: false,
+			 url: "<?php echo site_url(); ?>/sales/maintain/maintainDuplicate",
+			 dataType: "json",
+			 async: false,
+			 data: {
+				 seq: seq
+			 },
+			 success: function (data) {
+				 if(data){
+					 if(confirm('해당 수주완료로 유지보수가 존재합니다. 선택을 유지하시겠습니까?')){
+						 $('#add_maintain_div').bPopup();
+					 }
+				 } else {
+					 $('#add_maintain_div').bPopup();
+				 }
+			 }
+		 });
+	 }
 
 </script>
 </body>

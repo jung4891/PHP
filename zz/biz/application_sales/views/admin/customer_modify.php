@@ -142,6 +142,14 @@ function openDaumPostcode2() {
 		}
 	}).open();
 }
+
+function ynCheck(obj){
+	if($(obj).is(":checked")){
+		$("input[name=manufacturing_com]").val('Y');
+	} else {
+		$("input[name=manufacturing_com]").val('N');
+	}
+}
 </script>
 <body>
 <?php
@@ -213,14 +221,21 @@ function openDaumPostcode2() {
                   </tr>
                    <tr>
                     <td height="40" align="center" bgcolor="f8f8f9" style="font-weight:bold;">업체구분</td>
-                    <td align="left" colspan="3" class="t_border" style="padding-left:10px;">
+                    <td align="left" class="t_border" style="padding-left:10px;">
 											<select name="company_part" id="company_part" class="select7" style="width:255px;">
                       <option value="001" <?php if($view_val['company_part'] == "001") { echo "selected"; }?>>전체</option>
                       <option value="002" <?php if($view_val['company_part'] == "002") { echo "selected"; }?>>고객사</option>
-					  <!-- <option value="003" <?php if($view_val['company_part'] == "003") { echo "selected"; }?>>매출</option> -->
-					  <option value="004" <?php if($view_val['company_part'] == "004") { echo "selected"; }?>>협력사</option>
+										  <!-- <option value="003" <?php if($view_val['company_part'] == "003") { echo "selected"; }?>>매출</option> -->
+										  <option value="004" <?php if($view_val['company_part'] == "004") { echo "selected"; }?>>협력사</option>
                     </select>
 										<span style="color:#999; font-size:10px;"></span>
+									</td>
+									<td height="40" align="center" bgcolor="f8f8f9" class="t_border" style="font-weight:bold;">제조사</td>
+									<td align="left" class="t_border" style="padding-left:10px;">
+										<input type="checkbox" name="manufacturing_chk" onclick="ynCheck(this);" value="" <?php if ($view_val['manufacturing_com'] == 'Y') {
+											echo "checked";
+										} ?> >
+										<input type="hidden" name="manufacturing_com" value="<?php echo $view_val['manufacturing_com'] ?>">
 									</td>
                 </tr>
                 <tr>
@@ -707,22 +722,15 @@ function openDaumPostcode2() {
                 <tr>
                 	<td height="40" align="center" bgcolor="f8f8f9" style="font-weight:bold;">출생년월일</td>
                   <td align="left" class="t_border" style="padding-left:10px;"><input name="birth_date" type="date" class="input" id="birth_date" style="float:left;" value="<?php echo $view_val['birth_date'];?>"/><!-- <img src="<?php echo $misc;?>img/btn_calendar.jpg" /> --></td>
-                  <td height="40" align="center" bgcolor="f8f8f9" class="t_border" style="font-weight:bold;">출신고교</td>
-                  <td align="left" class="t_border" style="padding-left:10px;">
-										<input name="highschool" type="text" class="input2" id="highschool" value="<?php echo $view_val['highschool'];?>"/></td>
                 </tr>
 
                 <tr>
                   <td colspan="4" height="1" bgcolor="#e8e8e8"></td>
                 </tr>
                 <tr>
-                	<td height="40" align="center" bgcolor="f8f8f9" style="font-weight:bold;">출신대학교</td>
-                  <td align="left" class="t_border" style="padding-left:10px;">
-										<input name="university" type="text" class="input2" id="university" value="<?php echo $view_val['university'];?>"/
-										></td>
-                  <td height="40" align="center" bgcolor="f8f8f9" class="t_border" style="font-weight:bold;">전공</td>
-                  <td align="left" class="t_border" style="padding-left:10px;">
-										<input name="specialty" type="text" class="input2" id="specialty" value="<?php echo $view_val['specialty'];?>"/>
+                	<td height="40" align="center" bgcolor="f8f8f9" style="font-weight:bold;">비고</td>
+                  <td colspan="3" align="left" class="t_border" style="padding-left:10px;">
+										<input name="note" type="text" class="input2" id="note" value="<?php echo $view_val['note'];?>" style="width:100%;"/>
 									</td>
                 </tr>
 								<tr>

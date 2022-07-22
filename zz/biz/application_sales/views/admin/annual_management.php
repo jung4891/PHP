@@ -87,14 +87,16 @@
                     <option value="false" <?php if(isset($filter)){if($filter[4] == "false"){echo "selected";}} ?>>미생성</option>
                   </select>
 
-                  <button type="button" name="button" class="btn-common btn-style1" onclick="return GoSearch();">검색</button>
+                  <button type="button" name="button" class="btn-common btn-style2" onclick="return GoSearch();">검색</button>
 
                 </div>
                 </td>
                 <td align="right">
-                    <input type="button" id="" class="btn-common btn-color1" value="연차생성" onclick="create_annual();" />
-                    <input type="button" id="" class="btn-common btn-color1" value="연차삭제" onclick="annualReset();" />
-                    <input type="button" id="" class="btn-common btn-color2" value="조정연차관리" onclick="adjust_annual()" />
+                  <input type="checkbox" name="quit_user" value="Y" onchange="return GoSearch();" <?php if($quit_user == 'Y'){echo 'checked';} ?>>
+                  <span style="font-weight:bold;">퇴사자 기록 보기</span>
+                    <input type="button" id="" class="btn-common btn-color7" value="연차생성" onclick="create_annual();" />
+                    <input type="button" id="" class="btn-common btn-color4" value="연차삭제" onclick="annualReset();" />
+                    <input type="button" id="" class="btn-common btn-style4" value="조정연차관리" onclick="adjust_annual()" style="width:auto;" />
                 </td>
 							</tr>
 
@@ -215,29 +217,33 @@
 				<col width="40%" />
 			</colgroup>
 			<tr>
-				<td colspan=4 class="modal_title" align="center" colspan="2" style="padding:20px 0px 20px 0px">
+				<td colspan=4 class="modal_title" align="center" colspan="2" style="padding:30px 0px 20px 0px;text-align:left;font-weight:bold;font-size:20px;">
 					조정연차관리
 					<input type="hidden" name="delete_adjust_seq" id="delete_adjust_seq" value="">
 				</td>
 			</tr>
 			<tr>
-				<td align="center" style="font-weight:bold;">이름</td>
-				<td align="left">
-					<input type="text" class="input2" name="type" id="user_name" value="" style="width:95%" readonly>
-          			<input type="hidden" name="annual_seq" id="annual_seq" value="">
-				</td>
-				<td align="center" style="font-weight:bold;">기준연도</td>
-				<td align="left">
-          			<input type="text" class="input2" name="annual_period" id="annual_period" value="" style="width:95%">
-				</td>
-			</tr>
-			<tr>
-				<td colspan=4 align="left" style="padding:20px 0px;">
+				<td colspan=4 align="left" style="padding:20px 0px;color:red;">
 					<div style="text-align:right;margin-bottom:20px;">
-						<input type="button" class="basicBtn" value="행추가" onclick="adjust_annual_add();" />
-						<input type="button" class="basicBtn" value="행삭제" onclick="adjust_annual_del();"/>
+            <table style="position:relative; top:30px;">
+              <tr>
+        				<td align="center" style="color:black;font-weight:bold;padding-right: 10px;">이름</td>
+        				<td align="left">
+        					<input type="text" class="input2" name="type" id="user_name" value="" style="width:95%;color:#B6B6B6;font-weight:bold;" readonly>
+                  			<input type="hidden" name="annual_seq" id="annual_seq" value="">
+        				</td>
+        				<td align="center" style="color:black;font-weight:bold;padding-left: 20px;padding-right:10px;">기준연도</td>
+        				<td align="left">
+                  			<input type="text" class="input2" name="annual_period" id="annual_period" value="" style="width:95%;color:#B6B6B6;font-weight:bold;">
+        				</td>
+        			</tr>
+            </table>
+            <button type="button" name="button" class="btn-common btn-color4" style="margin-right:10px;" onclick="adjust_annual_del();">행삭제</button>
+            <button type="button" name="button" class="btn-common btn-color2" onclick="adjust_annual_add();">행추가</button>
+            <!-- <input type="button" class="basicBtn" value="행추가" onclick="adjust_annual_add();" /> -->
+						<!-- <input type="button" class="basicBtn" value="행삭제" onclick="adjust_annual_del();"/> -->
 					</div>
-					<table id="adjust_annual_table" class="basic_table" style="width:100%;">
+					<table id="adjust_annual_table" class="basic_table" style="width:100%;color:black;">
 						<colgroup>
 							<col width="10%" />
 							<col width="20%" />
@@ -259,8 +265,11 @@
 			<tr>
 				<td colspan=4 align="center">
 					<div style="margin-top:50px;">
-						<img src="<?php echo $misc;?>img/dashboard/btn/btn_save.png" width="64" height="31" style="cursor:pointer" onclick="adjust_annual_save();"/>
-						<img src="<?php echo $misc;?>img/dashboard/btn/btn_cancel.png" width="64" height="31" style="cursor:pointer" onClick="$('#attendance_input').bPopup().close();"/>
+
+						<!-- <img src="<?php echo $misc;?>img/dashboard/btn/btn_save.png" width="64" height="31" style="cursor:pointer" onclick="adjust_annual_save();"/> -->
+            <button type="button" name="button" class="btn-common btn-color2" onclick="adjust_annual_save();" style="float:right;">저장</button>
+            <button type="button" name="button" class="btn-common btn-color4" onclick="$('#attendance_input').bPopup().close();" style="float:right; margin-right:10px;">취소</button>
+						<!-- <img src="<?php echo $misc;?>img/dashboard/btn/btn_cancel.png" width="64" height="31" style="cursor:pointer" onClick="$('#attendance_input').bPopup().close();"/> -->
 					</div>
 				</td>
 			</tr>
@@ -534,10 +543,10 @@ function adjust_annual(){
 //조정연차 추가
 function adjust_annual_add(){
 	var html = "<tr class='insert_annual'><td align='center'><input type='checkbox' name='annual_each' ></td>";
-	html +=" <td><select class='input7 adjust_annual_type'><option value=''>미선택</option><option value='조정'>조정</option><option value='포상'>포상</option><option value='삭감'>삭감</option></select></td>";
-	html +="<td><input type='date' class='input7 insert_date' /></td>";
-	html +="<td><input type='text' class='input7 adjust_annual_cnt'  /></td>";
-	html +="<td><input type='text' class='input7 comment'  /></td></tr>";
+	html +=" <td><select class='input7 adjust_annual_type' style='color:#B0B0B0;font-weight:bold;'><option value=''>미선택</option><option value='조정'>조정</option><option value='포상'>포상</option><option value='삭감'>삭감</option></select></td>";
+	html +="<td><input type='date' class='input7 insert_date' style='color:#B0B0B0;' /></td>";
+	html +="<td><input type='text' class='input7 adjust_annual_cnt' style='color:#B0B0B0;' /></td>";
+	html +="<td><input type='text' class='input7 comment' style='color:#B0B0B0;' /></td></tr>";
 	$("#adjust_annual_table").append(html);
 
 }

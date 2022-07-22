@@ -13,6 +13,11 @@ class Schedule extends CI_Controller {
     $this->pGroupName = $this->phpsession->get( 'pGroupName', 'stc' );
     $this->company = $this->phpsession->get( 'company', 'stc' );
     $this->seq = $this->phpsession->get( 'seq', 'stc' );
+    $this->cooperation_yn = $this->phpsession->get( 'cooperation_yn', 'stc' );
+
+    if($this->cooperation_yn == 'Y') {
+      echo "<script>alert('권한이 없습니다.');location.href='".site_url()."'</script>";
+    }
     $this->load->database();
     ob_start();
     $config['url_suffix'] = 'html';
@@ -148,6 +153,10 @@ class Schedule extends CI_Controller {
     $data['rooms']           = $this->STC_Schedule->rooms();
     $data['cars']            = $this->STC_Schedule->cars();
 
+    // if($pGroupName == '기술본부' && ( ($this->id == 'kkj') || $data['login_user_duty'] == '팀장' )) {
+    //   $data['no_written_report'] = $this->STC_Schedule->no_written_report();
+    // }
+
 
     $data['title'] = '일정관리';
 
@@ -219,13 +228,18 @@ class Schedule extends CI_Controller {
         $support_method = "/".$event->support_method;
       }
 
+      $outside_work = '';
+      if($event->outside_work == "Y") {
+        $outside_work = '[직출]';
+      }
+
       if($event->work_type == 'tech'){
-        $arr['title'] = "[".$participant."]"." ".$event->customer.$work_name.$support_method;
+        $arr['title'] = "[".$participant."]".$outside_work." ".$event->customer.$work_name.$support_method;
       }else{
         if($event->customer != '' || $event->customer != null){
-          $arr['title'] = "[".$participant."]"." ".$event->work_name."/".$event->customer."/".$event->title;
+          $arr['title'] = "[".$participant."]".$outside_work." ".$event->work_name."/".$event->customer."/".$event->title;
         }else{
-          $arr['title'] = "[".$participant."]"." ".$event->work_name."/".$event->title;
+          $arr['title'] = "[".$participant."]".$outside_work." ".$event->work_name."/".$event->title;
         }
         $arr['extendedProps']['place'] = $event->place;
       }
@@ -255,6 +269,7 @@ class Schedule extends CI_Controller {
       $arr['extendedProps']['e_file_changename']  = $event->e_file_changename;
       $arr['extendedProps']['start_reason']  = $event->start_reason;
       $arr['extendedProps']['end_reason']  = $event->end_reason;
+      $arr['extendedProps']['outside_work']  = $event->outside_work;
 
       $arr['color']     = $event->color;
       $arr['textColor'] = $event->textColor;
@@ -271,6 +286,22 @@ class Schedule extends CI_Controller {
         $arr['borderColor'] = $event->color; //배경색이랑 동일
         // $arr['borderColor'] = "#00ff0000"; //투명
       }
+      array_push($events, $arr);
+    }
+
+    $holiday_list = $this->STC_Schedule->holiday_list();
+
+    foreach($holiday_list as $hl) {
+      $arr=array();
+      $arr['title'] = $hl->dateName;
+      $arr['start'] = $hl->locdate;
+      $arr['end'] = $hl->locdate;
+      $arr['display'] = 'background';
+      $arr['className'] = 'koHolidays';
+      $arr['color'] = '#ffffff';
+      $arr['textColor'] = 'red';
+      $arr['editable'] = false;
+      $arr['eventClick'] = false;
       array_push($events, $arr);
     }
 
@@ -573,6 +604,8 @@ class Schedule extends CI_Controller {
     $visit_company = $this->input->get('visitCompany');
     $modifyDay = date("Y-m-d H:i:s");
 
+    $outside_work = $this->input->get('outside_work');
+
     $user_id = $this->id;
     $my_group = $this->STC_Schedule->my_group($user_id)->user_group;
     $data = array(
@@ -608,6 +641,7 @@ class Schedule extends CI_Controller {
       'end_reason'        => $end_reason,
       // 'weekly_report' => null,
       'nondisclosure'   => $nondisclosure,
+      'outside_work'    => $outside_work,
       'recurring_date'          => $recurring_date,
       'recurring_modify_choose' => (!empty($recurring_modify_choose)) ? $recurring_modify_choose : NULL,
       'recurring_setting'       => (!empty($recurring_setting)) ? $recurring_setting : NULL, //반복일정이었던걸 반복취소 할 경우에 null값을 넣어줘야하기 때문에
@@ -1666,6 +1700,9 @@ class Schedule extends CI_Controller {
 
     $room_name = $this->input->post('room_name');
     $car_name = $this->input->post('car_name');
+    $outside_work = $this->input->post('outside_work'); // 직출 추가
+    // $de_outside_work = $this->input->post('de_outside_work');
+
     //KI1 20210125 고색사 포캐스팅형으로 변경하여 새로 추가되는 부분
     // $customer = $this->input->post('customer');
 
@@ -1788,6 +1825,7 @@ class Schedule extends CI_Controller {
       'work_name'       => $workname,
       'room_name'       => $room_name,
       'car_name'        => $car_name,
+      'outside_work'    => $outside_work,  // 직출 추가
       //KI1 20210125 고객사 포캐스팅형으로 변경하여 새로 추가되는 부분
       'customer'        => $customer,
       'visit_company'        => $visit_company,
@@ -2251,6 +2289,16 @@ class Schedule extends CI_Controller {
     echo json_encode($data);
     // $this->load->view('biz/tech_schedule_detail', $data);
 
+  }
+
+  //근무품의서 작성여부 확인
+  function create_document() {
+    $seq = $this->input->post('seq');
+    // $data['trip'] = $this->STC_Schedule->trip_document($seq);
+    // $data['night'] = $this->STC_Schedule->night_document($seq);
+    // 20220622 주석처리 / 문제없을시 삭제
+    $data['weekend'] = $this->STC_Schedule->weekend_document($seq);
+    echo json_encode($data);
   }
 
 // BH 일정 드래그시 날짜 업데이트

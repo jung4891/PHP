@@ -14,8 +14,12 @@ class Home extends CI_Controller {
 		$this->group = $this->phpsession->get( 'group', 'stc' );
 		$this->login_time = $this->phpsession->get( 'login_time', 'stc' );
 		$this->seq = $this->phpsession->get( 'seq', 'stc' );
+		$this->email = $this->phpsession->get( 'email', 'stc' );
+		$this->pGroupName = $this->phpsession->get( 'pGroupName', 'stc' );
+		$this->cooperation_yn = $this->phpsession->get( 'cooperation_yn', 'stc' );
 		$this->load->helper('alert');
-		$this->load->Model(array('STC_Common','biz/STC_Approval', 'biz/STC_Schedule', 'dashboard/STC_Dashboard'));
+		$this->load->Model(array('STC_Common','biz/STC_Approval', 'biz/STC_Schedule', 'dashboard/STC_Dashboard', 'STC_mail'));
+
 	}
 
 	function index() {
@@ -25,10 +29,14 @@ class Home extends CI_Controller {
 			if( $this->id === null ) {
 				redirect( 'account' );
 			}
+			if( $this->cooperation_yn == 'Y' ) {
+				echo "<script>location.href='".site_url()."/tech/tech_board/tech_doc_list?type=Y'</script>";
+			}
 			$data['category'] = $this->STC_Approval->select_format_category();
 			$data['standby_approval'] = $this->STC_Approval->approval_list("standby");
 			$data['delegation'] = $this->STC_Approval->delegation_list();
 			$data['periodic_inspection']=$this->STC_Common->periodic_inspection();
+			$data['fortigate_project'] = $this->STC_Dashboard->fortigate_project();
 			$data['work_color'] = $this->STC_Schedule->work_color_list();
 			$data['user_name'] = $this->name;
 			$data['user_group'] = $this->group;
@@ -76,6 +84,20 @@ class Home extends CI_Controller {
 					$data['back_count'] = 0;
 			}
 
+			// 연봉계약서
+			$data['wage'] = $this->STC_Approval->approval_list('wage');
+			if(!empty($data['wage'])){
+					$data['wage_count'] = count($data['wage']);
+			}else{
+					$data['wage_count'] = 0;
+			}
+
+			$data['no_read_cnt_s'] = $this->STC_Approval->approval_list('standby',$search_keyword = '',$this->seq,'no_read_cnt');//진행중인고
+			$data['no_read_cnt_p'] = $this->STC_Approval->approval_list('progress',$search_keyword = '',$this->seq,'no_read_cnt');//진행중인고
+			$data['no_read_cnt_c'] = $this->STC_Approval->approval_list('completion',$search_keyword = '',$this->seq,'no_read_cnt');//진행중인고
+			$data['no_read_cnt_b'] = $this->STC_Approval->approval_list('back',$search_keyword = '',$this->seq,'no_read_cnt');//진행중인고
+			$data['no_read_cnt_w'] = $this->STC_Approval->approval_list('wage',$search_keyword = '',$this->seq,'no_read_cnt');//진행중인고
+
 			// 공지사항
 			// $data['notice_list'] = $this->STC_Dashboard->notice_list();
 			// $data['notice_list_count'] = $this->STC_Dashboard->notice_list_count()->ucount;
@@ -83,20 +105,24 @@ class Home extends CI_Controller {
 			// 운영공지
 			$data['management'] = $this->STC_Dashboard->notice_list('001');
 			$data['management_count'] = $this->STC_Dashboard->notice_list_count('001')->ucount;
+			$data['management_nread_count'] = $this->STC_Dashboard->notice_list_nread_count('001')->ucount;
 
 			// 개발공지
 			$data['development'] = $this->STC_Dashboard->notice_list('002');
 			$data['development_count'] = $this->STC_Dashboard->notice_list_count('002')->ucount;
+			$data['development_nread_count'] = $this->STC_Dashboard->notice_list_nread_count('002')->ucount;
 
 			// 개발공지
 			$data['version'] = $this->STC_Dashboard->notice_list('003');
 			$data['version_count'] = $this->STC_Dashboard->notice_list_count('003')->ucount;
+			$data['version_nread_count'] = $this->STC_Dashboard->notice_list_nread_count('003')->ucount;
 
+			// 디키타카
+			$data['diquitaca'] = $this->STC_Dashboard->diquitaca_qna_list();
+			$data['diquitaca_nread_count'] = $this->STC_Dashboard->diquitaca_qna_list_nread_count();
 
 			// 주소록
-			$user_data = $this->STC_Dashboard->user_data();
-			$data['user_data_count'] = count($user_data);
-			$data['user_data'] = array_chunk($user_data,9);
+			$data['user_data'] = $this->STC_Dashboard->user_data();
 
 			// 일정
 			$data['schedule'] = $this->STC_Dashboard->schedule();
@@ -104,6 +130,7 @@ class Home extends CI_Controller {
 			// 주간업무
 			$data['weekly_report_list'] = $this->STC_Dashboard->weekly_report_list();
 			$data['weekly_report_list_count'] = $this->STC_Dashboard->weekly_report_list_count()->cnt;
+			$data['weekly_report_nread_count'] = $this->STC_Dashboard->weekly_report_list_nread_count();
 
 
 			// 근태관리
@@ -128,6 +155,7 @@ class Home extends CI_Controller {
 			$data['holiday_list'] = $this->STC_Dashboard->holiday_list($target_date);
 			$data['holiday_count'] = $this->STC_Dashboard->holiday_count($target_date)->cnt;
 			// 메일 연동
+			$data['mail_key'] = $this->STC_mail->mbox_conf($this->email);
 			// $connection = imap_open('{mail.durianit.co.kr:143/novalidate-cert}INBOX', 'hbhwang@durianit.co.kr', 'gusqls12');
 			// $connection = imap_open('192.168.0.100:110/pop3', 'hbhwang@durianit.co.kr', 'gusqls12');
 			// $mail_count = imap_num_msg($connection);

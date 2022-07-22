@@ -13,6 +13,11 @@ class Purchase_sales extends CI_Controller {
 		$this->lv = $this->phpsession->get( 'lv', 'stc' );
 		$this->cnum = $this->phpsession->get( 'cnum', 'stc' );
 		$this->seq = $this->phpsession->get( 'seq', 'stc' );
+		$this->cooperation_yn = $this->phpsession->get( 'cooperation_yn', 'stc' );
+
+		if($this->cooperation_yn == 'Y') {
+			echo "<script>alert('권한이 없습니다.');location.href='".site_url()."'</script>";
+		}
 		$this->load->Model(array('sales/STC_Maintain', 'STC_Common','sales/STC_Forcasting','sales/STC_User', 'sales/STC_Purchase_sales'));
 	}
 
@@ -100,7 +105,6 @@ if (isset($_POST['new_issuance_month'])) {
 	// }else{
 	// 	$dept = $company;
 	// }
-	$insert_date = array();
 
 	for ($i=0; $i < count($total_amount); $i++) {
 
@@ -121,10 +125,9 @@ if (isset($_POST['new_issuance_month'])) {
 			'write_id'        => $this->id,
 			'insert_date'     => date("Y-m-d H:i:s")
 		);
-		array_push($insert_date, $arr);
+		$this->STC_Purchase_sales->operating_insert($arr);
 	}
 
-	$this->STC_Purchase_sales->operating_insert($insert_date);
 
 }
 

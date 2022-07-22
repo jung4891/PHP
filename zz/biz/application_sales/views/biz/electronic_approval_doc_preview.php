@@ -27,11 +27,11 @@ if(!empty($approval_line)){
    }
 }
 
-if($mystep != ""){
-   if($approval_line[($mystep+1)]['approval_status'] == ""  && ($my_appoval_status == "Y" || $my_appoval_status == "N" ) ){
-      $approval_cancel_status="Y";
-   }
-}
+// if($mystep != ""){
+//    if($approval_line[($mystep+1)]['approval_status'] == ""  && ($my_appoval_status == "Y" || $my_appoval_status == "N" ) ){
+//       $approval_cancel_status="Y";
+//    }
+// }
 
 
 ?>
@@ -812,6 +812,74 @@ if($mystep != ""){
                      <!--내용-->
                   </td>
                </tr>
+
+               <!--댓글-->
+               <?php if($mode != "pdf" ){ ?>
+               <tr style="font-family:Noto Sans KR;">
+                  <td align="center">
+                     <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                        <form name="rform" method="post">
+                           <!-- <input type="hidden" name="seq" value="<?php echo $seq; ?>">
+                           <input type="hidden" name="cseq" value=""> -->
+                           <tr>
+                              <td><h3>댓글</h3></td>
+                           </tr>
+                           <tr>
+                              <td height="1" bgcolor="#d7d7d7"></td>
+                           </tr>
+                           <?php
+                           if(!empty($comment)){
+                           foreach ($comment as $item) {
+                           ?>
+                              <tr>
+                                 <td bgcolor="f8f8f9">
+                                    <table width="100%" border="0" cellspacing="0" cellpadding="5">
+                                       <tr>
+                                          <td width="5%" class="answer"><?php echo $item['user_name']; ?></td>
+                                          <td width="10%"><?php echo $item['update_date']; ?></td>
+                                          <td width="850%" align="left">
+                                             <?php if ($id == $item['user_id'] || $biz_lv == 3) { ?>
+                                                <!-- <img src="<?php echo $misc; ?>img/pencil_btn.png" width="17" height="16" style="cursor:pointer" border="0" onclick="$('#answer<?php echo $item['seq'] ;?>').toggle();" /> -->
+                                                <!-- <img src="<?php echo $misc; ?>img/btn_del.jpg" width="18" height="17" style="cursor:pointer;margin-left:10px;" border="0" onclick="javascript:commentSave(2,<?php echo $item['seq']; ?>);return false;"  /> -->
+                                             <?php } ?>
+                                          </td>
+                                       </tr>
+                                    </table>
+                                 </td>
+                              </tr>
+                              <tr>
+                                 <td height="1" bgcolor="#e8e8e8"></td>
+                              </tr>
+                              <tr>
+                                 <td class="answer2">
+                                    <?php echo nl2br(str_replace(" ", "&nbsp;", htmlspecialchars($item['contents']))) ?>
+                                    <div id ="answer<?php echo $item['seq'] ;?>" style="display:none;">
+                                       <textarea id="comment<?php echo $item['seq'] ;?>" cols="130" rows="5" class="input_answer1"><?php echo str_replace(" ", "&nbsp;", htmlspecialchars($item['contents'])) ?></textarea>
+                                       <br><input type="button" class ="input5" value="수정" onclick="javascript:commentSave(1,<?php echo $item['seq']; ?>);return false;" />
+                                       <input type="button" class ="input5" value="취소" onclick="$('#answer<?php echo $item['seq'] ;?>').toggle();" />
+                                    </div>
+
+                                 </td>
+                              </tr>
+                              <tr>
+                                 <td height="1" bgcolor="#e8e8e8"></td>
+                              </tr>
+                           <?php
+                           }}
+                           ?>
+                        </form>
+                     </table>
+                  </td>
+               </tr>
+               <tr>
+                  <td height="50"></td>
+               </tr>
+               <?php } ?>
+               <!-- 버튼
+               <tr>
+                  <td align="center"><input type="image" src="<?php echo $misc; ?>img/btn_answer2.jpg" width="60" height="20" style="cursor:pointer" onclick="javascript:chkForm2();return false;" /></td>
+               </tr> -->
+               <!-- 댓글끝 -->
             </table>
          </td>
       </tr>

@@ -91,8 +91,8 @@ function ViewBoard (seq){
 <tbody height="100%">
 	<tr height="5%">
 		<td class="dash_title">
-			<span onclick="register_yn('y')" style='cursor:pointer;margin-right:10px;color:<?php if($type == "y"){echo "#1C1C1C";}else{echo "#DEDEDE";}?>'>회의록</span>
-			<span onclick="register_yn('n')" style='cursor:pointer;margin-right:10px;color:<?php if($type == "n"){echo "#1C1C1C";}else{echo "#DEDEDE";}?>'>임시저장함</span>
+			<span onclick="register_yn('y')" style='cursor:pointer;margin-right:10px;color:<?php if($type == "y"){echo "#1C1C1C";}else{echo "#DEDEDE;font-weight:normal;";}?>'>회의록</span>
+			<span onclick="register_yn('n')" style='cursor:pointer;margin-right:10px;color:<?php if($type == "n"){echo "#1C1C1C";}else{echo "#DEDEDE;font-weight:normal;";}?>'>임시저장함</span>
 		</td>
 	</tr>
 	<!-- 검색창 -->
@@ -107,6 +107,7 @@ function ViewBoard (seq){
 							<option value="002" <?php if($search1 == "002"){ echo "selected";}?>>부서</option>
 						</select>
 					<input  type="text" size="25" class="input-common" name="searchkeyword" placeholder="검색하세요." value="<?php echo str_replace('"', '&uml;', $search_keyword );?>"/>
+					<input type="button" class="btn-common btn-style2" value="검색" style="margin-left:10px;" onclick="return GoSearch();">
 						<input type="button" class="btn-common btn-color2" value="글쓰기" onClick="location.href='<?php echo site_url();?>/biz/meeting_minutes/mom_input'" style="float:right;">
 					</td>
 				</tr>

@@ -31,7 +31,20 @@ include $this->input->server('DOCUMENT_ROOT') . "/include/sales_top.php";
   .date_input {
     width: 122px !important;
   }
+<?php } else if ($_GET['type'] == '5') { ?>
+  #check_product_info {
+    margin-left:10px;
+    font-size:12px;
+    font-weight: normal;
+    color: #0575E6;
+  }
 <?php } ?>
+.change_collective {
+  background-color: rgb(250, 162, 162);
+}
+.change_collective ~ span .select2-selection--single {
+  background-color: rgb(250, 162, 162) !important;
+}
 </style>
 <script type="text/javascript" src="/misc/js/jquery.bpopup-0.1.1.min.js"></script>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.9/css/select2.min.css" rel="stylesheet" />
@@ -777,6 +790,7 @@ function chkForm3(seq) {
                       <option value="017" <?php if ($view_val['progress_step'] == "017") {echo "selected";} ?>>미수잔금(95%)</option>
                       <option value="018" <?php if ($view_val['progress_step'] == "018") {echo "selected";} ?>>수금완료(100%)</option>
 										</select>
+                    <input type="hidden" name="original_progress_step" value="<?php echo $view_val['progress_step']; ?>">
 									</td>
                   <td class="tbl-title">판매종류</td>
 									<td class="tbl-cell">
@@ -1079,7 +1093,7 @@ function chkForm3(seq) {
 												<tr>
 													<td style="font-weight:bold;">제조사</td>
 													<td>
-														<select id="check_product_company" class="input7" onchange="productSearch('check');">
+														<select id="check_product_company" class="input7" onchange="productSearch('check');product_collective(this);$('#check_product_name').change();">
 															<option value="" >제조사</option>
 															<?php foreach($product_company as $pc){
 																echo "<option value='{$pc['product_company']}'>{$pc['product_company']}</option>";
@@ -1089,7 +1103,7 @@ function chkForm3(seq) {
 													<td><input type="button" class="btn-common btn-style2" value="선택적용" onclick="collectiveApplication('product_company',2);" style="width:90px;margin-right:30px;" /></td>
 													<td style="font-weight:bold;">제품명</td>
 													<td>
-														<select id="check_product_name" class="input7" onclick="productSearch('check');">
+														<select id="check_product_name" class="input7" onclick="productSearch('check');" onchange="product_collective(this);">
 															<option value="" selected>제조사를 선택해주세요</option>
 														</select>
 													</td>
@@ -1098,7 +1112,7 @@ function chkForm3(seq) {
 													</td>
 													<td style="font-weight:bold;">제품상태</td>
 													<td>
-														<select id="check_product_state" class="select-common">
+														<select id="check_product_state" class="select-common" onchange="product_collective(this);">
 															<option value="0">- 제품 상태 -</option>
 															<option value="001">입고 전</option>
 															<option value="002">창고</option>
@@ -1109,11 +1123,14 @@ function chkForm3(seq) {
 													<td>
 														<input type="button" class="btn-common btn-style2" value="선택적용" onclick="collectiveApplication('product_state',1);" style="width:90px;margin-right:30px;" />
 													</td>
+                          <td rowspan="2" style="padding-bottom:10px;">
+                            <input type="button" class="btn-common btn-style2" value="일괄적용" onclick="collectiveApplication_all();" style="width:90px;height:60px;" />
+                          </td>
 												</tr>
 												<tr>
 												<td style="font-weight:bold;">매입처</td>
 													<td>
-														<select id="check_product_supplier" class="select-common">
+														<select id="check_product_supplier" class="select-common" onchange="product_collective(this);">
 														<?php foreach($view_val2 as $item2){
 															echo "<option value='{$item2['main_companyname']}'>{$item2['main_companyname']}</option>";
 														}?>
@@ -1121,16 +1138,16 @@ function chkForm3(seq) {
 													</td>
 													<td><input type="button" class="btn-common btn-style2" value="선택적용" onclick="collectiveApplication('product_supplier',1);" style="width:90px;margin-right:30px;" /></td>
 													<td style="font-weight:bold;">장비유지보수시작일</td>
-													<td><input type="date" id="check_maintain_begin" class="input-common" ></td>
-													<td><input type="button" class="btn-common btn-style2" value="선택적용" onclick="collectiveApplication('maintain_begin',0);" style="width:90px;margin-right:30px;" /></td>
+													<td><input type="date" id="check_maintain_begin" class="input-common" onchange="product_collective(this);"></td>
+													<td><input type="button" class="btn-common btn-style2" value="선택적용" onclick="collectiveApplication('maintain_begin',0);" style="width:90px;margin-right:30px;"/></td>
 													<td style="font-weight:bold;">장비유지보수만료일</td>
-													<td><input type="date" id="check_maintain_expire" class="input-common" ></td>
+													<td><input type="date" id="check_maintain_expire" class="input-common" onchange="product_collective(this);"></td>
 													<td><input type="button" class="btn-common btn-style2" value="선택적용" onclick="collectiveApplication('maintain_expire',0);" style="width:90px;margin-right:30px;" /></td>
 												</tr>
 												<tr>
 													<td style="font-weight:bold;">유/무상</td>
 													<td>
-														<select id="check_maintain_yn" class="select-common" >
+														<select id="check_maintain_yn" class="select-common" onchange="product_collective(this);">
 															<option value="0">- 유/무상여부 -</option>
 															<option value="Y">유상</option>
 															<option value="N">무상</option>
@@ -1139,7 +1156,7 @@ function chkForm3(seq) {
 													<td><input type="button" class="btn-common btn-style2" value="선택적용" onclick="collectiveApplication('maintain_yn',1);" style="width:90px;margin-right:30px;" /></td>
 													<td style="font-weight:bold;">유지보수 대상</td>
 													<td>
-														<select id="check_maintain_target" class="select-common" >
+														<select id="check_maintain_target" class="select-common" onchange="product_collective(this);">
 															<option value="0">유지보수 대상</option>
 															<option value="Y">대상</option>
 															<option value="N">비대상</option>
@@ -1150,10 +1167,10 @@ function chkForm3(seq) {
 												</tr>
 												<tr>
 													<td style="font-weight:bold;">유지보수매출가</td>
-													<td><input type="text" class="input-common" id="check_product_sales" value=0 onclick="numberFormat(this);" onchange="numberFormat(this);" /></td>
+													<td><input type="text" class="input-common" id="check_product_sales" value=0 onclick="numberFormat(this);" onchange="numberFormat(this);product_collective(this);" /></td>
 													<td><input type="button" class="btn-common btn-style2" value="선택적용" onclick="collectiveApplication('product_sales',0);" style="width:90px;margin-right:30px;" /></td>
 													<td style="font-weight:bold;">유지보수매입가</td>
-													<td><input type="text" class="input-common" id="check_product_purchase" value=0 onclick="numberFormat(this);" onchange="numberFormat(this);" /></td>
+													<td><input type="text" class="input-common" id="check_product_purchase" value=0 onclick="numberFormat(this);" onchange="numberFormat(this);product_collective(this);" /></td>
 													<td><input type="button" class="btn-common btn-style2" value="선택적용" onclick="collectiveApplication('product_purchase',0);" style="width:90px;margin-right:30px;" /></td>
 													<!-- <td><input type="button" class="input5" value="선택적용" onclick="collectiveApplication('maintain_target',1);" style="margin-right:30px;" /></td> -->
 												</tr>
@@ -1164,7 +1181,8 @@ function chkForm3(seq) {
 										</td>
 									</tr>
                   <tr>
-                    <td colspan=10 height="40" class="tbl-sub-title">제품 정보</td>
+                    <td colspan=10 height="40" class="tbl-sub-title">
+                      제품 정보<span id="check_product_info"></span></td>
 									</tr>
 									<tr>
 										<td colspan="10" >
@@ -1232,7 +1250,7 @@ function chkForm3(seq) {
   										?>
     										<tr id="product_insert_field_<?php echo $j; ?>" class="tbl-tr cell-tr border-t">
     											<td><input type="checkbox" name="product_row" value="<?php echo $i; ?>" /></td>
-    											<td><?php echo $j; ?></td>
+    											<td><span class="p_num"><?php echo $j; ?></span></td>
     											<td align="left">
     												<?php echo $item3['project_name']; ?>
     											</td>
@@ -1781,7 +1799,7 @@ function chkForm3(seq) {
                                 <?php } ?>
   															<input type="hidden" id="sales_issuance_status<?php echo $row; ?>" name="sales_issuance_status" class="input7" onchange="updateSeq(<?php echo $bill['seq']; ?>);" value="<?php echo $bill['issuance_status']; ?>" />
   															<input type="hidden" id="sales_deposit_status<?php echo $row; ?>" name="sales_deposit_status" class="input7" onchange="updateSeq(<?php echo $bill['seq']; ?>);" value="<?php echo $bill['deposit_status']?>" />
-  															<?php if($bill['issuance_status'] == "Y" && ($id != "skkim" && $id !="yjjoo" && $id !="hbhwang")){?>
+  															<?php if($bill['issuance_status'] == "Y" && ($id != "skkim" && $id !="yjjoo" && $id !="hbhwang" && $id !="selee")){?>
   															<td height="40" class="basic_td" align="center">
   																<input type="checkbox" name="pay_checkbox" class="checkbox_1" value="">
   															</td>
@@ -1852,7 +1870,11 @@ function chkForm3(seq) {
   																<span id="sales_deposit_YN<?php echo $row; ?>">
   																	<?php if($bill['deposit_status'] == "Y"){
   																		echo "완료";
-  																	}else{
+  																	} else if ($bill['deposit_status'] == "L") {
+        															echo '부족';
+        														} else if ($bill['deposit_status'] == "O") {
+        															echo '과잉';
+        														}else{
   																		echo "미완료";
   																	} ?>
   																</span>
@@ -1988,6 +2010,22 @@ function chkForm3(seq) {
 												<td id="purchase_contract_total_amount<?php echo $num; ?>" rowspan="1" filter_column="2" class="purchase_contract_total_amount<?php echo $num; ?> basic_td" height="40" align="center"><?php echo number_format((int)${"main_company_amount".$num}); ?></td>
 												<td colspan="13" height="40" class="basic_td empty_row" align="center">-등록된 계산서가 없습니다.</td>
 											</tr>
+                      <tr align="center" style="font-weight:bold;" class="tbl-tr cell-tr">
+  											<td colspan=3 class="basic_td"><?php echo $item2['main_companyname']." "; ?>요약</td>
+  											<td class="basic_td"></td>
+  											<td class="basic_td"></td>
+  											<td class="basic_td"></td>
+  											<td class="basic_td"><input id="sum_purchase_issuance_amount<?php echo $num; ?>" name ="sum_purchase_issuance_amount" value="" class="input-common" onchange="numberFormat(this);" style="text-align:right;" readonly/></td>
+  											<td class="basic_td"><input id="sum_purchase_tax_amount<?php echo $num; ?>" name ="sum_purchase_tax_amount" class="input-common" value="" onchange="numberFormat(this);"style="text-align:right;" readonly/></td>
+  											<td class="basic_td"><input id="sum_purchase_total_amount<?php echo $num; ?>" name ="sum_purchase_total_amount" class="input-common" value="" onchange="numberFormat(this);" style="text-align:right;" readonly/></td>
+  											<td class="basic_td"></td>
+  											<td class="basic_td"></td>
+  											<td class="basic_td"></td>
+  											<td class="basic_td"></td>
+  											<td class="basic_td"></td>
+  											<td class="basic_td"></td>
+  											<td class="basic_td"></td>
+  										</tr>
 											<?php
 											$num++;
 											}
@@ -2026,7 +2064,7 @@ function chkForm3(seq) {
 															<input type="hidden" name="purchase_company_name" value="<?php echo $bill['company_name']; ?>" />
 															<input type="hidden" class="purchase_issuance_status<?php echo $num; ?> input7" name="purchase_issuance_status" onchange="updateSeq(<?php echo $bill['seq']; ?>);" value="<?php echo $bill['issuance_status']; ?>" />
 															<input type="hidden" class="purchase_deposit_status<?php echo $num; ?> input7" name="purchase_deposit_status" onchange="updateSeq(<?php echo $bill['seq']; ?>);" value="<?php echo $bill['deposit_status']; ?>" />
-															<?php if($bill['issuance_status'] == "Y" && ($id != "skkim" && $id !="yjjoo" && $id !="hbhwang")){?>
+															<?php if($bill['issuance_status'] == "Y" && ($id != "skkim" && $id !="yjjoo" && $id !="hbhwang" && $id !="selee")){?>
 																<td height="40" class="basic_td" align="center">
 																	<input type="checkbox" name="pay_checkbox" class="checkbox_2" value="">
 																</td>
@@ -2098,7 +2136,11 @@ function chkForm3(seq) {
 																<span class="purchase_deposit_YN<?php echo $num; ?>">
 																<?php if($bill['deposit_status'] == "Y"){
 																		echo "완료";
-																}else{
+																} else if ($bill['deposit_status'] == "L") {
+    															echo '부족';
+    														} else if ($bill['deposit_status'] == "O") {
+    															echo '과잉';
+    														} else{
 																	echo "미완료";
 																} ?>
 															</span>
@@ -2599,7 +2641,7 @@ function chkForm3(seq) {
 	//일괄적용
 	function collectiveApplication(column,tagName){
 		if($('input:checkbox[name="product_row"]:checked').length > 0){
-			if(confirm("일괄수정 하시겠습니까?")){
+			if(confirm("선택 수정 하시겠습니까?")){
 				if(column == "product_name"){
 					$('input:checkbox[name="product_row"]').each(function () {
 						if (this.checked == true) {
@@ -2669,6 +2711,95 @@ function chkForm3(seq) {
 		}
 	}
 
+  function collectiveApplication_all() {
+    if($('input:checkbox[name="product_row"]:checked').length > 0){
+      var change_t = '';
+      var change_collective = [];
+      $('.change_collective').each(function(){
+        var td = $(this).closest('td').prev();
+        var name = td.text();
+        change_t += '\n' + name;
+        change_collective.push($(this).attr('id'));
+      })
+
+			if(change_collective.length == 0) {
+				alert('변동사항이 없습니다.');
+				return false;
+			}
+
+      if(confirm('일괄수정 하시겠습니까?\n----변경사항----' + change_t)) {
+        var input_t = ['maintain_begin', 'maintain_expire', 'product_sales', 'product_purchase'];
+        var select_t = ['product_state', 'product_supplier', 'maintain_yn', 'maintain_target'];
+        var select2_t = ['product_company', 'product_name'];
+        $('input:checkbox[name="product_row"]').each(function() {
+          if(this.checked == true) {
+            if(this.value != 'project') {
+              for (var i = 0; i < input_t.length; i++) {
+                var column = input_t[i];
+                if($.inArray('check_'+column, change_collective) != -1) {
+
+                  var val = $('#check_'+column).val();
+
+                  var old_val = $("#"+column+this.value).val();
+  								$("#"+column+this.value).val(val);
+  								if(column=="product_sales" || column=="product_purchase" ){
+  									product_profit_change(this.value,1);
+  								}else if(column=="maintain_expire"){
+  									exceptionsaledateChange((this.value+1),'expire',old_val,val);
+  								}else{
+  									if($("#"+column+this.value).attr('onchange') != "" && $("#"+column+this.value).attr('onchange') != undefined ){
+  										$("#"+column+this.value).trigger('change');
+  									}
+  								}
+                }
+              }
+              for (var i = 0; i < select_t.length; i++) {
+                var column = select_t[i];
+
+                if($.inArray('check_'+column, change_collective) != -1) {
+                  var val = $('#check_'+column).val();
+
+                  $("#"+column+this.value).val(val).prop("selected",true);
+  								if($("#"+column+this.value).attr('onchange') != "" && $("#"+column+this.value).attr('onchange') != undefined ){
+  									$("#"+column+this.value).trigger('change');
+  								}
+                }
+              }
+              for (var i = 0; i < select2_t.length; i++) {
+                var column = select2_t[i];
+
+                if($.inArray('check_'+column, change_collective) != -1) {
+                  var val = $('#check_'+column).val();
+
+                  $("#"+column+this.value).val(val).prop("selected",true);
+  								$("#"+column+this.value).select2().val(val);
+
+  								if(column == "product_company"){
+  									product_type_default(this.value);
+  									productSearch(this.value);
+  								}else{
+  									if($("#"+column+this.value).attr('onchange') != "" && $("#"+column+this.value).attr('onchange') != undefined ){
+  										$("#"+column+this.value).trigger('change');
+  									}
+  								}
+                }
+              }
+            } else {
+              $('#exception_saledate2').val($('#check_maintain_begin').val());
+              $('#exception_saledate3').val($('#check_maintain_expire').val());
+            }
+          }
+        });
+        filter_reload('product_table');
+				t_forcasting_profit_change();
+				forcasting_profit_change();
+      }
+    } else {
+      alert('선택된 제품이 없습니다.');
+      return false;
+    }
+  }
+
 	//전체선택 체크박스 클릭
 	$(function () {
 		$("#allCheck").click(function () { //만약 전체 선택 체크박스가 체크된상태일경우
@@ -2684,6 +2815,7 @@ function chkForm3(seq) {
 			} else { //해당화면에 모든 checkbox들의 체크를해제시킨다.
 				$("input[name=product_row]").prop("checked", false);
 			}
+      check_product_info();
 		})
 	})
 
@@ -2726,7 +2858,7 @@ function chkForm3(seq) {
 			var id = "product_insert_field_" + $("#row_max_index2").val(); //선
 			var html = "";
 			html += '<tr id="'+id+'" class="tbl-tr cell-tr"><td height="40" align="center" ><input type="checkbox" name="product_row" value="'+row_num+'" /></td>';
-			html += '<td align="center">'+$("#row_max_index2").val()+'</td>';
+			html += '<td align="center"><span class="p_num">'+$("#row_max_index2").val()+'</span></td>';
 			html += '<td align="left"></td>';
 			html += '<td align="left">';
 			html += '<select name="product_company" id="product_company'+row_num+'" class="select-common" onchange="product_type_default('+row_num+');productSearch('+row_num+');">';
@@ -2771,6 +2903,8 @@ function chkForm3(seq) {
 			document.documentElement.scrollTop = document.body.scrollHeight; //스크롤 맨밑으로 내려
 			filter_reload('produt_table');
 			$(".select-all").prop('checked',false);
+      p_numbering();
+      check_product_info();
 		});
 	});
 
@@ -2780,7 +2914,17 @@ function chkForm3(seq) {
 		}
 		$("#product_insert_field_" + idx).remove();
 		t_forcasting_profit_change();
+    p_numbering();
+    check_product_info();
 	}
+
+  function p_numbering() {
+    var num = 1;
+    $('.p_num').each(function() {
+      $(this).text(num);
+      num ++;
+    })
+  }
 
 	//delete row(세금계산서)
 	function deleteRow(obj, rowspanid, type) {
@@ -3293,7 +3437,7 @@ function chkForm3(seq) {
 
 	//필터 다시 돌려
 	function filter_reload(target,e){
-		if(e != undefined){
+		if(e != undefined && $(e.target).attr('class')){
 			if($(e.target).attr('class').indexOf('drop') === -1){
 				$('#'+target).find($(".dropdown-filter-dropdown")).remove();
 				$('#'+target).excelTableFilter({
@@ -3696,7 +3840,7 @@ function chkForm3(seq) {
 	//세액구하기
 	function get_tax_amount(obj,type,row){
 		var amount = $(obj).val().replace(/,/g, "");
-		var tax = amount*0.1;
+		var tax = Math.round(amount*0.1);
 		if(type == 0){//매입
 			$("#sales_tax_amount"+row).val(tax);
 			$("#sales_tax_amount"+row).change();
@@ -3823,6 +3967,31 @@ function chkForm3(seq) {
 		});
 	}
 
+<?php if($_GET['type'] == '5'){ ?>
+  $(function() {
+    check_product_info();
+  })
+
+  $('#product_table input[name="product_row"]').change(function() {
+    check_product_info();
+  })
+
+  function check_product_info() {
+    var total = $('#product_table input[name="product_row"]').length;
+    var checked = $('#product_table input[name=product_row]:checked').length;
+
+    $('#check_product_info').text('선택 수 : 총 ' + total + ' 중 ' + checked + ' 건');
+  }
+<?php } ?>
+
+function product_collective(el) {
+  console.log($(el).val());
+  if($(el).val()!= '' && $(el).val()!= '0') {
+    $(el).addClass('change_collective');
+  } else if ($(el).val()=='' || $(el).val()=='0') {
+    $(el).removeClass('change_collective');
+  }
+}
 </script>
 </body>
 </html>

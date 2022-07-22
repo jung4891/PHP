@@ -1,9 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40">
-  <g id="그룹_425" data-name="그룹 425" transform="translate(0 0.4)">
-    <g id="pie-chart" transform="translate(3.935 4.139)">
-      <path id="패스_543" data-name="패스 543" d="M15.74,29.513A13.773,13.773,0,1,0,1.968,15.74,13.773,13.773,0,0,0,15.74,29.513Zm0,1.968A15.74,15.74,0,1,0,0,15.74,15.74,15.74,0,0,0,15.74,31.481Z" fill="#fff" fill-rule="evenodd"/>
-      <path id="패스_544" data-name="패스 544" d="M15.5,15.615V2.25h1.968V15.039H30.261v1.968H16.9l-9.548,9.55L5.954,25.164Z" transform="translate(-0.747 -0.282)" fill="#fff" fill-rule="evenodd"/>
-    </g>
-    <rect id="사각형_1025" data-name="사각형 1025" width="40" height="40" transform="translate(0 -0.4)" fill="none" opacity="0.5"/>
-  </g>
-</svg>

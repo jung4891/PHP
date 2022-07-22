@@ -202,7 +202,6 @@
   }
 
 
-
 }
 
 /* 모바일css끝 */
@@ -753,7 +752,13 @@ function show_day_select() {
                                   }
                                   ?>
                                </select>
-                               <span class="tech_div" style="float:left;font-weight:bold;width:60px;margin-top:3px;margin-right:5%;">지원방법</span>
+                               <span class="" style="float:left;font-weight:bold;width:30px;margin-top:3px;">직출</span>
+                               <span class="" style="float:left;">
+                                 <input type="checkbox" name="outside_work" id="outside_work" value="" style="margin-top:5px;">
+                               </span>
+
+                               <span class="tech_div" style="float:left;font-weight:bold;width:60px;margin-top:3px;margin-left:5%;">지원방법</span>
+
                                <span class="tech_div" style="float:left;">
                                  <select class="select-common select-style1" name="supportMethod" id="supportMethod">
                                    <option value="" selected disabled hidden>선택하세요</option>
@@ -973,9 +978,12 @@ function show_day_select() {
 <!-- KI1 20210125 참여자 추가 형태를 검색 참여자 추가 형태로 변경  -->
 <!-- 참여자 팝업 추가 -->
 <div id="addUserpopup">
-  <img id="addUserpopupCloseBtn" src="<?php echo $misc;?>img/btn_del2.jpg" onclick="closeBtn()" width=25  style="cursor:pointer;margin:0% 0% 0% 92%"/>
+  <!-- <img id="addUserpopupCloseBtn" src="<?php echo $misc;?>img/btn_del2.jpg" onclick="closeBtn()" width=25  style="cursor:pointer;margin:0% 0% 0% 92%"/> -->
   <!-- <span id="addUserpopupCloseBtn" class="btn" onclick="closeBtn()" style="margin:0% 0% 0% 96%; color:white;">X</span> -->
   <div id="modal-body">
+    <div style="font-weight:bold;font-size:20px;position:relative;bottom:10px;">
+      참석자
+    </div>
     <div id="modal-grouptree">
       <div id="usertree">
         <ul>
@@ -1048,16 +1056,17 @@ function show_day_select() {
       </div>
     </div>
         <div id="btnDiv">
-          <input type="button" style="float:right;" class="basicBtn" id="insertUserBtn" name="" value="적용" onclick="addUser(this.id)">
+          <!-- <input type="button" style="float:right;" class="btn-common btn-color2" id="insertUserBtn" name="" value="적용" onclick="addUser(this.id)"> -->
+          <button type="button" id="insertUserBtn" class="btn-common btn-color2" onclick="addUser(this.id)" style="float:right;position:relative;bottom:10px;">등록</button>
         </div>
-      </div>
-    </div>
+  </div>
+</div>
     <!-- 참여자 팝업 끝 -->
     <!-- KI2 20210125 -->
 
     <!-- 검색 참여자 팝업 추가 -->
     <div id="searchAddUserpopup">
-      <span id="searchAddUserpopupCloseBtn" class="btn" onclick="searchCloseBtn()" style="margin:0% 0% 0% 96%; color:white;">X</span>
+      <!-- <span id="searchAddUserpopupCloseBtn" class="btn" onclick="searchCloseBtn()" style="margin:0% 0% 0% 96%; color:white;">X</span> -->
       <div id="search-modal-body">
         <div id="search-modal-grouptree">
           <div id="search-usertree">
@@ -1131,7 +1140,8 @@ function show_day_select() {
           </div>
         </div>
         <div id="search-btnDiv">
-        <input type="button" style="float:right;" class="basicBtn" id="searchChosenBtn" name="" value="적용" onclick="addUser(this.id)">
+        <!-- <input type="button" style="float:right;" class="basicBtn" id="searchChosenBtn" name="" value="적용" onclick="addUser(this.id)"> -->
+        <button type="button" id="insertUserBtn" class="btn-common btn-color2" onclick="addUser(this.id)" style="float:right;position:relative;bottom:10px;">등록</button>
         </div>
       </div>
     </div>
@@ -1175,6 +1185,54 @@ foreach($work_color as $val){
   <a style="margin:0% 0% 0% 96%;cursor:pointer;"><span id="unwrittenpopupCloseBtn" onclick="report_closeBtn()"><span style="color:black;">X</span></span></a>
   <input type="hidden" id="session_name" value= "<?php echo $session_name?>"/>
 </div>
+
+<!-- 팀원 기지보 미작성 목록 -->
+<!-- <div id="no_written_report" name="no_written_report" class="layerpop" style="width: auto; height: auto;">
+  <article class="layerpop_area">
+    <div align="center" class="modal_title">보고서 미작성 목록 (<?php echo $login_group; ?>)</div>
+    <span class="layerpop_close" id="layerbox_close" onclick="$('#no_written_report').bPopup().close();"><img src="/misc/img/btn_del2.jpg"/></span>
+    <table width="100%" border="0" callspacing="0" cellspacing="0">
+      <tr>
+        <td>&nbsp;</td>
+      </tr>
+      <tr>
+        <td>
+          <td align="center"><table border="0" cellspacing="0" cellpadding="0" style="">
+            <tr>
+              <td colspan="4" height="2" bgcolor="#797c88"></td>
+            </tr>
+<?php if(isset($no_written_report) && !empty($no_written_report)) {
+        foreach($no_written_report as $nwr) {
+          if($session_id == 'kkj') { ?>
+            <tr>
+              <td>
+          <?php echo $nwr['start_day'].'~'.$nwr['end_day'].'['.$nwr['participant'].']'.$nwr['customer'].'/'.$nwr['work_name'].'/'.$nwr['support_method'];  ?>
+              </td>
+            </tr>
+            <tr>
+              <td colspan="4" height="1" bgcolor="#e8e8e8"></td>
+            </tr>
+    <?php } ?>
+  <?php }
+      } ?>
+            <tr>
+              <td colspan="4" height="1" bgcolor="#e8e8e8"></td>
+            </tr>
+            <tbody id="select_day_body"></tbody>
+            <tr>
+              <td colspan="4" height="2" bgcolor="#797c88"></td>
+            </tr>
+            <tr>
+              <td>&nbsp;</td>
+            </tr>
+          </table>
+          <div id="select_day_btn"></div>
+        </td>
+      </td>
+    </tr>
+  </table>
+</article>
+</div> -->
 <!-- 기술지원보고서 알림 팝업 끝 -->
       <div id='updateform' style="display: none; background-color: white; width: 450px; height: 500px;">
         <form name="hiddenSeq" action="<?php echo site_url();?>/biz/schedule/tech_schedule_detail" method="GET">
@@ -1244,7 +1302,7 @@ foreach($work_color as $val){
                 </div>
                 <div class="searchbox searchBtnDiv" id="searchBtnDiv">
                   <!-- <img id="searchBtn" style="height:23px;width:23px; text-align:middle; cursor:pointer;" onclick="func_search()" src="<?php echo $misc; ?>img/dashboard/btn/btn_search.png"> -->
-                  <input id="searchBtn" class="btn-common btn-style1" type="button" onclick="func_search();" value="검색" >
+                  <input id="searchBtn" class="btn-common btn-style2" type="button" onclick="func_search();" value="검색" >
                   <!-- <button type="button" name="submit" id="searchBtn" style="height:25px; text-align:middle;" onclick="func_search()" class="basicBtn">검색</button> -->
                   <input class="basicBtn" type="submit" id="searchReset" style="display:none;height:25px;" onclick="list_search()" value="초기화">
                   <button type="button" name="button" onclick="excelExport();" class="fc-addSchedule-button fc-button fc-button-primary basicBtn" id="excelDownload" style="display:none; height:25px; width:80px;">엑셀 다운</button>
@@ -1253,7 +1311,7 @@ foreach($work_color as $val){
         </div>
         <div id="scheduleSidebar" style="text-align: left;width:230px;">
           <div class="" style="text-align:left;" id="company_schedule">
-            <input type="checkbox" id="company_schedule_checkbox" onclick="company_schedule_check()" checked><span class="notice_text">공지사항 보기<span>
+            <input type="checkbox" id="company_schedule_checkbox" onclick="company_schedule_check()" checked><span class="notice_text">공지일정 보기<span>
           </div>
           <!-- <h2>sidebar</h2> -->
           <!-- @@ ↓ -->
@@ -1389,42 +1447,50 @@ foreach($work_color as $val){
                             <col width="75%" />
                           </colgroup>
                               <tbody>
-                               <tr>
-                                 <td style="font-weight:bold; ">구분</td>
-                                 <td>
-                                   <select name="de_workname" id="de_workname" class="select-common select-style1" onchange="" style="float:left;margin-right:10%;">
-                                     <option value="" selected disabled hidden>선택하세요</option>
-                                      <?php
-                                      foreach ($work_name as $val) {
-                                        echo "<option value='{$val->work_name}' >{$val->work_name}</option>";
-                                      }
-                                      ?>
-                                   </select>
-                                   <span style="float:left;font-weight:bold;width:60px;margin-top:3px;margin-right:5%;" class="de_tech_div">지원방법</span>
-                                   <span class="de_tech_div" style="float:left;">
-                                     <select class="select-common select-style1" name="de_supportMethod" id="de_supportMethod" onchange="supportMethod_change(this);">
-                                       <option value="" selected disabled hidden>선택하세요</option>
-                                       <option value="현장지원">현장지원</option>
-                                       <option value="원격지원">원격지원</option>
-                                     </select>
-                                   </span>
-                                 </td>
-
-                               </tr>
-                               <tr class="de_except_nondisclosure_div">
-                                 <td style="font-weight:bold;">회의실 예약</td>
-                                 <td>
-                                   <input class="input-common" type="text" id="de_room_name" name="de_room_name" value="" onclick="open_conference('detail');" style="width:80%" readonly>
-                                   <img src="<?php echo $misc; ?>/img/x-box.svg" style="cursor:pointer;width:20px;margin-left:5px;vertical-align:middle;" onclick="$('#de_room_name').val('');">
-                                 </td>
-                               </tr>
-                               <tr class="de_except_nondisclosure_div">
-                                  <td style="font-weight:bold;">차량 예약</td>
+                                <tr>
+                                  <td style="font-weight:bold; ">구분</td>
                                   <td>
-                                    <input class="input-common" type="text" id="de_car_name" name="de_car_name" value="" onclick="open_car_reservation('detail');" style="width:80%" readonly>
-                                    <img src="<?php echo $misc; ?>/img/x-box.svg" style="cursor:pointer;width:20px;margin-left:5px;vertical-align:middle;" onclick="$('#de_car_name').val('');">
+                                    <select name="de_workname" id="de_workname" class="select-common select-style1" onchange="" style="float:left;margin-right:10%;">
+                                      <option value="" selected disabled hidden>선택하세요</option>
+                                       <?php
+                                       foreach ($work_name as $val) {
+                                         echo "<option value='{$val->work_name}' >{$val->work_name}</option>";
+                                       }
+                                       ?>
+                                     </select>
+                                       <span class="" style="float:left;font-weight:bold;width:30px;margin-top:3px;">직출</span>
+                                       <span class="" style="float:left;">
+                                         <input type="checkbox" name="de_outside_work" id="de_outside_work" value="de_outside_work" style="margin-top:5px;">
+                                       </span>
+
+                                         <span class="de_tech_div" style="float:left;font-weight:bold;width:60px;margin-top:3px;margin-left:5%;">지원방법</span>
+
+                                         <span class="de_tech_div" style="float:left;">
+                                           <select class="select-common select-style1" name="de_supportMethod" id="de_supportMethod">
+                                             <option value="" selected disabled hidden>선택하세요</option>
+                                             <option value="현장지원">현장지원</option>
+                                             <option value="원격지원">원격지원</option>`
+                                           </select>
+                                         </span>
+
+
+
+                                       </td>
+                                </tr>
+                                <tr class="de_except_nondisclosure_div">
+                                  <td style="font-weight:bold;">회의실 예약</td>
+                                  <td>
+                                    <input class="input-common" type="text" id="de_room_name" name="de_room_name" value="" onclick="open_conference('detail');" style="width:80%" readonly>
+                                    <img src="<?php echo $misc; ?>/img/x-box.svg" style="cursor:pointer;width:20px;margin-left:5px;vertical-align:middle;" onclick="$('#de_room_name').val('');">
                                   </td>
-                               </tr>
+                                </tr>
+                                <tr class="de_except_nondisclosure_div">
+                                   <td style="font-weight:bold;">차량 예약</td>
+                                   <td>
+                                     <input class="input-common" type="text" id="de_car_name" name="de_car_name" value="" onclick="open_car_reservation('detail');" style="width:80%" readonly>
+                                     <img src="<?php echo $misc; ?>/img/x-box.svg" style="cursor:pointer;width:20px;margin-left:5px;vertical-align:middle;" onclick="$('#de_car_name').val('');">
+                                   </td>
+                                </tr>
                                <form id="img_file_form" method="post" enctype="multipart/form-data">
                                <tr>
                                  <td style="font-weight:bold; ">시작일자</td>
@@ -1515,6 +1581,16 @@ foreach($work_color as $val){
                                    <input type="hidden" id="de_recurring_input_before_val" value="">
                                    <input type="text" name="de_recurring_endDay" id="de_recurring_endDay" class="dayBtn input_ex input-common de_recurring_div" value="" autocomplete="off" onchange="conference_room_del('update'); date_compare('de_');" style="width:20%; display:none;">
                                    <input type="text" name="de_recurring_count" id="de_recurring_count" class="input_ex input-common de_recurring_div" value="" style="width:20%; display:none;" placeholder="숫자로 입력">
+                                 </td>
+                               </tr>
+                               <tr>
+                                 <td colspan="2" style="font-weight:bold;padding-right:20px;">
+                                   <!-- 출장품의<input type="checkbox" name="trip" id="trip" value="" onclick="return false;">
+                                   &emsp;
+                                   야간품의<input type="checkbox" name="night" id="night" value="" onclick="return false;">
+                                   &emsp; / 20220622 주석처리 / 문제없을시 삭제 -->
+                                   근무품의<input type="checkbox" name="weekend" id="weekend" value="" onclick="return false;">
+                                   &emsp;
                                  </td>
                                </tr>
                                <!-- <tr class="de_recurring_div">
@@ -1667,9 +1743,18 @@ foreach($work_color as $val){
                              <input type="button" name="updateSubmit" id="updateSubmit" class="btn-common btn-color2" onclick="modify('schedule_modify')" style="float:right;margin-right:10px;" value="수정">
                            </div>
                            <div id="schdule_contoller_btn" style="margin-top:30px;">
-                             <div style="float:right;width:100%;">
+                             <div style="float:right;width:100%;padding-bottom:5px;">
                                <input type="button" id="techReportInsert" name="techReportInsert" class="btn-common btn-color2 hidden_btn" style="width:150px;float:right;margin-right:10px;" onclick="modify('report')" value="기술지원보고서 작성">
                                <input type="button" id="techReportModify" name="techReportModify" class="btn-common btn-color1 hidden_btn" style="width:150px;float:right;margin-right:10px;" onclick="modify('modify')" value="기술지원보고서 수정">
+                             </div>
+                             <div style="float:right;width:100%;">
+                               <input type="button" id="c_weekend" name="c_weekend" class="btn-common btn-color2" style="width:130px;float:right;margin-right:10px;" onclick="create_document('weekend')" value="근무품의서 작성">
+                               <input type="hidden" id="weekend_status" value="">
+                               <!-- <input type="button" id="c_night" name="c_night" class="btn-common btn-color2" style="width:130px;float:right;margin-right:5px;" onclick="create_document('night')" value="야간품의서 작성">
+                               <input type="hidden" id="night_status" value="">
+                               <input type="button" id="c_trip" name="c_trip" class="btn-common btn-color2" style="width:130px;float:right;margin-right:5px;" onclick="create_document('trip')" value="출장품의서 작성">
+                               <input type="hidden" id="trip_status" value=""> -->
+                               <!-- <input type="button" id="" name="" class="btn-common btn-color1" style="width:150px;float:right;margin-right:10px;" onclick="" value="기술지원보고서 수정"> 20220622 주석처리 / 문제없을시 삭제 -->
                              </div>
                              <div style="float:right;width:100%;margin-top:10px;">
                                <input type="button" name="updateSubmit" id="updateSubmit" class="btn-common btn-color1" onclick="modify('schedule_modify')" style="float:right;margin-right:10px;" value="수정">
@@ -2050,6 +2135,12 @@ function modify(mode){
     var nondisclosure = "Y";
   }else{
     var nondisclosure = "N";
+  }
+
+  if( $('#de_outside_work').is(":checked") ) {
+    var outside_work = 'Y';
+  } else {
+    var outside_work = 'N';
   }
 
   //반복 일정 recurring
@@ -2529,7 +2620,8 @@ function modify(mode){
         recurring_modify_choose: recurring_modify_choose, //#
         recurring_count: recurring_count, //#
         start_reason: start_reason,
-        end_reason: end_reason
+        end_reason: end_reason,
+        outside_work:outside_work
       },
       cache:false,
       async:false,
@@ -2616,6 +2708,31 @@ function modify(mode){
 
   }
 }
+
+//품의서작성 버튼
+function create_document(mode) {
+  var schedule_seq = $('#de_seq').val();
+
+  // if(mode == 'trip') { //출장
+  //   if($("#trip_status").val() == 001) {
+  //     alert("출장품의서 결재 진행 중입니다.");
+  //   } else {
+  //   location.href = "<?php echo site_url(); ?>/biz/approval/electronic_approval_doc_input?seq=16&schedule_seq="+schedule_seq;
+  //   }
+  // } else if(mode == 'night') { //야간
+  //   if($("#night_status").val() == 001) {
+  //     alert("야간품의서 결재 진행 중입니다.");
+  //   } else {
+  //   location.href = "<?php echo site_url(); ?>/biz/approval/electronic_approval_doc_input?seq=55&schedule_seq="+schedule_seq;
+  //   }
+  // } else if(mode == 'weekend') { //주말 / 20220622 주석처리 / 문제없을시 삭제
+    if($("#weekend_status").val() == 001) {
+      alert("근무품의서 결재 진행 중입니다.");
+    } else {
+    location.href = "<?php echo site_url(); ?>/biz/approval/electronic_approval_doc_input?seq=19&schedule_seq="+schedule_seq;
+    }
+  // }
+  }
 
 function select_day(type){
 	var seq = $("#de_seq").val();

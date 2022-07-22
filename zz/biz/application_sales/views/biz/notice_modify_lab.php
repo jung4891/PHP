@@ -4,6 +4,7 @@
 ?>
 <link rel="stylesheet" href="/misc/css/dashboard.css">
 <link rel="stylesheet" href="/misc/css/new_dash.css">
+<link rel="stylesheet" href="/misc/css/view_page_common.css">
 <link rel="stylesheet" href="/misc/daumeditor-7.4.9/css/editor.css" type="text/css" charset="utf-8"/>
 <script src="/misc/daumeditor-7.4.9/js/editor_loader.js" type="text/javascript" charset="utf-8"></script>
 <script language="javascript">
@@ -218,8 +219,10 @@ foreach ($lab_val as $lab) {
 	<div class="contents_item" style="margin-bottom:5vh;" align="center">
 			<!-- <input type="image" src="<?php echo $misc;?>img/dashboard/btn/btn_add.png" width="70" height="35" style="cursor:pointer" onClick="javascript:chkForm();return false;"/>
 		 -->
-		 			<input type="image" src="<?php echo $misc;?>img/dashboard/btn/btn_adjust.png" width="70" height="35" style="cursor:pointer" onClick="notice_insert();"/>
-			<img src="<?php echo $misc;?>img/dashboard/btn/btn_cancel.png" width="70" height="35" style="cursor:pointer" onClick="javascript:history.go(-1)"/>
+		 			<!-- <input type="image" src="<?php echo $misc;?>img/dashboard/btn/btn_adjust.png" width="70" height="35" style="cursor:pointer" onClick="notice_insert();"/> -->
+			<button type="button" class="btn-common btn-color4" name="button" onclick="notice_insert();">수정</button>
+			<!-- <img src="<?php echo $misc;?>img/dashboard/btn/btn_cancel.png" width="70" height="35" style="cursor:pointer" onClick="javascript:history.go(-1)"/> -->
+			<input type="button" class="btn-common btn-color4" value="취소" onclick="javascript:history.go(-1)">
 	</div>
 
   </div>

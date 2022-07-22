@@ -41,7 +41,7 @@
 			</tr>
 		  <tr height="45%">
 		    <td valign="top" style="padding:15px 0px 15px 0px">
-		    	<table class="content_dash_tbl" align="center" width="100%" border="0" cellspacing="0" cellpadding="0">
+		    	<table class="content_dash_tbl list" align="center" width="100%" border="0" cellspacing="0" cellpadding="0">
 						<tr>
 							<td align="center" valign="top">
 	             <!--리스트-->

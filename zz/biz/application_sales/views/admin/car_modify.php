@@ -34,6 +34,22 @@ function chkForm () {
 		mform.user_name.click();
 		return false;
 	}
+	var sell_yn = $('input[name=sell_yn]:checked').val();
+	var sell_date = $('input[name=sell_date]').val();
+	var purchase_date = $('input[name=purchase_date]').val();
+
+	if(sell_yn == 'Y' || sell_yn == 'A') {
+		if(sell_date == '') {
+			alert('양도/매각일을 선택해주세요');
+			$('input[name=sell_date]').focus();
+			return false;
+		} else {
+			if(sell_date < purchase_date) {
+				alert('양도/매각일이 구입일 보다 이전입니다.');
+				return false;
+			}
+		}
+	}
 
 	mform.submit();
 	return false;
@@ -67,8 +83,8 @@ function chkForm2 () {
 				<tr>
 					<td align="right">
 					<?php if($admin_lv == 3){?>
-						<input type="button" class="btn-common btn-color1" value="삭제" onclick="javascript:chkForm2();return false;" style="margin-right:10px">
-						<input type="button" class="btn-common btn-color1" value="수정" onclick="javascript:chkForm();return false;" style="margin-right:10px">
+						<input type="button" class="btn-common btn-color4" value="삭제" onclick="javascript:chkForm2();return false;" style="margin-right:10px">
+						<input type="button" class="btn-common btn-color4" value="수정" onclick="javascript:chkForm();return false;" style="margin-right:10px">
 					<?php } ?>
 						<input type="button" class="btn-common btn-color2" value="목록" onClick="javascript:history.go(-1)">
 					</td>
@@ -108,10 +124,14 @@ function chkForm2 () {
 					                 </tr>
 					                 <tr>
 					                    <td class="tbl-title">*지정</td>
-					                    <td class="tbl-cell" colspan="3">
+					                    <td class="tbl-cell" >
 																<input type="radio" name="chk_info" value="public" id="public" <?php if($view_val['user_name']=="공용"){echo "checked";} ?>>공용
 																<input type="radio" name="chk_info" value="individual" id="individual" <?php if($view_val['user_name']!="공용"){echo "checked";} ?>>개인
 															</td>
+															<td class="tbl-title">구입일</td>
+															 <td class="tbl-cell">
+																	<input type="date" name="purchase_date" value="<?php echo date('Y-m-d', strtotime($view_val['purchase_date'])); ?>">
+															 </td>
 					                  </tr>
 														<tr id="tr_user" style="<?php if($view_val['user_name']=="공용"){echo "display:none";} ?>">
  					                    <td class="tbl-title">*사용자</td>
@@ -120,6 +140,22 @@ function chkForm2 () {
 																<input type="hidden" id="appointed_seq" class="input2" name="user_seq" id="user" value="<?php echo $view_val['user_seq']; ?>" onclick="$('#searchAddUserpopup').bPopup();" style="width:95%;display:none;">
  															</td>
  					                  </tr>
+														<tr>
+															<td class="tbl-title">*상태</td>
+															<td class="tbl-cell sell_yn_td">
+																<input type="radio" name="sell_yn" value="N" <?php if($view_val['sell_yn']=="N"){echo "checked";} ?> onchange="sell_status_change();">사용
+																<input type="radio" name="sell_yn" value="Y" <?php if($view_val['sell_yn']=="Y"){echo "checked";} ?> onchange="sell_status_change();">매각
+																<input type="radio" name="sell_yn" value="A" <?php if($view_val['sell_yn']=="A"){echo "checked";} ?> onchange="sell_status_change();">양도
+															</td>
+															<td class="tbl-title sell_date_td">양도/매각일</td>
+															<td class="tbl-cell sell_date_td">
+																<input type="date" name="sell_date" value="<?php
+																if($view_val['sell_date'] != '') {
+																	echo date('Y-m-d', strtotime($view_val['sell_date']));
+																}
+																?>">
+															</td>
+														</tr>
 
 					                </table></td>
 					              <!--//등록-->
@@ -299,6 +335,22 @@ function addUser(){
     $('#appointed_seq').val('');
     $('#appointed_seq').val(checked_seq_select);
     $('#searchAddUserpopup').bPopup().close(); //모달 닫기
+}
+
+$(function() {
+	sell_status_change();
+})
+
+function sell_status_change() {
+	var sell_yn = $('input[name=sell_yn]:checked').val();
+
+	if(sell_yn == 'N') {
+		$('.sell_date_td').hide();
+		$('.sell_yn_td').attr('colspan', '3');
+	} else if (sell_yn == 'Y' || sell_yn == 'A') {
+		$('.sell_date_td').show();
+		$('.sell_yn_td').attr('colspan', '1');
+	}
 }
 </script>
 </html>

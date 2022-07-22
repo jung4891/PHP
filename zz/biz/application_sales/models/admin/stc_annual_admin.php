@@ -10,7 +10,7 @@ class STC_Annual_admin extends CI_Model {
 	}
 
   // 연차관리
-  function annual_management($seq=0,$searchkeyword="") {
+  function annual_management($seq=0,$searchkeyword="",$quit_user='') {
 	if ($searchkeyword != "") {
 		$searchstring='';
 		$searchkeyword = explode(',',$searchkeyword);
@@ -36,15 +36,21 @@ class STC_Annual_admin extends CI_Model {
 		$searchstring = "where ".$searchstring;
 
 	} else {
-		$searchstring = "";
+		$searchstring = "where annual_period = '".date('Y')."' ";
 	}
 	if($seq == 0){
-		$sql = "SELECT ua.*, u.user_name,u.user_group,u.join_company_date,
-		(SELECT COUNT(*) FROM electronic_approval_annual WHERE user_id = u.user_id  AND (annual_status IS NULL || annual_status = '') ) as approval_cnt  
-		FROM user_annual AS ua LEFT JOIN user as u ON ua.user_seq = u.seq {$searchstring} order by u.join_company_date,u.seq";
-	
+		if($quit_user == 'Y') {
+			$quit_string = ' AND u.quit_date is not null';
+		} else if ($quit_user == 'N') {
+			$quit_string = ' AND u.quit_date is null';
+		}
+
+		$sql = "SELECT ua.*, u.user_name,u.user_group,u.join_company_date,u.quit_date,
+		(SELECT COUNT(*) FROM electronic_approval_annual WHERE user_id = u.user_id  AND (annual_status IS NULL || annual_status = '') ) as approval_cnt
+		FROM user_annual AS ua LEFT JOIN user as u ON ua.user_seq = u.seq {$searchstring} {$quit_string} order by u.join_company_date,u.seq";
+
 		$query = $this->db->query( $sql);
-	
+
 		if ($query->num_rows() <= 0) {
 			return false;
 		} else {
@@ -52,12 +58,12 @@ class STC_Annual_admin extends CI_Model {
 		}
 	}else{
 		$sql = "SELECT ua.*, u.user_name,u.user_group,u.join_company_date,
-		(SELECT COUNT(*) FROM electronic_approval_annual WHERE user_id = u.user_id AND (annual_status IS NULL || annual_status = '') ) as approval_cnt  
-		FROM user_annual AS ua LEFT JOIN user as u ON ua.user_seq = u.seq 
+		(SELECT COUNT(*) FROM electronic_approval_annual WHERE user_id = u.user_id AND (annual_status IS NULL || annual_status = '') ) as approval_cnt
+		FROM user_annual AS ua LEFT JOIN user as u ON ua.user_seq = u.seq
 		where ua.seq = {$seq} order by u.join_company_date,u.seq";
-	
+
 		$query = $this->db->query( $sql);
-	
+
 		if ($query->num_rows() <= 0) {
 			return false;
 		} else {
@@ -69,7 +75,7 @@ class STC_Annual_admin extends CI_Model {
   //휴가사용현황
   function annual_usage_status(){
 	$sql =" SELECT eaa.*,u.user_name FROM electronic_approval_annual as eaa
-	left join user AS u 
+	left join user AS u
 	on eaa.user_id = u.user_id WHERE annual_status = 'Y' ";
 
 	$query = $this->db->query($sql);
@@ -78,7 +84,7 @@ class STC_Annual_admin extends CI_Model {
 		return false;
 	} else {
 		return $query->result_array();
-	} 
+	}
   }
 
 	//휴가사용현황
@@ -107,8 +113,8 @@ class STC_Annual_admin extends CI_Model {
 		$searchstring = ltrim($searchstring," and");
 		$sql = "SELECT eaa.*,u.user_name,u.user_group,user_duty,ead.approval_doc_status FROM electronic_approval_annual as eaa left join user AS u
 		on eaa.user_id = u.user_id
-		left join electronic_approval_doc as ead 
-		on eaa.approval_doc_seq = ead.seq 
+		left join electronic_approval_doc as ead
+		on eaa.approval_doc_seq = ead.seq
 		WHERE {$searchstring} order by annual_start_date";
 
 		$query = $this->db->query($sql);
@@ -117,7 +123,7 @@ class STC_Annual_admin extends CI_Model {
 			return false;
 		} else {
 			return $query->result_array();
-		} 
+		}
 	}
 
 	//연차관리 수정
@@ -126,13 +132,13 @@ class STC_Annual_admin extends CI_Model {
 		if($type == 1){//생성일때
 			$sql = "update user_annual set remainder_annual_cnt=(ifnull(month_annual_cnt,0)+ifnull(annual_cnt,0)+ifnull(adjust_annual_cnt,0)-ifnull(use_annual_cnt,0)) where seq = {$data['seq']}";
 			$result = $this->db->query($sql);
-		}else if($type == 2){ //삭제일때 
+		}else if($type == 2){ //삭제일때
 			$sql1 = "delete from adjust_annual where annual_seq = {$data['seq']}"; //조정연차도 같이 다 없애
 			$sql2 = "update user_annual set adjust_annual_cnt = null,remainder_annual_cnt=(ifnull(month_annual_cnt,0)+ifnull(annual_cnt,0)-ifnull(use_annual_cnt,0)) where seq = {$data['seq']}";
 			$result = $this->db->query($sql1);
 			$result = $this->db->query($sql2);
 		}
-		return $result; 
+		return $result;
 	}
 
 	//조정연차관리
@@ -144,14 +150,14 @@ class STC_Annual_admin extends CI_Model {
 				return false;
 			} else {
 				return $query->result_array();
-			} 
+			}
 		}else if($type == 1){//생성일때
 			$result = $this->db->insert('adjust_annual', $data);
 			$sql1 = "update user_annual set adjust_annual_cnt=(SELECT SUM(adjust_annual_cnt) FROM adjust_annual WHERE annual_seq ={$data['annual_seq']}) where seq ={$data['annual_seq']}";
 			$sql2 = "update user_annual set remainder_annual_cnt=(ifnull(month_annual_cnt,0)+ifnull(annual_cnt,0)+ifnull(adjust_annual_cnt,0)-ifnull(use_annual_cnt,0)) where seq = {$data['annual_seq']}";
 			$this->db->query($sql1);
 			$this->db->query($sql2);
-			return $result; 
+			return $result;
 		}else if($type == 2){//삭제일때
 			$sql = "delete from adjust_annual where seq = {$data['seq']}";
 			$result = $this->db->query($sql);
@@ -165,8 +171,8 @@ class STC_Annual_admin extends CI_Model {
 
 	//1월 1일 user_annual_생성하는 크론탭
 	function make_user_annual(){
-		$sql = "INSERT INTO user_annual (user_seq,user_id,annual_period,annual_standard,insert_date)
-		SELECT seq,user_id,DATE_FORMAT(now(),'%Y'),'calcDt',NOW() FROM user";
+		$sql = "INSERT INTO user_annual (user_seq,user_id,annual_period,annual_standard,use_annual_cnt,insert_date)
+		SELECT seq,user_id,DATE_FORMAT(now(),'%Y'),'calcDt',0,NOW() FROM user";
 		return $this->db->query($sql);
 	}
 }

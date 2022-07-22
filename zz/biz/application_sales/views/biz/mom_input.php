@@ -50,7 +50,12 @@
 		outline: none !important;
 		width:80px!important;
 	}
-
+	.list_tbl, .basic_table {
+	    border: 1px solid #DEDEDE;
+	}
+	.list_tbl {
+		border-bottom: none;
+	}
 	.list_tbl th{
 		border-bottom: solid #DFDFDF;
 		background-color: #F4F4F4;
@@ -78,7 +83,7 @@
 	</tr>
 	<tr valign="top">
 		<td align="right">
-			<button type="button" name="button" class="btn-common btn-color3" onclick="history.go(-1);">취소</button>
+			<button type="button" name="button" class="btn-common btn-color4" onclick="history.go(-1);">취소</button>
 			<button type="button" name="button" class="btn-common btn-color3" onclick="doc_submit('save');">임시저장</button>
 			<button type="button" name="button" class="btn-common btn-color2" onclick="doc_submit('add');">등록</button>
 		</td>
@@ -176,7 +181,7 @@ foreach ($user_group as $group) {
 				</tr>
 			</tbody>
 			</table>
-			<div style="margin-top:10px;">
+			<div style="margin-top:30px;">
 				<img src="<?php echo $misc; ?>/img/file_upload.png" style="width:20px;float:left;vertical-align:middle;"><h3 style="float:left;margin:0px;">&nbsp;파일업로드</h3><br>
 				<table class="basic_table row-color1" width="100%" height="auto" style="margin-top:20px;" >
 					<tbody id="fileTableTbody">

@@ -11,6 +11,11 @@ class Board extends CI_Controller {
 		$this->id = $this->phpsession->get( 'id', 'stc' );
 		$this->name = $this->phpsession->get( 'name', 'stc' );
 		$this->lv = $this->phpsession->get( 'lv', 'stc' );
+		$this->cooperation_yn = $this->phpsession->get( 'cooperation_yn', 'stc' );
+
+		if($this->cooperation_yn == 'Y') {
+			echo "<script>alert('권한이 없습니다.');location.href='".site_url()."'</script>";
+		}
 		$this->load->library('user_agent');
 
 		$this->load->Model(array('sales/STC_Board', 'STC_Common'));

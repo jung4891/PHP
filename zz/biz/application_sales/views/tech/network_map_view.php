@@ -41,8 +41,8 @@ include $this->input->server('DOCUMENT_ROOT')."/include/sales_top.php";
 				<tr>
 					<td align="right">
 		<?php if($tech_lv == 3 or $id == $view_val['user_id']) {?>
-						<input type="button" class="btn-common btn-color1" value="삭제" onclick="javascript:chkForm(1);return false;" style="margin-right:10px">
-						<input type="button" class="btn-common btn-color1" value="수정" onclick="javascript:chkForm(0);return false;" style="margin-right:10px">
+						<input type="button" class="btn-common btn-color4" value="삭제" onclick="javascript:chkForm(1);return false;" style="margin-right:10px">
+						<input type="button" class="btn-common btn-color4" value="수정" onclick="javascript:chkForm(0);return false;" style="margin-right:10px">
 		<?php }?>
 						<input type="button" class="btn-common btn-color2" value="목록" onClick="javascript:history.go(-1);">
 					</td>

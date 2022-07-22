@@ -11,7 +11,7 @@ class STC_Common extends CI_Model {
 
 	//	로그인시 해당 아이디로 내용 가져오기
 	function select_user( $uid, $upass ) {
-		$query = $this->db->query("select u.*, g.parentGroupName from user as u join user_group as g on u.user_group = g.groupName where confirm_flag = 'Y' AND user_id = '".$uid."' and user_password = '".$upass."' ");
+		$query = $this->db->query("select u.*, g.parentGroupName from user as u left join user_group as g on u.user_group = g.groupName where confirm_flag = 'Y' AND user_id = '".$uid."' and user_password = '".$upass."' ");
 
 		if ($query->num_rows() <= 0) {
 			return false;
@@ -105,6 +105,12 @@ class STC_Common extends CI_Model {
 		return $query->result_array();
 	}
 
+	function get_manufacturing_com(){
+		$sql = "SELECT seq, company_name FROM sales_customer_basic WHERE manufacturing_com = 'Y' || seq = 4 ORDER BY seq DESC;";
+		$query = $this->db->query($sql);
+		return $query->result_array();
+	}
+
 	//제조사, 품목, 제품명 알아오기
 	function get_product($product_company='',$product_type='') {
 		if($product_company == '' && $product_type == ''){
@@ -171,7 +177,7 @@ class STC_Common extends CI_Model {
 	function groupView($group){
 		if(strpos($group,",") === false){
 			if($group == "all"){
-				$sql = "select * from user where quit_date is null order by seq asc";
+				$sql = "select * from user where quit_date is null and cooperation_yn = 'N' order by seq asc";
 			}else{
 				$sql = "select * from user where user_group='".$group."' order by seq asc";
 			}
@@ -226,6 +232,14 @@ class STC_Common extends CI_Model {
 		return	$query;
 	}
 
+	// //부서위치 이동
+	// function moveGroup($seq,$group){
+	// 	$sql = "update user_group set parentGroupName = '{$group}' where groupName = '{$seq}'";
+	// 	$query = $this->db->query( $sql );
+	//
+	// 	return	$query;
+	// }
+
 	//권한 수정
 	function changeUserPart($seq,$userPart){
 		$sql = "update user set user_part = '{$userPart}' where seq = {$seq}";
@@ -250,9 +264,69 @@ class STC_Common extends CI_Model {
 		return	$query;
 	}
 
-	//부서 관리
-	function groupUpdate($groupName,$parentGroupName,$childGroupNum,$depth){
-		$sql = "insert into user_group (groupName,parentGroupName,childGroupNum,depth) values('{$groupName}','{$parentGroupName}',{$childGroupNum},{$depth})";
+	//이전 상위부서
+	function beforeParents($groupSeq){
+		$sql = "SELECT parentGroupName FROM user_group WHERE seq = {$groupSeq}";
+		$query = $this->db->query( $sql );
+
+		return	$query->row_array();
+	}
+
+	//이전 상위부서의 childGroupNum -1
+	function minusChildGroup($beforeParents){
+		$sql = "UPDATE user_group SET childGroupNum = childGroupNum-1 WHERE groupName = '{$beforeParents}'";
+		$query = $this->db->query( $sql );
+
+		return	$query;
+	}
+
+	//현재 상위부서의 childGroupNum +1
+	function plusChildGroup($parentGroupName){
+		$sql = "UPDATE user_group SET childGroupNum = childGroupNum+1 WHERE groupName = '{$parentGroupName}'";
+		$query = $this->db->query( $sql );
+
+		return	$query;
+	}
+
+	//현재 상위부서의 depth보다 +1이므로
+	function depth($parentGroupName){
+		$sql = "SELECT depth FROM user_group WHERE groupName = '{$parentGroupName}'";
+		$query = $this->db->query( $sql );
+
+		return	$query->row_array();
+	}
+
+	//위치 이동한 부서 수정
+	function moveGroup($groupSeq,$parentGroupName,$depth){
+		$sql = "UPDATE user_group SET parentGroupName = '{$parentGroupName}', depth = {$depth} WHERE seq = {$groupSeq}";
+		$query = $this->db->query( $sql );
+
+		return	$query;
+	}
+
+	//부모부서 이름&depth 구하기
+	function groupName($seq){
+		$sql = "SELECT groupName, depth FROM user_group WHERE seq = {$seq}";
+		$query = $this->db->query( $sql );
+
+		return	$query->row_array();
+	}
+
+	//부서 수정 or 추가
+	function modifyGroup($mode,$seq,$data){
+		if($mode == 1) { //수정
+			$sql = "UPDATE user SET user_group = '{$data['groupName']}' WHERE user_group = (SELECT groupName FROM user_group WHERE seq = {$seq})";
+			$this->db->query($sql);
+			return $this->db->update('user_group', $data, array('seq' => $seq));
+		} else if($mode == 3) { //추가
+			return $this->db->insert('user_group', $data);
+		}
+
+	}
+
+	//부서 삭제
+	function removeGroup($groupSeq,$groupName){
+		$sql = "DELETE FROM user_group WHERE seq = {$groupSeq} OR parentGroupName = '{$groupName}'";
 		$query = $this->db->query( $sql );
 
 		return	$query;

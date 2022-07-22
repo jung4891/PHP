@@ -155,7 +155,13 @@ padding-left:10px;
 <table width="96%" height="100%" border="0" cellspacing="0" cellpadding="0" class="dash_tbl1-1">
 	<!-- 타이틀 이미지 -->
 	<tr>
-		<td class="dash_title">유지보수</td>
+		<td class="dash_title">
+		<?php if($_GET['type']=='003') { ?>
+			유지보수 포캐스팅
+		<?php } else { ?>
+			유지보수
+		<?php } ?>
+		</td>
 	</tr>
 	<tr>
 		<td align="center" valign="top">
@@ -188,7 +194,9 @@ padding-left:10px;
 										} else {
 											$modify_date = $view_val['update_date'];
 										}
-										echo $modify_name['user_name']."  ".$modify_date;
+										if (isset($modify_name['user_name'])) {
+											echo $modify_name['user_name']."  ".$modify_date;
+										}
 									} else {
 										echo $modifier['user_name']."  ".$modifier['update_date'];
 									}
@@ -211,9 +219,14 @@ padding-left:10px;
 													<img src="<?php echo $misc; ?>img/pencil_btn.png" width="15" height="15" style="margin-left:5px;"/>
 													</span>
 													<input type="button" class="btn-common btn-color2" value="목록" onClick="javascript:history.go(-1)" style="float:right;"/>
+								<?php if(empty($approval_doc) || ($approval_doc['approval_doc_status'] != "001" && $approval_doc['approval_doc_status'] != "002")) { ?>
 													<input type="button" class="btn-common btn-color1" value="삭제" onclick="javascript:chkDel();return false;" style="float:right;margin-right:10px;"/>
+									<?php } ?>
 													<input type="button" id="integration_maintain" onclick="integration_maintain();" class="btn-common btn-color1" value="통합유지보수 관리 장비" style="float:right;margin-right:10px;width:150px;"/>
 													<input type="button" id="maintain_renew" class="btn-common btn-color1" value="갱신" onclick="renewal();" style="float:right;margin-right:10px;"/>
+									<?php if($_GET['type'] != '003' && $forcasting_cnt['cnt'] == 0) { ?>
+													<input type="button" id="generate_forcasting" class="btn-common btn-color1" value="포캐스팅 생성" onclick="generate_forcasting('<?php echo $seq; ?>');" style="float:right;margin-right:10px;width:auto;"/>
+									<?php } ?>
 												</td>
 											</tr>
 											<form name="cform" action="<?php echo site_url(); ?>/sales/maintain/maintain_input_action" method="post" onSubmit="javascript:chkForm();return false;">
@@ -222,6 +235,7 @@ padding-left:10px;
 												<input type="hidden" id="update_product_array" name="update_product_array" />
 												<input type="hidden" id="update_sub_product_array" name="update_sub_product_array" />
 												<input type="hidden" id="seq" name="seq" value="<?php echo $seq; ?>">
+												<input type="hidden" name="type" value="<?php echo $_GET['type']; ?>">
 												<colgroup>
 													<col width="9%" />
 													<col width="16%" />
@@ -314,13 +328,14 @@ padding-left:10px;
 												</tr>
 												<tr class="tbl-tr cell-tr">
 													<td class="tbl-title">정보통신공사업</td>
-                          <td class="tbl-cell">
+                          <td class="tbl-cell" <?php if($_GET['type']=='003'){echo 'colspan="9"';} ?>>
                       <?php if($view_val['infor_comm_corporation'] == "Y"){
 															echo "신청";
 														}else{
 															echo "미신청";
 														} ?>
 													</td>
+											<?php if($_GET['type'] != '003'){ ?>
 													<td class="tbl-title">품의서작성여부</td>
 													<td colspan='7' class="tbl-cell">
                       <?php if(empty($approval_doc)){
@@ -344,6 +359,7 @@ padding-left:10px;
 															<input type="button" class="btn-common btn-style1" style="cursor:pointer;margin-left:20px;width:100px" value="품의서 보기" onclick="report_view('<?php echo $approval_doc['seq']; ?>');">
 														<?php } ?>
 													</td>
+											<?php } ?>
 												</tr>
 												<tr>
 													<td height=30></td>
@@ -483,7 +499,9 @@ padding-left:10px;
                           </td>
 												</tr>
 												<tr>
-													<td height="60" colspan="9" align="left"><span style='cursor:pointer;' onclick="mCompanyView(this);">매입처 정보 보기 ▼</span></td>
+													<td height="60" colspan="9" align="left">
+														<input type="checkbox" name="" value="" style="cursor:pointer;" onclick="mCompanyView(this);">매입처 정보 보기
+													</td>
 												</tr>
 												<tr id="main_insert_field_2_<?php echo $i; ?>" class="mCompany tbl-tr cell-tr border-t" style="display:none;">
 													<td class="tbl-title">매입처</td>
@@ -549,7 +567,9 @@ padding-left:10px;
 													</td>
 												</tr>
 												<tr>
-													<td height="60" colspan="10" align="left"><span style='cursor:pointer;' onclick="productView(this);">제품 정보 보기 ▼</span></td>
+													<td height="60" colspan="10" align="left">
+														<input type="checkbox" name="" value="" style="cursor:pointer;'" onclick="productView(this);">제품 정보 보기
+													</td>
 												</tr>
 												<tr id="product_field" style="display:none;" >
 													<td colspan="10" style="max-width:100%;">
@@ -917,7 +937,8 @@ padding-left:10px;
 							</tr>
 							<tr>
 								<td height="60" colspan="1" align="left">
-									<span style='cursor:pointer;' onclick="billView(this);">계산서 정보 보기 ▼</span>
+									<!-- <span style='cursor:pointer;' onclick="billView(this);">계산서 정보 보기 ▼</span> -->
+									<input type="checkbox" name="" value="" style="cursor:pointer;'" onclick="billView(this);">계산서 정보 보기
 								</td>
 								<td colspan="9">
 									<div style="width:100%;display:flex">
@@ -1054,7 +1075,11 @@ padding-left:10px;
 												<td class="border-r" align="center" filter_column="12">
 														<?php if($bill['deposit_status'] == "Y"){
 															echo "완료";
-														}else{
+														} else if ($bill['deposit_status'] == "L") {
+															echo '부족';
+														} else if ($bill['deposit_status'] == "O") {
+															echo '과잉';
+														} else {
 															echo "미완료";
 														} ?>
 												</td>
@@ -1134,7 +1159,7 @@ padding-left:10px;
 												</th>
 												<th class="basic_td apply-filter no-sort" filter_column="11" align="center" bgcolor="f8f8f9" style="font-weight:bold;">발행여부
 												</th>
-												<th class="basic_td apply-filter no-sort" filter_column="12" align="center" bgcolor="f8f8f9" style="font-weight:bold;">입금일자
+												<th class="basic_td apply-filter no-sort" filter_column="12" align="center" bgcolor="f8f8f9" style="font-weight:bold;">지급일자
 												</th>
 												<th class="basic_td apply-filter no-sort" filter_column="13" align="center" bgcolor="f8f8f9" style="font-weight:bold;">입금여부
 												</th>
@@ -1224,7 +1249,11 @@ padding-left:10px;
 														<td align="center" filter_column="13">
 															<?php if($bill['deposit_status'] == "Y"){
 																	echo "완료";
-															}else{
+															} else if ($bill['deposit_status'] == "L") {
+																echo '부족';
+															} else if ($bill['deposit_status'] == "O") {
+																echo '과잉';
+															} else{
 																echo "미완료";
 															} ?>
 														</td>
@@ -1257,7 +1286,11 @@ padding-left:10px;
 														<td align="center" filter_column="13">
 															<?php if($bill['deposit_status'] == "Y"){
 																	echo "완료";
-															}else{
+															} else if ($bill['deposit_status'] == "L") {
+																echo '부족';
+															} else if ($bill['deposit_status'] == "O") {
+																echo '과잉';
+															} else{
 																echo "미완료";
 															} ?>
 														</td>
@@ -2085,6 +2118,27 @@ function save_memo() {
 			}
 		}
 	})
+}
+
+function generate_forcasting(seq) {
+	if(confirm('유지보수 포캐스팅을 생성하시겠습니까?')) {
+		$.ajax({
+			type: "POST",
+			url: "<?php echo site_url(); ?>/sales/maintain/generate_maintain_forcasting",
+			cashe: false,
+			dataType: "json",
+			async: false,
+			data: {
+				seq: seq
+			},
+			success: function(data) {
+				if(data) {
+					alert('유지보수 포캐스팅이 생성되었습니다.');
+					location.reload();
+				}
+			}
+		})
+	}
 }
 </script>
 </body>

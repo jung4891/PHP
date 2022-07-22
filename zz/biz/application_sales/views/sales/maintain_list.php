@@ -56,6 +56,7 @@ function GoSearch(mode){
 			if (i == 1) {
 				searchkeyword += $("#filter" + i).val().trim();
 			} else {
+				console.log(i);
 				var filter_val = $("#filter" + i).val().trim();
 				if(i == 13 || i == 14){
 					filter_val = String(filter_val).replace(/,/g, "");
@@ -89,6 +90,28 @@ function GoSearch(mode){
 	return false;
   }
 
+	if(mode == 'detail' && ($('#filter3').val() == '' || $('#filter17').val() == '') && ($('#filter3').val()+$('#filter17').val() != '')) {
+		alert('유지보수 시작일 검색 기간이 선택되지 않았습니다.');
+		return false;
+	} else {
+		if($('#filter3').val() > $('#filter17').val()) {
+			alert('유지보수 시작일 검색 기간 시작이 종료보다 이후입니다.');
+			$('#filter17').focus();
+			return false;
+		}
+	}
+
+	if(mode == 'detail' && ($('#filter4').val() == '' || $('#filter18').val() == '') && ($('#filter4').val()+$('#filter18').val() != '')) {
+		alert('유지보수 종료일 검색 기간이 선택되지 않았습니다.');
+		return false;
+	} else {
+		if($('#filter4').val() > $('#filter18').val()) {
+			alert('유지보수 종료일 검색 기간 시작이 종료보다 이후입니다.');
+			$('#filter18').focus();
+			return false;
+		}
+	}
+
   document.mform.action = "<?php echo site_url();?>/sales/maintain/maintain_list";
   document.mform.cur_page.value = "";
   document.mform.submit();
@@ -119,8 +142,10 @@ function GoSearch(mode){
 				<tr height="5%">
 	<?php if($type == "001"){?>
 				  <td class="dash_title">유지보수</td>
-	<?php }else{ ?>
+	<?php }else if ($type =='002'){ ?>
 				  <td class="dash_title">통합유지보수</td>
+	<?php } else { ?>
+					<td class="dash_title">유지보수 포캐스팅</td>
 	<?php } ?>
 				</tr>
 				<tr height="65">
@@ -133,25 +158,24 @@ function GoSearch(mode){
 						<div class="toggleUpBtn" onclick="showhide('up');" style="cursor:pointer;display:inline-block;<?php if($search_mode == 'simple'){echo 'display:none';} ?>">▲</div>
 
 						<div class="toggleDownBtn" onclick="showhide('down');" style="cursor:pointer;display:inline-block;<?php if($search_mode == 'detail'){echo 'display:none';} ?>">
-							<span style="color:#0575E6;">자세한 검색을 원하신다면</span>
-							<span style="color:black;">▼</span>
+							<img src="<?php echo $misc;?>img/detail_search.svg" width="100"/>
 						</div>
 					</td>
 				</tr>
 				<tr height="20"></tr>
-				<tr id="search_tr" style="<?php if($search_mode == 'simple'){echo 'display:none';} ?>" onkeydown="if(event.keyCode==13) return GoSearch('detail');">
+				<tr id="search_tr" class="search_title" style="<?php if($search_mode == 'simple'){echo 'display:none';} ?>" onkeydown="if(event.keyCode==13) return GoSearch('detail');">
 					<td align="left" valign="top">
 						<table id="filter_table">
 							<colgroup>
 								<col width="110px">
 								<col width="200px">
-								<col width="110px">
+								<col width="140px">
 								<col width="200px">
 								<col width="110px">
 								<col width="200px">
 								<col width="110px">
 								<col width="200px">
-								<col width="200px">
+								<col width="110px">
 							</colgroup>
 							<div style="float:left;white-space:nowrap">
 								<tr>
@@ -165,17 +189,23 @@ function GoSearch(mode){
 									</td>
 									<td>유지보수<br>시작일</td>
 									<td>
-										<input type="date" id="filter3" class="input-common filtercolumn" value='<?php if(isset($filter)&&$search_mode=='detail'){echo $filter[2];} ?>'/>
+										<input type="date" id="filter3" class="input-common filtercolumn" value='<?php if(isset($filter)&&$search_mode=='detail'){echo $filter[2];} ?>' onchange="$('#filter17').val(this.value);"/>&nbsp;<span style="font-size:8px;">부터</span><br>
+										<input type="date" id="filter17" class="input-common filtercolumn" value='<?php if(isset($filter)&&$search_mode=='detail'){echo $filter[16];} ?>'/>&nbsp;<span style="font-size:8px;">까지</span>
 									</td>
 									<td>유지보수<br>종료일</td>
 									<td>
-										<input type="date" id="filter4" class="input-common filtercolumn" value='<?php if(isset($filter)&&$search_mode=='detail'){echo $filter[3];} ?>' />
+										<input type="date" id="filter4" class="input-common filtercolumn" value='<?php if(isset($filter)&&$search_mode=='detail'){echo $filter[3];} ?>' onchange="$('#filter18').val(this.value);"/>&nbsp;<span style="font-size:8px;">부터</span><br>
+										<input type="date" id="filter18" class="input-common filtercolumn" value='<?php if(isset($filter)&&$search_mode=='detail'){echo $filter[17];} ?>' />&nbsp;<span style="font-size:8px;">까지</span>
 									</td>
 									<td>
 										<input type="button" class="btn-common btn-style2" value="검색" style="width:60px;" onclick="return GoSearch('detail');">
 									</td>
 								</tr>
 								<tr>
+									<td>매출처</td>
+									<td>
+										<input type="text" id="filter15" class="input-common filtercolumn" value='<?php if(isset($filter)&&$search_mode=='detail'){echo $filter[14];} ?>' />
+									</td>
 									<td>영업담당자<br>(두리안)</td>
 									<td>
 										<input type="text" id="filter5" class="input-common filtercolumn" value='<?php if(isset($filter)&&$search_mode=='detail'){echo $filter[4];} ?>' />
@@ -188,25 +218,38 @@ function GoSearch(mode){
 									<td>
 										<input type="text" id="filter7" class="input-common filtercolumn" value='<?php if(isset($filter)&&$search_mode=='detail'){echo $filter[6];} ?>' />
 									</td>
-									<td>제품명</td>
-									<td colspan="2">
-										<input type="text" id="filter8" class="input-common filtercolumn" value='<?php if(isset($filter)&&$search_mode=='detail'){echo $filter[7];} ?>'/>
-									</td>
 								</tr>
 								<tr>
+									<td>제품명</td>
+									<td>
+										<input type="text" id="filter8" class="input-common filtercolumn" value='<?php if(isset($filter)&&$search_mode=='detail'){echo $filter[7];} ?>'/>
+									</td>
 									<td>관리팀</td>
 									<td>
 										<select id="filter9" class="select-common select-style1 filtercolumn">
-											<option value="" >관리팀 선택</option>
+											<option value="" >선택</option>
 											<option value="1" <?php if(isset($filter)&&$search_mode=='detail' && $filter[8] == '1'){echo "selected";} ?> >기술1팀</option>
 											<option value="2" <?php if(isset($filter)&&$search_mode=='detail' && $filter[8] == '2'){echo "selected";} ?> >기술2팀</option>
 											<option value="3" <?php if(isset($filter)&&$search_mode=='detail' && $filter[8] == '3'){echo "selected";} ?> >기술3팀</option>
 										</select>
 									</td>
+
+									<td>영업부서</td>
+									<td>
+										<select id="filter16" class="select-common select-style1 filtercolumn">
+											<option value="">선택</option>
+											<option value="사업1부"<?php if(isset($filter)&&$search_mode=='detail' && $filter[15] == '사업1부'){echo "selected";} ?>>사업1부</option>
+											<option value="사업2부"<?php if(isset($filter)&&$search_mode=='detail' && $filter[15] == '사업2부'){echo "selected";} ?>>사업2부</option>
+											<option value="ICT"<?php if(isset($filter)&&$search_mode=='detail' && $filter[15] == 'ICT'){echo "selected";} ?>>ICT</option>
+											<option value="MG"<?php if(isset($filter)&&$search_mode=='detail' && $filter[15] == 'MG'){echo "selected";} ?>>MG</option>
+											<option value="기술지원부"<?php if(isset($filter)&&$search_mode=='detail' && $filter[15] == '기술지원부'){echo "selected";} ?>>기술지원부</option>
+										</select>
+									</td>
+
 									<td>점검여부</td>
 									<td>
 										<select id="filter10" class="select-common select-style1 filtercolumn">
-											<option value="" >점검여부 선택</option>
+											<option value="" >선택</option>
 											<option value="1" <?php if(isset($filter)&&$search_mode=='detail' && $filter[9] == '1'){echo "selected";} ?> >점검완료</option>
 											<option value="0" <?php if(isset($filter)&&$search_mode=='detail' && $filter[9] == '0'){echo "selected";} ?> >점검미완료</option>
 											<option value="2" <?php if(isset($filter)&&$search_mode=='detail' && $filter[9] == '2'){echo "selected";} ?> >점검미해당</option>
@@ -215,10 +258,12 @@ function GoSearch(mode){
 											<option value="4" <?php if(isset($filter)&&$search_mode=='detail' && $filter[9] == '4'){echo "selected";} ?> >협력사 점검</option>
 										</select>
 									</td>
+								</tr>
+								<tr>
 									<td>계산서발행</td>
 									<td>
 										<select id="filter11" class="select-common select-style1 filtercolumn">
-											<option value="">계산서 발행여부 선택</option>
+											<option value="">선택</option>
 											<option value="0" <?php if(isset($filter)&&$search_mode=='detail' && $filter[10] == '0'){echo "selected";} ?>>미발행</option>
 											<option value="1" <?php if(isset($filter)&&$search_mode=='detail' && $filter[10] == '1'){echo "selected";} ?>>발행중</option>
 											<option value="100" <?php if(isset($filter)&&$search_mode=='detail' && $filter[10] == '100'){echo "selected";} ?>>발행완료</option>
@@ -226,16 +271,25 @@ function GoSearch(mode){
 									</td>
 									<td>정보통신공사업</td>
 									<td>
-										<select id="filter12" class="select-common select-style1 filtercolumn">
-											<option value="">신청여부 선택</option>
+										<select id="filter12" class="select-common select-style1 filtercolumn" onchange="infor_comm_corporation_change(this.value);" name="infor_comm_corporation">
+											<option value="">선택</option>
 											<option value="Y" <?php if(isset($filter)&&$search_mode=='detail' && $filter[11] == 'Y'){echo "selected";} ?>>신청</option>
 											<option value="N" <?php if(isset($filter)&&$search_mode=='detail' && $filter[11] == 'N'){echo "selected";} ?>>미신청</option>
 										</select>
 									</td>
-								</tr>
-								<tr>
+					<?php if($type == "002"){?>
+									<td class="bill_search_year">정보통신공사업 귀속년도</td>
+									<td class="bill_search_year">
+										<select id="filter19" class="select-common select-style1 filtercolumn" name="target_year">
+											<option value="">선택</option>
+								<?php for($i = date('Y') - 2;  $i < date('Y')+5; $i++) { ?>
+											<option value="<?php echo $i; ?>" <?php if(isset($filter)&&$search_mode=='detail' && $filter[18] == $i){echo "selected";} ?>><?php echo $i.'년'; ?></option>
+								<?php }?>
+										</select>
+									</td>
+					<?php } ?>
 									<td>매출금액</td>
-									<td colspan="7">
+									<td colspan="5">
 										<input type="text" id="filter13" class="input-common filtercolumn" style="text-align:right;margin-right:0" onchange="numberFormat(this)" value='<?php if(isset($filter)&&$search_mode=='detail'){if($filter[12]!=""){echo number_format($filter[12]);}} ?>' />원&nbsp;~
 										<input type="text" id="filter14" class="input-common filtercolumn" style="text-align:right;margin-right:0" onchange="numberFormat(this)" value='<?php if(isset($filter)&&$search_mode=='detail'){if($filter[13]!=""){echo number_format($filter[13]);}} ?>' />원
 									</td>
@@ -245,14 +299,14 @@ function GoSearch(mode){
 					</td>
 					<td valign="bottom">
 		<?php if($type == "001"){ ?>
-						<div>
+						<!-- <div>
 							<input type="button" class="btn-common btn-color2" style="width:110px;float:right;" value="유지보수 생성" onclick="$('#add_maintain_div').bPopup();">
-						</div>
+						</div> -->
 		<?php } ?>
 					</td>
 				</tr>
 
-				<tr id="search_tr2" style="<?php if($search_mode == 'detail'){echo 'display:none';} ?>" onkeydown="if(event.keyCode==13) return GoSearch('simple');">
+				<tr id="search_tr2" class="search_title" style="<?php if($search_mode == 'detail'){echo 'display:none';} ?>" onkeydown="if(event.keyCode==13) return GoSearch('simple');">
 					<td align="left" valign="top">
 						<table width="100%" id="filter_table2">
 							<colgroup>
@@ -270,7 +324,7 @@ function GoSearch(mode){
 									<td>관리팀</td>
 									<td>
 										<select id="filter2_1" class="select-common select-style1 filtercolumn2">
-											<option value="" >관리팀 선택</option>
+											<option value="" >선택</option>
 											<option value="1" <?php if(isset($filter)&&$search_mode=='simple' && $filter[0] == '1'){echo "selected";} ?> >기술1팀</option>
 											<option value="2" <?php if(isset($filter)&&$search_mode=='simple' && $filter[0] == '2'){echo "selected";} ?> >기술2팀</option>
 											<option value="3" <?php if(isset($filter)&&$search_mode=='simple' && $filter[0] == '3'){echo "selected";} ?> >기술3팀</option>
@@ -279,7 +333,7 @@ function GoSearch(mode){
 									<td>점검여부</td>
 									<td>
 										<select id="filter2_2" class="select-common select-style1 filtercolumn2">
-											<option value="" >점검여부 선택</option>
+											<option value="" >선택</option>
 											<option value="1" <?php if(isset($filter)&&$search_mode=='simple' && $filter[1] == '1'){echo "selected";} ?> >점검완료</option>
 											<option value="0" <?php if(isset($filter)&&$search_mode=='simple' && $filter[1] == '0'){echo "selected";} ?> >점검미완료</option>
 											<option value="2" <?php if(isset($filter)&&$search_mode=='simple' && $filter[1] == '2'){echo "selected";} ?> >점검미해당</option>
@@ -291,14 +345,14 @@ function GoSearch(mode){
 									<td>계산서발행</td>
 									<td colspan="8">
 										<select id="filter2_3" class="select-common select-style1 filtercolumn2">
-											<option value="">계산서 발행여부 선택</option>
+											<option value="">선택</option>
 											<option value="0" <?php if(isset($filter)&&$search_mode=='simple' && $filter[2] == '0'){echo "selected";} ?>>미발행</option>
 											<option value="1" <?php if(isset($filter)&&$search_mode=='simple' && $filter[2] == '1'){echo "selected";} ?>>발행중</option>
 											<option value="100" <?php if(isset($filter)&&$search_mode=='simple' && $filter[2] == '100'){echo "selected";} ?>>발행완료</option>
 										</select>
 										정보통신공사업
 										<select id="filter2_4" class="select-common select-style1 filtercolumn2">
-											<option value="">신청여부 선택</option>
+											<option value="">선택</option>
 											<option value="Y" <?php if(isset($filter)&&$search_mode=='simple' && $filter[3] == 'Y'){echo "selected";} ?>>신청</option>
 											<option value="N" <?php if(isset($filter)&&$search_mode=='simple' && $filter[3] == 'N'){echo "selected";} ?>>미신청</option>
 										</select>
@@ -327,7 +381,7 @@ function GoSearch(mode){
 						</table>
 					</td>
 					<td valign="bottom">
-					<?php if($type == "001"){ ?>
+					<?php if($type == "003"){ ?>
 						<div>
 							<input type="button" class="btn-common btn-color2" style="width:110px;float:right;" value="유지보수 생성" onclick="$('#add_maintain_div').bPopup();">
 						</div>
@@ -338,30 +392,33 @@ function GoSearch(mode){
 				<!-- 본문 -->
 				<tr height="35%" id="content_tr">
 					<td valign="top" style="padding:15px 0px 0px 0px" colspan="2">
-						<table class="list_tbl" align="center" width="100%" border="0" cellspacing="0" cellpadding="0">
+						<table class="list_tbl list" align="center" width="100%" border="0" cellspacing="0" cellpadding="0">
 							<tr>
 								<td id="tablePlus">
 									<table width="100%" border="0" cellspacing="0" cellpadding="0">
 										<colgroup>
 											<col width="2.51%" />  <!--번    호-->
+											<col width="2.72%" />  <!--종    류-->
 											<col width="9.14%" />	<!--고 객 사-->
 											<col width="11.72%" />	<!--프로젝트-->
-											<col width="5.72%" />	<!--제조사-->
-											<col width="5.72%" />	<!--품목-->
-											<col width="8.72%" />	<!--제품명-->
-											<col width="5.72%" />	<!--유지보수시작일-->
-											<col width="5.72%" />	<!--유지보수종료일-->
-											<col width="5.72%" />	<!--매출금액-->
-											<col width="5.72%" />	<!--매입금액-->
-											<col width="5.72%" />	<!--마진금액-->
-											<col width="6.72%" />	<!--마진율-->
-											<col width="4.22%" />	<!--점검주기-->
-											<col width="7.72%" />	<!--관리팀-->
+											<col width="5.52%" />	<!--제조사-->
+											<col width="5.52%" />	<!--품목-->
+											<col width="8.52%" />	<!--제품명-->
+											<col width="5.52%" />	<!--유지보수시작일-->
+											<col width="5.52%" />	<!--유지보수종료일-->
+											<col width="5.52%" />	<!--매출금액-->
+											<col width="5.52%" />	<!--매입금액-->
+											<col width="5.52%" />	<!--마진금액-->
+											<col width="6.52%" />	<!--마진율-->
+											<col width="4.02%" />	<!--점검주기-->
+											<col width="5.72%" />	<!--관리팀-->
+											<col width="4%" />	<!--영업부서-->
 											<col width="4.22%" />	<!--점검여부-->
 											<col width="4.86%" />	<!--알림-->
 										</colgroup>
 										<tr class="t_top row-color1">
 											<th height="40" align="center">번호</th>
+											<th align="center">종류</th>
 											<th align="center">고객사</th>
 											<th align="center">프로젝트</th>
 											<th align="center">제조사</th>
@@ -375,6 +432,7 @@ function GoSearch(mode){
 											<th align="center">마진율</th>
 											<th align="center">점검주기</th>
 											<th align="center">관리팀</th>
+											<th align="center">영업부서</th>
 											<th align="center">점검여부</th>
 											<th align="center">알림</th>
 										</tr>
@@ -404,6 +462,13 @@ function GoSearch(mode){
 						}
 					?>
 					            <td height="40" align="center"><?php echo $i;?></td>
+					            <td align="center">
+												<?php
+												if($item['generate_type'] != '') {
+													echo $item['generate_type'];
+												}
+												?>
+											</td>
 					            <td align="center"><?php echo $item['customer_companyname'];?></td>
 					            <td align="center"><?php echo $item['project_name'];?></td>
 					            <td align="center"><?php echo $item['product_company'];?></td>
@@ -455,6 +520,7 @@ function GoSearch(mode){
 												?>
 					    				</td>
               				<td align="center"><?php echo $strstep;?></td>
+											<td align="center"><?php echo $item['dept']; ?></td>
               				<td align="center">
 												<?php
 													switch($item['maintain_result']){
@@ -525,7 +591,7 @@ function GoSearch(mode){
 						}
 					?>
 						<td style="text-align:center;" colspan="2">
-							<table style="width:100%;">
+							<table style="width:100%;" border="0" cellspacing="0" cellpadding="0">
 								<colgroup>
 									<col width="33.3%">
 									<col width="33.3%">
@@ -550,9 +616,10 @@ function GoSearch(mode){
 					<!-- 금액조회 끝 -->
 					<!--페이징-->
 					<tr height="40%" id="paging_tr">
-						<td align="center" valign="top" style="padding:15px;" colspan="2">
+						<td align="center" valign="top" style="padding-top:15px;padding-bottom:15px;" colspan="2">
 							<div style="width:33%;float:left;">
-								<input type="button" class="btn-common btn-style2" value="엑셀 다운" style="width:100px;float:left;" onclick="excelDownload('excelTable','maintain');">
+								<input type="button" class="btn-common btn-updownload" value="엑셀 다운로드" style="width:auto;float:left;padding-left:20px;" onclick="excelDownload('excelTable','maintain');">
+								<img src="/misc/img/download_btn.svg" style="float:left; width:12px;position:relative;top:7px; right:105px; padding:2px;">
 							</div>
 							<div style="width:33%;float:left;">
 								<?php if ($count > 0) {?>
@@ -561,9 +628,9 @@ function GoSearch(mode){
 											<?php
 												if ($cur_page > 10){
 											?>
-											<td width="19"><a href="JavaScript:GoFirstPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_first.png" width="20" height="20"/></a></td>
+											<td width="19"><a href="JavaScript:GoFirstPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_last_left.svg" width="20" height="20"/></a></td>
 											<td width="2"></td>
-											<td width="19"><a href="JavaScript:GoPrevPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_left.png" width="20" height="20"/></a></td>
+											<td width="19"><a href="JavaScript:GoPrevPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_left.svg" width="20" height="20"/></a></td>
 											<?php
 												} else {
 											?>
@@ -592,9 +659,9 @@ function GoSearch(mode){
 											<?php
 											if   ( floor( ( $cur_page - 1 ) / 10 ) < floor( ( $total_page - 1 ) / 10 ) ){
 											?>
-											<td width="19"><a href="JavaScript:GoNextPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_right.png" width="20" height="20"/></a></td>
+											<td width="19"><a href="JavaScript:GoNextPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_right.svg" width="20" height="20"/></a></td>
 											<td width="2"></td>
-											<td width="19"><a href="JavaScript:GoLastPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_last.png" width="20" height="20"/></a></td>
+											<td width="19"><a href="JavaScript:GoLastPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_last_right.svg" width="20" height="20"/></a></td>
 											<?php
 											} else {
 											?>
@@ -620,6 +687,14 @@ function GoSearch(mode){
 								</div>
 							</td>
 						</tr>
+			<?php if(isset($infor_comm_corporation_bill_pre)) { ?>
+						<tr>
+							<td align="center" valign="top" style="padding:15px;" colspan="2">
+								예상금액 (매입 : <?php echo number_format($infor_comm_corporation_bill_pre['purchase_sum']).'원'; ?>, 매출 : <?php echo number_format($infor_comm_corporation_bill_pre['sales_sum']).'원'; ?>)<br>
+								발행금액 (매입 : <?php echo number_format($infor_comm_corporation_bill_done['purchase_sum']).'원'; ?>, 매출 : <?php echo number_format($infor_comm_corporation_bill_done['sales_sum']).'원'; ?>)
+							</td>
+						</tr>
+			<?php } ?>
 
 				<!-- 페이징  끝-->
 				<script language="javascript">
@@ -730,10 +805,10 @@ function GoSearch(mode){
 						<option value="012">가격경쟁(60%)</option>
 						<option value="013">Spec in(70%)</option>
 						<option value="014">수의계약(80%)</option>
-						<option value="015">수주완료(85%)</option>
+						<!-- <option value="015">수주완료(85%)</option>
 						<option value="016">매출발생(90%)</option>
 						<option value="017">미수잔금(95%)</option>
-						<option value="018">수금완료(100%)</option>
+						<option value="018">수금완료(100%)</option> -->
 					</select>
 				</td>
 				<td></td>
@@ -971,6 +1046,18 @@ function numberFormat(obj) {
 	var inputNumber = inputText.replace(/,/g, "");
 	var fomatnputNumber = inputNumber.replace(/(\d)(?=(?:\d{3})+(?!\d))/g, "$1,");
 	obj.value = fomatnputNumber;
+}
+
+$(function() {
+	$('#filter12').change();
+})
+
+function infor_comm_corporation_change(val) {
+	if(val == "Y") {
+		$('.bill_search_year').show();
+	} else {
+		$('.bill_search_year').hide();
+	}
 }
 
 </script>

@@ -54,7 +54,7 @@
                     <!-- <td width="6%">문서제목</td> -->
                     <!-- <td width="16%"><input type="text" id="filter2" class="input3 filtercolumn" value='<?php if(isset($filter)){echo $filter[1];} ?>' onkeydown="if(event.keyCode==13) return GoSearch();" /></td> -->
                     <td>
-                      문서상태&nbsp;
+                      <span class="search_title">문서상태&nbsp;</span>
                       <select id="filter1" class="select-common select-style1 filtercolumn" onkeydown="if(event.keyCode==13) return GoSearch();" style="margin-right:10px;">
                           <option value="" <?php if(isset($filter)){if($filter[0] == ""){echo "selected";}} ?>>문서상태선택</option>
                           <option value="001" <?php if(isset($filter)){if($filter[0] == "001"){echo "selected";}} ?>>진행중</option>
@@ -63,13 +63,13 @@
                           <option value="004" <?php if(isset($filter)){if($filter[0] == "004"){echo "selected";}} ?>>회수</option>
                           <option value="006" <?php if(isset($filter)){if($filter[0] == "006"){echo "selected";}} ?>>보류</option>
                       </select>
-                      기안일&nbsp;
+                      <span class="search_title">기안일&nbsp;</span>
                       <input type="date" id="filter2" class="input-common input-style1 filtercolumn" value='<?php if(isset($filter)){echo $filter[1];} ?>' onkeydown="if(event.keyCode==13) return GoSearch();" style="width:120px;" />
-                      ~
+                      <span class="search_title">~</span>
                       <input type="date" id="filter3" class="input-common input-style1 filtercolumn" value='<?php if(isset($filter)){echo $filter[2];} ?>' onkeydown="if(event.keyCode==13) return GoSearch();" style="width:120px;margin-right:10px;"/>
-                    완료일&nbsp;
+                      <span class="search_title">완료일&nbsp;</span>
                       <input type="date" id="filter4" class="input-common input-style1 filtercolumn" value='<?php if(isset($filter)){echo $filter[3];} ?>' onkeydown="if(event.keyCode==13) return GoSearch();" style="width:120px;" />
-                      ~
+                      <span class="search_title">~</span>
                       <input type="date" id="filter5" class="input-common input-style1 filtercolumn" value='<?php if(isset($filter)){echo $filter[4];} ?>' onkeydown="if(event.keyCode==13) return GoSearch();" style="width:120px;margin-right:10px;" />
                     <!-- <td width="6%">문서내용</td> -->
                     <!-- <td width="16%"> -->
@@ -77,7 +77,7 @@
                     <!-- </td> -->
                     <!-- <input type="image" style='cursor:hand;' onclick="return GoSearch();" src="<?php echo $misc;?>img/dashboard/btn/btn_search.png" align="left" valign="top" border="0" width="28" /> -->
                     <input type="text" id="filter6" class="input-common filtercolumn" value='<?php if(isset($filter)){echo $filter[5];} ?>' onkeydown="if(event.keyCode==13) return GoSearch();" placeholder="검색하세요."  />
-                    <input type="button" class="btn-common btn-style1" style="height:27px;cursor:hand;" value="검색" onclick="return GoSearch();">
+                    <input type="button" class="btn-common btn-style2" style="cursor:hand;" value="검색" onclick="return GoSearch();">
                     </td>
                 </tr>
                 <tr align="left">
@@ -94,7 +94,7 @@
                 <td align="center" valign="top">
                   <tr>
                     <td>
-                      <table class="list_tbl" style="margin-top:10px;" width="100%" border="0" cellspacing="0" cellpadding="0">
+                      <table class="list_tbl list" style="margin-top:10px;" width="100%" border="0" cellspacing="0" cellpadding="0">
                         <colgroup>
                           <col width="10%">
                           <col width="5%">
@@ -168,11 +168,11 @@
                           <td align="center">
                           <?php
                             if($doc['approval_doc_status'] == "001"){
-                               echo "진행중";
+                               echo '<p style="color: #B0B0B0;">'."진행중".'</p>';
                             }else if($doc['approval_doc_status'] == "002"){
                                echo "완료";
                             }else if($doc['approval_doc_status'] == "003"){
-                               echo "반려";
+                               echo '<p style="color: #DC0A0A;">'."반려".'</p>';
                             }else if($doc['approval_doc_status'] == "004"){
                                echo "회수";
                             }else if($doc['approval_doc_status'] == "005"){
@@ -190,7 +190,7 @@
 ?>
                         <tr align='center'>
                           <td></td>
-                          <td height='40' colspan=6 >검색 결과가 존재하지 않습니다.</td>
+                          <td height='40' colspan=7 >검색 결과가 존재하지 않습니다.</td>
                           <td></td>
                         </tr>
 <?php

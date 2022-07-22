@@ -9,6 +9,11 @@ class Fundreporting extends CI_Controller {
   		$this->cnum = $this->phpsession->get( 'cnum', 'stc' );
       $this->group = $this->phpsession->get( 'group', 'stc' );
       $this->pGroupName = $this->phpsession->get( 'pGroupName', 'stc' );
+      $this->cooperation_yn = $this->phpsession->get( 'cooperation_yn', 'stc' );
+
+      if($this->cooperation_yn == 'Y') {
+        echo "<script>alert('권한이 없습니다.');location.href='".site_url()."'</script>";
+      }
       $this->load->database();
       ob_start();
       $this->load->library('session');
@@ -27,7 +32,7 @@ class Fundreporting extends CI_Controller {
       $group = $this->group;
       //패치 전 수정
       if($pGroupName != '경영지원실' && $pGroupName != 'CEO' && $pGroupName != '영업본부'){
-        if ($group != '기술연구소' && $group != '기술2팀'){
+        if ($pGroupName != '기술연구소' && $group != '기술2팀'){
           echo "<script>alert('접근할수 없는 메뉴입니다.');location.href='".site_url()."';</script>";
         }
       }
@@ -38,6 +43,16 @@ class Fundreporting extends CI_Controller {
       } else {
         $company = 'DUIT';
       }
+
+      if(isset($_GET['old_new']) && $_GET['old_new'] != '') {
+        $old_new = $_GET['old_new'];
+      } else {
+        $old_new = 'old';
+      }
+      if ($pGroupName == '영업본부') {
+        $old_new = 'old';
+      }
+      $data['old_new'] = $old_new;
 
       if(isset($_POST['searchday'])){
         $searchday = $_POST['searchday'];
@@ -55,15 +70,15 @@ class Fundreporting extends CI_Controller {
       $this->load->library('pagination');
       // 패치 전 수정
       $config['base_url'] = site_url().'/sales/fundreporting/sort/page/';
-      $config['total_rows'] = $this->STC_Fundreporting->count($company);
+      $config['total_rows'] = $this->STC_Fundreporting->count($company, $old_new);
       $config['per_page'] = 100;
       $config['uri_segment'] = 5;
       $config['num_links'] = 9;
-      $config['first_link'] = '<img src="/misc/img/dashboard/btn/btn_first.png") width=20; height=20; style="vertical-align: top; "/>';
-      $config['prev_link'] = '<img src="/misc/img/dashboard/btn/btn_left.png") width=20; height=20; style="vertical-align: top;"/>';
-      $config['next_link'] = '<img src="/misc/img/dashboard/btn/btn_right.png") width=20; height=20; style="vertical-align: top; "/>';
-      $config['last_link']='<img src="/misc/img/dashboard/btn/btn_last.png") width=20; height=20; style="vertical-align: top; "/>';
-      $getUrl = '?company='.$company.$searchday_url;
+      $config['first_link'] = '<img src="/misc/img/dashboard/btn/btn_last_left.svg") width=20; height=20; style="vertical-align: top; "/>';
+      $config['prev_link'] = '<img src="/misc/img/dashboard/btn/btn_left.svg") width=20; height=20; style="vertical-align: top;"/>';
+      $config['next_link'] = '<img src="/misc/img/dashboard/btn/btn_right.svg") width=20; height=20; style="vertical-align: top; "/>';
+      $config['last_link']='<img src="/misc/img/dashboard/btn/btn_last_right.svg") width=20; height=20; style="vertical-align: top; "/>';
+      $getUrl = '?company='.$company.'&old_new='.$old_new.$searchday_url;
       $config['suffix'] = $getUrl;
       $config['first_url'] = '1'.$getUrl;
       $this->pagination->initialize($config);
@@ -78,18 +93,19 @@ class Fundreporting extends CI_Controller {
 
       $data['company'] = $company;
       $data['pagination'] = $this->pagination->create_links();
-      $data['list'] = $this->STC_Fundreporting->accountlist($start, $limit,$company);
+      $data['list'] = $this->STC_Fundreporting->accountlist($start, $limit,$company, $old_new);
       if($config['total_rows']<100){
         $data['pagingBalance'] = 0;
       } else if($page == ($lastPage-1)*100){
         $data['pagingBalance'] = 0;
       } else if($page==1){
         $limit = $config['total_rows'] - $config['per_page'];
-        $data['pagingBalance'] = $this->STC_Fundreporting->pagingbalance($limit,$company);
+        $data['pagingBalance'] = $this->STC_Fundreporting->pagingbalance($limit,$company,$old_new);
       } else {
         $limit = $config['total_rows'] - ($page + $config['per_page']);
-        $data['pagingBalance'] = $this->STC_Fundreporting->pagingbalance($limit,$company);
+        $data['pagingBalance'] = $this->STC_Fundreporting->pagingbalance($limit,$company,$old_new);
       }
+      $data['set_balance'] = $this->STC_Fundreporting->set_balance($company, $old_new);
 
       $data['bankList'] = $this->STC_Fundreporting->bankList($company);
       $data['selectBanklist'] = $this->STC_Fundreporting->selectbankbook($company);
@@ -98,6 +114,10 @@ class Fundreporting extends CI_Controller {
       $data['bankBook'] = $this->STC_Fundreporting->bankbook($company, $searchday);
       $data['bond'] = $this->STC_Fundreporting->bond($company, $searchday);
       $data['debt'] = $this->STC_Fundreporting->debt($company, $searchday);
+      $data['bond_adjust'] = $this->STC_Fundreporting->bond_adjust($company, $searchday);
+      $data['debt_adjust'] = $this->STC_Fundreporting->debt_adjust($company, $searchday);
+      // $data['bond_adjust_minus'] = $this->STC_Fundreporting->bond_adjust_minus($company, $searchday);
+      // $data['debt_adjust_minus'] = $this->STC_Fundreporting->debt_adjust_minus($company, $searchday);
       $data['sum_botong'] = $this->STC_Fundreporting->sum_botong($company, $searchday);
       $data['sum_not_botong'] = $this->STC_Fundreporting->sum_not_botong($company, $searchday);
       $data['sum_list_banktype'] = $this->STC_Fundreporting->sum_list_banktype($company, $searchday);
@@ -114,7 +134,7 @@ class Fundreporting extends CI_Controller {
       $group = $this->group;
       //패치 전 수정
       if($pGroupName != '경영지원실' && $pGroupName != 'CEO' && $pGroupName != '영업본부'){
-        if ($group != '기술연구소' && $group != '기술2팀'){
+        if ($pGroupName != '기술연구소' && $group != '기술2팀'){
           echo "<script>alert('접근할수 없는 메뉴입니다.');location.href='".site_url()."';</script>";
         }
       }
@@ -125,6 +145,16 @@ class Fundreporting extends CI_Controller {
       } else {
         $company = 'DUIT';
       }
+
+      if(isset($_GET['old_new']) && $_GET['old_new'] != '') {
+        $old_new = $_GET['old_new'];
+      } else {
+        $old_new = 'old';
+      }
+      if ($pGroupName == '영업본부') {
+        $old_new = 'old';
+      }
+      $data['old_new'] = $old_new;
 
       // if ($this->load->library('pagination')==false){
       //   $firstCon = "true";
@@ -148,22 +178,22 @@ class Fundreporting extends CI_Controller {
       $this->load->library('pagination');
       //패치 전 수정
       $config['base_url'] = site_url().'/sales/fundreporting/fundreporting_list/page/';
-      $config['total_rows'] = $this->STC_Fundreporting->count($company);
+      $config['total_rows'] = $this->STC_Fundreporting->count($company, $old_new);
       if(strpos($_SERVER['REQUEST_URI'],'/page') !== false) {
         $data['firstPage'] = 0;
       } else {
-        $data['firstPage'] = $this->STC_Fundreporting->firstPage($company);
+        $data['firstPage'] = $this->STC_Fundreporting->firstPage($company, $old_new);
       }
       $config['per_page'] = 100;
       $config['uri_segment'] = 5;
       $config['num_links'] = 9;
-      $config['first_link'] = '<img src="/misc/img/dashboard/btn/btn_first.png") width=20; height=20; style="vertical-align: top; "/>';
-      $config['prev_link'] = '<img src="/misc/img/dashboard/btn/btn_left.png") width=20; height=20; style="vertical-align: top;"/>';
-      $config['next_link'] = '<img src="/misc/img/dashboard/btn/btn_right.png") width=20; height=20; style="vertical-align: top; "/>';
-      $config['last_link']='<img src="/misc/img/dashboard/btn/btn_last.png") width=20; height=20; style="vertical-align: top; "/>';
+      $config['first_link'] = '<img src="/misc/img/dashboard/btn/btn_last_left.svg") width=20; height=20; style="vertical-align: top; "/>';
+      $config['prev_link'] = '<img src="/misc/img/dashboard/btn/btn_left.svg") width=20; height=20; style="vertical-align: top;"/>';
+      $config['next_link'] = '<img src="/misc/img/dashboard/btn/btn_right.svg") width=20; height=20; style="vertical-align: top; "/>';
+      $config['last_link']='<img src="/misc/img/dashboard/btn/btn_last_right.svg") width=20; height=20; style="vertical-align: top; "/>';
       // $config['num_tag_open'] = '<div style="width:17%;float:left;">';
       // $config['num_tag_close'] = '<div>';
-      $getUrl = '?company='.$company.$searchday_url;
+      $getUrl = '?company='.$company.'&old_new='.$old_new.$searchday_url;
       $config['suffix'] = $getUrl;
       $config['first_url'] = '1'.$getUrl;
       $this->pagination->initialize($config);
@@ -178,18 +208,19 @@ class Fundreporting extends CI_Controller {
 
       $data['company'] = $company;
       $data['pagination'] = $this->pagination->create_links();
-      $data['list'] = $this->STC_Fundreporting->sort($start, $limit,$company);
+      $data['list'] = $this->STC_Fundreporting->sort($start, $limit,$company, $old_new);
       if($config['total_rows']<100){
         $data['pagingBalance'] = 0;
       } else if($page == ($lastPage-1)*100){
         $data['pagingBalance'] = 0;
       } else if($page==1){
         $limit = $config['total_rows'] - $config['per_page'];
-        $data['pagingBalance'] = $this->STC_Fundreporting->sortpagingbalance($limit,$company);
+        $data['pagingBalance'] = $this->STC_Fundreporting->sortpagingbalance($limit,$company,$old_new);
       } else {
         $limit = $config['total_rows'] - ($page + $config['per_page']);
-        $data['pagingBalance'] = $this->STC_Fundreporting->sortpagingbalance($limit,$company);
+        $data['pagingBalance'] = $this->STC_Fundreporting->sortpagingbalance($limit,$company,$old_new);
       }
+      $data['set_balance'] = $this->STC_Fundreporting->set_balance($company, $old_new);
       $data['bankList'] = $this->STC_Fundreporting->bankList($company);
       $data['selectBanklist'] = $this->STC_Fundreporting->selectbankbook($company);
       $data['selectBankTypeList'] = $this->STC_Fundreporting->selectbanktypelist($company);
@@ -197,6 +228,10 @@ class Fundreporting extends CI_Controller {
       $data['bankBook'] = $this->STC_Fundreporting->bankbook($company, $searchday);
       $data['bond'] = $this->STC_Fundreporting->bond($company, $searchday);
       $data['debt'] = $this->STC_Fundreporting->debt($company, $searchday);
+      $data['bond_adjust'] = $this->STC_Fundreporting->bond_adjust($company, $searchday);
+      $data['debt_adjust'] = $this->STC_Fundreporting->debt_adjust($company, $searchday);
+      // $data['bond_adjust_minus'] = $this->STC_Fundreporting->bond_adjust_minus($company, $searchday);
+      // $data['debt_adjust_minus'] = $this->STC_Fundreporting->debt_adjust_minus($company, $searchday);
       $data['sum_botong'] = $this->STC_Fundreporting->sum_botong($company, $searchday);
       $data['sum_not_botong'] = $this->STC_Fundreporting->sum_not_botong($company, $searchday);
       $data['sum_list_banktype'] = $this->STC_Fundreporting->sum_list_banktype($company, $searchday);
@@ -216,7 +251,7 @@ class Fundreporting extends CI_Controller {
       $group = $this->group;
       //패치 전 수정
       if($pGroupName != '경영지원실' && $pGroupName != 'CEO' && $pGroupName != '영업본부'){
-        if ($group != '기술연구소' && $group != '기술2팀'){
+        if ($pGroupName != '기술연구소' && $group != '기술2팀'){
           echo "<script>alert('접근할수 없는 메뉴입니다.');location.href='".site_url()."';</script>";
         }
       }
@@ -227,6 +262,16 @@ class Fundreporting extends CI_Controller {
       } else {
         $company = 'DUIT';
       }
+
+      if(isset($_GET['old_new']) && $_GET['old_new'] != '') {
+        $old_new = $_GET['old_new'];
+      } else {
+        $old_new = 'old';
+      }
+      if ($pGroupName == '영업본부') {
+        $old_new = 'old';
+      }
+      $data['old_new'] = $old_new;
 
       if(isset($_POST['searchday'])){
         $searchday = $_POST['searchday'];
@@ -245,15 +290,15 @@ class Fundreporting extends CI_Controller {
       $this->load->library('pagination');
       //패치 전 수정
       $config['base_url'] = site_url().'/sales/fundreporting/enduser/page/';
-      $config['total_rows'] = $this->STC_Fundreporting->count($company);
+      $config['total_rows'] = $this->STC_Fundreporting->count($company, $old_new);
       $config['per_page'] = 100;
       $config['uri_segment'] = 5;
       $config['num_links'] = 9;
-      $config['first_link'] = '<img src="/misc/img/dashboard/btn/btn_first.png") width=20; height=20; style="vertical-align: top; "/>';
-      $config['prev_link'] = '<img src="/misc/img/dashboard/btn/btn_left.png") width=20; height=20; style="vertical-align: top;"/>';
-      $config['next_link'] = '<img src="/misc/img/dashboard/btn/btn_right.png") width=20; height=20; style="vertical-align: top; "/>';
-      $config['last_link']='<img src="/misc/img/dashboard/btn/btn_last.png") width=20; height=20; style="vertical-align: top; "/>';
-      $getUrl = '?company='.$company.$searchday_url;
+      $config['first_link'] = '<img src="/misc/img/dashboard/btn/btn_last_left.svg") width=20; height=20; style="vertical-align: top; "/>';
+      $config['prev_link'] = '<img src="/misc/img/dashboard/btn/btn_left.svg") width=20; height=20; style="vertical-align: top;"/>';
+      $config['next_link'] = '<img src="/misc/img/dashboard/btn/btn_right.svg") width=20; height=20; style="vertical-align: top; "/>';
+      $config['last_link']='<img src="/misc/img/dashboard/btn/btn_last_right.svg") width=20; height=20; style="vertical-align: top; "/>';
+      $getUrl = '?company='.$company.'&old_new='.$old_new.$searchday_url;
       $config['suffix'] = $getUrl;
       $config['first_url'] = '1'.$getUrl;
       $this->pagination->initialize($config);
@@ -268,18 +313,19 @@ class Fundreporting extends CI_Controller {
 
       $data['company'] = $company;
       $data['pagination'] = $this->pagination->create_links();
-      $data['list'] = $this->STC_Fundreporting->enduser($start, $limit,$company);
+      $data['list'] = $this->STC_Fundreporting->enduser($start, $limit,$company,$old_new);
       if($config['total_rows']<100){
         $data['pagingBalance'] = 0;
       } else if($page == ($lastPage-1)*100){
         $data['pagingBalance'] = 0;
       } else if($page==1){
         $limit = $config['total_rows'] - $config['per_page'];
-        $data['pagingBalance'] = $this->STC_Fundreporting->enduserpagingbalance($limit,$company);
+        $data['pagingBalance'] = $this->STC_Fundreporting->enduserpagingbalance($limit,$company,$old_new);
       } else {
         $limit = $config['total_rows'] - ($page + $config['per_page']);
-        $data['pagingBalance'] = $this->STC_Fundreporting->enduserpagingbalance($limit,$company);
+        $data['pagingBalance'] = $this->STC_Fundreporting->enduserpagingbalance($limit,$company,$old_new);
       }
+      $data['set_balance'] = $this->STC_Fundreporting->set_balance($company, $old_new);
       $data['bankList'] = $this->STC_Fundreporting->bankList($company);
       $data['selectBanklist'] = $this->STC_Fundreporting->selectbankbook($company);
       $data['selectBankTypeList'] = $this->STC_Fundreporting->selectbanktypelist($company);
@@ -287,6 +333,10 @@ class Fundreporting extends CI_Controller {
       $data['bankBook'] = $this->STC_Fundreporting->bankbook($company, $searchday);
       $data['bond'] = $this->STC_Fundreporting->bond($company, $searchday);
       $data['debt'] = $this->STC_Fundreporting->debt($company, $searchday);
+      $data['bond_adjust'] = $this->STC_Fundreporting->bond_adjust($company, $searchday);
+      $data['debt_adjust'] = $this->STC_Fundreporting->debt_adjust($company, $searchday);
+      // $data['bond_adjust_minus'] = $this->STC_Fundreporting->bond_adjust_minus($company, $searchday);
+      // $data['debt_adjust_minus'] = $this->STC_Fundreporting->debt_adjust_minus($company, $searchday);
       $data['sum_botong'] = $this->STC_Fundreporting->sum_botong($company, $searchday);
       $data['sum_not_botong'] = $this->STC_Fundreporting->sum_not_botong($company, $searchday);
       $data['sum_list_banktype'] = $this->STC_Fundreporting->sum_list_banktype($company, $searchday);
@@ -422,7 +472,7 @@ class Fundreporting extends CI_Controller {
     function insert() {
       $id = $this->phpsession->get('id', 'stc');
       $get = $this->input->get('company');
-      echo $get;
+
       if($get){
         $company = $get;
       } else {
@@ -489,23 +539,25 @@ class Fundreporting extends CI_Controller {
         $breakdown = NULL;
       }
 
+      $link_seq = $this->input->post('link_seq');
+
       // $this->load->Model('STC_Fundreporting');
       $data = array(
         'dateOfIssue' => $dateOfIssue,
-        'fixedDate' => $fixedDate,
-        'dueDate' => $dueDate,
-        'type' => $type,
-        'bankType' => $bankType,
-        'customer' => $customer,
-        'endUser' => $endUser,
-        'breakdown' => $breakdown,
+        'fixedDate'   => $fixedDate,
+        'dueDate'     => $dueDate,
+        'type'        => $type,
+        'bankType'    => $bankType,
+        'customer'    => $customer,
+        'endUser'     => $endUser,
+        'breakdown'   => $breakdown,
         'requisition' => $requisition,
-        'deposit' => $deposit,
-        'withdraw' => $withdraw,
-        'company' => $company,
-        'id' => $id,
+        'deposit'     => $deposit,
+        'withdraw'    => $withdraw,
+        'company'     => $company,
+        'id'          => $id,
       );
-    $insertResult = $this->STC_Fundreporting->insert($data);
+    $insertResult = $this->STC_Fundreporting->insert($data, $link_seq);
     $bankBookUpdateResult = $this->STC_Fundreporting->bankbookupdate($company);
     if ($insertResult=='true' && $bankBookUpdateResult == 'true'){
       echo json_encode("true");
@@ -628,7 +680,7 @@ class Fundreporting extends CI_Controller {
         $group = $this->group;
         //패치 전 수정
         if($pGroupName != '경영지원실' && $pGroupName != 'CEO' && $pGroupName != '영업본부'){
-          if ($group != '기술연구소' && $group != '기술2팀'){
+          if ($pGroupName != '기술연구소' && $group != '기술2팀'){
             echo "<script>alert('접근할수 없는 메뉴입니다.');location.href='".site_url()."';</script>";
           }
         }
@@ -639,6 +691,16 @@ class Fundreporting extends CI_Controller {
         } else {
           $company = 'DUIT';
         }
+
+        if(isset($_GET['old_new']) && $_GET['old_new'] != '') {
+          $old_new = $_GET['old_new'];
+        } else {
+          $old_new = 'old';
+        }
+        if ($pGroupName == '영업본부') {
+          $old_new = 'old';
+        }
+        $data['old_new'] = $old_new;
 
         if(isset($_POST['searchday'])){
           $searchday = $_POST['searchday'];
@@ -700,7 +762,7 @@ class Fundreporting extends CI_Controller {
             $data['search3'] =  $this->session->userdata['search3'];
             $data['keyword3'] =  $this->session->userdata['keyword3'];
           };
-        $list = $this->STC_Fundreporting->seachlist($data['selectDate'], $data['fromDate'], $data['toDate'], $data['search1'], $data['keyword1'], $data['search2'], $data['keyword2'], $data['search3'], $data['keyword3'], $company, $sort);
+        $list = $this->STC_Fundreporting->seachlist($data['selectDate'], $data['fromDate'], $data['toDate'], $data['search1'], $data['keyword1'], $data['search2'], $data['keyword2'], $data['search3'], $data['keyword3'], $company, $old_new, $sort);
 
         $data['fromDate'] = $list['fromDate'];
         $data['toDate'] = $list['toDate'];
@@ -714,11 +776,11 @@ class Fundreporting extends CI_Controller {
         $config['uri_segment'] = 5;
         $config['num_links'] = 9;
         // $config['use_page_numbers'] = TRUE;
-        $config['first_link'] = '<img src="/misc/img/dashboard/btn/btn_first.png") width=20; height=20; style="vertical-align: top; "/>';
-        $config['prev_link'] = '<img src="/misc/img/dashboard/btn/btn_left.png") width=20; height=20; style="vertical-align: top;"/>';
-        $config['next_link'] = '<img src="/misc/img/dashboard/btn/btn_right.png") width=20; height=20; style="vertical-align: top; "/>';
-        $config['last_link']='<img src="/misc/img/dashboard/btn/btn_last.png") width=20; height=20; style="vertical-align: top; "/>';
-        $getUrl = '?company='.$company.'&sort='.$sort.$searchday_url;
+        $config['first_link'] = '<img src="/misc/img/dashboard/btn/btn_last_left.svg") width=20; height=20; style="vertical-align: top; "/>';
+        $config['prev_link'] = '<img src="/misc/img/dashboard/btn/btn_left.svg") width=20; height=20; style="vertical-align: top;"/>';
+        $config['next_link'] = '<img src="/misc/img/dashboard/btn/btn_right.svg") width=20; height=20; style="vertical-align: top; "/>';
+        $config['last_link']='<img src="/misc/img/dashboard/btn/btn_last_right.svg") width=20; height=20; style="vertical-align: top; "/>';
+        $getUrl = '?company='.$company.'&old_new='.$old_new.'&sort='.$sort.$searchday_url;
         $config['suffix'] = $getUrl;
         $config['first_url'] = '1'.$getUrl;
         $this->pagination->initialize($config);
@@ -735,18 +797,19 @@ class Fundreporting extends CI_Controller {
         $data['pagination'] = $this->pagination->create_links();
         // $lists = $this->STC_Fundreporting->seachlist($data['selectDate'], $data['fromDate'], $data['toDate'], $data['search1'], $data['keyword1'], $data['search2'], $data['keyword2'], $start, $limit);
         // $list = $this->STC_Fundreporting->seachlist($data['selectDate'], $data['fromDate'], $data['toDate'], $data['search1'], $data['keyword1'], $data['search2'], $data['keyword2']);
-        $data['list'] = $this->STC_Fundreporting->searchpaging($data['selectDate'], $data['fromDate'], $data['toDate'], $data['search1'], $data['keyword1'], $data['search2'], $data['keyword2'], $data['search3'], $data['keyword3'], $start, $limit,$company,$sort);
+        $data['list'] = $this->STC_Fundreporting->searchpaging($data['selectDate'], $data['fromDate'], $data['toDate'], $data['search1'], $data['keyword1'], $data['search2'], $data['keyword2'], $data['search3'], $data['keyword3'], $start, $limit,$company,$old_new,$sort);
         if($config['total_rows']<100){
           $data['pagingBalance'] = 0;
         } else if($page == ($lastPage-1)*100){
           $data['pagingBalance'] = 0;
         } else if($page==1){
           $limit = $config['total_rows'] - $config['per_page'];
-          $data['pagingBalance'] = $this->STC_Fundreporting->pagingbalance($limit,$company);
+          $data['pagingBalance'] = $this->STC_Fundreporting->pagingbalance($limit,$company,$old_new);
         } else {
           $limit = $config['total_rows'] - ($page + $config['per_page']);
-          $data['pagingBalance'] = $this->STC_Fundreporting->pagingbalance($limit,$company);
+          $data['pagingBalance'] = $this->STC_Fundreporting->pagingbalance($limit,$company,$old_new);
         }
+        $data['set_balance'] = $this->STC_Fundreporting->set_balance($company, $old_new);
         // $data['row'] = $lists['row'];
         // echo "검색건수는 ".$data['row'];
         $data['bankList'] = $this->STC_Fundreporting->bankList($company);
@@ -758,6 +821,10 @@ class Fundreporting extends CI_Controller {
         $data['bankBook'] = $this->STC_Fundreporting->bankbook($company, $searchday);
         $data['bond'] = $this->STC_Fundreporting->bond($company, $searchday);
         $data['debt'] = $this->STC_Fundreporting->debt($company, $searchday);
+        $data['bond_adjust'] = $this->STC_Fundreporting->bond_adjust($company, $searchday);
+        $data['debt_adjust'] = $this->STC_Fundreporting->debt_adjust($company, $searchday);
+        // $data['bond_adjust_minus'] = $this->STC_Fundreporting->bond_adjust_minus($company, $searchday);
+        // $data['debt_adjust_minus'] = $this->STC_Fundreporting->debt_adjust_minus($company, $searchday);
         $data['sum_botong'] = $this->STC_Fundreporting->sum_botong($company, $searchday);
         $data['sum_not_botong'] = $this->STC_Fundreporting->sum_not_botong($company, $searchday);
         $data['sum_list_banktype'] = $this->STC_Fundreporting->sum_list_banktype($company, $searchday);
@@ -766,6 +833,11 @@ class Fundreporting extends CI_Controller {
         $data['sumWithdraw'] = $list['sumWithdraw'];
         $data['nsDeposit'] = $list['nsDeposit'];
         $data['nsWithdraw'] = $list['nsWithdraw'];
+
+        $data['sumDeposit_adjust'] = $list['sumDeposit_adjust'];
+        $data['sumWithdraw_adjust'] = $list['sumWithdraw_adjust'];
+        $data['nsDeposit_adjust'] = $list['nsDeposit_adjust'];
+        $data['nsWithdraw_adjust'] = $list['nsWithdraw_adjust'];
         $this->load->view( 'sales/fundreporting_list', $data);
 
       }
@@ -818,7 +890,7 @@ class Fundreporting extends CI_Controller {
         $group = $this->group;
         //패치 전 수정
         if($pGroupName != '경영지원실' && $pGroupName != 'CEO' && $pGroupName != '영업본부'){
-          if ($group != '기술연구소' && $group != '기술2팀'){
+          if ($pGroupName != '기술연구소' && $group != '기술2팀'){
             echo "<script>alert('접근할수 없는 메뉴입니다.');location.href='".site_url()."';</script>";
           }
         }
@@ -831,10 +903,10 @@ class Fundreporting extends CI_Controller {
         $config['per_page'] = 100;
         $config['uri_segment'] = 5;
         $config['num_links'] = 9;
-        $config['first_link'] = '<img src="/misc/img/dashboard/btn/btn_first.png") width=20; height=20; style="vertical-align: top; "/>';
-        $config['prev_link'] = '<img src="/misc/img/dashboard/btn/btn_left.png") width=20; height=20; style="vertical-align: top;"/>';
-        $config['next_link'] = '<img src="/misc/img/dashboard/btn/btn_right.png") width=20; height=20; style="vertical-align: top; "/>';
-        $config['last_link']='<img src="/misc/img/dashboard/btn/btn_last.png") width=20; height=20; style="vertical-align: top; "/>';
+        $config['first_link'] = '<img src="/misc/img/dashboard/btn/btn_last_left.svg") width=20; height=20; style="vertical-align: top; "/>';
+        $config['prev_link'] = '<img src="/misc/img/dashboard/btn/btn_left.svg") width=20; height=20; style="vertical-align: top;"/>';
+        $config['next_link'] = '<img src="/misc/img/dashboard/btn/btn_right.svg") width=20; height=20; style="vertical-align: top; "/>';
+        $config['last_link']='<img src="/misc/img/dashboard/btn/btn_last_right.svg") width=20; height=20; style="vertical-align: top; "/>';
         $company = 'HIS_LIST';
         $getUrl = '?company='.$company;
         $config['suffix'] = $getUrl;
@@ -862,7 +934,7 @@ class Fundreporting extends CI_Controller {
         $group = $this->group;
         //패치 전 수정
         if($pGroupName != '경영지원실' && $pGroupName != 'CEO' && $pGroupName != '영업본부'){
-          if ($group != '기술연구소' && $group != '기술2팀'){
+          if ($pGroupName != '기술연구소' && $group != '기술2팀'){
             echo "<script>alert('접근할수 없는 메뉴입니다.');location.href='".site_url()."';</script>";
           }
         }
@@ -875,10 +947,10 @@ class Fundreporting extends CI_Controller {
         $config['per_page'] = 100;
         $config['uri_segment'] = 5;
         $config['num_links'] = 9;
-        $config['first_link'] = '<img src="/misc/img/dashboard/btn/btn_first.png") width=20; height=20; style="vertical-align: top; "/>';
-        $config['prev_link'] = '<img src="/misc/img/dashboard/btn/btn_left.png") width=20; height=20; style="vertical-align: top;"/>';
-        $config['next_link'] = '<img src="/misc/img/dashboard/btn/btn_right.png") width=20; height=20; style="vertical-align: top; "/>';
-        $config['last_link']='<img src="/misc/img/dashboard/btn/btn_last.png") width=20; height=20; style="vertical-align: top; "/>';
+        $config['first_link'] = '<img src="/misc/img/dashboard/btn/btn_last_left.svg") width=20; height=20; style="vertical-align: top; "/>';
+        $config['prev_link'] = '<img src="/misc/img/dashboard/btn/btn_left.svg") width=20; height=20; style="vertical-align: top;"/>';
+        $config['next_link'] = '<img src="/misc/img/dashboard/btn/btn_right.svg") width=20; height=20; style="vertical-align: top; "/>';
+        $config['last_link']='<img src="/misc/img/dashboard/btn/btn_last_right.svg") width=20; height=20; style="vertical-align: top; "/>';
         $company = 'HIS_BANK';
         $getUrl = '?company='.$company;
         $config['suffix'] = $getUrl;
@@ -908,7 +980,7 @@ class Fundreporting extends CI_Controller {
       $group = $this->group;
       //패치 전 수정
       if($pGroupName != '경영지원실' && $pGroupName != 'CEO' && $pGroupName != '영업본부'){
-        if ($group != '기술연구소' && $group != '기술2팀'){
+        if ($pGroupName != '기술연구소' && $group != '기술2팀'){
           echo "<script>alert('접근할수 없는 메뉴입니다.');location.href='".site_url()."';</script>";
         }
       }
@@ -966,10 +1038,10 @@ class Fundreporting extends CI_Controller {
       $config['per_page'] = 100;
       $config['uri_segment'] = 5;
       $config['num_links'] = 9;
-      $config['first_link'] = '<img src="/misc/img/dashboard/btn/btn_first.png") width=20; height=20; style="vertical-align: top; "/>';
-      $config['prev_link'] = '<img src="/misc/img/dashboard/btn/btn_left.png") width=20; height=20; style="vertical-align: top;"/>';
-      $config['next_link'] = '<img src="/misc/img/dashboard/btn/btn_right.png") width=20; height=20; style="vertical-align: top; "/>';
-      $config['last_link']='<img src="/misc/img/dashboard/btn/btn_last.png") width=20; height=20; style="vertical-align: top; "/>';
+      $config['first_link'] = '<img src="/misc/img/dashboard/btn/btn_last_left.svg") width=20; height=20; style="vertical-align: top; "/>';
+      $config['prev_link'] = '<img src="/misc/img/dashboard/btn/btn_left.svg") width=20; height=20; style="vertical-align: top;"/>';
+      $config['next_link'] = '<img src="/misc/img/dashboard/btn/btn_right.svg") width=20; height=20; style="vertical-align: top; "/>';
+      $config['last_link']='<img src="/misc/img/dashboard/btn/btn_last_right.svg") width=20; height=20; style="vertical-align: top; "/>';
       $company = 'HIS_LIST';
       $getUrl = '?company='.$company;
       $config['suffix'] = $getUrl;
@@ -997,7 +1069,7 @@ class Fundreporting extends CI_Controller {
       $group = $this->group;
       //패치 전 수정
       if($pGroupName != '경영지원실' && $pGroupName != 'CEO' && $pGroupName != '영업본부'){
-        if ($group != '기술연구소' && $group != '기술2팀'){
+        if ($pGroupName != '기술연구소' && $group != '기술2팀'){
           echo "<script>alert('접근할수 없는 메뉴입니다.');location.href='".site_url()."';</script>";
         }
       }
@@ -1043,10 +1115,10 @@ class Fundreporting extends CI_Controller {
     $config['per_page'] = 100;
     $config['uri_segment'] = 5;
     $config['num_links'] = 9;
-    $config['first_link'] = '<img src="/misc/img/dashboard/btn/btn_first.png") width=20; height=20; style="vertical-align: top; "/>';
-    $config['prev_link'] = '<img src="/misc/img/dashboard/btn/btn_left.png") width=20; height=20; style="vertical-align: top;"/>';
-    $config['next_link'] = '<img src="/misc/img/dashboard/btn/btn_right.png") width=20; height=20; style="vertical-align: top; "/>';
-    $config['last_link']='<img src="/misc/img/dashboard/btn/btn_last.png") width=20; height=20; style="vertical-align: top; "/>';
+    $config['first_link'] = '<img src="/misc/img/dashboard/btn/btn_last_left.svg") width=20; height=20; style="vertical-align: top; "/>';
+    $config['prev_link'] = '<img src="/misc/img/dashboard/btn/btn_left.svg") width=20; height=20; style="vertical-align: top;"/>';
+    $config['next_link'] = '<img src="/misc/img/dashboard/btn/btn_right.svg") width=20; height=20; style="vertical-align: top; "/>';
+    $config['last_link']='<img src="/misc/img/dashboard/btn/btn_last_right.svg") width=20; height=20; style="vertical-align: top; "/>';
     $company = 'HIS_BANK';
     $getUrl = '?company='.$company;
     $config['suffix'] = $getUrl;
@@ -1074,7 +1146,7 @@ class Fundreporting extends CI_Controller {
        $group = $this->group;
        //패치 전 수정
        if($pGroupName != '경영지원실' && $pGroupName != 'CEO' && $pGroupName != '영업본부'){
-         if ($group != '기술연구소' && $group != '기술2팀'){
+         if ($pGroupName != '기술연구소' && $group != '기술2팀'){
            echo "<script>alert('접근할수 없는 메뉴입니다.');location.href='".site_url()."';</script>";
          }
        }
@@ -1089,10 +1161,10 @@ class Fundreporting extends CI_Controller {
        $config['per_page'] = 100;
        $config['uri_segment'] = 5;
        $config['num_links'] = 9;
-       $config['first_link'] = '<img src="/misc/img/dashboard/btn/btn_first.png") width=20; height=20; style="vertical-align: top; "/>';
-       $config['prev_link'] = '<img src="/misc/img/dashboard/btn/btn_left.png") width=20; height=20; style="vertical-align: top;"/>';
-       $config['next_link'] = '<img src="/misc/img/dashboard/btn/btn_right.png") width=20; height=20; style="vertical-align: top; "/>';
-       $config['last_link']='<img src="/misc/img/dashboard/btn/btn_last.png") width=20; height=20; style="vertical-align: top; "/>';
+       $config['first_link'] = '<img src="/misc/img/dashboard/btn/btn_last_left.svg") width=20; height=20; style="vertical-align: top; "/>';
+       $config['prev_link'] = '<img src="/misc/img/dashboard/btn/btn_left.svg") width=20; height=20; style="vertical-align: top;"/>';
+       $config['next_link'] = '<img src="/misc/img/dashboard/btn/btn_right.svg") width=20; height=20; style="vertical-align: top; "/>';
+       $config['last_link']='<img src="/misc/img/dashboard/btn/btn_last_right.svg") width=20; height=20; style="vertical-align: top; "/>';
        $company = 'HIS_USER';
        $getUrl = '?company='.$company;
        $config['suffix'] = $getUrl;
@@ -1126,7 +1198,7 @@ function logsearch(){
   $group = $this->group;
   //패치 전 수정
   if($pGroupName != '경영지원실' && $pGroupName != 'CEO' && $pGroupName != '영업본부'){
-    if ($group != '기술연구소' && $group != '기술2팀'){
+    if ($pGroupName != '기술연구소' && $group != '기술2팀'){
       echo "<script>alert('접근할수 없는 메뉴입니다.');location.href='".site_url()."';</script>";
     }
   }
@@ -1170,10 +1242,10 @@ function logsearch(){
   $config['per_page'] = 100;
   $config['uri_segment'] = 5;
   $config['num_links'] = 9;
-  $config['first_link'] = '<img src="/misc/img/dashboard/btn/btn_first.png") width=20; height=20; style="vertical-align: top; "/>';
-  $config['prev_link'] = '<img src="/misc/img/dashboard/btn/btn_left.png") width=20; height=20; style="vertical-align: top;"/>';
-  $config['next_link'] = '<img src="/misc/img/dashboard/btn/btn_right.png") width=20; height=20; style="vertical-align: top; "/>';
-  $config['last_link']='<img src="/misc/img/dashboard/btn/btn_last.png") width=20; height=20; style="vertical-align: top; "/>';
+  $config['first_link'] = '<img src="/misc/img/dashboard/btn/btn_last_left.svg") width=20; height=20; style="vertical-align: top; "/>';
+  $config['prev_link'] = '<img src="/misc/img/dashboard/btn/btn_left.svg") width=20; height=20; style="vertical-align: top;"/>';
+  $config['next_link'] = '<img src="/misc/img/dashboard/btn/btn_right.svg") width=20; height=20; style="vertical-align: top; "/>';
+  $config['last_link']='<img src="/misc/img/dashboard/btn/btn_last_right.svg") width=20; height=20; style="vertical-align: top; "/>';
   $company = 'HIS_USER';
   $getUrl = '?company='.$company;
   $config['suffix'] = $getUrl;
@@ -1283,6 +1355,14 @@ function logsearch(){
       }
     }
     $result = array_reverse($result);
+
+    echo json_encode($result);
+  }
+
+  function find_bill_target() {
+    $bill_seq = $this->input->post('bill_seq');
+
+    $result = $this->STC_Fundreporting->find_bill_target($bill_seq);
 
     echo json_encode($result);
   }

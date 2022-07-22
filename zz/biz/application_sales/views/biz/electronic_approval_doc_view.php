@@ -55,6 +55,8 @@ if(!empty($approval_line)){
 // }
 // echo $approval_cancel_status;
 // print_r($next_approval_line);
+
+$tech_approval = [17, 21, 56, 74];
 ?>
 <style>
    p,span, a, a:hover, a:visited, a:active, label, input, h1,h2,h3,h4,h5,h6,input,textarea:not(#summernote),select{
@@ -140,7 +142,7 @@ if(!empty($approval_line)){
       padding-left:0px;
    }
 
-   #formLayoutDiv input{
+   #formLayoutDiv input:not(input[type='radio']){
       border: none !important;
       background: transparent !important;
    }
@@ -161,7 +163,7 @@ if(!empty($approval_line)){
    #formLayoutDiv select {
       pointer-events: none;
    }
-   #formLayoutDiv input {
+   #formLayoutDiv input:not(input[type='radio']) {
       border: none !important;
       background: transparent !important;
    }
@@ -182,8 +184,33 @@ if(!empty($approval_line)){
    .note-editable[contenteditable="false"] {
       background: transparent !important;
    }
+   /* input[type='radio']:checked {
+     appearance: none;
+     width: 0.74rem;
+     height: 0.74rem;
+     border-radius:100%;
+     margin-right: 0.20rem;
+     margin-top:0.5px;
+   }
+   input[type='radio']:checked {
+      background-color: black !important;
+    } */
+    #formLayoutDiv input[type='radio']:checked {
+      appearance:none;
+    }
+    .stamp {
+    	position: static;
+    	background-size:contain;
+    	/* background-position: right bottom; */
+    	background-repeat:no-repeat;
+    	padding-top:10px;
+    	padding-bottom:10px;
+    	padding-right:50px;
+    	padding-left:10px;
+    }
 </style>
 <link href="https://fonts.googleapis.com/css?family=Noto+Sans+KR" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/crypto-js.min.js"></script>
 <link rel="stylesheet" href="/misc/css/view_page_common.css">
 <script>
    function chkForm(){
@@ -197,16 +224,21 @@ if(!empty($approval_line)){
 	}
 </script>
 <body>
-<?php include $this->input->server('DOCUMENT_ROOT')."/include/sales_header.php"; ?>
+<?php
+if($type != 'performanceAppraisal') {
+  include $this->input->server('DOCUMENT_ROOT')."/include/sales_header.php";
+}
+?>
 <form name="cform" action="<?php echo site_url(); ?>/biz/approval/electronic_approval_doc_input_action" method="post" onSubmit="javascript:chkForm();return false;">
    <input type="hidden" id="seq" name="seq" value="<?php echo $seq; ?>">
    <input type="hidden" id="select_user_id" name="select_user_id" value="">
    <input type="hidden" id="approval_form_seq" name="approval_form_seq" value="<?php echo $view_val['approval_form_seq']; ?>">
    <input type="hidden" id="contents_html" name="contents_html" value="" />
-   <input type="hidden" id="editor_contents" name="editor_contents" value='<?php echo $view_val['editor_contents']; ?>' />
+   <input type="hidden" id="editor_contents" name="editor_contents" value='<?php echo htmlspecialchars($view_val['editor_contents']); ?>' />
    <input type="hidden" id="approver_line" name="approver_line" value="" />
    <input type="hidden" id="cur_approver_line_seq" name="cur_approver_line_seq" value="<?php if(empty($cur_approval_line) != true){echo $cur_approval_line['seq']; }?>" />
    <input type="hidden" id="next_approver_line_seq" name="next_approver_line_seq" value="<?php if(empty($next_approval_line) != true){echo $next_approval_line['seq']; } ?>" />
+   <input type="hidden" id="sign_confirm_yn" value="<?php echo $sign_confirm; ?>" />
 
    <input type="hidden" id="cancel_line_seq" value="<?php if(empty($cancel_next_line) != true){echo $cancel_next_line['seq']; } ?>">
 
@@ -323,7 +355,7 @@ if(!empty($approval_line)){
                                        }else if($_GET['type2'] == "001"){
                                           if(!empty($next_approval_line)){
                                              if($approval_cancel_status == "Y"){
-                                                echo '<input type="button" class="btn-common btn-color2" style="margin-right:5px;" value="결재취소" onclick="approval_save(0)" />';
+                                                echo '<input type="button" class="btn-common btn-color4" style="margin-right:5px;" value="결재취소" onclick="approval_save(0)" />';
                                              }
                                           }
                                           if($id == $view_val['writer_id'] && $approval_line[0]['approval_status'] == "" && $view_val['approval_doc_hold'] != "Y" ){
@@ -336,7 +368,7 @@ if(!empty($approval_line)){
                                     }else if ($type == "temporary"){
                                        echo '<input type="button" class="btn-common btn-color2" style="margin-right:5px;" value="수정" onclick="modifyApproval();" />';
                                        echo '<input type="button" class="btn-common btn-color2" style="margin-right:5px;" value="복사" onclick="duplicationApproval();" />';
-                                       echo '<input type="button" class="btn-common btn-color1" value="삭제" onclick="delete_doc();"/>';
+                                       echo '<input type="button" class="btn-common btn-color4" value="삭제" onclick="delete_doc();"/>';
                                        echo '<input type="button" class="btn-common btn-color1" value="인쇄/PDF" onclick="print();" />';
                                        echo '<input type="button" class="btn-common btn-color1" value="목록" onclick="list_view();" />';
                                     }else if ($type == "admin"){
@@ -352,10 +384,19 @@ if(!empty($approval_line)){
                                           echo "보안해제";
                                        }
                                        echo '" onclick="security_setting();" />';
-                                       echo '<input type="button" class="btn-common btn-color1" value="삭제" onclick="delete_doc();"/>';
+                                       echo '<input type="button" class="btn-common btn-color4" value="삭제" onclick="delete_doc();"/>';
                                        echo '<input type="button" class="btn-common btn-color1" value="진행현황" onclick="progressStatus();" />';
                                        echo '<input type="button" class="btn-common btn-color1" value="인쇄/PDF" onclick="print();" />';
                                        echo '<input type="button" class="btn-common btn-color1" value="목록" onclick="list_view();" />';
+                                    } else if ($type == 'reference') {
+                                      echo '<input type="button" class="btn-common btn-color1" value="인쇄/PDF" onclick="print();" />';
+                                      echo '<input type="button" class="btn-common btn-color1" value="목록" onclick="list_view();" />';
+                                    } else if($type == 'performanceAppraisal') {
+                                      echo '<input type="button" class="btn-common btn-color1" value="돌아가기" onclick="history.go(-1);" />';
+                                    } else if($type == 'wage') {
+                                      echo '<input type="button" class="btn-common btn-color1" value="진행현황" onclick="progressStatus();" />';
+                                      echo '<input type="button" class="btn-common btn-color1" value="인쇄/PDF" onclick="print();" />';
+                                      echo '<input type="button" class="btn-common btn-color1" value="목록" onclick="list_view();" />';
                                     }
                                  ?>
                                  </div>
@@ -373,17 +414,18 @@ if(!empty($approval_line)){
                                     <table id="approver_line_table" class="basic_table" style="width:auto;text-align:center;margin-bottom:30px;">
                                        <tr>
                                           <td height=40 rowspan=2 class="basic_td" width="20px" bgcolor="f8f8f9" >결재</td>
-                                          <td class="basic_td" width="80px" bgcolor="f8f8f9"><?php echo $view_val['user_duty']; ?></td>
+                                          <td class="basic_td" width="80px" bgcolor="f8f8f9">1.<?php echo $view_val['user_duty']; ?></td>
                                           <?php
                                           if(empty($approval_line) != true){
                                              foreach($approval_line as $al){
+                                               $step = $al['step'] + 2;
                                                 if($al['approval_type'] == "결재"){
                                                    if($al['delegation_seq'] == ""){
-                                                      echo "<td class='basic_td' width='80px' bgcolor='f8f8f9'>{$al['user_duty']}</td>";
+                                                      echo "<td class='basic_td' width='80px' bgcolor='f8f8f9'>{$step}.{$al['user_duty']}</td>";
                                                    }else{
                                                       $mendatary_duty = explode(' ', $al['mandatary']);
                                                       $mendatary_duty = $mendatary_duty[1];
-                                                      echo "<td class='basic_td' width='80px' bgcolor='f8f8f9'>{$mendatary_duty}</td>";
+                                                      echo "<td class='basic_td' width='80px' bgcolor='f8f8f9'>{$step}.{$mendatary_duty}</td>";
                                                    }
 
                                                 }
@@ -398,6 +440,7 @@ if(!empty($approval_line)){
                                           <?php
                                           if(empty($approval_line) != true){
                                              foreach($approval_line as $al){
+                                               $step = $al['step'] + 2;
                                                 if($al['approval_type'] == "결재"){
                                                    if($al['delegation_seq'] == ""){
                                                       echo "<td class='basic_td' width='80px'>{$al['user_name']}<br>";
@@ -430,7 +473,8 @@ if(!empty($approval_line)){
                                           if(empty($approval_line) != true){
                                              foreach($approval_line as $al){
                                                 if($al['approval_type'] == "합의"){
-                                                   echo "<td class='basic_td' width='80px'>{$al['user_duty']}</td>" ;
+                                                  $step = $al['step'] + 2;
+                                                   echo "<td class='basic_td' width='80px'>{$step}.{$al['user_duty']}</td>" ;
                                                 }
                                              }
                                           }
@@ -510,6 +554,50 @@ if(!empty($approval_line)){
                                              <?php echo $view_val['approval_doc_name']; ?>
                                           </td>
                                        </tr>
+                                       <?php if($view_val['official_doc_attach'] != '') { ?>
+                                         <tr>
+                                           <td width="15%" align="center" height=40 class="basic_td" bgcolor="f8f8f9">발송공문</td>
+                                           <td colspan="3" class="basic_td">
+                                             <?php
+                                             $official_doc_seq = '';
+                                             $official_doc_list = '';
+                                             if($view_val['official_doc_attach'] != ''){
+                                               $official_doc = explode('*/*',$view_val['official_doc_attach']);
+                                               for($i=0; $i<count($official_doc); $i++){
+                                                 $off_doc = explode('--',$official_doc[$i]);
+                                                 $official_doc_seq .= ','.$off_doc[0];
+                                                 $official_doc_list .= "<div id='official_doc_".$off_doc[0]."'><span name='official_doc_name' onclick='official_doc_view(".$off_doc[0].")' style='cursor:pointer;'>".$off_doc[1]."</span><img src='/misc/img/btn_search.jpg' style='width:18px;vertical-align:middle;cursor:pointer;margin:5px 0px 5px 10px;' onclick='official_doc_view(".$off_doc[0].")'/></div>";
+                                               }
+                                             }
+                                             ?>
+                                             <input id="approval_attach" name="approval_attach" type="hidden" class="input7" value="<?php echo $official_doc_seq; ?>" />
+                                             <div id="approval_attach_list" name="approval_attach_list">
+                                               <?php echo $official_doc_list; ?>
+                                             </div>
+                                           </td>
+                                         </tr>
+                                       <?php } ?>
+                                       <input id="approval_tech_doc_attach" name="approval_tech_doc_attach" type="hidden" value="<?php echo $view_val['approval_tech_doc_attach']; ?>" />
+                              <?php if(in_array($view_val['approval_form_seq'], $tech_approval)) {
+                                      if(trim($view_val['approval_tech_doc_attach']) != '') {
+                                        $tech_doc_attach = explode('::', $view_val['approval_tech_doc_attach']);
+                                        $tech_doc_seq = $tech_doc_attach[0];
+                                        $tech_doc_name = $tech_doc_attach[1];
+                                      }  ?>
+                                      <tr>
+                                        <td width="15%" align="center" height=40 class="basic_td" bgcolor="f8f8f9">첨부기술지원보고서</td>
+                                        <td colspan=3 class="basic_td">
+                                          <div id="approval_tech_doc_attach_list" name="approval_tech_doc_attach_list">
+                                  <?php if($view_val['approval_tech_doc_attach'] != '') { ?>
+                                            <div id="attach_tech_doc_<?php echo $tech_doc_seq; ?>">
+                                              <span name="attach_name"><?php echo $tech_doc_name; ?></span>
+                                              <img src="/misc/img/btn_search.jpg" style="width:18px;vertical-align:middle;cursor:pointer;margin:5px 0px 5px 10px;" onclick="tech_doc_view(<?php echo $tech_doc_seq; ?>)">
+                                            </div>
+                                  <?php } ?>
+                                          </div>
+                                        </td>
+                                      </tr>
+                              <?php } ?>
                                        <tr>
                                           <td width="15%" align="center" height=40 class="basic_td" bgcolor="f8f8f9">첨부파일</td>
                                           <td colspan=3 class="basic_td">
@@ -523,6 +611,16 @@ if(!empty($approval_line)){
                                                    }
                                                 }
                                              ?>
+                                       <?php if($view_val['approval_form_seq'] == 71){ ?>
+                                              <div><span onclick='salary_contract_view("<?php echo $seq; ?>")' style='cursor:pointer;' id="salary_contract"></span><img src='/misc/img/btn_search.jpg' style='width:18px;vertical-align:middle;cursor:pointer;margin:5px 0px 5px 10px;' onclick='salary_contract_view("<?php echo $seq; ?>")'/></div>
+                                       <?php } ?>
+                                       <?php if($view_val['approval_form_seq'] == 75) { ?>
+                                             <div>
+                                         <?php echo $view_val['writer_name'].' '.$employment_doc['user_duty'].' 재직증명서'; ?>
+                                               <span onclick='employment_doc_view("<?php echo $seq; ?>")' style='cursor:pointer;' id="employment_doc"></span>
+                                               <img src='/misc/img/btn_search.jpg' style='width:18px;vertical-align:middle;cursor:pointer;margin:5px 0px 5px 10px;' onclick='employment_doc_view("<?php echo $seq; ?>")'/>
+                                             </div>
+                                       <?php } ?>
                                           </td>
                                        </tr>
                                     </table>
@@ -565,7 +663,7 @@ if(!empty($approval_line)){
                                              echo "<td height='30' class='basic_td'>{$al['approval_date']}</td>";
                                              echo "<td height='30' class='basic_td'>{$al['approval_opinion']}</td>";
                                              echo "<td height='30' class='basic_td'>";
-                                             if(trim($al['details']) != ""){
+                                             if(trim($al['details']) != "" && trim($al['details']) != '<p><br></p>' && trim($al['details']) != '<br>'){
                                                 echo "<img src='{$misc}img/dashboard/btn/btn_search.png' width=25 style='cursor:pointer;' onclick='details_view({$al['seq']});'>";
                                              }
                                              echo "</td></tr>";
@@ -671,7 +769,7 @@ if(!empty($approval_line)){
                               </div>
                               <div align="right">
                                 <input type ="button" class="btn-common btn-color2" value="등록" style="width:61px;" onClick="saveUserModal();">
-                                <input type ="button" class="btn-common btn-color1" value="취소" style="width:61px;" onClick="closeModal();">
+                                <input type ="button" class="btn-common btn-color4" value="취소" style="width:61px;" onClick="closeModal();">
 
                               </div>
                         </div>
@@ -829,7 +927,7 @@ if(!empty($approval_line)){
                                  </table>
                               </div>
                               <div align="right">
-                            <input type ="button" class="btn-common btn-color1" value="취소" style="width:61px;" onClick="closeModal();">
+                            <input type ="button" class="btn-common btn-color4" value="취소" style="width:61px;" onClick="closeModal();">
                               </div>
                         </div>
                      </div>
@@ -961,7 +1059,7 @@ if(!empty($approval_line)){
                               </div>
                               <div style="margin-top:5px;float:right;" >
                                  <input type ="button" class="btn-common btn-color2" value="변경" style="width:61px;" onClick="changeApproverLine();">
-                                 <input type ="button" class="btn-common btn-color1" value="취소" style="width:61px;" onClick="closeModal();">
+                                 <input type ="button" class="btn-common btn-color4" value="취소" style="width:61px;" onClick="closeModal();">
 
                                  <!-- <img src="<?php echo $misc;?>img/btn_ok.jpg" style="cursor:pointer;float:right;margin-top:5px;" border="0" onClick="saveApproverLineModal();"/><br> -->
                               </div>
@@ -1018,7 +1116,7 @@ if(!empty($approval_line)){
                               <div style='float:right;margin-top:5px;' >
                                  <input type='button' class="btn-common btn-color2" style='margin-right:5px;' value='결재복원' onclick="restore_approval();" />
                                  <input type='button' class="btn-common btn-color1" value='결재회수' onclick="approval_withdraw();" />
-                                <input type='button' class="btn-common btn-color1" value='취소' onClick="closeModal();"/>
+                                <input type='button' class="btn-common btn-color4" value='취소' onClick="closeModal();"/>
                               </div>
                         </div>
                      </div>
@@ -1039,6 +1137,44 @@ if(!empty($approval_line)){
                               <div>
                                  <img src="<?php echo $misc;?>img/btn_cancel.jpg" style="cursor:pointer;float:right;margin-left:5px;margin-top:5px;" border="0" onClick="closeModal();"/>
                                  <!-- <input type="button" value="저장" class="btn-common btn-color2" style="cursor:pointer;float:right;margin-left:5px;margin-top:5px;width:64px;height:31px;" onclick="hold('save');" > -->
+                              </div>
+                        </div>
+                     </div>
+                     <!-- 서명확인모달 -->
+                     <div id="sign_confirm" class="searchModal">
+                        <div class="search-modal-content" style='height:auto; min-height:300px;overflow: auto;width:340px;'>
+                           <h2>서명확인</h2>
+                              <div style="margin-top:30px;height:auto;overflow:auto;">
+                        <?php if(isset($contract_party)){ ?>
+                                <input type="hidden" id="sign_user_birthday" value="<?php echo $contract_party['user_birthday']; ?>">
+                                <input type="hidden" id="sign_user_signfile" value="<?php echo $contract_party['sign_changename']; ?>">
+                        <?php } ?>
+                                 <table class="basic_table" style="width:100%;">
+                                   <tr>
+                               			<td style="font-weight:bold;text-align:center;height:40px;">생년월일</td>
+                               			<td>
+                               	      <?php if(isset($contract_party) && $contract_party['user_birthday'] != ''){echo date('Y-m-d', strtotime($contract_party['user_birthday']));} ?>
+                               			</td>
+                               		</tr>
+                               		<tr>
+                               			<td style="font-weight:bold;text-align:center;height:40px;">서명</td>
+                               			<td>
+                               				<div>
+                               					서명 : <span style="letter-spacing:15px;"><?php echo $this->name; ?></span><span class="stamp" style="background-image:url('/misc/upload/user_sign/<?php if(isset($contract_party)){echo $contract_party['sign_changename'];} ?>')">(인)</span>
+                               				</div>
+                               			</td>
+                               		</tr>
+                                  <tr>
+                                    <td style="font-weight:bold;text-align:center;height:40px;">서명 비밀번호</td>
+                                    <td>
+                                      <input type="password" style="width:90%" class="input-common" id="sign_user_password" value="" onkeyup="if(window.event.keyCode==13){sign_confirm()}">
+                                    </td>
+                                  </tr>
+                                 </table>
+                              </div>
+                              <div style="margin-top:20px;">
+                                 <img src="<?php echo $misc;?>img/btn_cancel.jpg" style="cursor:pointer;float:right;margin-left:5px;margin-top:5px;" border="0" onClick="$('#sign_confirm').hide();"/>
+                                 <input type="button" value="확인" class="btn-common btn-color2" style="cursor:pointer;float:right;margin-left:5px;margin-top:5px;width:64px;height:31px;" onclick="sign_confirm();" >
                               </div>
                         </div>
                      </div>
@@ -1581,7 +1717,7 @@ if(!empty($approval_line)){
       <?php if(!empty($mandatary)){ ?>
          delegation_seq = "<?php echo $mandatary['seq']; ?>";
       <?php } ?>
-      if(t == '1'){
+      if(t == '1' && $('#sign_confirm_yn').val() == 'N'){
          $.ajax({
             type: "POST",
             cache: false,
@@ -1598,7 +1734,7 @@ if(!empty($approval_line)){
                approval_doc_seq: "<?php echo $seq ;?>",
                final_approval: "<?php echo $final_approval; ?>",
                delegation_seq : delegation_seq,
-               doc_subject: "<?php echo $view_val['approval_doc_name'];?>",
+               doc_subject: "<?php echo str_replace('"', "'", $view_val['approval_doc_name']); ?>",
                writer_id : "<?php echo $view_val['writer_id']; ?>"
             },
             success: function (data) {
@@ -1610,6 +1746,40 @@ if(!empty($approval_line)){
                }
             }
          });
+      } else if(t == '1' && $('#sign_confirm_yn').val() == 'Y') {
+        if($("input[name=approval_status]:checked").val() == 'N') {
+          $.ajax({
+             type: "POST",
+             cache: false,
+             url: "<?php echo site_url(); ?>/biz/approval/approval_save",
+             dataType: "json",
+             async :false,
+             data: {
+                seq : $("#cur_approver_line_seq").val(),
+                approval_form_seq : $("#approval_form_seq").val(),
+                next_seq : $("#next_approver_line_seq").val(),
+                approval_status: $("input[name=approval_status]:checked").val(),
+                approval_opinion: $("#approval_opinion").val(),
+                details:$("#details").summernote("code"),
+                approval_doc_seq: "<?php echo $seq ;?>",
+                final_approval: "<?php echo $final_approval; ?>",
+                delegation_seq : delegation_seq,
+                doc_subject: "<?php echo str_replace('"', "'", $view_val['approval_doc_name']); ?>",
+                writer_id : "<?php echo $view_val['writer_id']; ?>"
+             },
+             success: function (data) {
+                if(data){
+                   alert("결재가 저장되었습니다.");
+                   location.href ="<?php echo site_url();?>/biz/approval/electronic_approval_list?type=<?php echo $_GET['type']; ?>";
+                }else{
+                   alert("결재저장 실패!");
+                }
+             }
+          });
+        } else {
+          alert('결재시 계약서에 서명이 추가됩니다.\r서명과 생년월일을 확인하고 비밀번호 인증을 진행해주세요.');
+          $('#sign_confirm').show();
+        }
       }else{ //결재 취소 눌렀을때
          if(confirm("결재 취소 하시겠습니까?")){
             $.ajax({
@@ -1627,7 +1797,7 @@ if(!empty($approval_line)){
                   approval_doc_seq: '<?php echo $seq ;?>',
                   details:'',
                   delegation_seq :'',
-                  doc_subject: "<?php echo $view_val['approval_doc_name'];?>",
+                  doc_subject: "<?php echo str_replace('"', "'", $view_val['approval_doc_name']); ?>",
                   writer_id : "<?php echo $view_val['writer_id']; ?>"
                },
                success: function (data) {
@@ -1661,7 +1831,7 @@ if(!empty($approval_line)){
             seq : $("#seq").val(),
             approval_form_seq:$("#approval_form_seq").val(),
             approval_doc_status : "004",
-            doc_subject : "<?php echo $view_val['approval_doc_name']; ?>", //메일보내야해서
+            doc_subject : "<?php echo str_replace('"', "'", $view_val['approval_doc_name']); ?>", //메일보내야해서
             writer_id : "<?php echo $view_val['writer_id']; ?>"
          },
          success: function (data) {
@@ -1690,7 +1860,7 @@ if(!empty($approval_line)){
                seq : $("#seq").val(),
                approval_doc_hold : "N",
                hold_opinion: $("#hold_opinion").val(),
-               doc_subject : "<?php echo $view_val['approval_doc_name']; ?>", //메일보내야해서
+               doc_subject : "<?php echo str_replace('"', "'", $view_val['approval_doc_name']); ?>", //메일보내야해서
                writer_id : "<?php echo $view_val['writer_id']; ?>"
             },
             success: function (data) {
@@ -1713,7 +1883,7 @@ if(!empty($approval_line)){
                seq : $("#seq").val(),
                approval_doc_hold : "Y",
                hold_opinion: $("#hold_opinion").val(),
-               doc_subject : "<?php echo $view_val['approval_doc_name']; ?>", //메일보내야해서
+               doc_subject : "<?php echo str_replace('"', "'", $view_val['approval_doc_name']); ?>", //메일보내야해서
                writer_id : "<?php echo $view_val['writer_id']; ?>"
             },
             success: function (data) {
@@ -2158,6 +2328,70 @@ if(!empty($approval_line)){
        }
      })
    })
+
+  function official_doc_view(seq) {
+    window.open("<?php echo site_url(); ?>/biz/official_doc/official_doc_print?seq="+seq, "popup_window", "width = 5000, height = 5000, top = 100, left = 400, location = no,status=no,status=no,toolbar=no,scrollbars=no");
+  }
+
+  $(function() {
+    $('#formLayoutDiv input[type=radio]:checked').each(function() {
+      var img = "<img src='/misc/img/radiobox.svg' style='width:13px;margin-right:3px;'/>";
+      $(this).after(img);
+    })
+  })
+
+  function tech_doc_view(seq) {
+    window.open("<?php echo site_url();?>/tech/tech_board/tech_doc_print_page?seq="+btoa(seq), "cform", 'scrollbars=yes,width=850,height=600');
+  }
+
+  <?php if($view_val['approval_form_seq'] == 71){ ?>
+    $('#salary_contract').text($('#tr5_td2_select > option:selected').val() + ' 연봉계약서');
+  <?php } ?>
+
+  function salary_contract_view(seq) {
+    window.open("<?php echo site_url();?>/biz/approval/salary_contract_print?seq="+seq, "cform", 'scrollbars=yes,width=850,height=600');
+  }
+
+  function employment_doc_view(seq) {
+    window.open("<?php echo site_url();?>/biz/approval/employment_doc_print?seq="+seq, "cform", 'scrollbars=yes,width=850,height=600');
+  }
+
+  function sign_confirm() {
+    var user_birthday = $.trim($('#sign_user_birthday').val());
+    var sign_file = $.trim($('#sign_user_signfile').val());
+    var user_password = $.trim($('#sign_user_password').val());
+    var pw =CryptoJS.SHA1(user_password);
+
+    if(user_birthday == '') {
+      alert('생년월일이 설정되지 않았습니다.\r회원정보수정 페이지에서 생년월일을 설정해 주세요.');
+      return false;
+    }
+    if(sign_file == '') {
+      alert('서명이 등록되지 않았습니다.\r회원정보수정 페이지에서 서명을 등록해 주세요.');
+      return false;
+    }
+    if(user_password == '') {
+      alert('비밀번호를 입력해 주세요.');
+      return false;
+    }
+
+    $.ajax({
+      type:'POST',
+      cache: false,
+      url: "<?php echo site_url(); ?>/biz/approval/pwcheck",
+      dataType: "json",
+      async: false,
+      success: function(data) {
+        if(data.sign_password==CryptoJS.enc.Hex.stringify(pw)){
+          $('#sign_confirm_yn').val('N');
+          approval_save(1);
+        }else{
+          alert("비밀번호가 틀렸습니다");
+          return false;
+        }
+      }
+    })
+  }
 </script>
 </body>
 </html>

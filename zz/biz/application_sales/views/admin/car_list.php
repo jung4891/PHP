@@ -5,12 +5,31 @@
 <style>
 	p, div, span, a, a:hover, a:visited, a:active, label, input, h1,h2,h3,h4,h5,h6{font-family: "Noto Sans KR";}
 </style>
-<link rel="stylesheet" href="/misc/css/view_page_common.css">
+
+
 <link href="https://fonts.googleapis.com/css?family=Noto+Sans+KR" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/themes/default/style.min.css" /> <!-- 조직도 생성 -->
 <link rel="stylesheet" href="/misc/css/tech_schedule/proton/style.min.css" /> <!-- 조직도 생성 -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/jstree.min.js"></script>
+<link rel="stylesheet" href="/misc/css/view_page_common.css">
 <script type="text/javascript" src="/misc/js/jquery.bpopup-0.1.1.min.js"></script>
+<script language="javascript">
+function GoSearch() {
+	var searchkeyword = document.mform.searchkeyword.value;
+	var searchkeyword = searchkeyword.trim();
+
+
+	document.mform.action = "<?php echo site_url();?>/admin/equipment/car_list";
+	document.mform.cur_page.value = "";
+	document.mform.submit();
+}
+</script>
+
+
+
+
+
+
 <body>
 <?php
   include $this->input->server('DOCUMENT_ROOT')."/include/sales_header.php";
@@ -30,7 +49,24 @@
 				</tr>
 				<!-- <tr height="13%">
         </tr> -->
+				<form name="mform" action="<?php echo site_url();?>/admin/equipment/car_list" method="get" onkeydown="if(event.keyCode==13) return GoSearch();">
+				<input type="hidden" name="cur_page" value="<?php echo $cur_page; ?>">
 				<tr height="10%">
+					<td>
+						<select name="search1" id="search1" class="select-common select-style1" onchange="change_search1(this.value);">
+							<!-- value 1,2가 모델 15,21번째 줄 조건 (value값을 넘기니깐) 까먹지마!! -->
+							<option value="1" <?php if($search1 == '1'){echo 'selected';} ?>>차량 번호</option>
+							<option value="2" <?php if($search1 == '2'){echo 'selected';} ?>>상태</option>
+						</select>
+						<input  type="text" size="25" class="input-common" id="searchkeyword" name="searchkeyword" placeholder="검색하세요." value="<?php echo $searchkeyword; ?>"/>
+						<select class="select-common" id="search2" name="search2">
+							<option value="N" <?php if($search2 == 'N'){echo 'selected';} ?>>사용</option>
+							<option value="Y" <?php if($search2 == 'Y'){echo 'selected';} ?>>매각</option>
+							<option value="A" <?php if($search2 == 'A'){echo 'selected';} ?>>양도</option>
+						</select>
+					<input type="button" class="btn-common btn-style2" value="검색" style="margin-left:10px;" onclick="return GoSearch();">
+					</td>
+
 					<td align="right" valign="bottom">
 						<?php
 							if($admin_lv == "3") {
@@ -44,12 +80,11 @@
 				</tr>
 				<tr style="max-height:45%">
 					<td colspan="2" valign="top" style="padding:10px 0px;">
-						<table class="content_dash_tbl" align="center" width="100%" border="0" cellspacing="0" cellpadding="0">
+						<table class="content_dash_tbl list" align="center" width="100%" border="0" cellspacing="0" cellpadding="0">
 							<tr>
 								<td align="center" valign="top">
 									<table width="100%" height="100%" border="0" cellspacing="0" cellpadding="0">
-									<form name="mform" action="<?php echo site_url();?>/admin/equipment/car_list" method="get" onkeydown="if(event.keyCode==13) return GoSearch();">
-									<input type="hidden" name="cur_page" value="<?php echo $cur_page; ?>">
+
 									<input type="hidden" name="seq" value="">
 									<input type="hidden" name="mode" value="">
 									        <tr>
@@ -59,13 +94,16 @@
 									                <td>
 																		<table width="100%" class="month_tbl" border="0" cellspacing="0" cellpadding="0">
 										                  <colgroup>
-																				<col width="15%" />
-														            <col width="12%" />
+																				<col width="10%" />
+														            <col width="7%" />
 										                    <col width="12%" />
-										                    <col width="22%" />
+										                    <col width="13%" />
 										                    <col width="12%" />
 										                    <col width="12%" />
-										                    <col width="15%" />
+										                    <col width="6%" />
+										                    <col width="6%" />
+																				<col width="12%" />
+																				<col width="10%" />
 										                  </colgroup>
 										                  <tr class="t_top row-color1">
 																				<th></th>
@@ -73,7 +111,9 @@
 										                    <th align="center">차종</th>
 										                    <th align="center">차량 번호</th>
 										                    <th align="center">지정</th>
-										                    <th align="center">등록일</th>
+										                    <th align="center">구입일</th>
+										                    <th align="center" colspan="2">상태</th>
+																				<th align="center">양도 및 매각일</th>
 																				<th></th>
 										                  </tr>
 												<?php
@@ -91,7 +131,18 @@
 										                    <td align="center">
 																					<?php echo $item['user_name']; ?>
 																				</td>
-																				<td align="center"><?php echo substr($item['insert_date'], 0, 10);?></td>
+																				<!-- 구입일 -->
+																				<td align="center"><?php echo substr($item['purchase_date'], 0, 10);?></td>
+																				<!-- 사용-->
+																				<td align="center"><?php if($item['sell_yn'] == 'N'){echo '사용';} ?></td>
+																				<!-- 매각 -->
+																				<td align="center"><?php if($item['sell_yn'] == 'Y'){echo '매각';} else if($item['sell_yn'] == 'A'){echo '양도';} ?></td>
+																				<!-- 양도 및 매각일 -->
+																				<td align="center">	<?php
+																				if($item['sell_yn'] == 'Y' || $item['sell_yn'] == 'A') {
+																					echo date('Y-m-d', strtotime($item['sell_date']));
+																				}
+																				?></td>
 																				<td></td>
 										                  </tr>
 									             <?php
@@ -101,7 +152,7 @@
 													} else {
 												?>
 													<tr onmouseover="this.style.backgroundColor='#FAFAFA'" onmouseout="this.style.backgroundColor='#fff'">
-										                    <td width="100%" height="40" align="center" colspan="7">등록된 게시물이 없습니다.</td>
+										                    <td width="100%" height="40" align="center" colspan="12">등록된 게시물이 없습니다.</td>
 										                  </tr>
 												<?php
 													}
@@ -165,7 +216,7 @@
 				</tr>
 				<!--페이징-->
 				<tr>
-					<td align="center">
+					<td align="center" width="100%" colspan="2">
 <?php if ($count > 0) {?>
 	<table width="400" border="0" cellspacing="0" cellpadding="0">
 						<tr>
@@ -261,6 +312,12 @@
 				<td align="left" valign="center" style="font-weight:bold; width:17%;">차량번호</td>
 				<td align="left">
 					<input type="text" class="input-common" name="number" id="number" value="" style="width:100%">
+				</td>
+			</tr>
+			<tr class="border-b tbl-tr">
+				<td align="left" valign="center" style="font-weight:bold; width:17%;">구입일</td>
+				<td align="left">
+					<input type="date" name="purchase_date" value="<?php echo date('Y-m-d'); ?>">
 				</td>
 			</tr>
 			<tr class="tbl-tr">
@@ -491,6 +548,26 @@ function chkForm () {
 
 	mform.submit();
 	return false;
+}
+
+$(function() {
+	$('#search1').change();
+})
+
+function change_search1(val) {
+	// car_list 58번째줄 value 값
+	// 1일땐 input 검색창이 보여야해
+	if (val == 1) {
+		// 차량번호
+		$('#searchkeyword').show();
+		$('#search2').hide();
+	// 59번째줄 value 값
+	// 2일땐 selectbox라서 selectbox가 보여야해
+	} else if (val == 2) {
+		// 상태
+		$('#searchkeyword').hide();
+		$('#search2').show();
+	}
 }
 </script>
 </html>

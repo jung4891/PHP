@@ -230,7 +230,7 @@ require_once $this->input->server('DOCUMENT_ROOT')."/include/KISA_SEED_CBC.php";
 			<td colspan=5 rowspan=2 class=xl7123169><?php echo $view_val['writer'];?></td>
 			<td colspan=2 rowspan=4 class=xl7123169>확인</td>
 			<td colspan=3 rowspan=4 class=xl7123169><?php if($view_val['customer_sign_consent']=="true"){echo "<img src='{$imageSrc}' height = '53' width = '53' ><div>".$view_val['signer']."</div>";}else{echo '<div id="signCheck">서명<input type="checkbox" id="customer_sign_consent" name="customer_sign_consent" value="'.$view_val['customer_sign_consent'].'" ></div><div id="customer_sign"></div>';}?></td>
-			<td colspan=3 rowspan=4 class=xl7123169><?php if($view_val['sign_consent']=="true"){echo "<img src='".$misc."img/".$view_val['writer'].".png' width = '53' height = '53'><div>{$view_val['writer']}</div>";}?></td>
+			<td colspan=3 rowspan=4 class=xl7123169><?php if($view_val['sign_consent']=="true"){echo "<img src='{$sign_path}' width = '53' height = '53'><div>{$view_val['writer']}</div>";}?></td>
 		</tr>
 		<tr height=14 style='mso-height-source:userset;height:10.5pt'>
 		</tr>
@@ -422,6 +422,23 @@ require_once $this->input->server('DOCUMENT_ROOT')."/include/KISA_SEED_CBC.php";
 					</td>
 				</tr>
 			<?php } ?>
+
+			<?php
+			if($view_val['work_name']=='장애지원' && $view_val['failure_contents'] != '') {
+				$failure_data = explode('*/*', $view_val['failure_contents']);
+				foreach($failure_data as $fd) {
+					$fd_arr = explode(':::', $fd);
+					$failure_title = $fd_arr[0];
+					$failure_content = $fd_arr[1]; ?>
+					<tr height=55 style='mso-height-source:userset;min-height:41.25pt'>
+						<td colspan=4 height=55 class=xl8023169 style='min-height:41.25pt'><?php echo $failure_title; ?></td>
+						<td colspan=21 class=xl8223169 width=619 style='border-right:.5pt solid black;
+						width:467pt'><?php echo nl2br($failure_content);;?></td>
+					</tr>
+				<?php	}
+			} ?>
+
+
 			<tr height=55 style='mso-height-source:userset;min-height:41.25pt'>
 				<td colspan=4 height=55 class=xl8023169 style='min-height:41.25pt'>지원의견</td>
 				<td colspan=21 class=xl8223169 width=619 style='border-right:.5pt solid black;

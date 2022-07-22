@@ -216,8 +216,12 @@ class STC_Approval extends CI_Model {
 			if(trim($searchkeyword[1])!=''){ //문서제목
 				$searchstring .= " AND approval_doc_name LIKE '%{$searchkeyword[1]}%'";
 			}
-			if(trim($searchkeyword[2])!=''){ //문서상태
-				$searchstring .= " AND approval_doc_status = '{$searchkeyword[2]}'";
+			if(trim($searchkeyword[2])!=''){
+				if($type == 'attachment') { // 기안자
+					$searchstring .= " AND writer_name = '{$searchkeyword[2]}'";
+				} else { //문서상태
+					$searchstring .= " AND approval_doc_status = '{$searchkeyword[2]}'";
+				}
 			}
 			if(trim($searchkeyword[3])!=''){//문서내용
 				$searchstring .= " AND contents_html LIKE '%{$searchkeyword[3]}%'";
@@ -253,6 +257,12 @@ class STC_Approval extends CI_Model {
 			left JOIN electronic_approval_form AS eaf
 			ON ead.approval_form_seq = eaf.seq) as t where approval_doc_status = '005' and writer_id = '{$this->id}' {$searchstring}";
 		}else if ($type == "attachment"){//기결재 첨부
+			if($this->pGroupName == '영업본부') {
+				$authority = "AND ((writer_id = '{$this->id}' || referrer LIKE '%{$this->name}%' || user_seq = '{$this->seq}') || (select category_name from format_category where seq = t.template_category) = '영업')";
+			} else {
+				$authority = "AND (writer_id = '{$this->id}' || referrer LIKE '%{$this->name}%' || user_seq = '{$this->seq}')";
+			}
+
 			$sql = "select t.* from (SELECT ead.*,eaf.template_category,
 			case
 			when ead.approval_form_seq = 'annual' then '연차신청서'
@@ -262,7 +272,7 @@ class STC_Approval extends CI_Model {
 			ON ead.approval_form_seq = eaf.seq
 			left JOIN (SELECT * from electronic_approval_line WHERE user_seq= '{$this->seq}')  AS eal
 			ON ead.seq = eal.approval_doc_seq) as t
-			where approval_doc_status = '002' AND (writer_id = '{$this->id}' || referrer LIKE '%{$this->name}%' || user_seq = '{$this->seq}') {$searchstring}";
+			where approval_doc_status = '002' {$authority} {$searchstring}";
 		}
 		else{
 			$sql = "select t.* from (SELECT ead.*,eaf.template_category,
@@ -334,6 +344,11 @@ class STC_Approval extends CI_Model {
 		$read_seq = substr($type,0,1).'_'.$user_seq;
 		$searchstring='';
 
+		$authority = "(ead.referrer like '%".$this->name."%') and ead.approval_doc_security !='Y'";
+		if($this->pGroupName == '영업본부') {
+			$authority = "(((select category_name from format_category where seq = eaf.template_category) = '영업' and ead.approval_doc_status = '002') || ead.referrer like '%".$this->name."%') and ead.approval_doc_security !='Y'";
+		}
+
 		if ($searchkeyword != "") {
 			$searchkeyword = explode(',',$searchkeyword);
 			if(trim($searchkeyword[0])!=''){ //문서상태
@@ -347,9 +362,9 @@ class STC_Approval extends CI_Model {
 			if(trim($searchkeyword[1])!=''){ //양식명
 				$searchstring .= " and ( ";
 				$searchstring2 = "";
-				$annual = "연차신청서";
+				$annual = "차신청서";
 				$annual_y = false;
-				$attendance = "근태조정계";
+				$attendance = "근태조정";
 				$attendance_y = false;
 
 				for($i=0; $i < mb_strlen($annual)-1; $i++){
@@ -384,7 +399,11 @@ class STC_Approval extends CI_Model {
 				$searchstring .= " AND date_format(ead.".$searchkeyword[3].", '%Y-%m-%d') <= '{$searchkeyword[5]}'";
 			}
 			if(trim($searchkeyword[7])!=''){
-				$searchstring .= " AND ead.".$searchkeyword[6]." LIKE '%{$searchkeyword[7]}%'";
+				if($searchkeyword[6] == 'doc_num') {
+					$searchstring .= " AND concat(ead.writer_group, '-',ead.".$searchkeyword[6].") LIKE '%{$searchkeyword[7]}%'";
+				} else {
+					$searchstring .= " AND ead.".$searchkeyword[6]." LIKE '%{$searchkeyword[7]}%'";
+				}
 			}
 // date_format(datetime, '%Y-%m-%d')
 
@@ -435,7 +454,7 @@ class STC_Approval extends CI_Model {
 							SELECT COUNT(seq) AS comment_cnt, approval_doc_seq
 							FROM electronic_approval_comment
 							GROUP BY approval_doc_seq) c ON t.seq = c.approval_doc_seq";
-			$sql = "SELECT t.*, CASE WHEN c.comment_cnt IS NULL THEN 0 ELSE c.comment_cnt END AS comment_cnt ".$target;
+			$sql = "SELECT t.*, CASE WHEN c.comment_cnt IS NULL THEN 0 ELSE c.comment_cnt END AS comment_cnt ".$target.' order by t.seq desc';
 			$sql2 = "SELECT COUNT(*) as cnt ".$target." where t.read_seq not like '%{$read_seq}%' OR t.read_seq IS null";
 
     }else if($type== "progress"){
@@ -456,7 +475,7 @@ class STC_Approval extends CI_Model {
 							SELECT COUNT(seq) AS comment_cnt, approval_doc_seq
 							FROM electronic_approval_comment
 							GROUP BY approval_doc_seq) c ON t.seq = c.approval_doc_seq";
-			$sql = "SELECT t.*, CASE WHEN c.comment_cnt IS NULL THEN 0 ELSE c.comment_cnt END AS comment_cnt ".$target;
+			$sql = "SELECT t.*, CASE WHEN c.comment_cnt IS NULL THEN 0 ELSE c.comment_cnt END AS comment_cnt ".$target.' order by t.seq desc';
 			$sql2 = "SELECT COUNT(*) as cnt ".$target." where t.read_seq not like '%{$read_seq}%' OR t.read_seq IS null";
 
     }else if($type == "completion"){
@@ -476,7 +495,7 @@ class STC_Approval extends CI_Model {
 							SELECT COUNT(seq) AS comment_cnt, approval_doc_seq
 							FROM electronic_approval_comment
 							GROUP BY approval_doc_seq) c ON t.seq = c.approval_doc_seq";
-			$sql = "SELECT t.*, CASE WHEN c.comment_cnt IS NULL THEN 0 ELSE c.comment_cnt END AS comment_cnt ".$target;
+			$sql = "SELECT t.*, CASE WHEN c.comment_cnt IS NULL THEN 0 ELSE c.comment_cnt END AS comment_cnt ".$target.' order by t.completion_date desc';
 			$sql2 = "SELECT COUNT(*) as cnt ".$target." where t.read_seq not like '%{$read_seq}%' OR t.read_seq IS null";
 
     }else if($type == "back"){
@@ -496,7 +515,7 @@ class STC_Approval extends CI_Model {
 						SELECT COUNT(seq) AS comment_cnt, approval_doc_seq
 						FROM electronic_approval_comment
 						GROUP BY approval_doc_seq) c ON t.seq = c.approval_doc_seq";
-			$sql = "SELECT t.*, CASE WHEN c.comment_cnt IS NULL THEN 0 ELSE c.comment_cnt END AS comment_cnt ".$target;
+			$sql = "SELECT t.*, CASE WHEN c.comment_cnt IS NULL THEN 0 ELSE c.comment_cnt END AS comment_cnt ".$target.' order by t.completion_date desc';
 			$sql2 = "SELECT COUNT(*) as cnt ".$target." where t.read_seq not like '%{$read_seq}%' OR t.read_seq IS null";
 
     }else if($type == "reference"){
@@ -511,12 +530,12 @@ class STC_Approval extends CI_Model {
 						LEFT JOIN electronic_approval_delegation AS ead ON ead.seq= eal.delegation_seq
 						LEFT JOIN user AS us ON ead.mandatary_seq = us.seq) AS al ON al.approval_doc_seq = ead.seq
 						LEFT JOIN electronic_approval_form AS eaf ON eaf.seq = ead.approval_form_seq
-						WHERE (ead.referrer like '%".$this->name."%') and ead.approval_doc_security !='Y' {$searchstring} GROUP BY ead.seq order by ead.completion_date desc) t
+						WHERE {$authority} {$searchstring} GROUP BY ead.seq order by ead.completion_date desc) t
 						LEFT JOIN (
 						SELECT COUNT(seq) AS comment_cnt, approval_doc_seq
 						FROM electronic_approval_comment
 						GROUP BY approval_doc_seq) c ON t.seq = c.approval_doc_seq";
-				$sql = "SELECT t.*, CASE WHEN c.comment_cnt IS NULL THEN 0 ELSE c.comment_cnt END AS comment_cnt ".$target;
+				$sql = "SELECT t.*, CASE WHEN c.comment_cnt IS NULL THEN 0 ELSE c.comment_cnt END AS comment_cnt ".$target.' order by t.completion_date desc';
 				$sql2 = "SELECT COUNT(*) as cnt ".$target." where t.read_seq not like '%{$read_seq}%' OR t.read_seq IS null";
 
 		}else if ($type == "admin"){
@@ -538,11 +557,32 @@ class STC_Approval extends CI_Model {
 							SELECT COUNT(seq) AS comment_cnt, approval_doc_seq
 							FROM electronic_approval_comment
 							GROUP BY approval_doc_seq) c ON t.seq = c.approval_doc_seq";
-			$sql = "SELECT t.*, CASE WHEN c.comment_cnt IS NULL THEN 0 ELSE c.comment_cnt END AS comment_cnt ".$target;
+			$sql = "SELECT t.*, CASE WHEN c.comment_cnt IS NULL THEN 0 ELSE c.comment_cnt END AS comment_cnt ".$target.' order by t.seq desc';
+			$sql2 = "SELECT COUNT(*) as cnt ".$target." where t.read_seq not like '%{$read_seq}%' OR t.read_seq IS null";
+			// echo $sql;
+		}else if ($type == "wage"){
+			$target = "FROM
+							(
+							SELECT ead.*,al.*,eaf.template_category, CASE WHEN ead.approval_form_seq = 'annual' THEN '연차신청서' WHEN ead.approval_form_seq = 'attendance' THEN '근태조정계' ELSE eaf.template_name END AS template_name
+							FROM electronic_approval_doc AS ead
+							LEFT JOIN (
+							SELECT eal.approval_doc_seq,eal.user_seq,eal.approval_type,eal.approval_status,eal.assignment_date,eal.check_date,eal.approval_date,eal.approval_opinion,eal.details,eal.step,u.user_id,u.user_name,ead.mandatary AS mandatary,us.user_name AS mandatary_name,us.user_duty AS mandatary_duty,us.user_group AS mandatary_group
+							FROM electronic_approval_line AS eal
+							JOIN user AS u ON eal.user_seq = u.seq
+							LEFT JOIN electronic_approval_delegation AS ead ON ead.seq= eal.delegation_seq
+							LEFT JOIN user AS us ON ead.mandatary_seq = us.seq) AS al ON al.approval_doc_seq = ead.seq
+							LEFT JOIN electronic_approval_form AS eaf ON eaf.seq = ead.approval_form_seq
+							WHERE (al.user_name ='".$this->name."' OR al.mandatary_name = '{$this->name}' OR ead.writer_name ='".$this->name."') and ead.approval_doc_security !='Y' and ead.approval_form_seq = 71 {$searchstring} GROUP BY ead.seq order by ead.completion_date desc) t
+							LEFT JOIN (
+							SELECT COUNT(seq) AS comment_cnt, approval_doc_seq
+							FROM electronic_approval_comment
+							GROUP BY approval_doc_seq) c ON t.seq = c.approval_doc_seq";
+			$sql = "SELECT t.*, CASE WHEN c.comment_cnt IS NULL THEN 0 ELSE c.comment_cnt END AS comment_cnt ".$target.' order by t.seq desc';
 			$sql2 = "SELECT COUNT(*) as cnt ".$target." where t.read_seq not like '%{$read_seq}%' OR t.read_seq IS null";
 			// echo $sql;
 		}
 // echo $type.'::'.$sql2.'<br><br>';
+// echo $sql.';<br><br>';
 		if($mode == 'list') {
 			$query = $this->db->query( $sql );
 		} else {
@@ -738,7 +778,7 @@ class STC_Approval extends CI_Model {
 		 	ON eal.user_seq = u.seq
 		 	JOIN electronic_approval_doc AS ead
 		 	ON ead.seq = eal.approval_doc_seq
-		 	JOIN electronic_approval_form AS eaf
+		 	LEFT JOIN electronic_approval_form AS eaf
 		 	ON eaf.seq = ead.approval_form_seq
 		 	WHERE ead.approval_doc_status = '001' and eal.assignment_date != '' && eal.approval_date IS NULL
 			AND u.user_id in (SELECT ead.write_id from electronic_approval_delegation AS ead LEFT JOIN user AS u ON ead.mandatary_seq = u.seq WHERE ead.status='Y' and u.user_id ='{$this->id}' AND (start_date  <= CURDATE() AND end_date >= CURDATE()))";
@@ -1303,5 +1343,146 @@ class STC_Approval extends CI_Model {
 
     return $result;
   }
+
+	function delete_expense_list($seq) {
+		$sql = "delete from expense_list where approval_seq = {$seq}";
+
+		$this->db->query($sql);
+	}
+
+	function delete_expense_list_tech($seq) {
+		$sql = "delete from expense_list_tech where approval_seq = {$seq}";
+
+		$this->db->query($sql);
+	}
+
+	// 던킨, 지출결의서 지출내역 저장
+	function save_expense_list($data) {
+		$this->db->insert('expense_list', $data);
+	}
+
+	// 출장보고서 지출내역 저장
+	function save_expense_list_tech($data) {
+		$this->db->insert('expense_list_tech', $data);
+	}
+
+	function corporation_card_num($id) {
+		$sql = "SELECT corporation_card_yn, corporation_card_num from user where user_id = '{$id}'";
+
+		$query = $this->db->query($sql);
+
+		return $query->row_array();
+	}
+
+	function expense_list_tech($attach_seq) {
+		$sql = "SELECT * FROM expense_list_tech WHERE approval_seq IN ({$attach_seq}) ORDER BY t_date, seq";
+
+		$query = $this->db->query($sql);
+
+		return $query->result_array();
+	}
+
+	function find_user_seq($name_duty) {
+		$sql = "SELECT * FROM user WHERE CONCAT(user_name, ' ', user_duty) = '{$name_duty}'";
+
+		$query = $this->db->query($sql);
+
+		return $query->row_array();
+	}
+
+	function save_salary_contract($data) {
+		$this->db->insert('electronic_approval_salary_contract', $data);
+	}
+
+	function salary_contract_data($seq) {
+		$sql = "SELECT * FROM electronic_approval_salary_contract where approval_seq = {$seq} order by seq desc limit 1";
+
+		$query = $this->db->query($sql);
+
+		return $query->row_array();
+	}
+
+	function contract_user_data($seq) {
+		$sql = "SELECT user_name, user_group, user_duty, user_tel, user_birthday, sign_realname, sign_changename FROM user where seq = {$seq}";
+
+		$query = $this->db->query($sql);
+
+		return $query->row_array();
+	}
+
+	function contract_party_val($seq) {
+		$sql = "SELECT easc.*, u.user_birthday, u.sign_changename FROM electronic_approval_salary_contract easc LEFT JOIN user u ON easc.contracting_party_seq = u.seq WHERE approval_seq = {$seq}";
+
+		$query = $this->db->query($sql);
+
+		return $query->row_array();
+	}
+
+	function pwcheck($seq) {
+		$sql = "SELECT sign_password FROM user where seq = {$seq}";
+
+		$query = $this->db->query($sql);
+
+		return $query->row_array();
+	}
+
+	function tech_data($seq) { //기지보 데이터 -> 보고서 작성
+		$sql = "SELECT * FROM tech_doc_basic WHERE seq = {$seq}";
+
+		$query = $this->db->query($sql);
+
+		return $query->row_array();
+	}
+
+	function save_employment_doc($data) {
+		return $this->db->insert('electronic_employment_doc', $data);
+	}
+
+	function update_employment_doc($data, $doc_seq) {
+		return $this->db->update('electronic_employment_doc', $data, array('approval_seq' => $doc_seq));
+	}
+
+	function employment_doc_val($seq) {
+		$sql = "SELECT * FROM electronic_employment_doc WHERE approval_seq = {$seq}";
+
+		$query = $this->db->query($sql);
+
+		return $query->row_array();
+	}
+
+	function employment_doc_user_data($seq) {
+		$sql = "SELECT user_name, join_company_date, user_birthday, user_group FROM user WHERE user_id = (SELECT writer_id FROM electronic_approval_doc WHERE seq = {$seq})";
+
+		$query = $this->db->query($sql);
+
+		return $query->row_array();
+	}
+
+	function employment_doc_approve($approval_doc_seq) {
+		$date = date('ymd');
+
+		$sql1 = "SELECT LPAD(IFNULL(MAX(emd.doc_num2), 0) + 1, 4, '0') as doc_num2
+		FROM electronic_employment_doc emd
+		JOIN electronic_approval_doc ead ON emd.approval_seq = ead.seq
+		WHERE ead.approval_doc_status = '002'";
+
+		$doc_num2 = $this->db->query($sql1);
+		$doc_num2 = $doc_num2->row_array();
+		$data['doc_num2'] = $doc_num2['doc_num2'];
+
+		$data['doc_num4'] = $date;
+
+		$sql2 = "SELECT LPAD(IFNULL(MAX(emd.doc_num5), 0) + 1, 3, '0') as doc_num5
+		FROM electronic_employment_doc emd
+		JOIN electronic_approval_doc ead ON emd.approval_seq = ead.seq
+		WHERE ead.approval_doc_status = '002' AND emd.doc_num4 = '{$date}'";
+
+		$doc_num5 = $this->db->query($sql2);
+		$doc_num5 = $doc_num5->row_array();
+		$data['doc_num5'] = $doc_num5['doc_num5'];
+
+		$this->db->update('electronic_employment_doc', $data ,array('approval_seq' => $approval_doc_seq));
+	}
+
 }
 ?>

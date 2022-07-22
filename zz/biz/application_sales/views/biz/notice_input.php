@@ -12,6 +12,21 @@
 //   $('li > ul').show();
 //});
 </script>
+<style media="screen">
+.basic_table {
+	border: 1px solid #DEDEDE;
+}
+.list_tbl {
+	border-top: 1px solid #DEDEDE;
+	border-bottom: none;
+}
+.border-l {
+	border-left: 1px solid #DEDEDE;
+}
+.border-r {
+	border-right: 1px solid #DEDEDE;
+}
+</style>
 <body>
 <?php
 	include $this->input->server('DOCUMENT_ROOT')."/include/sales_header.php";
@@ -23,6 +38,7 @@
 	<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.12/summernote-lite.js"></script> -->
 				<form name="tx_editor_form" id="tx_editor_form" action="<?php echo site_url();?>/biz/board/notice_input_action" method="post" enctype="multipart/form-data" onSubmit="javascript:chkForm();return false;">
 					<input type="hidden" id="type" name="type" value="1" />
+					<input type="hidden" id="temporary" name="temporary" value="N">
 					<tr>
 	  				<td class="dash_title">
 							<!-- <img src="<?php echo $misc;?>img/dashboard/title_notice_list.png"/> -->
@@ -33,7 +49,8 @@
 						<td align="right">
 							<!-- <input type="image" src="<?php echo $misc;?>img/dashboard/btn/btn_add.png" width="70" height="35" style="cursor:pointer" onClick="javascript:chkForm();return false;"/>
 							<img src="<?php echo $misc;?>img/dashboard/btn/btn_cancel.png" width="70" height="35" style="cursor:pointer" onClick="javascript:history.go(-1)"/> -->
-							<input style="margin-top:20px;margin-right:10px;" type="button" class="btn-common btn-color1" value="취소" onClick="javascript:history.go(-1)">
+							<input style="margin-top:20px;margin-right:10px;" type="button" class="btn-common btn-color4" value="취소" onClick="javascript:history.go(-1)">
+							<input style="margin-top:20px;margin-right:10px;" type="button" class="btn-common btn-color3" value="임시저장" onClick="javascript:temporary_save();">
 							<input style="margin-top:20px;" type="button" class="btn-common btn-color2" value="등록" onClick="javascript:chkForm();return false;">
 						</td>
 					</tr>
@@ -55,7 +72,7 @@
 															<col width="35%">
 														</colgroup>
 														<tr>
-															<td height="40" align="center" style="font-weight:bold;" class="row-color1">카테고리</td>
+															<td height="40" align="center" style="font-weight:bold;" class="row-color1 border-l">카테고리</td>
 															<td style="padding-left:10px;">
 																<select name="category_code" id="category_code" class="select-common" onchange="change_category(this);" style="width:305px;">
 																	<option value="001">운영공지</option>
@@ -68,16 +85,25 @@
 																</select>
 															</td>
 					          					<td align="center" class="row-color1" style="font-weight:bold;">날짜</td>
-					                    <td align="center"><?php echo date("Y-m-d");?></td>
+					                    <td align="center" class="border-r"><?php echo date("Y-m-d");?></td>
                   					</tr>
                   					<tr>
-					                    <td height="40" align="center" class="row-color1" style="font-weight:bold;border-bottom:none;">제목</td>
-					                    <td style="padding-left:10px;border-bottom:none;">
+					                    <td height="40" align="center" class="row-color1 border-l" style="font-weight:bold;">제목</td>
+					                    <td style="padding-left:10px;">
 																<input type="text" name="subject" id="subject" class="input-common" style="width:300px;"/>
 															</td>
-															<td align="center" class="row-color1" style="font-weight:bold;border-bottom:none;">등록자</td>
-															<td align="center" style="border-bottom:none;"><?php echo $name;?></td>
+															<td align="center" class="row-color1" style="font-weight:bold;">등록자</td>
+															<td align="center" class="border-r"><?php echo $name;?></td>
                   					</tr>
+														<tr>
+															<td align="center" class="row-color1" style="font-weight:bold;">숨김</td>
+															<td align="left" style="padding-left:10px;">
+																<input type="checkbox" onclick="ynCheck(this);">
+																<input type="hidden" name="hide_btn" value="N">
+															</td>
+															<td></td>
+															<td align="center" class="border-r"></td>
+														</tr>
 														<tr>
 															<td colspan="4" style="border-bottom:none">
 																<textarea name="content" id="content" style="display:none;"></textarea>
@@ -127,6 +153,21 @@
 		loc = $(el).val();
 		response_url = "<?php echo site_url(); ?>/biz/board/notice_list?category="+loc;
 	}
+
+
+	function ynCheck(obj){
+		if($(obj).is(":checked")){
+			$("input[name=hide_btn]").val('Y');
+		} else {
+			$("input[name=hide_btn]").val('N');
+		}
+	}
+
+	function temporary_save() {
+		$('#temporary').val('Y');
+		chkForm();
+	}
+
 </script>
 <script type="text/javascript" src="/misc/js/board/board_script_daum.js"></script>
 <script type="text/javascript">

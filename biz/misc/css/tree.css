@@ -1,9 +1,0 @@
-@charset "utf-8";
-/* CSS Document */
-
-ul#tree_menu, ul#tree_menu * {margin:0; padding:0; list-style:none; border:none; overflow:hidden; text-decoration:none; color:#555;}
-ul#tree_menu a:hover {text-decoration:underline;}
-ul#tree_menu ul {padding:0 0 0 0px; zoom:1;}
-ul#tree_menu li {position:relative; background:url(tree_bg.gif) no-repeat 7px top; padding:0 0 0 20px; font-size:13px; line-height:18px; zoom:1;}
-ul#tree_menu li.end {background-image:url(tree_bg2.gif);}
-ul#tree_menu li a.control {position:absolute; left:0px; top:1px; display:block; width:9px; height:9px; padding:3px;}

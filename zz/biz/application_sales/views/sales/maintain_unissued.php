@@ -14,8 +14,10 @@ if($search_keyword != ''){
 	margin-top: 75px;
 }
 .search_contains {
-	font-size: 14px;
+	font: Noto sans(Medium);
+	font-size: 13px;
 	font-weight: bold;
+	color: #1c1c1c;
 }
 .search_contains input, select {
 	margin-left: 10px;
@@ -117,11 +119,12 @@ function GoSearch(){
           </select>
 
         발행예정기간
-          <input id="filter5" type="date" class="input-common input-style1 filtercolumn" name="start_d" value="<?php if(isset($filter)){echo $filter[4];} ?>" style="width:160px" /> ~
-          <input id="filter6" type="date" class="input-common input-style1 filtercolumn" name="end_d" value="<?php if(isset($filter)){echo $filter[5];} ?>" style="width:160px" />
+          <input id="filter5" type="date" class="input-common input-style1 filtercolumn" name="start_d" value="<?php if(isset($filter)){echo $filter[4];} ?>" style="width:120px" /> ~
+          <input id="filter6" type="date" class="input-common input-style1 filtercolumn" name="end_d" value="<?php if(isset($filter)){echo $filter[5];} ?>" style="width:120px" />
           <input type="button" class='btn-common btn-style2' onclick="return GoSearch();" value="검색"/>
 					<div style="float:right;">
-						<input type="button" class="btn-common btn-color1" value="엑셀 다운" onclick="excel_down();">
+						<input type="button" class="btn-common btn-updownload" value="엑셀 다운로드" onclick="excel_down();"style="width:auto;float:left;padding-left:20px;position: relative;left: 15%;">
+						<img src="/misc/img/download_btn.svg" style="float:right;width:12px;position:relative;top:10px;right:65%;">
 					</div>
         </div>
       </div>
@@ -171,7 +174,7 @@ function GoSearch(){
         $i = $count - $no_page_list * ( $cur_page - 1 );
         $icounter = 0;
         foreach ($view_val as $val){ ?>
-          <tr onmouseover="this.style.backgroundColor='#FAFAFA'" onmouseout="this.style.backgroundColor='#fff'" style="cursor:pointer" onclick="ViewBoard('<?php echo $val->maintain_seq;?>', '<?php echo $val->view_type; ?>')">
+          <tr onmouseover="this.style.backgroundColor='#FAFAFA'" onmouseout="this.style.backgroundColor='#fff'" style="cursor:pointer" onclick="ViewBoard('<?php echo $val->maintain_seq;?>', '<?php echo $val->main_type; ?>')">
           <td></td>
           <td><?php echo $i; ?></td>
           <td><?php echo $val->dept; ?></td>
@@ -216,9 +219,9 @@ function GoSearch(){
     <?php
     if ($cur_page > 10){
     ?>
-    		<td width="19"><a href="JavaScript:GoFirstPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_first.png" width="20" height="20"/></a></td>
+    		<td width="19"><a href="JavaScript:GoFirstPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_last_left.svg" width="20" height="20"/></a></td>
     		<td width="2"></td>
-    		<td width="19"><a href="JavaScript:GoPrevPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_left.png" width="20" height="20"/></a></td>
+    		<td width="19"><a href="JavaScript:GoPrevPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_left.svg" width="20" height="20"/></a></td>
     <?php
     } else {
     ?>
@@ -247,9 +250,9 @@ function GoSearch(){
     			<?php
     if   ( floor( ( $cur_page - 1 ) / 10 ) < floor( ( $total_page - 1 ) / 10 ) ){
     ?>
-    <td width="19"><a href="JavaScript:GoNextPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_right.png" width="20" height="20"/></a></td>
+    <td width="19"><a href="JavaScript:GoNextPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_right.svg" width="20" height="20"/></a></td>
     			<td width="2"></td>
-    			<td width="19"><a href="JavaScript:GoLastPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_last.png" width="20" height="20"/></a></td>
+    			<td width="19"><a href="JavaScript:GoLastPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_last_right.svg" width="20" height="20"/></a></td>
     <?php
     } else {
     ?>
@@ -349,6 +352,13 @@ function ViewBoard(main_seq, main_type){
 	if (main_seq.indexOf('r_') != -1) {
 		location.href='<?php echo site_url(); ?>/tech/tech_board/request_tech_support_list';
 	} else {
+		if(main_type == '유지보수') {
+			main_type = '001';
+		} else if (main_type == '통합유지보수') {
+			main_type = '002';
+		} else {
+			main_type = '001';
+		}
 		document.mform.action = "<?php echo site_url();?>/sales/maintain/maintain_view";
 		document.mform.seq.value = main_seq;
 		document.mform.mode.value = "modify";

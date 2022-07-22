@@ -99,8 +99,9 @@ $mimes = array(	'hqx'	=>	'application/mac-binhex40',
 				'xl'	=>	'application/excel',
 				'eml'	=>	'message/rfc822',
 				'json' => array('application/json', 'text/json'),
-				'hwp'  => array('application/haansofthwp','application/unknown','application/msword','application/unknown', 'text/plain'),
-				'pptx' => array('application/unknown', 'application/haansoftpptx', 'application/vnd.openxmlformats-officedocument.presentationml.presentation', 'application/zip', 'application/msword','application/vnd.ms-powerpoint')
+				'hwp'  => array('application/haansofthwp','application/unknown','application/msword','application/unknown', 'text/plain','application/x-hwp','application/hwp','application/cdfv2-corrupt'),
+				'pptx' => array('application/unknown', 'application/haansoftpptx', 'application/vnd.openxmlformats-officedocument.presentationml.presentation', 'application/zip', 'application/msword','application/vnd.ms-powerpoint'),
+				'xlsm' => array('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
 			);
 
 

@@ -68,7 +68,7 @@ function GoSearch(){
 										<input type="text" style="margin-right:10px; width:240px;" class="input-common" name="searchkeyword" placeholder="검색하세요." value="<?php echo str_replace('"', '&uml;', $search_keyword );?>"/>
 									</span>
 									<span>
-										<input class="btn-common btn-style1" type="button" onclick="return GoSearch();" value="검색" >
+										<input class="btn-common btn-style2" type="button" onclick="return GoSearch();" value="검색" >
 									</span>
 								</td>
 								<td align="right">
@@ -90,7 +90,7 @@ function GoSearch(){
 						<table class="content_dash_tbl" align="center" width="100%" border="0" cellspacing="0" cellpadding="0">
 							<tr>
 								<td>
-									<table width="100%" class="month_tbl" border="0" cellspacing="0" cellpadding="0">
+									<table width="100%" class="month_tbl list" border="0" cellspacing="0" cellpadding="0">
 										<colgroup>
 	                  	<col width="15%" />
 	                  	<col width="5%" />
@@ -138,27 +138,27 @@ function GoSearch(){
 	                    <td height="40" align="center"><?php echo $i;?></td>
 	                    <!-- <td align="center" class="t_border"><?php echo $item['seq'];?></td> -->
 	                    <td align="center">
-												<a href="javascript:ViewBoard('<?php echo $item['seq'];?>');"><?php echo $item['company_name'];?>
+												<a class="list" href="javascript:ViewBoard('<?php echo $item['seq'];?>');"><?php echo $item['company_name'];?>
 												</a>
 											</td>
 	                    <td align="center">
-												<a href="javascript:ViewBoard('<?php echo $item['seq'];?>');"><?php echo $strPart;?>
+												<a class="list" href="javascript:ViewBoard('<?php echo $item['seq'];?>');"><?php echo $strPart;?>
 												</a>
 											</td>
 	                    <td align="center">
-												<a href="javascript:ViewBoard('<?php echo $item['seq'];?>');"><?php echo $item['cnum'];?>
+												<a class="list" href="javascript:ViewBoard('<?php echo $item['seq'];?>');"><?php echo $item['cnum'];?>
 												</a>
 											</td>
 	                    <td align="center">
-												<a href="javascript:ViewBoard('<?php echo $item['seq'];?>');"><?php echo $item['rnum'];?>
+												<a class="list" href="javascript:ViewBoard('<?php echo $item['seq'];?>');"><?php echo $item['rnum'];?>
 												</a>
 											</td>
 	                    <td align="center">
-												<a href="javascript:ViewBoard('<?php echo $item['seq'];?>');"><?php echo $item['represent_name'];?>
+												<a class="list" href="javascript:ViewBoard('<?php echo $item['seq'];?>');"><?php echo $item['represent_name'];?>
 												</a>
 											</td>
 	                    <td align="center">
-												<a href="javascript:ViewBoard('<?php echo $item['seq'];?>');">
+												<a class="list" href="javascript:ViewBoard('<?php echo $item['seq'];?>');">
                 <?php
                   if($item['bank_code'] == ""){
                     echo "";
@@ -229,16 +229,16 @@ function GoSearch(){
                 				</a>
 											</td>
 	                    <td align="center">
-												<a href="javascript:ViewBoard('<?php echo $item['seq'];?>');"><?php echo $item['bnum'];?>
+												<a class="list" href="javascript:ViewBoard('<?php echo $item['seq'];?>');"><?php echo $item['bnum'];?>
 												</a>
 											</td>
 	                    <td align="center">
-												<a href="javascript:ViewBoard('<?php echo $item['seq'];?>');"><?php echo $item['deposit_name'];?>
+												<a class="list" href="javascript:ViewBoard('<?php echo $item['seq'];?>');"><?php echo $item['deposit_name'];?>
 												</a>
 											</td>
                 			<td align="center">
                   <?php if($admin_lv > 0){?>
-                    		<a href="javascript:chkForm2('<?php echo $item['seq'];?>');">삭제</a>
+                    		<a class="list" href="javascript:chkForm2('<?php echo $item['seq'];?>');">삭제</a>
                   <?php } ?>
                   		</td>
 											<td></td>
@@ -332,13 +332,13 @@ function chkForm2(seq) {
 ?>
 			                    <td width="19">
 														<a href="JavaScript:GoFirstPage()">
-															<img src="<?php echo $misc;?>img/dashboard/btn/btn_first.png" width="20" height="20"/>
+															<img src="<?php echo $misc;?>img/dashboard/btn/btn_last_left.svg" width="20" height="20"/>
 														</a>
 													</td>
 			                    <td width="2"></td>
 			                    <td width="19">
 														<a href="JavaScript:GoPrevPage()">
-															<img src="<?php echo $misc;?>img/dashboard/btn/btn_left.png" width="20" height="20"/>
+															<img src="<?php echo $misc;?>img/dashboard/btn/btn_left.svg" width="20" height="20"/>
 														</a>
 													</td>
 <?php
@@ -372,13 +372,13 @@ function chkForm2(seq) {
 ?>
 													<td width="19">
 														<a href="JavaScript:GoNextPage()">
-															<img src="<?php echo $misc;?>img/dashboard/btn/btn_right.png" width="20" height="20"/>
+															<img src="<?php echo $misc;?>img/dashboard/btn/btn_right.svg" width="20" height="20"/>
 														</a>
 													</td>
 			                    <td width="2"></td>
 			                    <td width="19">
 														<a href="JavaScript:GoLastPage()">
-															<img src="<?php echo $misc;?>img/dashboard/btn/btn_last.png" width="20" height="20"/>
+															<img src="<?php echo $misc;?>img/dashboard/btn/btn_last_right.svg" width="20" height="20"/>
 														</a>
 													</td>
 <?php

@@ -68,7 +68,7 @@ function GoSearch(){
 										<input type="text" style="margin-right:10px; width:240px;" class="input-common" name="searchkeyword" placeholder="검색하세요." value="<?php echo str_replace('"', '&uml;', $search_keyword );?>"/>
 									</span>
                   <span>
-										<input class="btn-common btn-style1" type="button" onclick="return GoSearch();" value="검색" >
+										<input class="btn-common btn-style2" type="button" onclick="return GoSearch();" value="검색" >
                   </span>
 								</td>
 								<td align="right">
@@ -91,7 +91,7 @@ function GoSearch(){
 						<table class="content_dash_tbl" align="center" width="100%" border="0" cellspacing="0" cellpadding="0">
 							<tr>
 								<td>
-									<table width="100%" class="month_tbl" border="0" cellspacing="0" cellpadding="0">
+									<table width="100%" class="month_tbl list" border="0" cellspacing="0" cellpadding="0">
 										<colgroup>
 											<col width="10%"/>
 	                    <col width="8%"/>
@@ -205,13 +205,13 @@ function ViewBoard (seq){
 ?>
 		                    <td width="19">
 													<a href="JavaScript:GoFirstPage()">
-														<img src="<?php echo $misc;?>img/dashboard/btn/btn_first.png"  width="20" height="20"/>
+														<img src="<?php echo $misc;?>img/dashboard/btn/btn_last_left.svg" width="20" height="20"/>
 													</a>
 												</td>
 		                    <td width="2"></td>
 		                    <td width="19">
 													<a href="JavaScript:GoPrevPage()">
-														<img src="<?php echo $misc;?>img/dashboard/btn/btn_left.png"  width="20" height="20"/>
+														<img src="<?php echo $misc;?>img/dashboard/btn/btn_left.svg" width="20" height="20"/>
 													</a>
 												</td>
 <?php
@@ -245,13 +245,13 @@ function ViewBoard (seq){
 ?>
 												<td width="19">
 													<a href="JavaScript:GoNextPage()">
-														<img src="<?php echo $misc;?>img/dashboard/btn/btn_right.png" width="20" height="20"/>
+														<img src="<?php echo $misc;?>img/dashboard/btn/btn_right.svg" width="20" height="20"/>
 													</a>
 												</td>
 		                    <td width="2"></td>
 		                    <td width="19">
 													<a href="JavaScript:GoLastPage()">
-														<img src="<?php echo $misc;?>img/dashboard/btn/btn_last.png" width="20" height="20"/>
+														<img src="<?php echo $misc;?>img/dashboard/btn/btn_last_right.svg" width="20" height="20"/>
 													</a>
 												</td>
 <?php

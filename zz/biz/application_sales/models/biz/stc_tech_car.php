@@ -229,5 +229,18 @@ function __construct() {
     }
   }
 
+  // 엑셀다운 (ajax)
+  function excelDownload(){
+    $sql = "SELECT * FROM car_drive order BY seq DESC";
+    $query = $this->db->query($sql);
+
+    if ($query->num_rows() <= 0) {
+      return false;
+    } else {
+      return $query->result_array();
+    }
+  }
+
+
 }
 ?>

@@ -103,7 +103,7 @@ function logoutopen(){
     		<a href="<?php echo site_url();?>/biz/approval/electronic_approval_list?type=standby" class="menu2"><img src="<?php echo $misc;?>img/mobile/nav_mobile/electronic.svg" width="20"> 전자결재</a>
 					<a href="<?php echo site_url();?>/biz/approval/electronic_approval_form_list?mode=user" class="menu3">기안</a>
 					<a href="<?php echo site_url();?>/biz/approval/electronic_approval_list?type=standby" class="menu3">결재</a>
-					<a href="<?php echo site_url();?>/biz/approval/electronic_approval_personal_storage_list?seq=all" class="menu3">개인보관함</a>
+					<!-- <a href="<?php echo site_url();?>/biz/approval/electronic_approval_personal_storage_list?seq=all" class="menu3">개인보관함</a> -->
 					<a href="<?php echo site_url();?>/biz/approval/electronic_approval_delegation_management" class="menu3">환경설정</a>
 				<?php if ($biz_lv == 3 || ($parent_group =="경영지원실" || $parent_group =="영업본부" || $group =="기술연구소")){ ?>
 					<a href="<?php echo site_url();?>/biz/approval/electronic_approval_list?type=admin" class="menu3">관리자</a>
@@ -112,6 +112,7 @@ function logoutopen(){
         <a href="<?php echo site_url();?>/biz/durian_car/car_drive_list" class="menu2"><img src="<?php echo $misc;?>img/mobile/nav_mobile/car_drive.svg" width="20"> 차량일지</a>
         <a href="<?php echo site_url();?>/biz/meeting_minutes/mom_list?type=y" class="menu2"><img src="<?php echo $misc;?>img/mobile/nav_mobile/meeting_minutes.svg" width="20"> 회의록</a>
         <a href="<?php echo site_url();?>/biz/board/notice_list?category=001" class="menu2"><img src="<?php echo $misc;?>img/mobile/nav_mobile/notice.svg" width="20"> 공지사항</a>
+        <a href="<?php echo site_url();?>/biz/diquitaca/qna_list" class="menu2"><img src="<?php echo $misc;?>img/mobile/nav_mobile/diquitaca.svg" width="20"> 디키타카</a>
         <?php } ?>
 
         <?php if($tech_lv > 0){ ?>
@@ -120,7 +121,7 @@ function logoutopen(){
         <a href="<?php echo site_url();?>/tech/board/edudata_list" class="menu2"><img src="<?php echo $misc;?>img/mobile/nav_mobile/eduevent.svg" width="20"> 교육자료</a>
         <a href="<?php echo site_url();?>/tech/board/release_note_list" class="menu2"><img src="<?php echo $misc;?>img/mobile/nav_mobile/release_note.svg" width="20"> 릴리즈노트</a>
         <a href="<?php echo site_url();?>/tech/tech_board/tech_device_list" class="menu2"><img src="<?php echo $misc;?>img/mobile/nav_mobile/tech_device.svg" width="20"> 장비/시스템</a>
-        <a href="<?php echo site_url();?>/tech/tech_board/tech_doc_list?type=Y" class="menu2"><img src="<?php echo $misc;?>img/mobile/nav_mobile/customer.svg" width="20"> 고객사</a>
+        <a href="<?php echo site_url();?>/tech/maintain/maintain_list" class="menu2"><img src="<?php echo $misc;?>img/mobile/nav_mobile/customer.svg" width="20"> 고객사</a>
         <?php } ?>
 
 
@@ -128,7 +129,7 @@ function logoutopen(){
     <div class="nav_item">
       <?php if($sales_lv > 0){ ?>
         <h2>SALES</h2>
-        <a href="<?php echo site_url();?>/sales/funds/funds_list" class="menu2"><img src="<?php echo $misc;?>img/mobile/nav_mobile/fundlist.svg" width="20"> 매출현황</a>
+        <a href="<?php echo site_url();?>/sales/funds/funds_list?mode=month" class="menu2"><img src="<?php echo $misc;?>img/mobile/nav_mobile/fundlist.svg" width="20"> 매출현황</a>
         <a href="<?php echo site_url();?>/sales/board/manual_list" class="menu2"><img src="<?php echo $misc;?>img/mobile/nav_mobile/sales_manual.svg" width="20"> 영업자료</a>
         <a href="<?php echo site_url();?>/sales/forcasting/forcasting_list?mode=forcasting" class="menu2"><img src="<?php echo $misc;?>img/mobile/nav_mobile/forecasting.svg" width="20"> 포캐스팅</a>
         <a href="<?php echo site_url();?>/sales/forcasting/order_completed_list" class="menu2"><img src="<?php echo $misc;?>img/mobile/nav_mobile/order_completed.svg" width="20"> 수주완료</a>
@@ -151,7 +152,7 @@ function logoutopen(){
         <a href="<?php echo site_url();?>/admin/account/user" class="menu2"><img src="<?php echo $misc;?>img/mobile/nav_mobile/user.svg" width="20"> 회원관리</a>
         <?php } ?>
         <?php if($admin_lv == 3 && ($group =="경영지원실" || $group == "기술연구소" || $group == "CEO")){?>
-        <a href="<?php echo site_url()?>/admin/attendance_admin/attendance_user_list" class="menu2"><img src="<?php echo $misc;?>img/mobile/nav_mobile/attendance.svg" width="20"/>근태관리</a>
+        <a href="<?php echo site_url()?>/admin/attendance_admin/attendance_working_hours" class="menu2"><img src="<?php echo $misc;?>img/mobile/nav_mobile/attendance.svg" width="20"/>근태관리</a>
         <a href="<?php echo site_url()?>/admin/annual_admin/annual_management" class="menu2"><img src="<?php echo $misc;?>img/mobile/nav_mobile/annual.svg" width="20"/>연차관리</a>
       <?php } ?>
     </div>

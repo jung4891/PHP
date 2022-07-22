@@ -229,6 +229,30 @@ function details_contents($seq){
 }
 //내용분할2
 
+// //출장품의서 작성여부 확인
+// function trip_document($seq) {
+//   $sql = "SELECT approval_doc_status FROM electronic_approval_doc WHERE schedule_seq = {$seq} AND approval_form_seq = 16";
+//   $query = $this->db->query($sql);
+//   $result = $query->row_array();
+//   return $result;
+// }
+//
+// //야간품의서 작성여부 확인
+// function night_document($seq) {
+//   $sql = "SELECT approval_doc_status FROM electronic_approval_doc WHERE schedule_seq = {$seq} AND approval_form_seq = 55";
+//   $query = $this->db->query($sql);
+//   $result = $query->row_array();
+//   return $result;
+// }
+
+//근무품의서 작성여부 확인
+function weekend_document($seq) {
+  $sql = "SELECT approval_doc_status FROM electronic_approval_doc WHERE schedule_seq = {$seq} AND approval_form_seq = 19";
+  $query = $this->db->query($sql);
+  $result = $query->row_array();
+  return $result;
+}
+
 //직접입력인지 확인
 function direct_check($customer){
   $sql="SELECT customer_companyname as customer FROM sales_forcasting WHERE customer_companyname = '{$customer}' GROUP BY customer";
@@ -414,7 +438,7 @@ function customer_list(){
 
   function userDepth() {
       // $sql = "SELECT a.*, b.user_name, b.user_id, b.user_duty from (select * from user_group where childGroupNum>1 and depth = 1) a join (select * from user) b on a.groupName = b.user_group";
-      $sql = "SELECT b.seq, a.groupName, a.parentGroupName, a.childGroupNum, a.depth, b.user_name, b.user_id, b.user_duty from (select * from user_group where childGroupNum>1 and depth = 1) a join (select * from user) b on a.groupName = b.user_group;";
+      $sql = "SELECT b.seq, a.groupName, a.parentGroupName, a.childGroupNum, a.depth, b.user_name, b.user_id, b.user_duty from (select * from user_group where childGroupNum>1 and depth = 1) a join (select * from user WHERE quit_date IS null) b on a.groupName = b.user_group;";
       return $this->db->query($sql)->result();
     }
 
@@ -553,6 +577,25 @@ function customer_list(){
        // $sql = "SELECT * FROM tech_schedule_list WHERE {$seaechTarget} regexp '{$searchKeyword}'";
        $query = $this->db->query($sql);
        return $query->result();
+     } else if ($seaechTarget == 'contents') {
+       if(is_array($data['searchKeyword'])){
+         $searchKeyword = implode( '|', $data['searchKeyword'] );
+       }else{
+         $searchKeyword = $data['searchKeyword'];
+       }
+
+       $sql_base = "SELECT a.*, b.work_name, b.color, b.textColor, b.seq as work_color_seq from (SELECT *
+                    FROM tech_schedule_list
+                    WHERE (CONTENTS regexp '{$searchKeyword}' || seq IN (
+                    SELECT schedule_seq
+                    FROM tech_schedule_contents
+                    WHERE CONTENTS regexp '{$searchKeyword}'))) a left join tech_schedule_work b on a.work_name = b.work_name";
+
+       $sql =  $sql_base.$except_nondisclosure_sch." UNION DISTINCT ".$sql_base." WHERE (participant regexp '{$this->name}' OR user_name = '{$this->name}') AND nondisclosure = 'Y'";
+
+       $query = $this->db->query($sql);
+       return $query->result();
+
      }else{
 
        if(is_array($data['searchKeyword'])){
@@ -1174,6 +1217,15 @@ function search_tech_report($reportData){
   return $query->result();
 }
 
+function no_written_report() {
+  $today = date('Y-m-d');
+
+  $sql = "SELECT * FROM tech_schedule_list  WHERE work_type = 'tech' AND tech_report > 0 AND start_day < '{$today}' AND DATEDIFF(end_day, start_day) < 2 order by start_day desc;";
+
+  $query = $this->db->query($sql);
+  return $query->result_array();
+}
+
 function tech_seq_find($data){
   $schedule_seq = $data['schedule_seq'];
   // $where = "WHERE schedule_seq={$schedule_seq}";
@@ -1448,7 +1500,7 @@ function search_entered_participant($val){
   }
 
   function user_count() {
-    $sql = "SELECT COUNT(*) AS cnt FROM user WHERE quit_date IS null";
+    $sql = "SELECT COUNT(*) AS cnt FROM user WHERE quit_date IS null and cooperation_yn = 'N'";
     $query = $this->db->query($sql);
     $result = $query->result_array();
 
@@ -1641,6 +1693,14 @@ GROUP BY user_group) b ON a.groupName = b.user_group GROUP BY a.parentGroupName;
     }
 
     return $result;
+  }
+
+  function holiday_list() {
+    $sql = "SELECT * FROM holiday";
+
+    $query = $this->db->query($sql);
+
+    return $query->result();
   }
 
 }

@@ -2,204 +2,203 @@
 include $this->input->server('DOCUMENT_ROOT')."/include/base.php";
 include $this->input->server('DOCUMENT_ROOT')."/include/sales_top.php";
 ?>
-<link rel="stylesheet" href="/misc/css/dashboard.css">
+<link rel="stylesheet" href="/misc/css/view_page_common.css">
 <style type="text/css">
-  /* Dropdown Button */
-  .dropbtn {
-    font-size: 13px;
-    border: none;
-    cursor: pointer;
-    border-radius: 5px;
-    background-color: #eee;
-    margin: 0px 0px 0px 0px;
-    width: 50px;
-    display: inline-block;
-    text-align: center;
-    border: 4px solid #eee;
-  }
+/* Dropdown Button */
+.dropbtn {
+  font-size: 13px;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+  background-color: #eee;
+  margin: 0px 0px 0px 0px;
+  width: 50px;
+  display: inline-block;
+  text-align: center;
+  border: 4px solid #eee;
+}
 
-  /* Dropdown button on hover & focus */
-  .dropbtn:hover,
-  .dropbtn:focus {
-    /* background-color: #3e8e41; */
-  }
+/* Dropdown button on hover & focus */
+.dropbtn:hover,
+.dropbtn:focus {
+  /* background-color: #3e8e41; */
+}
 
-  /* The search field */
-  .searchInput {
-    box-sizing: border-box;
-    background-position: 14px 12px;
-    background-repeat: no-repeat;
-    font-size: 16px;
-    padding: 14px 20px 12px 45px;
-    border: none;
-    border-bottom: 1px solid #ddd;
-  }
+/* The container <div> - needed to position the dropdown content */
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
 
-  /* The search field when it gets focus/clicked on */
-  .searchInput:focus {
-    outline: 3px solid #ddd;
-  }
+/* Dropdown Content (Hidden by Default) */
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #f6f6f6;
+  min-width: 230px;
+  border: 1px solid #ddd;
+  z-index: 1;
+}
 
-  /* The container <div> - needed to position the dropdown content */
-  .dropdown {
-    position: relative;
-    display: inline-block;
-  }
+/* Links inside the dropdown */
+.dropdown-content a {
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+}
 
-  /* Dropdown Content (Hidden by Default) */
-  .dropdown-content {
-    display: none;
-    position: absolute;
-    background-color: #f6f6f6;
-    min-width: 230px;
-    border: 1px solid #ddd;
-    z-index: 1;
-  }
+/* Change color of dropdown links on hover */
+.dropdown-content a:hover {
+  background-color: #f1f1f1
+}
 
-  /* Links inside the dropdown */
-  .dropdown-content a {
-    color: black;
-    padding: 12px 16px;
-    text-decoration: none;
-    display: block;
-  }
+.work_text_table textarea {
+  font-family: 'Nanum Gothic', '나눔고딕', Tahoma, 'Georgia', '맑은 고딕', sans-serif;
+  line-height: 150%;
+  font-size: 12px;
+  color: #333;
+  border: none;
+  border-right: 0px;
+  border-top: 0px;
+  border-left: 0px;
+  border-bottom: 0px;
+  width: 80%;
+  height: 20px;
+  overflow-y: hidden;
+  resize: none;
+}
 
-  /* Change color of dropdown links on hover */
-  .dropdown-content a:hover {
-    background-color: #f1f1f1
-  }
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 35px;
+  height: 17px;
+  vertical-align: middle;
+  float: right;
+  margin-right: 30px;
+}
 
-  /* Show the dropdown menu (use JS to add this class to the .dropdown-content container when the user clicks on the dropdown button) */
-  .show {
-    display: block;
-  }
+.onoff{
+margin:0px;
+display:inline-block;
+font-size:9px;
+font-weight:bold;
+float:right;
+}
 
-  .work_text_table textarea {
-    font-family: 'Nanum Gothic', '나눔고딕', Tahoma, 'Georgia', '맑은 고딕', sans-serif;
-    line-height: 150%;
-    font-size: 12px;
-    color: #333;
-    border: none;
-    border-right: 0px;
-    border-top: 0px;
-    border-left: 0px;
-    border-bottom: 0px;
-    width: 80%;
-    height: 20px;
-    overflow-y: hidden;
-    resize: none;
-  }
+/* Hide default HTML checkbox */
+.switch input {display:none;}
 
-  .work_text_table input {
-    border: none !important;
-    border-right: 0px;
-    border-top: 0px;
-    border-left: 0px;
-    border-bottom: 0px;
-  }
+/* The slider */
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
 
-  #trPlusBtn {
-    margin-top: 10px;
-    margin-bottom: 10px;
-  }
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 13px;
+  width: 13px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
 
-  .adddelbtn {
-    border: none;
-    border-right: 0px;
-    border-top: 0px;
-    border-left: 0px;
-    border-bottom: 0px;
-    margin: 0px;
-    padding: 0px;
-    float:right;
-  }
+input:checked + .slider {
+  background-color: #2196F3;
+}
 
-  .switch {
-    position: relative;
-    display: inline-block;
-    width: 35px;
-    height: 17px;
-    vertical-align: middle;
-    float: right;
-    margin-right: 30px;
-  }
+input:focus + .slider {
+  box-shadow: 0 0 1px #2196F3;
+}
 
-  .onoff{
-	margin:0px;
+input:checked + .slider:before {
+  -webkit-transform: translateX(13px);
+  -ms-transform: translateX(13px);
+  transform: translateX(13px);
+}
+
+/* Rounded sliders */
+.slider.round {
+  border-radius: 17px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
+.field td {
+  height: 0px !important;
+  border: none;
+}
+
+.border-n {
+  border: none !important;
+}
+
+.select-common,
+.input-common {
+  width:calc(100% - 10px);
+  box-sizing: border-box;
+}
+
+/* 첨부파일 */
+	.box-file-input label{
 	display:inline-block;
-	font-size:9px;
-	font-weight:bold;
-  float:right;
-  }
+	background:#565656;
+	color:#fff;
+	padding:0px 15px;
+	line-height:30px;
+	cursor:pointer;
+	border-radius:3px;
+  font-size:14px;
+ }
 
-  /* Hide default HTML checkbox */
-  .switch input {display:none;}
+ .box-file-input label:after{
+	content:"파일 선택";
+ }
 
-  /* The slider */
-  .slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: #ccc;
-    -webkit-transition: .4s;
-    transition: .4s;
-  }
-  .slider:before {
-    position: absolute;
-    content: "";
-    height: 13px;
-    width: 13px;
-    left: 4px;
-    bottom: 4px;
-    background-color: white;
-    -webkit-transition: .4s;
-    transition: .4s;
-  }
+ .box-file-input .file-input{
+	display:none;
+ }
 
-  input:checked + .slider {
-    background-color: #2196F3;
-  }
+ .box-file-input .filename{
+	display:inline-block;
+	padding-left:10px;
+ }
 
-  input:focus + .slider {
-    box-shadow: 0 0 1px #2196F3;
-  }
+ .btn-file {
+	 width:50px;
+ }
 
-  input:checked + .slider:before {
-    -webkit-transform: translateX(13px);
-    -ms-transform: translateX(13px);
-    transform: translateX(13px);
-  }
+ .btn-file-left {
+	 float:left;
+	 border: 1px solid #B6B6B6;
+	 background: white;
+	 color: #565656;
+ }
 
-  /* Rounded sliders */
-  .slider.round {
-    border-radius: 17px;
-  }
+ .btn-file-right {
+	 /* right:0; */
+	 float:right;
+	 margin-right: 40px;
+ }
 
-  .slider.round:before {
-    border-radius: 50%;
-  }
-
-  p {
-    margin:0px;
-    display:inline-block;
-    font-size:9px;
-    font-weight:bold;
-  }
-  .tdDivisionBtn{
-    float:right;
-  }
-  .tdSolid {
-    border-left :none;
-    border-right:1.5px solid;
-    border-color: #ddd;
-  }
-  td{
-    word-break:break-all;
-    word-break:break-word;
-  }
+ .file_span {
+	 color: #B6B6B6;
+	 max-width: 200px;
+ }
 </style>
 
 <!-- 시간 24시간 형식으로 가져오는거 -->
@@ -223,7 +222,7 @@ include $this->input->server('DOCUMENT_ROOT')."/include/sales_top.php";
       k++;
       $("#row_max_index").val(Number(Number($("#row_max_index").val()) + Number(1)));
       var id = "main_insert_field_" + $("#row_max_index").val();
-      $('#manager_input_field').before("<tr id=" + id + "><td colspan='2' width='15%' height='40' align='center' bgcolor='f8f8f9' style='font-weight:bold;'class='t_border' >담당자명</td><td width='35%' style='padding:10px;' class='t_border'><input type='text' name='customer_manager[]' id='customer_manager' class='input2 customer_manager'/><input type='hidden' name='maintain_end' id='maintain_end' class='input2'/></td><td width='15%' height='40' align='center' bgcolor='f8f8f9' style='font-weight:bold;' class='t_border'>이메일</td><td width='35%' style='padding:10px;' class='t_border'><input type='text' name='manager_mail[]' id='manager_mail' class='input2 manager_mail'></td><td width='3%' style='padding:10px;' class='t_border'><input type='hidden' name='del_ck'></td><td align='center;'><img src='<?php echo $misc; ?>img/btn_del0.jpg' style='cursor:pointer;' onclick='javascript:main_list_del(" + $("#row_max_index").val() + ");'/></td></tr>");
+      $('#manager_input_field').before("<tr id=" + id + "><td height='40' align='center' style='font-weight:bold;' class='row-color1 border-l' >담당자명</td><td style='padding-left:10px;'><input type='text' name='customer_manager[]' id='customer_manager' class='input-common customer_manager' style='width:100%;'/><input type='hidden' name='maintain_end' id='maintain_end' class='input-common'/></td><td height='40' align='center' style='font-weight:bold;' class='row-color1'>이메일</td><td style='padding-left:10px;' class='border-r'><input type='text' name='manager_mail[]' id='manager_mail' class='input-common manager_mail' style='width:calc(100% - 25px);margin-right:2px;'><img src='<?php echo $misc; ?>img/btn_minus_white.svg' style='cursor:pointer;width:23px;vertical-align:middle;' onclick='javascript:main_list_del(" + $("#row_max_index").val() + ");'/></td><td class='border-n' width='3%' style='padding-left:10px;'><input type='hidden' name='del_ck'></td><td class='border-n' align='center;'></td></tr>");
     });
   });
 
@@ -245,17 +244,17 @@ include $this->input->server('DOCUMENT_ROOT')."/include/sales_top.php";
     var trNum = trClass.substring(5);
     var nextTr = Number(trNum)+1;
     // if($('#work_text_table'+tableNum).find($(".check"+nextTr)).length != 0){
-      $('#work_text_table'+tableNum).find($("."+trClass)).last().after('<tr class="'+trClass+'"><td class="tdSolid" colspan="2"><textarea name="work_text'+trNum+'[]" onkeyup="xSize(this);" style="width:80%;"></textarea><img src="<?php echo $misc;?>img/btn_add.jpg" style="cursor:pointer;" class="tdDivisionBtn" onclick="tdDivision(this,'+trNum+');"/></td><td class="tdSolid"> \
+      $('#work_text_table'+tableNum).find($("."+trClass)).last().after('<tr class="'+trClass+'"><td class="tdSolid" colspan="2"><textarea name="work_text'+trNum+'[]" onkeyup="xSize(this);" style="width:80%;"></textarea><img src="<?php echo $misc;?>img/dashboard/dash_plus.svg" style="cursor:pointer;" class="tdDivisionBtn" onclick="tdDivision(this,'+trNum+');"/></td><td class="tdSolid"> \
       <div style="margin:0 auto; text-align: -webkit-center;font-weight:normal;">\
       <input type="hidden" name="work_text'+trNum+'[]" value="normal">\
       <input type="radio" name="produce'+tableNum+'_'+normalCheck_idx+'" value="normal" onclick="normalCheck(this);" checked="checked">정상\
       <input type="radio" name="produce'+tableNum+'_'+normalCheck_idx+'" value="abnormal" onclick="normalCheck(this);">비정상\
       </div></td>\
-      <td class="tdSolid"><textarea name="work_text'+trNum+'[]" onkeyup="xSize(this);"></textarea></td>\
-      <td width="3%" class="t_border adddelbtn"><input type="hidden" name="del_ck"></td> \
-      <td align="center;" class ="adddelbtn"><img src="<?php echo $misc; ?>img/btn_del0.jpg" style="cursor:pointer;" onclick ="check_del(this)" /></td></tr>');
+      <td class="tdSolid"><textarea name="work_text'+trNum+'[]" onkeyup="xSize(this);"></textarea><img src="<?php echo $misc; ?>img/btn_minus_white.svg" style="cursor:pointer;width:23px;" onclick ="check_del(this)" /></td>\
+      <td width="0%" class="border-n adddelbtn"><input type="hidden" name="del_ck"></td> \
+      <td align="center;" class ="border-n adddelbtn"></td></tr>');
     // }else{
-    //   $('#work_text_table'+tableNum).find($(".check0")).before('<tr class="'+trClass+'"><td class="tdSolid" colspan="2"><textarea name="work_text'+trNum+'[]" onkeyup="xSize(this);" style="width:80%;"></textarea><img src="<?php echo $misc;?>img/btn_add.jpg" style="cursor:pointer;" class="tdDivisionBtn" onclick="tdDivision(this,'+trNum+');"/></td><td class="tdSolid"> \
+    //   $('#work_text_table'+tableNum).find($(".check0")).before('<tr class="'+trClass+'"><td class="tdSolid" colspan="2"><textarea name="work_text'+trNum+'[]" onkeyup="xSize(this);" style="width:80%;"></textarea><img src="<?php echo $misc;?>img/dashboard/dash_plus.svg" style="cursor:pointer;" class="tdDivisionBtn" onclick="tdDivision(this,'+trNum+');"/></td><td class="tdSolid"> \
     //   <div style="margin:0 auto; text-align: -webkit-center;font-weight:normal;">\
     //   <input type="hidden" name="work_text'+trNum+'[]" value="normal">\
     //   <input type="radio" name="produce'+tableNum+'_'+normalCheck_idx+'" value="normal" onclick="normalCheck(this);" checked="checked">정상\
@@ -263,7 +262,7 @@ include $this->input->server('DOCUMENT_ROOT')."/include/sales_top.php";
     //   </div></td>\
     //   <td class="tdSolid"><textarea name="work_text'+trNum+'[]" onkeyup="xSize(this);"></textarea></td>\
     //   <td width="3%" class="t_border adddelbtn"><input type="hidden" name="del_ck"></td> \
-    //   <td align="center;" class ="adddelbtn"><img src="<?php echo $misc; ?>img/btn_del0.jpg" style="cursor:pointer;" onclick ="check_del(this)" /></td></tr>');
+    //   <td align="center;" class ="adddelbtn"><img src="<?php echo $misc; ?>img/btn_minus_white.svg" style="cursor:pointer;" onclick ="check_del(this)" /></td></tr>');
     // }
 
     var rowspan;
@@ -309,6 +308,7 @@ include $this->input->server('DOCUMENT_ROOT')."/include/sales_top.php";
       $("#err_row2").show();
       $("#err_row3").show();
       $("#err_row4").show();
+      $(".err_row").show();
     } else if (work_name != "장애지원") {
       if($("#work_name option:selected").val()=="정기점검2"){
         $("#nonPeriodic").hide();
@@ -325,6 +325,7 @@ include $this->input->server('DOCUMENT_ROOT')."/include/sales_top.php";
       $("#err_row2").hide();
       $("#err_row3").hide();
       $("#err_row4").hide();
+      $(".err_row").hide();
     } else {
       return
     }
@@ -345,6 +346,9 @@ include $this->input->server('DOCUMENT_ROOT')."/include/sales_top.php";
         if($("#maintain_seq").val() == ''){
           var mode = "forcasting";
         }
+      }
+      if("<?php echo $this->cooperation_yn; ?>" == "Y") {
+        var mode = "forcasting";
       }
       if(!add){
         childPage= window.open('/index.php/tech/tech_board/search_device?name=' + name +'&mode='+mode,'_blank');
@@ -371,6 +375,7 @@ include $this->input->server('DOCUMENT_ROOT')."/include/sales_top.php";
   /// 제출전 확인할것들
   var doubleSubmitFlag = false;
   var chkForm = function(type) {
+    var rv = true;
     if(doubleSubmitFlag){
         return false;
     } else {
@@ -386,7 +391,7 @@ include $this->input->server('DOCUMENT_ROOT')."/include/sales_top.php";
       //   $("#customerName").focus();
         alert("고객사를 입력해주세요.");
         doubleSubmitFlag = false;
-        return false
+        return rv = false;
       }
 
     }else{ //기존 등록
@@ -397,7 +402,7 @@ include $this->input->server('DOCUMENT_ROOT')."/include/sales_top.php";
           $("#serial_value").focus();
           alert("serial 번호를 직접 입력해주세요.");
           doubleSubmitFlag = false;
-          return false
+          return rv = false;
         }
       }
 
@@ -407,65 +412,76 @@ include $this->input->server('DOCUMENT_ROOT')."/include/sales_top.php";
       //   $("#customerName").focus();
         alert("고객사를 입력해주세요.");
         doubleSubmitFlag = false;
-        return false
+        return rv = false;
       }
 
-      if($("#work_name option:selected").val() != "교육참석"){
+      if($("#work_name option:selected").val() != "교육참석" && $("#work_name option:selected").val() != "미팅"){
         if (mform.produce.value == "") {
           mform.produce.focus();
           alert("장비/시스템을 입력해주세요.");
           doubleSubmitFlag = false;
-          return false
+          return rv = false;
         }
       }
 
       if($("#sign_consent").val() != "true"){
         alert("확인서명을 해주세요.")
         doubleSubmitFlag = false;
-        return false
+        return rv = false;
       }
 
       if (mform.engineer.value == "") {
         mform.engineer.focus();
         alert("담당 SE를 선택해주세요.");
         doubleSubmitFlag = false;
-        return false
+        return rv = false;
       }
 
-      if (mform.customer_manager.value == "") {
-        mform.customer_manager.focus();
-        alert("담당자를 입력해주세요.");
-        doubleSubmitFlag = false;
-        return false
-      }
+      // if (mform.customer_manager.value == "") {
+      //   mform.customer_manager.focus();
+      //   alert("담당자를 입력해주세요.");
+      //   doubleSubmitFlag = false;
+      //   return false
+      // }
+
+      $('.customer_manager').each(function(){
+        var v = $(this).val();
+        if(v == "") {
+            alert("담당자를 입력해주세요.");
+            $(this).focus();
+            doubleSubmitFlag = false;
+            return rv = false;
+        }
+      })
 
       if (mform.income_time.value == "") {
         mform.income_time.focus();
         alert("작업일을 선택해주세요.");
         doubleSubmitFlag = false;
-        return false
+        return rv = false;
       }
 
       if (mform.engineer.value == "") {
         mform.engineer.focus();
         alert("엔지니어를 입력해주세요.");
         doubleSubmitFlag = false;
-        return false
+        return rv = false;
       }
 
       if (mform.start_time.value == "") {
         mform.start_time.focus();
         alert("시작시간을 입력해주세요.");
         doubleSubmitFlag = false;
-        return false
+        return rv = false;
       }
 
       if (mform.end_time.value == "") {
         mform.end_time.focus();
         alert("종료시간을 입력해주세요.");
         doubleSubmitFlag = false;
-        return false
+        return rv = false;
       }
+
 
       //작업시간이 12시간이 넘는지 체크
       // var start_date = getFormatDate(new Date()).split('-');
@@ -517,7 +533,7 @@ include $this->input->server('DOCUMENT_ROOT')."/include/sales_top.php";
     }
 
     // merge_email();
-
+if(rv) {
     var work_text = document.getElementsByName('work_text[]');
     var comment = document.getElementById("comment");
     var str = "";
@@ -596,23 +612,27 @@ include $this->input->server('DOCUMENT_ROOT')."/include/sales_top.php";
       return false;
     }
   }
+}
 
   function addRow() {
-    var addText = '<tr class="addRow"><td height="40" align="center" bgcolor="f8f8f9" style="font-weight:bold;" class="t_border"><input type="date" name="work_day_s[]" id="work_day_e" ><br>~<br><input type="date" name="work_day_e[]" id="work_day_e" ><br><input type="eu-time" name="work_time_s[]" id="work_time_s" autocomplete="off" style="margin-right:5%;" size="2"><input type="eu-time" name="work_time_e[]" id="work_time_e" autocomplete="off" style="margin-left:5%;" size="2"></td><td colspan="6" height="40" style="font-weight:bold; padding: 12px;" class="t_border" id="work_test_field"><textarea rows="5" style="width:95%; max-width:720px;" name="work_text[]" id="work_text">';
+    var num = $(".num").last('td').html().split('.').splice(0, 1);
+    var addNum = Number(num) + 1;
+    var addText = '<tr class="addRow" id="' + addNum + '"><td height="40" align="center" class="row-color1 border-l num" style="font-weight:bold;">' + addNum + '. 지원날짜</td><td style="padding-left:10px;"><input type="date" name="work_day_s[]" class="input-common" style="width:48%;" id="work_day_s" size="8">&ensp;<input type="date" name="work_day_e[]" id="work_day_e" class="input-common" style="width:48%;" size="8"></td><td align="center" class="row-color1" style="font-weight:bold;">' + addNum + '. 지원시간</td><td class="border-r" style="padding-left:10px;"><input type="eu-time" name="work_time_s[]" id="work_time_s" class="input-common" style="width:48%;" autocomplete="off" size="2">&ensp;<input type="eu-time" name="work_time_e[]" id="work_time_e" class="input-common" style="width:48%;" autocomplete="off" size="2"></td></tr><tr class="addRow" id="' + addNum + '"><td height="40" align="center" class="row-color1 border-l border-r" colspan="4" style="font-weight:bold;">' + addNum + '. 지원내역</td></tr><tr class="addRow" id="' + addNum + '"><td colspan="4" class="border-l border-r" style="padding:10px 20px 10px 20px;"><textarea rows="5" style="width:calc(100% - 35px);float:left;margin-right:2px;" name="work_text[]" id="work_text">';
     addText += '담당자 : 두리안정보기술 홍길동 대리, 연락처 : 010-1234-5678, 이메일 : gdhong@durianit.co.kr \n';
     addText += '담당자 : 더 망고 이영희 사원 , 연락처 : 010-3456-7890, 이메일 : yhlee@mango.co.kr \n ';
     addText += '\n업무목적 : 기술지원한 목적을 작성 해주세요. \n';
     addText += '대상장비: 기술지원한 장비명을 작성해주세요. (S/N : xxxxxxx, Version : v.1.0) \n';
-    addText += '</textarea></td></tr>';
+    addText += '</textarea><img src="<?php echo $misc; ?>img/btn_minus_white.svg" style="float:right;margin-top:30px;cursor:pointer;width:23px;" onclick="deleteRow(' + addNum + ');return false;"/></td></tr>';
     $(".addRow").last().after(addText);
   }
 
   function deleteRow(tableID) {
-    if($(".addRow").length == 1){
-      alert("적어도 하나의 지원내역이 필요합니다.");
-    }else{
-      $(".addRow").last().remove();
-    }
+    // if($(".addRow").length == 1){
+    //   alert("적어도 하나의 지원내역이 필요합니다.");
+    // }else{
+      // $(".addRow").last().remove();
+      $('tr').remove("#"+tableID);
+    // }
   }
 
   $(document).ready(function(){
@@ -639,33 +659,52 @@ include $this->input->server('DOCUMENT_ROOT')."/include/sales_top.php";
     return sval;
   }
 
+  function failure_add() {
+    var target = $('.err_row').last();
+    var text = '<tr class="err_row field"><td colspan="5" height="1" bgcolor="#e8e8e8"></td></tr><tr class="err_row"><td width="15%" height="40" align="center" bgcolor="f8f8f9" style="font-weight:bold;" class="row-color1 border-l"><input type="text" class="input-common failure_title" name="failure_title[]" value=""></td><td colspan="3" style="font-weight:bold;padding: 12px;" class="border-r"><input type="text" name="failure_content[]" id="failure_content[]" class="input-common" style="width:98%;margin-right:2px;" value="-" /><img src="/misc/img/btn_minus_white.svg" style="cursor:pointer;width:23px;vertical-align:middle;" onclick="failure_del(this);"/></td></tr>';
+
+    $(target).after(text);
+  }
+
+  function failure_del(el) {
+    var tr = $(el).closest('tr');
+    var border_tr = $(tr).prev('tr');
+
+    tr.remove();
+    border_tr.remove();
+  }
+
 </script>
 
 <body>
-  <?php
+<?php
   include $this->input->server('DOCUMENT_ROOT')."/include/sales_header.php";
 ?>
 <div align="center">
 <div class="dash1-1">
 <table width="100%" height="100%" border="0" cellspacing="0" cellpadding="0" class="dash_tbl1-1">
-  <!-- 타이틀 이미지 자리요 -->
-  <tr height="5%">
-  <td class="dash_title">
-    <img src="<?php echo $misc;?>img/dashboard/title_tech_doc.png"/>
-  </td>
-  </tr>
-  <!-- 타이틀 자리 끝이요 -->
-    <tr>
-      <td align="center" valign="top">
-        <table width="1130" height="100%" cellspacing="0" cellpadding="0">
-          <tr>
-            <td>
-              <img src="<?php echo $misc; ?>img/btn_left.jpg" id="leftBtn" style="cursor:pointer;display:none;float:right;" onclick="changePage('left')"/>
-            </td>
-            <td width="923" align="center" valign="top">
-              <form name="cform" action="<?php echo site_url(); ?>/tech/tech_board/tech_doc_input_action<?php if(!empty($_GET['type'])){ echo "?type=".$_GET['type']; } ?>" method="post" enctype="multipart/form-data">
-              <!-- <form name="cform" action="<?php echo site_url(); ?>/tech/tech_board/tech_doc_input_action" method="post" enctype="multipart/form-data" onSubmit="javascript:chkForm();return false;"> -->
-                <table width="890" border="0" style="margin-top:20px;">
+    <tr height="5%">
+      <td class="dash_title">
+    		기술지원보고서 작성
+    	</td>
+    </tr>
+      <tr>
+        <tr>
+          <td align="right">
+            <input style="margin-top:20px;margin-right:10px;width:80px;color:#333;" type="button" class="btn-common" value="임시저장" onClick="javascript:chkForm('N');return false;">
+            <input style="margin-top:20px;margin-right:10px;width:60px;" type="button" class="btn-common btn-color4" value="취소" onClick="javascript:history.go(-1)">
+            <!-- <input id="deleteRowBtn" style="margin-top:20px;margin-right:10px;width:80px;" type="button" class="btn-common btn-color4" value="내용삭제" onClick="deleteRow('input_table');return false;">
+            <input id="addRowBtn" style="margin-top:20px;margin-right:10px;width:80px;" type="button" class="btn-common btn-color7" value="내용추가" onClick="addRow();change_w2field();return false;"> -->
+            <input style="margin-top:20px;margin-right:40px;width:60px;" type="button" class="btn-common btn-color2" value="등록" onClick="javascript:chkForm('Y');return false;">
+          </td>
+        </tr>
+        <td align="center" valign="top">
+          <table width="100%" height="100%" cellspacing="0" cellpadding="0">
+            <tr>
+              <td width="100%" align="center" valign="top">
+                <form name="cform" action="<?php echo site_url(); ?>/tech/tech_board/tech_doc_input_action<?php if(!empty($_GET['type'])){ echo "?type=".$_GET['type']; } ?>" method="post" enctype="multipart/form-data">
+                <!-- <form name="cform" action="<?php echo site_url(); ?>/tech/tech_board/tech_doc_input_action" method="post" enctype="multipart/form-data" onSubmit="javascript:chkForm();return false;"> -->
+                <table width="100%" border="0" style="margin-top:20px;">
                   <input type="hidden" id="row_max_index" name="row_max_index" value="0" />
                   <input type="hidden" id="customer_tmp" name="customer_tmp" value="" />
                   <!-- KI1 20210125 -->
@@ -680,19 +719,18 @@ include $this->input->server('DOCUMENT_ROOT')."/include/sales_top.php";
                     <!-- <input type="hidden" id="schedule_seq" name="schedule_seq" value="<?php if(isset($schedule)){echo $schedule_seq;}else{echo 'normal';}?>"> -->
                   </tr>
                   <tr>
-                    <td>&nbsp;</td>
-                  </tr>
-                  <tr>
                     <td>
-                      <table id="input_table" width="100%" border="0" cellspacing="0" cellpadding="0">
+                      <table id="input_table" class="list_tbl" width="100%" border="0" cellspacing="0" cellpadding="0">
+                        <colgroup>
+                          <col width="15%">
+                          <col width="35%">
+                          <col width="15%">
+                          <col width="35%">
+                        </colgroup>
                         <tr>
-                          <td colspan="5" height="2" bgcolor="#797c88"></td>
-                        </tr>
-                        <tr>
-                        <tr>
-                          <td colspan="2" width="15%" height="40" align="center" bgcolor="f8f8f9" style="font-weight:bold;" class="t_border">작업명(종류)</td>
-                          <td width="35%" style="padding-left:10px;" class="t_border">
-                            <select name="work_name" id="work_name" class="input2" onChange="change();periodicInspection();" style="height:23px;">
+                          <td height="40" align="center" class="row-color1 border-l" style="font-weight:bold;border-top:thin solid #DFDFDF">작업명(종류)</td>
+                          <td width="35%" style="padding-left:10px;border-top:thin solid #DFDFDF">
+                            <select name="work_name" id="work_name" class="select-common" onChange="change();periodicInspection();" style="height:23px;">
                               <!-- <option value="정기점검">정기점검</option> -->
                               <option value="정기점검2" <?php if((isset($schedule)) && ($schedule->work_name =='정기점검2')){echo 'selected="selected"';}?>>정기점검2</option>
                               <option value="교육지원" <?php if((isset($schedule)) && ($schedule->work_name =='교육지원')){echo 'selected="selected"';}?>>교육지원</option>
@@ -706,20 +744,16 @@ include $this->input->server('DOCUMENT_ROOT')."/include/sales_top.php";
                               <option value="데모(BMT)지원" <?php if((isset($schedule)) && ($schedule->work_name =='데모(BMT)지원')){echo 'selected="selected"';}?>>데모(BMT)지원</option>
                             </select>
                           </td>
-
-                          <td idth="15%" height="40" align="center" bgcolor="f8f8f9" style="font-weight:bold;" class="t_border">등록자</td>
-                          <td width="35%" align="center" class="t_border"><input type="hidden" id="writer" name="writer" value="<?php echo $name; ?>"><?php echo $name; ?></td>
+                          <td align="center" class="row-color1" style="font-weight:bold;border-top:thin solid #DFDFDF">등록자</td>
+                          <td class="border-r" style="padding-left:10px;border-top:thin solid #DFDFDF"><input type="hidden" id="writer" name="writer" value="<?php echo $name; ?>"><?php echo $name; ?></td>
                         </tr>
                         <tr>
-                          <td colspan="5" height="1" bgcolor="#e8e8e8"></td>
-                        </tr>
-                        <tr>
-                          <td colspan="2" width="15%" height="40" align="center" bgcolor="f8f8f9" style="font-weight:bold;" class="t_border">고객사</td>
-                          <td width="35%" style="padding-left:10px;" class="t_border">
+                          <td align="center" class="row-color1 border-l" style="font-weight:bold;">고객사</td>
+                          <td style="padding-left:10px;">
                             <div class="dropdown" id="dropdown">
-                              <p onclick="searchFunction(this.id)" id="dropbtn" class="dropbtn">검색</p>
                               <!-- KI1 20210125 $schedule값이 있을 경우 불러오기 추가-->
-                              <input id="customerName" name ="customerName" type="text" class="input5" style="border:none;width:200px;font-weight:bold;text-align:center;" onchange="customerNameChange(this.value);" value="<?php if(isset($schedule)){echo $schedule->customer;}?>" readonly>
+                              <input id="customerName" name ="customerName" type="text" class="input-common" style="width:200px;font-weight:bold;text-align:center;margin-right:5px;" onchange="customerNameChange(this.value);" value="<?php if(isset($schedule)){echo $schedule->customer;}?>" readonly>
+                              <input id="dropbtn" style="width:60px;" type="button" class="btn-common btn-style2" value="검색" onClick="searchFunction(this.id)">
                               <!-- 포캐스팅+유지보수 -->
                               <!-- <input type="hidden" id="customer" name="customer" value="<?php if(isset($schedule)){if($schedule->work_name=='납품설치' || $schedule->work_name=='미팅' || $schedule->work_name=='데모(BMT)지원'){echo $schedule->forcasting_seq;}else{ echo $schedule->maintain_seq; }}?>" style="border:none" readonly> -->
                               <input type="hidden" id="customer" name="customer" value="<?php if(isset($schedule)){if($schedule->work_name=='납품설치' || $schedule->work_name=='미팅' || $schedule->work_name=='데모(BMT)지원'){echo $schedule->forcasting_seq;}else{ if($schedule->maintain_seq == null){ echo $schedule->forcasting_seq; }else{ echo $schedule->maintain_seq; }}}?>" style="border:none" readonly>
@@ -743,83 +777,77 @@ include $this->input->server('DOCUMENT_ROOT')."/include/sales_top.php";
                               </div>
                             </div>
                           </td>
+                          <td class="border-r" colspan="2"></td>
                         </tr>
                         <tr>
-                          <td colspan="5" height="1" bgcolor="#e8e8e8"></td>
-                        </tr>
-                        <tr>
-                          <td colspan="2" width="15%" height="40" align="center" bgcolor="f8f8f9" style="font-weight:bold;" class="t_border">작업시작일</td>
-                          <td width="35%" style="padding-left:10px;" class="t_border">
-                            <input type="date" name="income_time" id="income_time" class="input2" value="<?php if(isset($schedule)){echo $income_day;}?>" />
+                          <td height="40" align="center" class="row-color1 border-l" style="font-weight:bold;">작업시작일</td>
+                          <td style="padding-left:10px;">
+                            <input type="date" name="income_time" id="income_time" class="input-common" value="<?php if(isset($schedule)){echo $income_day;}?>" />
                           </td>
-                          <td width="15%" height="40" align="center" bgcolor="f8f8f9" style="font-weight:bold;" class="t_border">작업종료일</td>
-                          <td width="35%" style="padding-left:10px;" class="t_border">
-                            <input type="date" name="end_work_day" id="end_work_day" class="input2" value="<?php if(isset($schedule)&& $end_work_day != NULL){echo $end_work_day;}else if(isset($schedule)&& $end_work_day == NULL){echo $income_day;}?>" />
+                          <td align="center" class="row-color1" style="font-weight:bold;">작업종료일</td>
+                          <td class="border-r" style="padding-left:10px;">
+                            <input type="date" name="end_work_day" id="end_work_day" class="input-common" value="<?php if(isset($schedule)&& $end_work_day != NULL){echo $end_work_day;}else if(isset($schedule)&& $end_work_day == NULL){echo $income_day;}?>" />
                           </td>
                         </tr>
                         <tr>
-                          <td colspan="5" height="1" bgcolor="#e8e8e8"></td>
-                        </tr>
-                        <tr>
-                          <td colspan="2" width="15%" height="40" align="center" bgcolor="f8f8f9" style="font-weight:bold;" class="t_border">프로젝트명</td>
-                          <td width="35%" style="padding-left:10px;" class="t_border">
+                          <td height="40" align="center" class="row-color1 border-l" style="font-weight:bold;">프로젝트명</td>
+                          <td style="padding-left:10px;">
                             <!-- KI1 20210125 $schedule값이 있을 경우 불러오기 추가-->
-                            <input name="project_name" id="project_name" class="input2" value="<?php if(isset($schedule)){echo $schedule->project;}?>" readonly>
+                            <input name="project_name" id="project_name" class="input-common" value="<?php if(isset($schedule)){echo $schedule->project;}?>" readonly>
                             <!-- KI2 20210125 -->
                           </td>
-                          <td  width="15%" height="40" align="center" bgcolor="f8f8f9" style="font-weight:bold;" class="t_border">표지/로고</td>
-                          <td width="35%" style="padding-left:10px;" class="t_border">
-                           <select id="cover" name="cover" class="input2" style="height:23px;">
-                             <option value="basic" selected>기본</option>
-                             <?php
-                              foreach($cover as $co){
-                                echo "<option value='{$co['seq']}'>{$co['cover_name']}</option>";
-                              }
-                             ?>
-                           </select>
-                           <select id="logo" name="logo" class="input2" style="height:23px;">
-                             <?php
-                              foreach($logo as $lo){
-                                if($lo == "durianit_logo.png"){
-                                  echo "<option value='$lo' selected='selected'>$lo</option>";
-                                }else{
-                                  echo "<option value='$lo'>$lo</option>";
-                                }
-                              }
-                             ?>
-                           </select>
+                          <td align="center" class="row-color1" style="font-weight:bold;">표지/로고</td>
+                          <td class="border-r" style="padding-left:10px;">
+                            <select id="cover" name="cover" class="select-common" style="height:23px;width:48%;">
+                              <option value="basic" selected>기본</option>
+                              <?php
+                               foreach($cover as $co){
+                                 echo "<option value='{$co['seq']}'>{$co['cover_name']}</option>";
+                               }
+                              ?>
+                            </select>&ensp;
+                            <select id="logo" name="logo" class="select-common" style="height:23px;width:48%;">
+                              <?php
+                               foreach($logo as $lo){
+                                 if($lo == "durianit_logo.png"){
+                                   echo "<option value='$lo' selected='selected'>$lo</option>";
+                                 }else{
+                                   echo "<option value='$lo'>$lo</option>";
+                                 }
+                               }
+                              ?>
+                            </select>
                           </td>
                         </tr>
-                        <!-- 추가 내용-->
-                        <!-- 여기까지 삭제-->
-                        <tr id="err_row1">
+                        <tr class="field" id="err_row1">
                           <td colspan="5" height="1" bgcolor="#e8e8e8"></td>
                         </tr>
                         <tr id="err_row2">
-                          <td colspan="2" width="15%" height="40" align="center" bgcolor="f8f8f9" style="font-weight:bold;" class="t_border">장애구분</td>
-                          <td width="35%" style="padding-left:10px;" class="t_border">
-                            <select name="err_type" id="err_type" class="input2">
+                          <td height="40" align="center" class="row-color1 border-l" style="font-weight:bold;">장애구분</td>
+                          <td style="padding-left:10px;">
+                            <select name="err_type" id="err_type" class="select-common">
                               <option value="HW">HW</option>
                               <option value="SW">SW</option>
                             </select>
                           </td>
-                          <td width="15%" height="40" align="center" bgcolor="f8f8f9" style="font-weight:bold;" class="t_border">심각도</td>
-                          <td width="35%" style="padding-left:10px;" class="t_border">
-                            <select name="warn_level" id="warn_level" class="input2">
+                          <td align="center" class="row-color1" style="font-weight:bold;">심각도</td>
+                          <td class="border-r" style="padding-left:10px;">
+                            <select name="warn_level" id="warn_level" class="select-common">
                               <option value="001">전체서비스중단</option>
                               <option value="002">일부서비스중단/서비스지연</option>
                               <option value="003">관리자불편/대고객신뢰도저하</option>
                               <option value="004">특정기능장애</option>
                               <option value="005">서비스무관단순장애</option>
-                            </select></td>
+                            </select>
+                          </td>
                         </tr>
-                        <tr id="err_row3">
+                        <tr class="field" id="err_row3">
                           <td colspan="5" height="1" bgcolor="#e8e8e8"></td>
                         </tr>
                         <tr id="err_row4">
-                          <td colspan="2" width="15%" height="40" align="center" bgcolor="f8f8f9" style="font-weight:bold;" class="t_border">장애유형</td>
-                          <td width="35%" style="padding-left:10px;" class="t_border">
-                            <select name="warn_type" id="warn_type" class="input2">
+                          <td height="40" align="center" class="row-color1 border-l" style="font-weight:bold;">장애유형</td>
+                          <td style="padding-left:10px;">
+                            <select name="warn_type" id="warn_type" class="select-common">
                               <option value="001">파워 불량</option>
                               <option value="002">하드웨어 결함</option>
                               <option value="003">인터페이스 불량</option>
@@ -840,41 +868,43 @@ include $this->input->server('DOCUMENT_ROOT')."/include/sales_top.php";
                               <option value="018">기타 오류</option>
                             </select>
                           </td>
-                          <td width="15%" height="40" align="center" bgcolor="f8f8f9" style="font-weight:bold;" class="t_border">장애처리방법</td>
-                          <td width="35%" style="padding-left:10px;" class="t_border">
-                            <!-- <input type="date" name="income_time" id="income_time" class="input2"/></td> -->
-                            <select name="work_action" id="work_action" class="input2">
+                          <td align="center" class="row-color1" style="font-weight:bold;">장애처리방법</td>
+                          <td class="border-r" style="padding-left:10px;">
+                            <!-- <input type="date" name="income_time" id="income_time" class="input-common"/></td> -->
+                            <select name="work_action" id="work_action" class="select-common">
                               <option value="001">기술지원</option>
                               <option value="002">설정지원</option>
                               <option value="003">장비교체</option>
                               <option value="004">업그레이드</option>
                               <option value="005">패치</option>
                               <option value="006">협의중</option>
-                            </select></td>
-                        </tr>
-
-                        <tr>
-                          <td colspan="5" height="1" bgcolor="#e8e8e8"></td>
+                            </select>
+                          </td>
                         </tr>
                         <tr id="main_insert_field_0">
-                          <td colspan="2" width="15%" height="40" align="center" bgcolor="f8f8f9" style="font-weight:bold;" class="t_border">담당자명</td>
-                          <td width="35%" style="padding:10px;" class="t_border">
+                          <td height="40" align="center" class="row-color1 border-l" style="font-weight:bold;">담당자명</td>
+                          <td style="padding-left:10px;">
                             <!-- KI1 20210125 -->
-                            <input type="text" name="customer_manager[]" id="customer_manager" class="input2 customer_manager" value="<?php if(isset($schedule)){echo $schedule->customer_manager;}?>"/>
-                            <input type="hidden" name="maintain_end" id="maintain_end" class="input2" value="" />
+                            <input type="text" name="customer_manager[]" id="customer_manager" class="input-common customer_manager" value="<?php if(isset($schedule)){echo $schedule->customer_manager;}?>"/>
+                            <input type="hidden" name="maintain_end" id="maintain_end" class="input-common" value="" />
                           </td>
-                          <!-- KI2 20210125 -->
-                          <td width="15%" height="40" align="center" bgcolor="f8f8f9" style="font-weight:bold;" class="t_border">이메일</td>
-                          <td width="35%" style="padding:10px;" class="t_border"><input type="text" name="manager_mail[]" id="manager_mail" class="input2 manager_mail"></td>
-                          <td width="3%" style="padding:10px;"><input type="hidden" name="del_ck" class="input2"></td>
-                          <td align="center"><img src="<?php echo $misc; ?>img/btn_add.jpg" id="main_add" name="main_add" style="cursor:pointer;" /></td>
+                          <td align="center" class="row-color1" style="font-weight:bold;">이메일</td>
+                          <td class="border-r" style="padding-left:10px;">
+                            <input type="text" name="manager_mail[]" id="manager_mail" class="input-common manager_mail" style="width:calc(100% - 35px);">
+                            <img src="<?php echo $misc; ?>img/dashboard/dash_plus.svg" id="main_add" name="main_add" style="cursor:pointer;vertical-align:middle;height:25px;" />
+                          </td>
+                          <td class="border-n" width="3%" style="padding-left:10px;">
+                            <input type="hidden" name="del_ck" class="input-common">
+                          </td>
+                          <td class="border-n" align="center">
+                          </td>
                         </tr>
-                        <tr id='manager_input_field'>
+                        <tr class='field' id='manager_input_field'>
                           <td colspan="5" height="1" bgcolor="#e8e8e8"></td>
                         </tr>
                         <tr>
-                          <td colspan="2" height="40" align="center" bgcolor="f8f8f9" style="font-weight:bold;" class="t_border">시작시간</td>
-                          <td style="padding-left:10px;" class="t_border">
+                          <td height="40" align="center" class="row-color1 border-l" style="font-weight:bold;">시작시간</td>
+                          <td style="padding-left:10px;">
                             <!-- <input  type="eu-time"> -->
 
                             <?php
@@ -883,141 +913,131 @@ include $this->input->server('DOCUMENT_ROOT')."/include/sales_top.php";
                               $end_time =  explode(":", $schedule->end_time);
                             }
                             ?>
-                            <input type="eu-time" name="start_time" id="start_time" class="input2" autocomplete="off" <?php if(isset($schedule)){echo "value='".$start_time[0].":".$start_time[1]."' readonly";}?> />
+                            <input type="eu-time" name="start_time" id="start_time" class="input-common" autocomplete="off" <?php if(isset($schedule)){echo "value='".$start_time[0].":".$start_time[1]."' readonly";}?> />
                           </td>
-                          <td align="center" bgcolor="f8f8f9" style="font-weight:bold;" class="t_border">종료시간</td>
-                          <td style="padding:10px;" class="t_border">
-                            <input type="eu-time" name="end_time" id="end_time" class="input2" autocomplete="off" <?php if(isset($schedule)){echo "value='".$end_time[0].":".$end_time[1]."' readonly";}?> />
+                          <td align="center" class="row-color1" style="font-weight:bold;">종료시간</td>
+                          <td class="border-r" style="padding-left:10px;">
+                            <input type="eu-time" name="end_time" id="end_time" class="input-common" autocomplete="off" <?php if(isset($schedule)){echo "value='".$end_time[0].":".$end_time[1]."' readonly";}?> />
                           </td>
                         </tr>
                       <?php if(isset($schedule)){ ?>
                         <tr>
-                          <td colspan="5" height="1" bgcolor="#e8e8e8"></td>
-                        </tr>
-                        <tr>
-                          <td colspan="2" height="40" align="center" bgcolor="f8f8f9" style="font-weight:bold;" class="t_border"><?php if($schedule->start_reason != ''){echo "사유(시작)";}if($schedule->s_file_realname){echo '사진(시작)';} ?></td>
-                          <td style="padding-left:10px;" class="t_border">
+                          <td height="40" align="center" class="row-color1 border-l" style="font-weight:bold;"><?php if($schedule->start_reason != ''){echo "사유(시작)";}if($schedule->s_file_realname){echo '사진(시작)';} ?></td>
+                          <td style="padding-left:10px;">
                             <?php if($schedule->start_reason != ''){echo $schedule->start_reason;}if($schedule->s_file_realname){echo $schedule->s_file_realname;} ?>
                           </td>
-                          <td align="center" bgcolor="f8f8f9" style="font-weight:bold;" class="t_border"><?php if($schedule->end_reason != ''){echo "사유(종료)";}if($schedule->e_file_realname){echo '사진(종료)';} ?></td>
-                          <td style="padding-left:10px;" class="t_border">
+                          <td align="center" class="row-color1" style="font-weight:bold;"><?php if($schedule->end_reason != ''){echo "사유(종료)";}if($schedule->e_file_realname){echo '사진(종료)';} ?></td>
+                          <td class="border-r" style="padding-left:10px;">
                             <?php if($schedule->end_reason != ''){echo $schedule->end_reason;}if($schedule->e_file_realname){echo $schedule->e_file_realname;} ?>
                           </td>
                         </tr>
                       <?php } ?>
                         <tr>
-                          <td colspan="5" height="1" bgcolor="#e8e8e8"></td>
-                        </tr>
-                        <tr>
-                          <td colspan="2" height="40" align="center" bgcolor="f8f8f9" style="font-weight:bold;" class="t_border">담당SE</td>
-                          <td style="padding-left:10px;" class="t_border"><input type="text" name="engineer" id="engineer" class="input2" onclick="test2();" value="<?php if(isset($schedule)){echo $participant;}?>" readonly>
-                          <input type="hidden" name="engineer_seq" id="engineer_seq" class="input2" value="<?php if(isset($schedule)){echo $schedule->participant_seq;}?>" /></td>
-                          <td width="15%" height="40" align="center" bgcolor="f8f8f9" style="font-weight:bold;" class="t_border">지원방법</td>
-                          <td width="35%" style="padding-left:10px;height:24px;" class="t_border">
-                            <select name="handle" id="handle" class="input2">
+                          <td height="40" align="center" class="row-color1 border-l" style="font-weight:bold;">담당SE</td>
+                          <td style="padding-left:10px;">
+                            <input type="text" name="engineer" id="engineer" class="input-common" onclick="test2();" value="<?php if(isset($schedule)){echo $participant;}?>" readonly>
+                            <input type="hidden" name="engineer_seq" id="engineer_seq" class="input-common" value="<?php if(isset($schedule)){echo $schedule->participant_seq;}?>" />
+                          </td>
+                          <td align="center" class="row-color1" style="font-weight:bold;">지원방법</td>
+                          <td class="border-r" style="padding-left:10px;">
+                            <select name="handle" id="handle" class="select-common">
                               <option value="현장지원" <?php if((isset($schedule)) && ($schedule->support_method =='현장지원')){echo 'selected="selected"';}?>>현장지원</option>
                               <option value="원격지원" <?php if((isset($schedule))&& ($schedule->support_method =='원격지원')){echo 'selected="selected"';}?>>원격지원</option>>
                             </select>
                           </td>
                         </tr>
                         <tr>
-                          <td colspan="5" height="1" bgcolor="#e8e8e8"></td>
-                        </tr>
-                        <tr>
-                          <td colspan="2" height="40" align="center" bgcolor="f8f8f9" style="font-weight:bold;" class="t_border">제품명/host/버전/서버/라이선스</td>
-                          <td colspan = "3" style="padding-left:10px;" class="t_border">
-                            <input type="hidden" name="productSeq" id="productSeq" class="input2_red" value="">
-                            <input type="button" id="produceBtn" value="제품선택" onclick="test(document.cform.customer.value);" style="cursor:pointer;margin:5px 0px 5px 0px;">
-                            <input type="button" id="produceAddBtn" value="제품추가선택" onclick="test(document.cform.customer.value,'add');" style="cursor:pointer;margin:5px 0px 5px 0px;">
-                            <input type="text" id="serial_value" style="display:none;border:1px solid" placeholder="serial직접입력" onchange="serialChange();" />
-                            <input type="hidden" name="produce_seq" id="produce_seq" class="input2_red" readonly>
-                            <input type="hidden" name="produce" id="produce" class="input2_red" readonly>
-                            <input type="hidden" name="host" id="host" class="input2_red" readonly>
-                            <input type="hidden" name="version" id="version" class="input2_red" readonly>
-                            <input type="hidden" name="hardware" id="hardware" class="input2_red" readonly>
-                            <input type="hidden" name="license" id="license" class="input2_red" readonly>
-                            <input type="hidden" name="serial" id="serial" class="input2_red"  readonly>
-                            <input type="hidden" name="currentProduce" id="currentProduce" class="input2_red" readonly>
-                            <input type="hidden" name="currentPage" id="currentPage" class="input2_red" value=1 readonly>
-                            <ul id="sortable">
-                            </ul>
+                          <td align="center" class="row-color1 border-l" style="font-weight:bold;">제품</td>
+                          <td align="left" colspan="2" style="padding-left:10px;">
+                          <input type="text" id="serial_value" style="display:none;border:1px solid" placeholder="serial직접입력" onchange="serialChange();" />
+                          <input type="hidden" name="produce_seq" id="produce_seq" class="input-common_red" readonly>
+                          <input type="hidden" name="produce" id="produce" class="input-common_red" readonly>
+                          <input type="hidden" name="host" id="host" class="input-common_red" readonly>
+                          <input type="hidden" name="version" id="version" class="input-common_red" readonly>
+                          <input type="hidden" name="hardware" id="hardware" class="input-common_red" readonly>
+                          <input type="hidden" name="license" id="license" class="input-common_red" readonly>
+                          <input type="hidden" name="serial" id="serial" class="input-common_red"  readonly>
+                          <input type="hidden" name="manufacturer" id="manufacturer" class="input-common_red"  readonly>
+                          <input type="hidden" name="duplication_yn" id="duplication_yn" class="input-common_red"  readonly>
+                          <input type="hidden" name="currentProduce" id="currentProduce" class="input-common_red" readonly>
+                          <input type="hidden" name="currentPage" id="currentPage" class="input-common_red" value=1 readonly>
+                          <ul id="sortable">
+                          </ul>
+                          </td>
+                          <td align="right" colspan="1" class="border-r">
+                            <input type="hidden" name="productSeq" id="productSeq" class="input-common_red" value="">
+                            <input type="button" id="produceBtn" class="btn-common btn-style2" value="제품선택" onclick="test(document.cform.customer.value);" style="cursor:pointer;margin-right:10px;width:80px;">
+                            <input type="button" id="produceAddBtn" class="btn-common btn-style2" value="제품추가선택" onclick="test(document.cform.customer.value,'add');" style="cursor:pointer;margin-right:10px;width:110px;">
                           </td>
                         </tr>
                         <tr>
-                          <td colspan="5" height="1" bgcolor="#e8e8e8"></td>
-                        </tr>
-                        <tr name="test_c" id="test_c">
-                          <td colspan="2" size="100" height="40" align="center" bgcolor="f8f8f9" style="font-weight:bold;" class="t_border">지원내용</td>
-                          <td colspan="3" style="padding-left:10px;" class="t_border">
-                            <input type="text" name="subject" id="subject" class="input2" style="width:93%; max-width:720px;" value="<?php if(isset($schedule)){echo $schedule->contents;}?>" />
+                          <td align="center" class="row-color1 border-l" style="font-weight:bold;">지원내용</td>
+                          <td colspan="3" class="border-r" style="padding-left:10px;">
+                            <input type="text" name="subject" id="subject" class="input-common" value="<?php if(isset($schedule)){echo $schedule->contents;}?>" />
                           </td>
-                        </tr>
-                        <tr>
-                          <td colspan="5" height="1" bgcolor="#797c88"></td>
                         </tr>
                         <tbody id ="nonPeriodic">
-                          <tr>
-                            <td colspan="2" height="40" align="center" bgcolor="f8f8f9" style="font-weight:bold;" class="t_border">시간</td>
-                            <td colspan="3" height="40" align="center" bgcolor="f8f8f9" style="font-weight:bold;" class="t_border">지원내역</td>
-                          </tr>
-                          <tr>
-                            <td colspan="5" height="1" bgcolor="#e8e8e8"></td>
-                          </tr>
-                          <tr class="addRow">
-                            <td height="40" align="center" bgcolor="f8f8f9" style="font-weight:bold;" class="t_border">
-                              <input type="date" name="work_day_s[]" id="work_day_s" size="8" value="<?php if(isset($schedule)){echo $income_day;}?>">
-                              <br>
-                              ~
-                              <br>
-                              <input type="date" name="work_day_e[]" id="work_day_e" size="8" value="<?php if(isset($schedule)&& $end_work_day != NULL){echo $end_work_day;}else if(isset($schedule)&& $end_work_day == NULL){echo $income_day;}?>">
-                              <br>
-                              <input type="eu-time" name="work_time_s[]" id="work_time_s" autocomplete="off" style="margin-right:5%;" size="2" value="<?php if(isset($schedule)){echo $start_time[0].":".$start_time[1];}?>">
-                              <input type="eu-time" name="work_time_e[]" id="work_time_e" autocomplete="off" style="margin-left:5%;" size="2" value="<?php if(isset($schedule)){echo $end_time[0].":".$end_time[1];}?>">
-                            </td>
-                            <td colspan="6" height="40" style="font-weight:bold; padding: 12px;" class="t_border" id="work_test_field">
-                              <textarea rows="5" style="width:95%; max-width:720px;border-radius:12px;" name="work_text[]" id="work_text">
+                        <tr>
+                          <td height="40" align="center" class="row-color1 border-l num" style="font-weight:bold;">1. 지원날짜</td>
+                          <td style="padding-left:10px;">
+                            <input type="date" name="work_day_s[]" id="work_day_s" class="input-common" style="width:48%;" size="8" value="<?php if(isset($schedule)){echo $income_day;}?>">&ensp;
+                            <input type="date" name="work_day_e[]" id="work_day_e" class="input-common" style="width:48%;" size="8" value="<?php if(isset($schedule)&& $end_work_day != NULL){echo $end_work_day;}else if(isset($schedule)&& $end_work_day == NULL){echo $income_day;}?>">
+                          </td>
+                          <td align="center" class="row-color1" style="font-weight:bold;">1. 지원시간</td>
+                          <td class="border-r" style="padding-left:10px;">
+                            <input type="eu-time" name="work_time_s[]" id="work_time_s" class="input-common" autocomplete="off" style="width:48%" size="2" value="<?php if(isset($schedule)){echo $start_time[0].":".$start_time[1];}?>">&ensp;
+                            <input type="eu-time" name="work_time_e[]" id="work_time_e" class="input-common" autocomplete="off" style="width:48%" size="2" value="<?php if(isset($schedule)){echo $end_time[0].":".$end_time[1];}?>">
+                          </td>
+                        </tr>
+                        <tr>
+                          <td height="40" align="center" class="row-color1 border-l border-r" colspan="4" style="font-weight:bold;">1. 지원내역</td>
+                        </tr>
+                        <tr class="addRow">
+                          <td colspan="4" class="border-l border-r" style="padding:10px 20px 10px 20px;">
+                            <textarea rows="5" style="width:calc(100% - 35px);float:left;" name="work_text[]" id="work_text">
 담당자 : 두리안정보기술 홍길동 대리, 연락처 : 010-1234-5678, 이메일 : gdhong@durianit.co.kr
 담당자 : 더 망고 이영희 사원 , 연락처 : 010-3456-7890, 이메일 : yhlee@mango.co.kr
 
 업무목적 : 기술지원한 목적을 작성 해주세요.
 대상장비: 기술지원한 장비명을 작성해주세요. (S/N : xxxxxxx, Version : v.1.0)
-                              </textarea>
-                            </td>
-                          </tr>
+                            </textarea>
+                            <img src='<?php echo $misc; ?>img/dashboard/dash_plus.svg' style='float:right;cursor:pointer;margin-top:30px;' onclick='addRow();change_w2field();return false;'/>
+                          </td>
+                        </tr>
                         </tbody>
 
                         <!-- 정기점검2 -->
                         <tbody id ="periodic">
                           <tr>
-                            <td colspan="7" height="40" align="center" style="font-weight:bold;" class="t_border">
+                            <td colspan="4" height="40" align="center" style="font-weight:bold;" class="border-l border-r">
                               <table id="work_text_table1" class ="work_text_table" width=100% border=1 style="border-collapse:collapse;border:none;">
                                 <tr>
-                                    <th height="30" bgcolor="f8f8f9" class="tdSolid" ><input value="점검항목" readonly onfocus="javascrpt:blur();"
-                                            style="cursor:default; font-weight:bold; text-align: -webkit-center;background-color:transparent;"></input></th>
-                                    <th colspan="2" height="30" bgcolor="f8f8f9" class="tdSolid"><input value="점검내용" readonly onfocus="javascrpt:blur();"
-                                            style="cursor:default; font-weight:bold; text-align: -webkit-center;background-color:transparent;"></input></th>
-                                    <th height="30" bgcolor="f8f8f9" class="tdSolid"><input value="점검결과" readonly onfocus="javascrpt:blur();"
-                                            style="cursor:default; font-weight:bold; text-align: -webkit-center;background-color:transparent;"></input></th>
-                                    <th height="30" bgcolor="f8f8f9" class="tdSolid"><input value="특이사항" readonly onfocus="javascrpt:blur();"
-                                            style="cursor:default; font-weight:bold; text-align: -webkit-center;background-color:transparent;"></input></th>
+                                    <th height="30" class="row-color1" ><input value="점검항목" readonly onfocus="javascrpt:blur();"
+                                            style="cursor:default; font-weight:bold; text-align: -webkit-center;background-color:transparent;border:none;"></input></th>
+                                    <th colspan="2" height="30" class="row-color1"><input value="점검내용" readonly onfocus="javascrpt:blur();"
+                                            style="cursor:default; font-weight:bold; text-align: -webkit-center;background-color:transparent;border:none;"></input></th>
+                                    <th height="30" class="row-color1"><input value="점검결과" readonly onfocus="javascrpt:blur();"
+                                            style="cursor:default; font-weight:bold; text-align: -webkit-center;background-color:transparent;border:none;"></input></th>
+                                    <th height="30" class="row-color1"><input value="특이사항" readonly onfocus="javascrpt:blur();"
+                                            style="cursor:default; font-weight:bold; text-align: -webkit-center;background-color:transparent;border:none;"></input></th>
                                 </tr>
                                 <?php
                                 $basicFormIdx = 1;
                                 $check = explode(',',"기타 특이사항,CPU,메모리,디스크,LAN,UPTIME,SW데몬상태");
                                 for($i=1; $i<count($check); $i++){
                                   echo '<tr class="check'.$i.'">';
-                                  echo '<td class="tdSolid"><input name="work_text'.$i.'[]" value="'.$check[$i].'" style="width:80%"/><img src="'.$misc.'img/btn_del0.jpg" style="cursor:pointer;" class="adddelbtn" onclick="trRemove(this,1);"/></td><td class="tdSolid" colspan="2"><textarea name="work_text'.$i.'[]" onkeyup="xSize(this);" style="width:80%;"></textarea><img src="'.$misc.'img/btn_add.jpg" style="cursor:pointer;" class="tdDivisionBtn" onclick="tdDivision(this,'.$i.');"/></td>';
+                                  echo '<td class="tdSolid"><input name="work_text'.$i.'[]" value="'.$check[$i].'" style="width:80%;border:none;"/><img src="'.$misc.'img/btn_minus_white.svg" style="cursor:pointer;width:23px;" class="adddelbtn" onclick="trRemove(this,1);"/></td><td class="tdSolid" colspan="2"><textarea name="work_text'.$i.'[]" onkeyup="xSize(this);" style="width:80%;"></textarea><img src="'.$misc.'img/dashboard/dash_plus.svg" style="cursor:pointer;" class="tdDivisionBtn" onclick="tdDivision(this,'.$i.');"/></td>';
                                   echo '<td class="tdSolid"><div style="margin:0 auto; text-align: -webkit-center;font-weight:normal;">';
                                   echo '<input type="hidden" name="work_text'.$i.'[]" value="normal"><input type="radio" name="produce1_'.$i.'" value="normal" onclick="normalCheck(this);" checked="checked">정상<input type="radio" name="produce1_'.$i.'" value="abnormal" onclick="normalCheck(this);">비정상</div></td>';
-                                  echo '<td class="tdSolid"><textarea name="work_text'.$i.'[]" onkeyup="xSize(this);"></textarea></td>';
-                                  echo '<td width="3%" class="t_border adddelbtn"><input type="hidden" name="del_ck" class="input2"></td>';
-                                  echo '<td align="center" class ="adddelbtn" ><img src="'.$misc.'img/btn_add.jpg" onclick ="check_add(this,1)" style="cursor:pointer;" /></td></tr>';
+                                  echo '<td class="tdSolid"><textarea name="work_text'.$i.'[]" onkeyup="xSize(this);"></textarea><img src="'.$misc.'img/dashboard/dash_plus.svg" onclick ="check_add(this,1)" style="cursor:pointer;" /></td>';
+                                  echo '<td width="0%" class="border-n adddelbtn"><input type="hidden" name="del_ck" class="input-common"></td>';
+                                  echo '<td align="center" class="border-n adddelbtn"></td></tr>';
                                   $basicFormIdx++;
                                 }
-                                echo '<tr class="check0" height="80"><td class="tdSolid"><input name="work_text0[]" value= "기타 특이사항" readonly onfocus="javascrpt:blur();"></td><td colspan="4"><textarea name="work_text0[]" rows="5" style="width:95%;height:100%"></textarea></td></tr>';
+                                echo '<tr class="check0" height="80"><td class="tdSolid"><input name="work_text0[]" value= "기타 특이사항" readonly onfocus="javascrpt:blur();" style="border:none"></td><td colspan="4"><textarea name="work_text0[]" rows="5" style="width:95%;"></textarea></td></tr>';
                                 ?>
                               </table>
-                              <img src="<?php echo $misc; ?>img/btn_add.jpg" id="trPlusBtn" onclick="trPlus();"/>
+                              <img src="<?php echo $misc; ?>img/dashboard/dash_plus.svg" id="trPlusBtn" onclick="trPlus();" style="margin:5px;"/>
                               <span id="templateOnOFF1" class="templateOnOFF">
                                 <label class="switch">
                                   <input id="checkOnOFF" type="checkbox" onclick="template_check(1)">
@@ -1029,22 +1049,63 @@ include $this->input->server('DOCUMENT_ROOT')."/include/sales_top.php";
                           </tr>
                         </tbody>
                         <!-- 정기점검2끝 -->
-                        <tr>
+                        <!-- <tr>
                           <td colspan="5" height="1" bgcolor="#e8e8e8"></td>
                         </tr>
                         <tr>
-                          <td colspan="2" size="100" height="40" align="center" bgcolor="f8f8f9" style="font-weight:bold;" class="t_border">지원의견</td>
-                          <td colspan="3" style="font-weight:bold;padding: 12px;" class="t_border">
-                            <textarea rows="5" style="width:95%; max-width:720px;border-radius:12px;" name="comment" id="comment"></textarea>
+                          <td colspan="2" width="15%" height="40" align="center" bgcolor="f8f8f9" style="font-weight:bold;" class="t_border">버전정보</td>
+                          <td width="35%" style="padding-left:10px;" class="t_border">
+                            <input type="text" name="version_info" id="version_info" class="input-common" value=""/>
+                          </td>
+                          <td width="15%" height="40" align="center" bgcolor="f8f8f9" style="font-weight:bold;" class="t_border">제조사</td>
+                          <td width="35%" style="padding-left:10px;" class="t_border">
+                            <select id="manufacturer" name="manufacturer" class="select-common">
+                              <option value="" >제조사</option>
+                              <?php foreach($product_company as $pc){
+                                echo "<option value='{$pc['product_company']}'>{$pc['product_company']}</option>";
+                              }?>
+                            </select>
                           </td>
                         </tr>
                         <tr>
                           <td colspan="5" height="1" bgcolor="#e8e8e8"></td>
                         </tr>
-                        <tr id="resultOfSupport">
-                          <td colspan="2" size="100" height="40" align="center" bgcolor="f8f8f9" style="font-weight:bold;" class="t_border">지원결과</td>
-                          <td colspan="3" style="padding-left:10px;" class="t_border">
-                            <select name="result" id="result" class="input2" style="height:23px;">
+                        <tr>
+                          <td colspan="2" width="15%" height="40" align="center" bgcolor="f8f8f9" style="font-weight:bold;" class="t_border">시리얼번호</td>
+                          <td width="35%" style="padding-left:10px;" class="t_border">
+                            <input type="text" name="serial_number" id="serial_number" class="input-common" value=""/>
+                          </td>
+                          <td width="15%" height="40" align="center" bgcolor="f8f8f9" style="font-weight:bold;" class="t_border">이중화 여부</td>
+                          <td width="35%" style="padding-left:10px;" class="t_border">
+                            <input type="checkbox" name="duplication_yn" id="duplication_yn" value="N" />
+                          </td>
+                        </tr> -->
+
+
+                        <tr class="err_row field">
+                          <td colspan="5" height="1" bgcolor="#e8e8e8"></td>
+                        </tr>
+                        <tr class="err_row">
+                          <td width="15%" height="40" align="center" bgcolor="f8f8f9" style="font-weight:bold;" class="row-color1 border-l">
+                            <input type="text" class="input-common failure_title" style="text-align:center;font:'Noto Sans KR', sans-sans-serif;font-weight:bold;font-size:12px;" name="failure_title[]" value="장애증상">
+                          </td>
+                          <td colspan="3" style="font-weight:bold;padding:12px;" class="border-r">
+                            <input type="text" name="failure_content[]" id="failure_content[]" class="input-common" style="width:98%;" value="-" />
+                            <img src="<?php echo $misc; ?>img/dashboard/dash_plus.svg" onclick="failure_add();" style="cursor:pointer;vertical-align:middle;" />
+                          </td>
+                        </tr>
+
+                        <tr>
+                          <td align="center" class="row-color1 border-l" style="font-weight:bold;">지원의견</td>
+                          <td colspan="3" class="border-r" style="padding-left:10px;">
+                            <!-- <textarea rows="5" style="width:95%;" name="comment" id="comment"></textarea> -->
+                            <input type="text" name="comment" id="comment" class="input-common" value="-" />
+                          </td>
+                        </tr>
+                        <tr>
+                          <td align="center" class="row-color1 border-l" style="font-weight:bold;">지원결과</td>
+                          <td colspan="3" class="border-r" style="padding-left:10px;">
+                            <select name="result" id="result" class="select-common" style="height:23px;width:40%">
                               <option value="기술지원 완료(100% 진행)">기술지원 완료(100% 진행)</option>
                               <option value="기술지원 미완료(90% 진행)">기술지원 미완료(90%진행)</option>
                               <option value="기술지원 미완료(70% 진행)">기술지원 미완료(70%진행)</option>
@@ -1057,95 +1118,86 @@ include $this->input->server('DOCUMENT_ROOT')."/include/sales_top.php";
                           </td>
                         </tr>
                         <tr>
-                          <td colspan="5" height="1" bgcolor="#e8e8e8"></td>
-                        </tr>
-                        <tr>
-                          <td colspan="2" size="100" height="40" align="center" bgcolor="f8f8f9" style="font-weight:bold;" class="t_border">요청사항</td>
-                          <td colspan="3" style="padding:10px 10px;" class="t_border">
-                            <textarea rows="3" style="width:95%; max-width:720px;border-radius:12px;" name="request" id="request"></textarea>
+                          <td align="center" class="row-color1 border-l" style="font-weight:bold;">요청사항</td>
+                          <td colspan="3" class="border-r" style="padding-left:10px;">
+                            <!-- <textarea rows="3" style="width:95%;" name="request" id="request"></textarea> -->
+                            <input type="text" name="comment" id="comment" class="input-common" value="-" />
                           </td>
                         </tr>
                         <tr>
-                          <td colspan="5" height="1" bgcolor="#e8e8e8"></td>
-                        </tr>
-                        <tr>
-                          <td colspan="2" size="100" height="40" align="center" bgcolor="f8f8f9" style="font-weight:bold;" class="t_border">이슈</td>
-                          <td colspan="3" style="padding:10px 10px;" class="t_border">
-                            <textarea rows="3" style="width:95%;max-width:720px;border-radius:12px;" name="issue" id="issue"></textarea>
+                          <td align="center" class="row-color1 border-l" style="font-weight:bold;">이슈</td>
+                          <td colspan="3" class="border-r" style="padding-left:10px;">
+                            <!-- <textarea rows="3" style="width:95%;" name="issue" id="issue"></textarea> -->
+                            <input type="text" name="issue" id="issue" class="input-common" value="-" />
                           </td>
                         </tr>
                         <tr>
-                          <td colspan="5" height="1" bgcolor="#e8e8e8"></td>
+                          <td align="center" class="row-color1 border-l" style="font-weight:bold;">버그</td>
+                          <td colspan="3" class="border-r" style="padding-left:10px;">
+                            <!-- <textarea rows="3" style="width:95%;" name="bug" id="bug"></textarea> -->
+                            <input type="text" name="bug" id="bug" class="input-common" value="-" />
+                          </td>
                         </tr>
                         <tr>
-                          <td colspan="2" size="100" height="40" align="center" bgcolor="f8f8f9" style="font-weight:bold;" class="t_border" >확인서명</td>
-                          <td style="padding-left:10px;" class="t_border" >서명동의<input type="checkbox" id="sign_consent" name="sign_consent" value=0>
-                            <div id="dialog" title="비밀번호를 입력하세요" style="float:right;display:none;">
-                              <input id="passwordCheck" type="password" size="30" style="height:28px;" />
-                            </div>
+                          <td align="center" class="row-color1 border-l" style="font-weight:bold;">확인서명</td>
+                          <td style="padding-left:10px;">
+                            <input type="checkbox" id="sign_consent" name="sign_consent" value=0>서명동의
+                              <div id="dialog" title="비밀번호를 입력하세요" style="float:right;display:none;">
+                                <input id="passwordCheck" type="password" size="30" style="height:28px;" />
+                              </div>
                           </td>
-                          <td size="100" height="40" align="center" bgcolor="f8f8f9" style="font-weight:bold;" class="t_border" >일부점검</td>
-                          <td style="padding-left:10px;" class="t_border">
+                          <td align="center" class="row-color1" style="font-weight:bold;">일부점검</td>
+                          <td  class="border-r" style="padding-left:10px;">
                             <input id="some_inspection" name="some_inspection" type="checkbox" value='N'>
                           </td>
                         </tr>
-
-                        <!-- 선영테스트끝 -->
-
                         <tr>
-                          <td colspan="5" height="1" bgcolor="#797c88"></td>
+                          <td align="center" class="row-color1 border-l" style="font-weight:bold;">첨부파일</td>
+                          <td colspan="3" class="border-r" style="padding-left:10px;">
+                            <!-- <input type="file" class="box-file-input" name="cfile" id="cfile" />
+                              (용량제한 100MB) -->
+                              <div class="box-file-input s_file_input_box" style="margin:10px;"><span style="margin-right:10px;" class="file_span"></span>
+                              <label id="label" style="float:right;margin-bottom:10px;">
+                                <form id="ajaxFrom" method="post" enctype="multipart/form-data"><input type="file" class="file-input" name="cfile" id="cfile" onchange="file_change(this);" /></form>
+                              </label><span style="margin-right:10px;float:right;" class="text_span">선택된 파일 없음 </span></div>
+                          </td>
                         </tr>
                         <tr>
-                          <td colspan="2" class="t_border" height="40" align="center" bgcolor="f8f8f9" style="font-weight:bold;">첨부파일</td>
-                          <td class="t_border" style="padding-left:10px;" colspan="3" class="t_border"><input type="file" name="cfile" id="cfile" />
-                            (용량제한 100MB)</td>
-                        </tr>
-                        <tr>
-                        <tr>
-                          <td colspan="5" height="2" bgcolor="#797c88"></td>
+                          <td align="center" class="row-color1 border-l" style="font-weight:bold;">#해시태그</td>
+                          <td colspan="3" class="border-r" style="padding-left:10px;">
+                            <input type="text" name="hashtag" id="hashtag" class="input-common" value="" placeholder="#홍길동  #두리안정보기술"/>
+                          </td>
                         </tr>
                       </table>
                     </td>
                   </tr>
-                  <tr>
-                    <td>&nbsp;</td>
-                  </tr>
-                  <tr>
-                    <td align="center">
-                      <!--지원내용 추가 버튼-->
-                      <!--<img src="<?php echo $misc; ?>img/btn_add_column3.jpg" width="64" height="31" style="cursor:pointer" onclick="merge_email();return false;"/>-->
-                      <img src="<?php echo $misc; ?>img/dashboard/btn/btn_content_add.png" id="addRowBtn" height="35" style="cursor:pointer" onclick="addRow();change_w2field();return false;" />
-                      <img src="<?php echo $misc; ?>img/dashboard/btn/btn_content_del.png" id="deleteRowBtn" height="35" style="cursor:pointer" onclick="deleteRow('input_table');return false;" />
-
-                      <input type="image" src="<?php echo $misc; ?>img/dashboard/btn/btn_add.png" height="35" style="cursor:pointer" onClick="javascript:chkForm('Y');return false;" />
-
-                      <input type="image" src="<?php echo $misc; ?>img/dashboard/btn/btn_temporarily_save.png" height="35" style="cursor:pointer" onClick="javascript:chkForm('N');return false;" />
-
-                      <img src="<?php echo $misc; ?>img/dashboard/btn/btn_cancel.png" height="35" style="cursor:pointer" onClick="javascript:history.go(-1)" />
+                  <tr class="comment_tr">
+                    <td>
+                      <table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-bottom:30px;border:none;">
+                      </table>
                     </td>
                   </tr>
-                  <tr>
-                    <td>&nbsp;</td>
-                  </tr>
                 </table>
-            </td>
-            <td><img src="<?php echo $misc; ?>img/btn_right.jpg" id="rightBtn" onclick="changePage('right');" style="cursor:pointer;display:none"/></td>
-          </tr>
-        </table>
-      </td>
-    </tr>
-    </form>
-  </table>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+</table>
 </div>
 </div>
-  <?php
+<?php
  include $this->input->server('DOCUMENT_ROOT')."/include/sales_bottom.php";
 ?>
 </body>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.9/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.9/js/select2.min.js"></script>
 <script>
+// $("#manufacturer").select2({width:'54%'});
+
   // 고객사 검색
   function searchFunction(id) {
-    if($("#work_name").val() == "납품설치" || $("#work_name").val() == "미팅" || $("#work_name").val() == "데모(BMT)지원" ){
+    if( ($("#work_name").val() == "납품설치" || $("#work_name").val() == "미팅" || $("#work_name").val() == "데모(BMT)지원") || '<?php echo $this->cooperation_yn; ?>' == 'Y' ){
       $("#dropdown_option").html(
         <?php
         echo "'";
@@ -1449,7 +1501,7 @@ include $this->input->server('DOCUMENT_ROOT')."/include/sales_top.php";
     var normalCheck_idx = Number(Math.max.apply(null, normalCheck))+1;
 
     var lastTr = $("#work_text_table"+currentTable).find("tr:last").prev();
-    lastTr.after('<tr class="check'+check_Idx+'"><td class="tdSolid"><input name="work_text'+check_Idx+'[]" style="width:80%"/><img src="<?php echo $misc; ?>img/btn_del0.jpg" style="cursor:pointer;" class="adddelbtn" onclick="trRemove(this,'+currentTable+');" /></td><td class="tdSolid" colspan="2"><textarea name="work_text'+check_Idx+'[]" onkeyup="xSize(this);" style="width:80%;"></textarea><img src="<?php echo $misc;?>img/btn_add.jpg" style="cursor:pointer;" class="tdDivisionBtn" onclick="tdDivision(this,'+check_Idx+');"/></td><td class="tdSolid"> <div style ="margin:0 auto; text-align: -webkit-center;font-weight:normal;"><input type="hidden" name="work_text'+check_Idx+'[]" value="normal"><input type="radio" name="produce'+currentTable+'_'+normalCheck_idx+'" value="normal" onclick="normalCheck(this);" checked="checked">정상<input type="radio" name="produce'+currentTable+'_'+normalCheck_idx+'" value="abnormal" onclick="normalCheck(this);">비정상</div></td><td class="tdSolid"><textarea name="work_text'+check_Idx+'[]" onkeyup="xSize(this);"></textarea></td><td width="3%" class="t_border adddelbtn"><input type="hidden" name="del_ck" class="input2"></td><td align="center" class ="adddelbtn"><img src="<?php echo $misc; ?>img/btn_add.jpg" onclick ="check_add(this,'+currentTable+')" style="cursor:pointer;" /></td></tr>')
+    lastTr.after('<tr class="check'+check_Idx+'"><td class="tdSolid"><input name="work_text'+check_Idx+'[]" style="width:80%"/><img src="<?php echo $misc; ?>img/btn_minus_white.svg" style="cursor:pointer;width:23px;" class="adddelbtn" onclick="trRemove(this,'+currentTable+');" /></td><td class="tdSolid" colspan="2"><textarea name="work_text'+check_Idx+'[]" onkeyup="xSize(this);" style="width:80%;"></textarea><img src="<?php echo $misc;?>img/dashboard/dash_plus.svg" style="cursor:pointer;" class="tdDivisionBtn" onclick="tdDivision(this,'+check_Idx+');"/></td><td class="tdSolid"> <div style ="margin:0 auto; text-align: -webkit-center;font-weight:normal;"><input type="hidden" name="work_text'+check_Idx+'[]" value="normal"><input type="radio" name="produce'+currentTable+'_'+normalCheck_idx+'" value="normal" onclick="normalCheck(this);" checked="checked">정상<input type="radio" name="produce'+currentTable+'_'+normalCheck_idx+'" value="abnormal" onclick="normalCheck(this);">비정상</div></td><td class="tdSolid"><textarea name="work_text'+check_Idx+'[]" onkeyup="xSize(this);"></textarea><img src="<?php echo $misc; ?>img/dashboard/dash_plus.svg" onclick ="check_add(this,'+currentTable+')" style="cursor:pointer;" /></td></tr>')
   }
 
   function trRemove(btn,tableNum){
@@ -1462,7 +1514,7 @@ include $this->input->server('DOCUMENT_ROOT')."/include/sales_top.php";
     var td =$(btn).parent();
     btn.remove();
     td.attr("colspan",1);
-    var txt = '<td class="tdSolid"><input type="hidden" name="work_text'+num+'[]" value="::">'+td.html()+'<img src="<?php echo $misc;?>img/btn_del0.jpg" style="cursor:pointer;" class="tdDivisionBtn" onclick="tdMerge(this,'+num+');"/></td>';
+    var txt = '<td class="tdSolid"><input type="hidden" name="work_text'+num+'[]" value="::">'+td.html()+'<img src="<?php echo $misc;?>img/btn_minus_white.svg" style="cursor:pointer;width:23px;" class="tdDivisionBtn" onclick="tdMerge(this,'+num+');"/></td>';
     $(td).after(txt);
   }
 
@@ -1474,7 +1526,7 @@ include $this->input->server('DOCUMENT_ROOT')."/include/sales_top.php";
     $(td).children('input').remove();
     td.attr("colspan",2);
     $(td).children('textarea').val(txt+$(td).children('textarea').val());
-    td.append('<img src="<?php echo $misc;?>img/btn_add.jpg" style="cursor:pointer;" class="tdDivisionBtn" onclick="tdDivision(this,'+num+');"/>');
+    td.append('<img src="<?php echo $misc;?>img/dashboard/dash_plus.svg" style="cursor:pointer;" class="tdDivisionBtn" onclick="tdDivision(this,'+num+');"/>');
   }
 
   //점검항목 탬플릿 가져오는 부분
@@ -1501,7 +1553,7 @@ include $this->input->server('DOCUMENT_ROOT')."/include/sales_top.php";
                 process_text1 = process_text[i].split('#*');
                 for (j = 1; j < process_text1.length; j++) {
                   if (j == 1) {
-                    txt += '<tr class="check' + (i - 1) + '"><td class="tdSolid" rowspan="' + Math.floor((process_text1.length - 1) / 3) + '"><input name="work_text' + (i - 1) + '[]" value="' + process_text1[j] + '" style="width:70%"></input><img src="<?php echo $misc; ?>img/btn_del0.jpg" style="cursor:pointer;" class="adddelbtn" onclick="trRemove(this,' + tablenum + ');" /></td>'; //cpu, 메모리
+                    txt += '<tr class="check' + (i - 1) + '"><td class="tdSolid" rowspan="' + Math.floor((process_text1.length - 1) / 3) + '"><input name="work_text' + (i - 1) + '[]" value="' + process_text1[j] + '" style="width:70%"></input><img src="<?php echo $misc; ?>img/btn_minus_white.svg" style="cursor:pointer;width:23px;" class="adddelbtn" onclick="trRemove(this,' + tablenum + ');" /></td>'; //cpu, 메모리
                   } else if (j <= 4) { //점검항목 중 첫번째 점검내용
                     if (j != 4) {
                       if (j % 3 == 0) {
@@ -1516,25 +1568,25 @@ include $this->input->server('DOCUMENT_ROOT')."/include/sales_top.php";
                         txt += '>비정상</div></td>';
                       } else {
                         if (process_text1[j].indexOf("::") == -1) {
-                          txt += '<td class="tdSolid" colspan="2"><textarea name="work_text' + (i - 1) + '[]" onkeyup="xSize(this);">' + process_text1[j] + '</textarea><img src="<?php echo $misc ;?>img/btn_add.jpg" style="cursor:pointer;" class="tdDivisionBtn" onclick="tdDivision(this,' + (basicFormIdx - 1) + ');" /></td>';
+                          txt += '<td class="tdSolid" colspan="2"><textarea name="work_text' + (i - 1) + '[]" onkeyup="xSize(this);">' + process_text1[j] + '</textarea><img src="<?php echo $misc ;?>img/dashboard/dash_plus.svg" style="cursor:pointer;" class="tdDivisionBtn" onclick="tdDivision(this,' + (basicFormIdx - 1) + ');" /></td>';
                         } else {
                           var text = process_text1[j].split('::');
                           txt += '<td class="tdSolid"><textarea name="work_text' + (i - 1) + '[]" onkeyup="xSize(this);">' + text[0] + '</textarea></td>';
-                          txt += '<td class="tdSolid"><input type="hidden" name="work_text' + (i - 1) + '[]" value="::"><textarea name="work_text' + (i - 1) + '[]" onkeyup="xSize(this);">' + text[1] + '</textarea><img src="<?php echo $misc ;?>img/btn_del0.jpg" style="cursor:pointer;" class="tdDivisionBtn" onclick="tdMerge(this,' + (basicFormIdx - 1) + ');"/></td>';
+                          txt += '<td class="tdSolid"><input type="hidden" name="work_text' + (i - 1) + '[]" value="::"><textarea name="work_text' + (i - 1) + '[]" onkeyup="xSize(this);">' + text[1] + '</textarea><img src="<?php echo $misc ;?>img/btn_23px;_white.svg" style="cursor:pointer;" class="tdDivisionBtn" onclick="tdMerge(this,' + (basicFormIdx - 1) + ');"/></td>';
                         }
                       }
                     } else {
                       txt += '<td class="tdSolid"><textarea name="work_text' + (i - 1) + '[]" onkeyup="xSize(this);">' + process_text1[j] + '</textarea></td>';
-                      txt += '<td width="3%" class="t_border adddelbtn"><input type="hidden" name="del_ck" class="input2"></td><td align="center" class ="adddelbtn" ><img src="<?php echo $misc; ?>img/btn_add.jpg" onclick ="check_add(this,' + tablenum + ')" style="cursor:pointer;" /></td></tr>';
+                      txt += '<td width="3%" class="t_border adddelbtn"><input type="hidden" name="del_ck" class="input-common"></td><td align="center" class ="adddelbtn" ><img src="<?php echo $misc; ?>img/dashboard/dash_plus.svg" onclick ="check_add(this,' + tablenum + ')" style="cursor:pointer;" /></td></tr>';
                     }
                   } else { //점검 항목 중 첫번 째가 아닌 나머지들
                     if (j % 3 == 2) {
                       if (process_text1[j].indexOf("::") == -1) {
-                        txt += '<tr class="check' + (i - 1) + '"><td class="tdSolid" colspan="2"><textarea name="work_text' + (i - 1) + '[]" onkeyup="xSize(this);">' + process_text1[j] + '</textarea><img src="<?php echo $misc;?>img/btn_add.jpg" style="cursor:pointer;" class="tdDivisionBtn" onclick="tdDivision(this,' + (basicFormIdx - 1) + ');" /></td>';
+                        txt += '<tr class="check' + (i - 1) + '"><td class="tdSolid" colspan="2"><textarea name="work_text' + (i - 1) + '[]" onkeyup="xSize(this);">' + process_text1[j] + '</textarea><img src="<?php echo $misc;?>img/dashboard/dash_plus.svg" style="cursor:pointer;" class="tdDivisionBtn" onclick="tdDivision(this,' + (basicFormIdx - 1) + ');" /></td>';
                       } else {
                         var text = process_text1[j].split('::')
                         txt += '<tr class="check' + (i - 1) + '"><td class="tdSolid"><textarea name="work_text' + (i - 1) + '[]" onkeyup="xSize(this);">' + text[0] + '</textarea></td>';
-                        txt += '<td class="tdSolid"><input type="hidden" name="work_text' + (i - 1) + '[]" value="::"><textarea name="work_text' + (i - 1) + '[]" onkeyup="xSize(this);">' + text[1] + '</textarea><img src="<?php echo $misc ;?>img/btn_del0.jpg" style="cursor:pointer;" class="tdDivisionBtn" onclick="tdMerge(this,' + (basicFormIdx - 1) + ');" /></td>';
+                        txt += '<td class="tdSolid"><input type="hidden" name="work_text' + (i - 1) + '[]" value="::"><textarea name="work_text' + (i - 1) + '[]" onkeyup="xSize(this);">' + text[1] + '</textarea><img src="<?php echo $misc ;?>img/btn_minus_white.svg" style="cursor:pointer;width:23px;" class="tdDivisionBtn" onclick="tdMerge(this,' + (basicFormIdx - 1) + ');" /></td>';
                       }
                       normalIdx = normalIdx+1;
                     } else if (j % 3 == 0) {
@@ -1548,7 +1600,7 @@ include $this->input->server('DOCUMENT_ROOT')."/include/sales_top.php";
                       }
                       txt += '>비정상</div></td>';
                     } else if (j % 3 == 1) {
-                      txt += '<td class="tdSolid"><textarea name="work_text' + (i - 1) + '[]" onkeyup="xSize(this);">' + process_text1[j] + '</textarea></td><td width="3%" class="t_border adddelbtn"><input type="hidden" name="del_ck" ></td><td align="center;" class ="adddelbtn"><img src="<?php echo $misc ;?>img/btn_del0.jpg" style="cursor:pointer;" onclick ="check_del(this)" /></td></tr>';
+                      txt += '<td class="tdSolid"><textarea name="work_text' + (i - 1) + '[]" onkeyup="xSize(this);">' + process_text1[j] + '</textarea></td><td width="3%" class="t_border adddelbtn"><input type="hidden" name="del_ck" ></td><td align="center;" class ="adddelbtn"><img src="<?php echo $misc ;?>img/btn_23px;_white.svg" style="cursor:pointer;" onclick ="check_del(this)" /></td></tr>';
                     }
                   }
                 }
@@ -1589,18 +1641,17 @@ include $this->input->server('DOCUMENT_ROOT')."/include/sales_top.php";
       basicFormIdx = 1;
       var data = "기타 특이사항,CPU,메모리,디스크,LAN,UPTIME,SW데몬상태"
       var check = data.split(',');
-      var txt ='<tr><th height="30" bgcolor="f8f8f9" class="tdSolid"><input value="점검항목" readonly onfocus="javascrpt:blur();" style="cursor:default; font-weight:bold; text-align: -webkit-center;background-color:transparent;"></input></th><th colspan="2" height="30" bgcolor="f8f8f9" class="tdSolid"><input value="점검내용" readonly onfocus="javascrpt:blur();" style="cursor:default; font-weight:bold; text-align: -webkit-center;background-color:transparent;"></input></th><th height="30" bgcolor="f8f8f9" class="tdSolid"><input value="점검결과" readonly onfocus="javascrpt:blur();" style="cursor:default; font-weight:bold; text-align: -webkit-center;background-color:transparent;"></input></th><th height="30" bgcolor="f8f8f9" class="tdSolid"><input value="특이사항" readonly onfocus="javascrpt:blur();" style="cursor:default; font-weight:bold; text-align: -webkit-center;background-color:transparent;"></input></th></tr>';
+      var txt ='<tr><th height="30" bgcolor="f8f8f9" class="tdSolid"><input value="점검항목" readonly onfocus="javascrpt:blur();" style="cursor:default; font-weight:bold; text-align: -webkit-center;background-color:transparent;border:none;"></input></th><th colspan="2" height="30" bgcolor="f8f8f9" class="tdSolid"><input value="점검내용" readonly onfocus="javascrpt:blur();" style="cursor:default; font-weight:bold; text-align: -webkit-center;background-color:transparent;border:none;"></input></th><th height="30" bgcolor="f8f8f9" class="tdSolid"><input value="점검결과" readonly onfocus="javascrpt:blur();" style="cursor:default; font-weight:bold; text-align: -webkit-center;background-color:transparent;border:none;"></input></th><th height="30" bgcolor="f8f8f9" class="tdSolid"><input value="특이사항" readonly onfocus="javascrpt:blur();" style="cursor:default; font-weight:bold; text-align: -webkit-center;background-color:transparent;border:none;"></input></th></tr>';
       for(i=1; i<check.length; i++){
         txt += '<tr class="check'+i+'">';
-        txt += '<td class="tdSolid"><input name="work_text'+i+'[]" value="'+check[i]+'" readonly onfocus="javascrpt:blur();"style="cursor:default"><img src="<?php echo $misc; ?>img/btn_del0.jpg" style="cursor:pointer;" class="adddelbtn" onclick="trRemove(this,' + num + ');" /></td><td class="tdSolid" colspan="2"><textarea name="work_text'+i+'[]" onkeyup="xSize(this);" style="width:80%;"></textarea><img src="<?php echo $misc;?>img/btn_add.jpg" style="cursor:pointer;" class="tdDivisionBtn" onclick="tdDivision(this,'+i+');"/></td>'
+        txt += '<td class="tdSolid"><input name="work_text'+i+'[]" value="'+check[i]+'" readonly onfocus="javascrpt:blur();"style="cursor:default;width:80%;border:none;"><img src="<?php echo $misc; ?>img/btn_minus_white.svg" style="cursor:pointer;width:23px;" class="adddelbtn" onclick="trRemove(this,' + num + ');" /></td><td class="tdSolid" colspan="2"><textarea name="work_text'+i+'[]" onkeyup="xSize(this);" style="width:80%;"></textarea><img src="<?php echo $misc;?>img/dashboard/dash_plus.svg" style="cursor:pointer;" class="tdDivisionBtn" onclick="tdDivision(this,'+i+');"/></td>'
         txt += '<td class="tdSolid"><div style="margin:0 auto; text-align: -webkit-center;font-weight:normal;">';
         txt += '<input type="hidden" name="work_text'+i+'[]" value="normal"><input type="radio" name="produce'+num+"_"+i+'" value="normal" onclick="normalCheck(this);" checked="checked">정상<input type="radio" name="produce'+num+"_"+i+'" value="abnormal" onclick="normalCheck(this);">비정상</div></td>';
-        txt += '<td class="tdSolid"><textarea name="work_text'+i+'[]" onkeyup="xSize(this);"></textarea></td>'
-        txt += '<td width="3%" class="t_border adddelbtn"><input type="hidden" name="del_ck" class="input2"></td>';
-        txt += '<td align="center" class ="adddelbtn" ><img src="<?php echo $misc; ?>img/btn_add.jpg" onclick ="check_add(this,'+num+')" style="cursor:pointer;" /></td>  </tr>';
+        txt += '<td class="tdSolid"><textarea name="work_text'+i+'[]" onkeyup="xSize(this);"></textarea>'
+        txt += '<img src="<?php echo $misc; ?>img/dashboard/dash_plus.svg" onclick ="check_add(this,'+num+')" style="cursor:pointer;" /></td>  </tr>';
         basicFormIdx++;
       }
-      txt += '<tr class="check0" height="80" ><td class="tdSolid"><input name="work_text0[]" value= "기타 특이사항" readonly onfocus="javascrpt:blur();"></td><td class="tdSolid" colspan="4"><textarea name="work_text0[]" rows="5" style="width:95%;height:100%"></textarea></td></tr>';
+      txt += '<tr class="check0" height="80"><td class="tdSolid"><input name="work_text0[]" value= "기타 특이사항" style="border:none;" readonly onfocus="javascrpt:blur();"></td><td colspan="4"><textarea name="work_text0[]" rows="5" style="width:95%;"></textarea></td></tr>';
       $("#work_text_table"+num).html(txt);
     }else{//템플릿 ON
       $("#templateOnOFF"+num).find("#templateOn").toggle();
@@ -1738,6 +1789,9 @@ include $this->input->server('DOCUMENT_ROOT')."/include/sales_top.php";
     textareaSize();
   }
 
+  function fileRemove(){
+    $(".file_span").text('');
+  }
 
  function escapeHtml(unsafe) {
     return unsafe
@@ -1803,6 +1857,16 @@ include $this->input->server('DOCUMENT_ROOT')."/include/sales_top.php";
     $(".serial").eq(0).text($("#serial_value").val());
   }
 
-</script>
+  function file_change(el) {
+    console.log(el)
+		var filename = $(el).val().replace(/.*(\/|\\)/, '') + '&emsp;<input type="button" value="×" style="color:red;cursor:pointer;border:none;background-color:#FFEDED;" onclick="fileRemove()" />';
+    console.log(filename);
+    if(filename == "") {
+	    filename = "파일을 선택해주세요.";
+		}
+	  $(el).closest("div").find(".file_span").html(filename);
+    $(el).closest("div").find(".text_span").text('');
+	}
 
+</script>
 </html>

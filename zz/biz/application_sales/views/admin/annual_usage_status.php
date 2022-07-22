@@ -231,11 +231,28 @@ if(!String.prototype.padStart) {
       <?php
       if(!empty($view_val)){
       foreach($view_val as $val){?>
+        var s_date = '<?php echo $val['annual_start_date']; ?>';
+        var e_date = '<?php echo $val['annual_end_date']; ?>';
+        var title = '<?php echo $val['user_name']; ?>';
+
+        if (s_date == e_date) {
           var ev = new Object();//상태
-          ev.title = "<?php echo $val['user_name'];?>";
-          ev.start = "<?php echo $val['annual_start_date'];?>";
-          ev.end   = "<?php echo $val['annual_end_date'];?>";
+          ev.title = title;
+          ev.start = s_date;
+          ev.end   = e_date;
           events.push(ev);
+        } else {
+          var d_arr = getDateRangeData(s_date, e_date);
+          // console.log(title + d_arr);
+
+          for (var i = 0; i < d_arr.length; i++) {
+            var ev = new Object();
+            ev.title = title;
+            ev.start = d_arr[i];
+            ev.end = d_arr[i];
+            events.push(ev);
+          }
+        }
       <?php }} ?>
   document.addEventListener('DOMContentLoaded', function() {
   var calendarEl = document.getElementById('attendance_calendar');
@@ -273,9 +290,38 @@ if(!String.prototype.padStart) {
     },
   });
   calendar.render();
+  $('.fc-day').each(function() {
+    var t_date = $(this).attr('data-date');
+    if (t_date != undefined && t_date.indexOf(year+'-'+month) == -1) {
+      var t = $(this);
+      t.find('.fc-h-event').css('background', 'gray');
+    }
+  })
+  $('.fc-button').on('click',function() {
+    var title = $('.fc-toolbar-title').text();
+    var regex = /[^0-9]/g;
+    var title_arr = title.split(' ');
+    console.log(title_arr);
+    var year = title_arr[0];
+    var month = title_arr[1];
+    year = year.replace(regex, '');
+    month = month.replace(regex, '');
+    if (month < 10) {
+      month = '0' + month;
+    }
+    $('.fc-day').each(function() {
+      var t_date = $(this).attr('data-date');
+      console.log(year+'-'+month);
+      if (t_date != undefined && t_date.indexOf(year+'-'+month) == -1) {
+        var t = $(this);
+        t.find('.fc-h-event').css('background', 'gray');
+      } else {
+        var t = $(this);
+        t.find('.fc-h-event').css('background', '#3892FF');
+      }
+    })
+  });
 });
-
-
 
 // 외부영역 클릭 시 팝업 닫기
 $(document).mouseup(function (e){
@@ -285,7 +331,24 @@ $(document).mouseup(function (e){
   }
 });
 
+function getDateRangeData(param1, param2){
+	var res_day = [];
+ 	var ss_day = new Date(param1);
+ 	var ee_day = new Date(param2);
+	while(ss_day.getTime() <= ee_day.getTime()){
+		var _mon_ = (ss_day.getMonth()+1);
+		_mon_ = _mon_ < 10 ? '0'+_mon_ : _mon_;
+		var _day_ = ss_day.getDate();
+		_day_ = _day_ < 10 ? '0'+_day_ : _day_;
+		res_day.push(ss_day.getFullYear() + '-' + _mon_ + '-' +  _day_);
+		ss_day.setDate(ss_day.getDate() + 1);
+ 	}
+ 	return res_day;
+}
 
+$(function() {
+  // alert($('.fc-toolbar-title').text());
+})
 </script>
 </body>
 </html>

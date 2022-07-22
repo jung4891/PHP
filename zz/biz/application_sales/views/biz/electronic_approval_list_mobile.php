@@ -100,9 +100,9 @@
 		<a class="menu_list" onclick ="moveList('reference')" style='color:<?php if($type == "reference"){echo "#0575E6";}else{echo "#B0B0B0";}?>'>참조/열람문서함</a>
 <?php }else if ($type == 'admin'){ ?>
 		<a class="menu_list" style='color:#0575E6'>결재문서관리</a>
-		<a class="menu_list" onclick ="movePage('electronic_approval_form_list?mode=admin')" style='color:#B0B0B0'>양식관리</a>
+		<!-- <a class="menu_list" onclick ="movePage('electronic_approval_form_list?mode=admin')" style='color:#B0B0B0'>양식관리</a> -->
 		<a class="menu_list" onclick ="movePage('electronic_approval_format_category')" style='color:#B0B0B0'>서식함관리</a>
-		<a class="menu_list" onclick ="movePage('electronic_approver_line_list')" style='color:#B0B0B0'>결재선관리</a>
+		<!-- <a class="menu_list" onclick ="movePage('electronic_approver_line_list')" style='color:#B0B0B0'>결재선관리</a> -->
 <?php } ?>
 	</div>
 

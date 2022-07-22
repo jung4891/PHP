@@ -13,6 +13,11 @@ class Forcasting extends CI_Controller {
 		$this->lv = $this->phpsession->get( 'lv', 'stc' );
 		$this->cnum = $this->phpsession->get( 'cnum', 'stc' );
 		$this->seq = $this->phpsession->get( 'seq', 'stc' );
+		$this->cooperation_yn = $this->phpsession->get( 'cooperation_yn', 'stc' );
+
+		if($this->cooperation_yn == 'Y') {
+			echo "<script>alert('권한이 없습니다.');location.href='".site_url()."'</script>";
+		}
 
 		$this->load->library('user_agent');
 
@@ -165,38 +170,41 @@ class Forcasting extends CI_Controller {
 			$mistake_order_reason = $this->input->post('mistake_order_reason');
 			$infor_comm_corporation = $this->input->post('infor_comm_corporation');
 
+			$sales_type = $this->input->post('sales_type');
+
 			// 기본
 			$data = array(
-				'customer_seq' => $customer_seq,
-				'customer_companyname' => $customer_companyname,
-				'customer_username' => $customer_username,
-				'customer_tel' => $customer_tel,
-				'customer_email' => $customer_email,
-				'project_name' => $project_name,
-				'progress_step' => $progress_step,
-				'type' => $type,
+				'customer_seq'             => $customer_seq,
+				'customer_companyname'     => $customer_companyname,
+				'customer_username'        => $customer_username,
+				'customer_tel'             => $customer_tel,
+				'customer_email'           => $customer_email,
+				'project_name'             => $project_name,
+				'progress_step'            => $progress_step,
+				'type'                     => $type,
 				'procurement_sales_amount' => $procurement_sales_amount,
-				'cooperation_companyname' => $cooperation_companyname,
-				'cooperation_username' => $cooperation_username,
-				'dept' => $dept,
-				'cooperation_tel' => $cooperation_tel,
-				'cooperation_email' => $cooperation_email,
-				'sales_companyname' => $sales_companyname,
-				'sales_username' => $sales_username,
-				'sales_tel' => $sales_tel,
-				'sales_email' => $sales_email,
-				'first_saledate' => $first_saledate,
-				'exception_saledate' => $exception_saledate,
-				'warranty_end_date' => $warranty_end_date,
-				'complete_status' => $complete_status,
-				'write_id' => $this->id,
-				'forcasting_sales' => $forcasting_sales,
-				'forcasting_purchase' => $forcasting_purchase,
-				'forcasting_profit' => $forcasting_profit,
-				'division_month' => $division_month,
-				'mistake_order_reason' => $mistake_order_reason,
-				'infor_comm_corporation' => $infor_comm_corporation,
-				'insert_date' => date("Y-m-d H:i:s")
+				'cooperation_companyname'  => $cooperation_companyname,
+				'cooperation_username'     => $cooperation_username,
+				'dept'                     => $dept,
+				'cooperation_tel'          => $cooperation_tel,
+				'cooperation_email'        => $cooperation_email,
+				'sales_companyname'        => $sales_companyname,
+				'sales_username'           => $sales_username,
+				'sales_tel'                => $sales_tel,
+				'sales_email'              => $sales_email,
+				'first_saledate'           => $first_saledate,
+				'exception_saledate'       => $exception_saledate,
+				'warranty_end_date'        => $warranty_end_date,
+				'complete_status'          => $complete_status,
+				'write_id'                 => $this->id,
+				'forcasting_sales'         => $forcasting_sales,
+				'forcasting_purchase'      => $forcasting_purchase,
+				'forcasting_profit'        => $forcasting_profit,
+				'division_month'           => $division_month,
+				'mistake_order_reason'     => $mistake_order_reason,
+				'infor_comm_corporation'   => $infor_comm_corporation,
+				'sales_type'               => $sales_type,
+				'insert_date'              => date("Y-m-d H:i:s")
 			);
 			$forcasting_seq = $this->STC_Forcasting->forcasting_insert($data, $mode = 0);
 
@@ -289,21 +297,23 @@ class Forcasting extends CI_Controller {
 				$cooperation_email = $this->input->post('cooperation_email');
 				$mistake_order_reason = $this->input->post('mistake_order_reason');
 				$infor_comm_corporation = $this->input->post('infor_comm_corporation');
+				$sales_type = $this->input->post('sales_type');
 
 				$data = array(
-					'project_name' => $project_name,
-					'progress_step' => $progress_step,
-					'type' => $type,
+					'project_name'             => $project_name,
+					'progress_step'            => $progress_step,
+					'type'                     => $type,
 					'procurement_sales_amount' => $procurement_sales_amount,
-					'cooperation_companyname' => $cooperation_companyname,
-					'cooperation_username' => $cooperation_username,
-					'dept' => $dept,
-					'cooperation_tel' => $cooperation_tel,
-					'cooperation_email' => $cooperation_email,
-					'mistake_order_reason' => $mistake_order_reason,
-					'infor_comm_corporation' => $infor_comm_corporation,
-					'write_id' => $this->id,
-					'update_date' => date("Y-m-d H:i:s")
+					'cooperation_companyname'  => $cooperation_companyname,
+					'cooperation_username'     => $cooperation_username,
+					'dept'                     => $dept,
+					'cooperation_tel'          => $cooperation_tel,
+					'cooperation_email'        => $cooperation_email,
+					'mistake_order_reason'     => $mistake_order_reason,
+					'infor_comm_corporation'   => $infor_comm_corporation,
+					'sales_type'               => $sales_type,
+					'write_id'                 => $this->id,
+					'update_date'              => date("Y-m-d H:i:s")
 				);
 			}else if($data_type == "3"){
 				$sales_companyname = $this->input->post('sales_companyname');
@@ -711,6 +721,8 @@ class Forcasting extends CI_Controller {
 
 		$excel_data = $this->STC_Forcasting->order_completed_excel_download($search_mode, $search_keyword, $this->cnum);
 
+		$data['forcasting_minus'] = $this->STC_Forcasting->forcasting_adjust($search_mode, $search_keyword, 'minus');
+		$data['forcasting_plus']  = $this->STC_Forcasting->forcasting_adjust($search_mode, $search_keyword, 'plus');
 
 		$data['list_val'] = $user_list_data['data'];
 		$data['list_val_count'] = $user_list_data['count'];
@@ -887,6 +899,15 @@ class Forcasting extends CI_Controller {
 					$result = $this->STC_Forcasting->forcasting_sales_bill_save($data,1);
 				}
 			}
+		}
+
+		// 발행 완료시 예상매출일 업데이트
+		$exception_saledate = $this->input->post('exception_saledate');
+		if($exception_saledate != '') {
+			$exception_saledate = array(
+				'exception_saledate' => $exception_saledate
+			);
+			$result = $this->STC_Forcasting->forcasting_insert($exception_saledate, 1, $forcasting_seq, 5);
 		}
 
 		// 수정자 로그에 남기기

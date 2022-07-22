@@ -196,7 +196,7 @@
         <tr style="width:100%;">
           <td style="width:50%;">
             <form class="month_form" name="month_form" action="<?php echo site_url();?>/sales/purchase_sales/purchase_sales_view" method="get">
-              <select class="select-common" id="company" name="company" onchange="quarter_change();" style="width:180px;margin-right:10px;">
+              <select class="select-common" id="company" name="company" onchange="quarter_change();" style="width: 160px;margin-right:10px;">
 <?php
   if(isset($_GET['company'])){
     $get_company = $_GET['company'];
@@ -209,7 +209,7 @@
                 <option value="MG" <?php if ($get_company == "MG") { echo "selected"; }?>>더망고</option>
                 <option value="DBS" <?php if ($get_company == "DBS") { echo "selected"; }?>>두리안정보기술부산지점</option>
               </select>
-              <select class="select-common" name="year" id="select_year" style="margin-right:10px;width:140px;">
+              <select class="select-common" name="year" id="select_year" style="margin-right:10px;width:100px;">
 <?php
   if(isset($_GET['year'])){
     $toYear = $_GET['year'];
@@ -217,9 +217,12 @@
     $toYear =date('Y');
   }
 ?>
-                <option value="<?php echo $toYear ?>" selected><?php echo $toYear ?>년</option>
+                <!-- <option value="<?php echo $toYear ?>" selected><?php echo $toYear ?>년</option> -->
+                <?php for($i = 2020; $i < date('Y')+2; $i ++) { ?>
+                  <option value="<?php echo $i; ?>" <?php if($i == $toYear){echo 'selected';} ?>><?php echo $i ?>년</option>
+                <?php } ?>
               </select>
-              <select class="select-common" name="month" id="select_month" style="margin-right:10px;width:140px;">
+              <select class="select-common" name="month" id="select_month" style="margin-right:10px;width:100px;">
 <?php
   if(isset($_GET['month'])){
     $month = $_GET['month'];
@@ -232,12 +235,13 @@
 <?php } ?>
               </select>
               <!-- <img src="<?php echo $misc;?>img/dashboard/btn/btn_search.svg" height="23" onclick ="return GoSearch();" style="cursor:pointer;vertical-align:top;" > -->
-              <input class="btn-common btn-style1" type="button" onclick="return GoSearch();" value="검색" >
+              <input class="btn-common btn-style2" type="button" onclick="return GoSearch();" value="검색" >
             </form>
           </td>
           <td style="width:50%; text-align:right;">
             <!-- <img src="<?php echo $misc; ?>/img/dashboard/btn/excel_download.png" alt="" style="margin-right: 5%; cursor: pointer;" onclick="excel_export();"> -->
-            <input class="btn-common btn-color1" type="button" onclick="excel_export();" value="excel_download" style="width:150px;">
+            <input class="btn-common btn-updownload" type="button" onclick="excel_export();" value="엑셀 다운로드" style="width:150px;padding-left:20px;width:auto;position: relative;left: 20px;">
+            <img src="/misc/img/download_btn.svg" style="width:12px;position:relative;top: 6px;right: 90px;padding: 2px;">
           </td>
         </tr>
       </table>
@@ -246,7 +250,7 @@
     <!-- 합계 황현빈 추가 -->
 
     <span align="left" style="float:left;margin-left:2.5%;margin-bottom:10px;">
-      <img width="25" name="hide_img" src="<?php echo $misc; ?>/img/dashboard/btn/btn_top.png" onclick="div_toggle('to_div', this);" style="cursor:pointer;">
+      <img width="25" name="hide_img" src="<?php echo $misc; ?>/img/btn_up_box.svg" onclick="div_toggle('to_div', this);" style="cursor:pointer;">
     </span>
     <div class="item_div" id="to_div">
       <table class="contents_tbl total_tbl" id="total_table" cellspacing=0 cellpadding=0>
@@ -307,7 +311,7 @@
             <td>
               <?php echo $category2[$i]; ?>
             </td>
-            <td <?php if($i<2){echo 'class="total_num cnt_in" align="right" style="padding-right:5px"';} ?>>
+            <td <?php if($i<2){echo 'class="total_num" align="right" style="padding-right:5px"';} ?>>
               <?php if(isset($sum_bill_cnt[$i])){echo $sum_bill_cnt[$i]['cnt'];} ?>
             </td>
             <td></td>
@@ -350,7 +354,7 @@
 ?>
 <!-- 매입매출 (상품) -->
     <span align="left" style="float:left;margin-left:2.5%;margin-bottom:10px;margin-top:20px;">
-      <img width="25" name="hide_img" src="<?php echo $misc;?>img/dashboard/btn/btn_top.png" onclick="div_toggle('fo_div', this);" style="cursor:pointer;">
+      <img width="25" name="hide_img" src="<?php echo $misc;?>img/btn_up_box.svg" onclick="div_toggle('fo_div', this);" style="cursor:pointer;">
     </span>
     <div class="item_div" id="fo_div">
       <table id="forcasting_purchase_sales" class="contents_tbl" cellspacing=0 cellpadding=5>
@@ -423,10 +427,13 @@
     for($i=0; $i<count($forcasting_val); $i++){
       if($dms['rseq'] == $forcasting_val[$i]['rseq']){
         $style="";
+        $class="";
         if($toYear."-".$month != date('Y-m',strtotime($forcasting_val[$i]['issuance_date'])) && $forcasting_val[$i]['issuance_status'] == "M"){
           $style ="style='background-color:#FFFFF2;color:red;'";
+          $class = "no";
         }else if($toYear."-".$month != date('Y-m',strtotime($forcasting_val[$i]['issuance_date'])) && $forcasting_val[$i]['issuance_status'] != "M"){
           $style="style='background-color:#FFFFF2;'";
+          $class = "no";
         }else if($toYear."-".$month == date('Y-m',strtotime($forcasting_val[$i]['issuance_date'])) && $forcasting_val[$i]['issuance_status'] == "M"){
           $style="style='color:red;'";
         }
@@ -438,19 +445,19 @@
           <td class='p_issuance_date' {$style}>{$forcasting_val[$i]['issuance_date']}</td>
           <td class='p_company_name' {$style} >{$forcasting_val[$i]['company_name']}</td>
           <td class='p_project_name' {$style} >{$dms['project_name']}</td>";
-          if($style == ""){
+          if($class != "no"){
             $text.="<td class='p_issuance_amount' {$style} >{$issuance_amount}</td>";
           }else{
             $text.="<td {$style}>{$issuance_amount}</td>";
           }
 
-          if($style == ""){
+          if($class != "no"){
             $text.="<td class='p_tax_amount' {$style} >{$tax_amount}</td>";
           }else{
             $text.="<td {$style}>{$tax_amount}</td>";
           }
 
-          if($style == ""){
+          if($class != "no"){
             $text.="<td class='p_total_amount' {$style} >{$total_amount}</td>";
           }else{
             $text.="<td {$style}>{$total_amount}</td>";
@@ -463,10 +470,13 @@
     for($i=0; $i<count($forcasting_val2); $i++){
       if($dms['rseq'] == $forcasting_val2[$i]['s_rseq']){
         $style="";
+        $class="";
         if($toYear."-".$month != date('Y-m',strtotime($forcasting_val2[$i]['s_issuance_date'])) && $forcasting_val2[$i]['s_issuance_status'] == "M"){
           $style ="style='background-color:#FFFFF2;color:red;'";
+          $class="no";
         }else if($toYear."-".$month != date('Y-m',strtotime($forcasting_val2[$i]['s_issuance_date'])) && $forcasting_val2[$i]['s_issuance_status'] != "M"){
           $style="style='background-color:#FFFFF2;'";
+          $class="no";
         }else if($toYear."-".$month == date('Y-m',strtotime($forcasting_val2[$i]['s_issuance_date'])) && $forcasting_val2[$i]['s_issuance_status'] == "M"){
           $style="style='color:red;'";
         }
@@ -478,19 +488,19 @@
         $text="<td class='s_issuance_date'{$style}>{$forcasting_val2[$i]['s_issuance_date']} </td>
           <td class='s_company_name' {$style}>{$forcasting_val2[$i]['s_company_name']} </td>
           <td class='s_project_name' {$style}>{$dms['project_name']} </td>";
-          if($style == ""){
+          if($class != "no"){
             $text.="<td class='s_issuance_amount' {$style}>{$issuance_amount}</td>";
           }else{
             $text.="<td {$style}>{$issuance_amount}</td>";
           }
 
-          if($style == ""){
+          if($class != "no"){
             $text.="<td class='s_tax_amount' {$style} >{$tax_amount}</td>";
           }else{
             $text.="<td {$style}>{$tax_amount}</td>";
           }
 
-          if($style == ""){
+          if($class != "no"){
             $text.="<td class='s_total_amount' {$style} >{$total_amount}</td>";
           }else{
             $text.="<td {$style}>{$total_amount}</td>";
@@ -566,7 +576,7 @@
     </div>
 
     <span align="left" style="float:left;margin-left:2.5%;margin-bottom:10px;margin-top:20px;">
-      <img width="25" name="hide_img" src="<?php echo $misc;?>img/dashboard/btn/btn_top.png" onclick="div_toggle('ma_div', this);" style="cursor:pointer;">
+      <img width="25" name="hide_img" src="<?php echo $misc;?>img/btn_up_box.svg" onclick="div_toggle('ma_div', this);" style="cursor:pointer;">
     </span>
     <div class="item_div" id="ma_div">
       <table id="maintain_purchase_sales" class="contents_tbl" cellspacing=0 cellpadding=5>
@@ -726,7 +736,7 @@
     </div>
 
     <span align="left" style="float:left;margin-left:2.5%;margin-bottom:10px;margin-top:20px;">
-      <img width="25" name="hide_img" src="<?php echo $misc;?>img/dashboard/btn/btn_top.png" onclick="div_toggle('procure_div', this);" style="cursor:pointer;">
+      <img width="25" name="hide_img" src="<?php echo $misc;?>img/btn_up_box.svg" onclick="div_toggle('procure_div', this);" style="cursor:pointer;">
     </span>
     <div class="item_div" id="procure_div">
       <table id="procurement_purchase_sales" class="contents_tbl" cellspacing=0 cellpadding=5>
@@ -799,10 +809,13 @@
     for($i=0; $i<count($procurement_val); $i++){
       if($dms['rseq'] == $procurement_val[$i]['rseq']){
         $style="";
+        $class="";
         if($toYear."-".$month != date('Y-m',strtotime($procurement_val[$i]['issuance_date'])) && $procurement_val[$i]['issuance_status'] == "M"){
           $style ="style='background-color:#FFFFF2;color:red;'";
+          $class="no";
         }else if($toYear."-".$month != date('Y-m',strtotime($procurement_val[$i]['issuance_date'])) && $procurement_val[$i]['issuance_status'] != "M"){
           $style="style='background-color:#FFFFF2;'";
+          $class="no";
         }else if($toYear."-".$month == date('Y-m',strtotime($procurement_val[$i]['issuance_date'])) && $procurement_val[$i]['issuance_status'] == "M"){
           $style="style='color:red;'";
         }
@@ -814,19 +827,19 @@
           <td class='p_issuance_date' {$style}>{$procurement_val[$i]['issuance_date']}</td>
           <td class='p_company_name' {$style} >{$procurement_val[$i]['company_name']}</td>
           <td class='p_project_name' {$style} >{$dms['project_name']}</td>";
-          if($style == ""){
+          if($class != "no"){
             $text.="<td class='p_issuance_amount' {$style} >{$issuance_amount}</td>";
           }else{
             $text.="<td {$style}>{$issuance_amount}</td>";
           }
 
-          if($style == ""){
+          if($class != "no"){
             $text.="<td class='p_tax_amount' {$style} >{$tax_amount}</td>";
           }else{
             $text.="<td {$style}>{$tax_amount}</td>";
           }
 
-          if($style == ""){
+          if($class != "no"){
             $text.="<td class='p_total_amount' {$style} >{$total_amount}</td>";
           }else{
             $text.="<td {$style}>{$total_amount}</td>";
@@ -839,10 +852,13 @@
     for($i=0; $i<count($procurement_val2); $i++){
       if($dms['rseq'] == $procurement_val2[$i]['s_rseq']){
         $style="";
+        $class="";
         if($toYear."-".$month != date('Y-m',strtotime($procurement_val2[$i]['s_issuance_date'])) && $procurement_val2[$i]['s_issuance_status'] == "M"){
           $style ="style='background-color:#FFFFF2;color:red;'";
+          $class = "no";
         }else if($toYear."-".$month != date('Y-m',strtotime($procurement_val2[$i]['s_issuance_date'])) && $procurement_val2[$i]['s_issuance_status'] != "M"){
           $style="style='background-color:#FFFFF2;'";
+          $class = "no";
         }else if($toYear."-".$month == date('Y-m',strtotime($procurement_val2[$i]['s_issuance_date'])) && $procurement_val2[$i]['s_issuance_status'] == "M"){
           $style="style='color:red;'";
         }
@@ -854,19 +870,19 @@
         $text="<td class='s_issuance_date'{$style}>{$procurement_val2[$i]['s_issuance_date']} </td>
           <td class='s_company_name' {$style}>{$procurement_val2[$i]['s_company_name']} </td>
           <td class='s_project_name' {$style}>{$dms['project_name']} </td>";
-          if($style == ""){
+          if($class != "no"){
             $text.="<td class='s_issuance_amount' {$style}>{$issuance_amount}</td>";
           }else{
             $text.="<td {$style}>{$issuance_amount}</td>";
           }
 
-          if($style == ""){
+          if($class != "no"){
             $text.="<td class='s_tax_amount' {$style} >{$tax_amount}</td>";
           }else{
             $text.="<td {$style}>{$tax_amount}</td>";
           }
 
-          if($style == ""){
+          if($class != "no"){
             $text.="<td class='s_total_amount' {$style} >{$total_amount}</td>";
           }else{
             $text.="<td {$style}>{$total_amount}</td>";
@@ -943,10 +959,10 @@
 <?php }else{ ?>
 
     <span align="left" style="float:left;margin-left:2.5%;margin-bottom:10px;margin-top:20px;">
-      <img width="25" name="hide_img" src="<?php echo $misc;?>img/dashboard/btn/btn_top.png" onclick="div_toggle('dbs_ma_div', this);" style="cursor:pointer;">
+      <img width="25" name="hide_img" src="<?php echo $misc;?>img/btn_up_box.svg" onclick="div_toggle('dbs_ma_div', this);" style="cursor:pointer;">
         <!-- <button class="skyBtn" type="button" name="button" onclick="operating_edit(this);">수정</button> -->
         <!-- <button class="skyBtn" type="button" name="button" id="save_btn" onclick="operating_save();" style="display:none;">저장</button> -->
-        <input class="btn-common btn-color2" type="button" onclick="operating_edit(this);" value="수정" style="margin-left:20px;">
+        <input class="btn-common btn-color4" type="button" onclick="operating_edit(this);" value="수정" style="margin-left:20px;">
         <input class="btn-common btn-color2" id="save_btn" style="display:none;margin-left:20px;" type="button" onclick="operating_save();" value="저장" >
     </span>
     <form class="" id="operating_form" name="operating_form" method="post">
@@ -1051,11 +1067,11 @@
     </div>
 <?php } ?>
     <div align="left" style="float:left;margin-left:2.5%;margin-bottom:10px;margin-top:20px;">
-      <img width="25" name="hide_img" src="<?php echo $misc;?>img/dashboard/btn/btn_top.png" onclick="div_toggle('operating_div', this);" style="cursor:pointer;">
+      <img width="25" name="hide_img" src="<?php echo $misc;?>img/btn_up_box.svg" onclick="div_toggle('operating_div', this);" style="cursor:pointer;">
       <?php if ($get_company != "DBS") {  ?>
       <!-- <button class="skyBtn" type="button" name="button" onclick="operating_edit(this);">수정</button> -->
       <!-- <button class="skyBtn" type="button" name="button" id="save_btn" onclick="operating_save();" style="display:none;">저장</button> -->
-      <input class="btn-common btn-color2" type="button" onclick="operating_edit(this);" value="수정" style="margin-left:20px;" >
+      <input class="btn-common btn-color4" type="button" onclick="operating_edit(this);" value="수정" style="margin-left:20px;" >
       <input class="btn-common btn-color2" type="button" id="save_btn" onclick="operating_save();" style="display:none;margin-left:20px;" value="저장" >
 <?php } ?>
     </div>
@@ -1317,7 +1333,7 @@
   <!-- 사업부별 합계 -->
   <?php
     if(isset($_GET['company'])==false || $_GET['company'] == 'DUIT'){
-      $d_1_001 = $d_1_002 = $d_2_001 = $d_2_002 = 0;
+      $d_1_001 = $d_1_002 = $d_2_001 = $d_2_002 = $t_001 = $t_002 = 0;
       foreach($dept_sum as $ds) {
         if($ds->dept == '사업1부') {
           if($ds->type == '001') {
@@ -1335,15 +1351,15 @@
         }
         if($ds->dept == '기술지원부') {
           if($ds->type == '001') {
-            $d_2_001 += $ds->issuance_amount;
+            $t_001 += $ds->issuance_amount;
           } else if ($ds->type == '002') {
-            $d_2_002 += $ds->issuance_amount;
+            $t_002 += $ds->issuance_amount;
           }
         }
       }
     ?>
     <span align="left" style="float:left;margin-left:2.5%;margin-bottom:10px;margin-top:20px;">
-      <img width="25" name="hide_img" src="<?php echo $misc;?>img/dashboard/btn/btn_top.png" onclick="div_toggle('dept_sum_div', this);" style="cursor:pointer;">
+      <img width="25" name="hide_img" src="<?php echo $misc;?>img/btn_up_box.svg" onclick="div_toggle('dept_sum_div', this);" style="cursor:pointer;">
     </span>
 
     <div class="item_div" id="dept_sum_div">
@@ -1354,6 +1370,7 @@
           <tr>
             <th colspan="2">1사업부</th>
             <th colspan="2">2사업부</th>
+            <th colspan="2">기술지원부</th>
           </tr>
         </thead>
         <tbody>
@@ -1366,6 +1383,10 @@
             <td align="right" style="padding-right:10px;">
              <?php echo number_format($d_2_001); ?>
             </td>
+            <td>기술지원부 매출금액</td>
+            <td align="right" style="padding-right:10px;">
+             <?php echo number_format($t_001); ?>
+            </td>
           </tr>
           <tr>
             <td>1사업부 매입금액</td>
@@ -1375,6 +1396,10 @@
             <td>2사업부 매입금액</td>
             <td align="right" style="padding-right:10px;">
              <?php echo number_format($d_2_002); ?>
+            </td>
+            <td>기술지원부 매입금액</td>
+            <td align="right" style="padding-right:10px;">
+             <?php echo number_format($t_002); ?>
             </td>
           </tr>
         </tbody>
@@ -1397,7 +1422,7 @@
         <input type="hidden" id="memo_tax_num" value="">
         <input type="text" class="input-common" id="memo_input" name="" value="" style="width:200px;">
         <input class="btn-common btn-color2" type="button" onclick="save_memo();" value="저장" style="width:50px;margin-left:20px;" >
-        <input class="btn-common btn-color3" type="button" onclick="close_save_memo();" value="취소" style="width:50px;">
+        <input class="btn-common btn-color4" type="button" onclick="close_save_memo();" value="취소" style="width:50px;">
       </div>
     </ul>
   <!--하단-->
@@ -1487,10 +1512,10 @@
     var img_name = $(name).attr('name');
     if(img_name == 'hide_img'){
       $(name).attr('name','show_img');
-      $(name).attr("src", "<?php echo $misc;?>img/dashboard/btn/btn_bottom.png");
+      $(name).attr("src", "<?php echo $misc;?>img/btn_down_box.svg");
     }else{
       $(name).attr('name','hide_img');
-      $(name).attr("src", "<?php echo $misc;?>img/dashboard/btn/btn_top.png");
+      $(name).attr("src", "<?php echo $misc;?>img/btn_up_box.svg");
     }
   }
 
@@ -1861,7 +1886,7 @@ function check_minus_bill(){
     var bill_val = $(this).text();
     bill_val = bill_val.replace(/,/gi,"");
     if(bill_val < 0 ){
-      $(this).closest("tr").find("td:not(.customer_companyname)").css("color","red");
+      // $(this).closest("tr").find("td:not(.customer_companyname)").css("color","red");
     }
   })
 }

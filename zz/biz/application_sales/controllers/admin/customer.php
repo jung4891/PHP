@@ -12,6 +12,13 @@ class Customer extends CI_Controller {
 		$this->cooperative_id = $this->phpsession->get( 'cooperative_id', 'stc' );
 		$this->name = $this->phpsession->get( 'name', 'stc' );
 		$this->lv = $this->phpsession->get( 'lv', 'stc' );
+		$this->cooperation_yn = $this->phpsession->get( 'cooperation_yn', 'stc' );
+
+		if($this->cooperation_yn == 'Y') {
+			echo "<script>alert('권한이 없습니다.');location.href='".site_url()."'</script>";
+		}
+
+		$this->load->library('user_agent');
 
 		$this->load->Model(array('admin/STC_Customer', 'STC_Common'));
 	}
@@ -91,7 +98,12 @@ class Customer extends CI_Controller {
 		$data['start_page'] = $start_page;
 		$data['end_page'] = $end_page;
 
-		$this->load->view('admin/customer_list', $data );
+		if($this->agent->is_mobile()) {
+			$data['title'] = '고객사';
+			$this->load->view('admin/customer_list_mobile', $data );
+		} else {
+			$this->load->view('admin/customer_list', $data );
+		}
 	}
 
 	//1. 거래처 기본사항 입력/수정 처리
@@ -186,6 +198,7 @@ class Customer extends CI_Controller {
 
 			$data = array(
 				'company_part' => $this->input->post('company_part'),
+				'manufacturing_com' => $this->input->post('manufacturing_com'), // 제조사 추가
 				'company_form' => $this->input->post('company_form'),
 				'company_name' => $this->input->post('company_name'),
 				'rnum' => $this->input->post('rnum'),
@@ -214,9 +227,10 @@ class Customer extends CI_Controller {
 				'local_code' => $this->input->post('local_code'),
 				'ccountry_code' => $this->input->post('ccountry_code'),
 				'birth_date' => $this->input->post('birth_date'),
-				'highschool' => $this->input->post('highschool'),
-				'university' => $this->input->post('university'),
-				'specialty' => $this->input->post('specialty'),
+				// 'highschool' => $this->input->post('highschool'),
+				// 'university' => $this->input->post('university'),
+				// 'specialty' => $this->input->post('specialty'),
+				'note' => $this->input->post('note'),
 				'bcountry_code' => $this->input->post('bcountry_code'),
 				'bank_code' => $this->input->post('bank_code'),
 				'bnum' => $this->input->post('bnum'),
@@ -262,6 +276,7 @@ class Customer extends CI_Controller {
 
 			$data = array(
 				'company_part' => $this->input->post('company_part'),
+				'manufacturing_com' => $this->input->post('manufacturing_com'), // 제조사 추가
 				'company_form' => $this->input->post('company_form'),
 				'company_name' => $this->input->post('company_name'),
 				'rnum' => $this->input->post('rnum'),
@@ -290,9 +305,10 @@ class Customer extends CI_Controller {
 				'local_code' => $this->input->post('local_code'),
 				'ccountry_code' => $this->input->post('ccountry_code'),
 				'birth_date' => $this->input->post('birth_date'),
-				'highschool' => $this->input->post('highschool'),
-				'university' => $this->input->post('university'),
-				'specialty' => $this->input->post('specialty'),
+				// 'highschool' => $this->input->post('highschool'),
+				// 'university' => $this->input->post('university'),
+				// 'specialty' => $this->input->post('specialty'),
+				'note' => $this->input->post('note'),
 				'bcountry_code' => $this->input->post('bcountry_code'),
 				'bank_code' => $this->input->post('bank_code'),
 				'bnum' => $this->input->post('bnum'),
@@ -338,6 +354,7 @@ class Customer extends CI_Controller {
 
 			$data = array(
 				'company_part' => $this->input->post('company_part'),
+				'manufacturing_com' => $this->input->post('manufacturing_com'), // 제조사 추가
 				'company_form' => $this->input->post('company_form'),
 				'company_name' => $this->input->post('company_name'),
 				'rnum' => $this->input->post('rnum'),
@@ -366,9 +383,10 @@ class Customer extends CI_Controller {
 				'local_code' => $this->input->post('local_code'),
 				'ccountry_code' => $this->input->post('ccountry_code'),
 				'birth_date' => $this->input->post('birth_date'),
-				'highschool' => $this->input->post('highschool'),
-				'university' => $this->input->post('university'),
-				'specialty' => $this->input->post('specialty'),
+				// 'highschool' => $this->input->post('highschool'),
+				// 'university' => $this->input->post('university'),
+				// 'specialty' => $this->input->post('specialty'),
+				'note' => $this->input->post('note'),
 				'bcountry_code' => $this->input->post('bcountry_code'),
 				'bank_code' => $this->input->post('bank_code'),
 				'bnum' => $this->input->post('bnum'),
@@ -384,6 +402,7 @@ class Customer extends CI_Controller {
 		} else {
 			$data = array(
 				'company_part' => $this->input->post('company_part'),
+				'manufacturing_com' => $this->input->post('manufacturing_com'), // 제조사 추가
 				'company_form' => $this->input->post('company_form'),
 				'company_name' => $this->input->post('company_name'),
 				'rnum' => $this->input->post('rnum'),
@@ -412,9 +431,10 @@ class Customer extends CI_Controller {
 				'local_code' => $this->input->post('local_code'),
 				'ccountry_code' => $this->input->post('ccountry_code'),
 				'birth_date' => $this->input->post('birth_date'),
-				'highschool' => $this->input->post('highschool'),
-				'university' => $this->input->post('university'),
-				'specialty' => $this->input->post('specialty'),
+				// 'highschool' => $this->input->post('highschool'),
+				// 'university' => $this->input->post('university'),
+				// 'specialty' => $this->input->post('specialty'),
+				'note' => $this->input->post('note'),
 				'bcountry_code' => $this->input->post('bcountry_code'),
 				'bank_code' => $this->input->post('bank_code'),
 				'bnum' => $this->input->post('bnum'),

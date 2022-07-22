@@ -13,6 +13,11 @@ class Maintain extends CI_Controller {
 		$this->lv = $this->phpsession->get( 'lv', 'stc' );
 		$this->cnum = $this->phpsession->get( 'cnum', 'stc' );
 		$this->seq = $this->phpsession->get( 'seq', 'stc' );
+		$this->cooperation_yn = $this->phpsession->get( 'cooperation_yn', 'stc' );
+
+		if($this->cooperation_yn == 'Y') {
+			echo "<script>alert('권한이 없습니다.');location.href='".site_url()."'</script>";
+		}
 		$this->load->library('user_agent');
 		$this->load->Model(array('sales/STC_Maintain', 'STC_Common','sales/STC_Forcasting','sales/STC_User'));
 	}
@@ -101,6 +106,13 @@ class Maintain extends CI_Controller {
 		$data['product'] = $this->STC_Common->get_product();   //제조사, 품목, 제품명
 		$forcasting_list = $this->STC_Forcasting->order_completed_excel_download("","", $this->cnum);
 		$data['forcasting_list'] = $forcasting_list['data'];
+
+		if(isset($_GET['infor_comm_corporation']) && isset($_GET['target_year'])) {
+			if($_GET['infor_comm_corporation'] == "Y" && $_GET['target_year'] != '') {
+				$data['infor_comm_corporation_bill_pre'] = $this->STC_Maintain->infor_comm_corporation_bill('pre', $search_mode, $search_keyword, $_GET['target_year']);
+				$data['infor_comm_corporation_bill_done'] = $this->STC_Maintain->infor_comm_corporation_bill('done', $search_mode, $search_keyword, $_GET['target_year']);
+			}
+		}
 
 		if($this->agent->is_mobile()){
 			if($type == '001') {
@@ -225,6 +237,7 @@ class Maintain extends CI_Controller {
 			$cooperation_username = $this->input->post('cooperation_username');
 			$dept = $this->input->post('dept');
 			$infor_comm_corporation = $this->input->post('infor_comm_corporation');
+			$original_progress_step = $this->input->post('original_progress_step');
 
 			$data = array(
 				'project_name' => $project_name,
@@ -245,6 +258,10 @@ class Maintain extends CI_Controller {
 			}
 			if($this->input->post('subProjectAddInput') != ""){
 				$result = $this->STC_Maintain->sub_project_add_update($this->input->post('subProjectAddInput'),$seq);
+			}
+			if($progress_step >= '015' && ($original_progress_step == '' || $original_progress_step < '015')) {
+				$maintain_term = $this->STC_Maintain->maintain_term($seq);
+				$result = $this->STC_Maintain->generate_maintain_forcasting($seq, $maintain_term['nom']);
 			}
 		}else if($data_type == "3"){//매출처 정보
 			$sales_companyname = $this->input->post('sales_companyname');
@@ -364,7 +381,7 @@ class Maintain extends CI_Controller {
 				</html>";
 
 				$headers = "From: =?utf-8?B?".base64_encode("support@durianit.co.kr")."?= <support@durianit.co.kr> \n";
-				$headers .= 'Cc: sylim@durianit.co.kr' . "\r\n";
+				// $headers .= 'Cc: sylim@durianit.co.kr' . "\r\n";
 				$headers .= 'MIME-Version: 1.0' . "\r\n";
 				$headers .= 'Content-type: text/html; charset=utf-8' . "\r\n";
 				$headers .= "Content-Transfer-Encoding: base64\r\n";
@@ -457,7 +474,7 @@ class Maintain extends CI_Controller {
 			</html>";
 
 			$headers = "From: =?utf-8?B?".base64_encode("support@durianit.co.kr")."?= <support@durianit.co.kr> \n";
-			$headers .= 'Cc: sylim@durianit.co.kr' . "\r\n";
+			// $headers .= 'Cc: sylim@durianit.co.kr' . "\r\n";
 			$headers .= 'MIME-Version: 1.0' . "\r\n";
 			$headers .= 'Content-type: text/html; charset=utf-8' . "\r\n";
 			$headers .= "Content-Transfer-Encoding: base64\r\n";
@@ -702,6 +719,8 @@ class Maintain extends CI_Controller {
 
 		$data['memo'] = $this->STC_Maintain->maintain_memo($seq);
 
+		$data['forcasting_cnt'] = $this->STC_Maintain->forcasting_cnt($seq);
+
 		$this->load->view( 'sales/maintain_view', $data );
 	}
 
@@ -772,6 +791,7 @@ class Maintain extends CI_Controller {
 		$this->load->helper('alert');
 		$this->load->model( 'STC_Maintain' );
 		$seq = $this->input->post( 'seq' );
+		$type = $this->input->post( 'type' );
 
 		if ($seq != null) {
 			$tdata = $this->STC_Maintain->maintain_delete($seq);
@@ -779,7 +799,7 @@ class Maintain extends CI_Controller {
 		}
 
 		if ($tdata) {
-			echo "<script>alert('삭제완료 되었습니다.');location.href='".site_url()."/sales/maintain/maintain_list'</script>";
+			echo "<script>alert('삭제완료 되었습니다.');location.href='".site_url()."/sales/maintain/maintain_list?type={$type}'</script>";
 		} else {
 			alert("정상적으로 처리되지 못했습니다.\n다시 시도해 주세요.");
 		}
@@ -1291,7 +1311,14 @@ class Maintain extends CI_Controller {
 		echo json_encode($result);
 	}
 
+	function generate_maintain_forcasting() {
+		$seq = $this->input->post('seq');
 
+		$maintain_term = $this->STC_Maintain->maintain_term($seq);
+		$result = $this->STC_Maintain->generate_maintain_forcasting($seq, $maintain_term['nom']);
+
+		echo json_encode($result);
+	}
 
 }
 ?>

@@ -181,6 +181,27 @@ var chkForm = function() {
 	if(sales_total_deposit_amount == <?php echo $view_val['forcasting_sales']; ?>){
 		$("#sales_total_issuance_amount").val(2);
 	}
+
+	// 발행 완료시 예상매출일 업데이트
+	var bill_progress = true;
+	var exception_saledate = '';
+	$('span[name=sales_issuance_YN]').each(function() {
+		var result = $.trim($(this).text());
+		if(result == '미완료') {
+			bill_progress = false;
+		}
+		var tr = $(this).closest('tr');
+		var issuance_date = tr.find('input[name=sales_issuance_date]').val();
+		if(new Date(exception_saledate) < new Date(issuance_date) || exception_saledate == '') {
+			exception_saledate = issuance_date;
+		}
+	})
+
+	if(bill_progress) {
+		$('#exception_saledate').val(exception_saledate);
+	} else {
+		$('#exception_saledate').val('');
+	}
 	// return false;
     mform.submit();
     return false;
@@ -198,6 +219,7 @@ var chkForm = function() {
 				<input type="hidden" id="delete_bill_array" name="delete_bill_array" />
 				<input type="hidden" id="sales_total_issuance_amount" name="sales_total_issuance_amount" value="0" />
 				<input type="hidden" id="update_seq" name="update_seq" />
+				<input type="hidden" id="exception_saledate" name="exception_saledate" value="">
 
       	<table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-top:50px;margin-bottom:50px;border-collapse:collapse;">
           <tr>
@@ -347,7 +369,7 @@ var chkForm = function() {
 						<?php } ?>
 										<input type="hidden" id="sales_issuance_status<?php echo $row; ?>" name="sales_issuance_status" class="input7" value="<?php echo $bill['issuance_status']; ?>" onchange="updateSeq(<?php echo $bill['seq']; ?>);" />
 										<input type="hidden" id="sales_deposit_status<?php echo $row; ?>" name="sales_deposit_status" class="input7" value="<?php echo $bill['deposit_status']?>" />
-						<?php if($bill['issuance_status'] == "Y" && ($id != "skkim" && $id !="yjjoo" && $id !="sylim") ){?>
+						<?php if($bill['issuance_status'] == "Y" && ($id != "skkim" && $id !="yjjoo" && $id !="hbhwang" && $id !="selee") ){?>
 										<td filter_column="2" align="center"><?php echo $bill['pay_session']; ?>
 											<input type="hidden" id="pay_session<?php echo $row;?>" name="pay_session" class="input7" value="<?php echo $bill['pay_session']; ?>" style="width:60%;" />
 										</td>
@@ -422,6 +444,10 @@ var chkForm = function() {
 											<span id="sales_deposit_YN<?php echo $row; ?>">
 												<?php if($bill['deposit_status'] == "Y"){
 													echo "완료";
+												} else if($bill['deposit_status'] == "O"){
+													echo "과잉";
+												} else if($bill['deposit_status'] == "L"){
+													echo "부족";
 												}else{
 													echo "미완료";
 												} ?>
@@ -621,7 +647,7 @@ var chkForm = function() {
 										<input type="hidden" class="purchase_issuance_status<?php echo $num; ?> input7" name="purchase_issuance_status" value="<?php echo $bill['issuance_status']; ?>" onchange="updateSeq(<?php echo $bill['seq']; ?>);" />
 										<input type="hidden" class="purchase_deposit_status<?php echo $num; ?> input7" name="purchase_deposit_status" value="<?php echo $bill['deposit_status']; ?>" />
 
-										<?php if($bill['issuance_status'] == "Y" && ($id != "skkim" && $id !="yjjoo" && $id !="hbhwang")){?>
+										<?php if($bill['issuance_status'] == "Y" && ($id != "skkim" && $id !="yjjoo" && $id !="hbhwang" && $id !="selee")){?>
 											<td filter_column="3"  align="center"><?php echo $bill['pay_session']; ?>
 												<input type="hidden" class="pay_session<?php echo $num; ?> input7" name="pay_session" value="<?php echo $bill['pay_session']; ?>" style="width:60%;" />
 											</td>
@@ -697,6 +723,10 @@ var chkForm = function() {
 											<span class="purchase_deposit_YN<?php echo $num; ?>">
 											<?php if($bill['deposit_status'] == "Y"){
 													echo "완료";
+											} else if($bill['deposit_status'] == "O"){
+												echo "과잉";
+											} else if($bill['deposit_status'] == "L"){
+												echo "부족";
 											}else{
 												echo "미완료";
 											} ?>
@@ -1264,7 +1294,7 @@ $("#chk_all_2").click(function () {
 	//세액구하기
 	function get_tax_amount(obj,type,row){
 		var amount = $(obj).val().replace(/,/g, "");
-		var tax = amount*0.1;
+		var tax = Math.round(amount*0.1);
 		if(type == 0){//매입
 			$("#sales_tax_amount"+row).val(tax);
 			$("#sales_tax_amount"+row).change();

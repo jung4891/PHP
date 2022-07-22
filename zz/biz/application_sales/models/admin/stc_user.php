@@ -79,73 +79,74 @@ return $query;
 	}
 
 	// 회원 리스트
-	function user_list( $searchkeyword, $search1, $search2, $start_limit = 0, $offset = 0, $resignation) {
+	function user_list( $searchkeyword, $search1, $search2, $start_limit = 0, $offset = 0, $resignation, $user_type) {
 		$keyword = "%".$searchkeyword."%";
 		if($resignation == "y"){
 			$quit_yn = " WHERE quit_date is not null";
 		} else {
 			$quit_yn = " WHERE quit_date is null";
 		}
+		if($user_type == 'd') {
+			$cooperation_yn = " AND cooperation_yn = 'N'";
+		} else {
+			$cooperation_yn = " AND cooperation_yn = 'Y'";
+		}
 
 		if($searchkeyword != "") {
 			if($search2 == "001") {
-				$searchstring = " and company_name like ? ";
+				$searchstring = " and user_group like '%{$searchkeyword}%' ";
 			} else if($search2 == "002") {
-				$searchstring = " and user_id like ? ";
+				$searchstring = " and user_name like '%{$searchkeyword}%' ";
 			} else if($search2 == "003") {
-				$searchstring = " and company_num like ? ";
+				$searchstring = " and user_id like '%{$searchkeyword}%' ";
 			} else if($search2 == "004") {
-				$searchstring = " and user_name like ? ";
-			} else if($search2 == "005") {
-				$searchstring = " and user_email like ? ";
+				$searchstring = " and user_email like '%{$searchkeyword}%' ";
 			}
 		} else {
 			$searchstring = "";
 		}
 
-		$sql = "select * from user".$quit_yn.$searchstring." order by seq desc";
+		$sql = "select * from user".$quit_yn.$cooperation_yn.$searchstring." order by seq desc";
 		if  ( $offset <> 0 )
 			$sql = $sql." limit ?, ?";
 
-		if  ( $searchkeyword != "" )
-			$query = $this->db->query( $sql, array( $keyword, $start_limit, $offset ) );
-		else
-			$query = $this->db->query( $sql, array( $start_limit, $offset ) );
+		$query = $this->db->query( $sql, array( $start_limit, $offset ) );
 
 		return array( 'count' => $query->num_rows(), 'data' => $query->result_array() );
 	}
 
 	//회원 리스트개수
-	function user_list_count($searchkeyword, $search1, $search2, $resignation) {
+	function user_list_count($searchkeyword, $search1, $search2, $resignation, $user_type) {
 		$keyword = "%".$searchkeyword."%";
 		if($resignation == "y"){
 			$quit_yn = " WHERE quit_date is not null";
 		} else {
 			$quit_yn = " WHERE quit_date is null";
 		}
+		if($user_type == 'd') {
+			$cooperation_yn = " AND cooperation_yn = 'N'";
+		} else {
+			$cooperation_yn = " AND cooperation_yn = 'Y'";
+		}
 
 		if($searchkeyword != "") {
 			if($search2 == "001") {
-				$searchstring = " and company_name like ? ";
+				$searchstring = " and user_group like '%{$searchkeyword}%' ";
 			} else if($search2 == "002") {
-				$searchstring = " and user_id like ? ";
+				$searchstring = " and user_name like '%{$searchkeyword}%' ";
 			} else if($search2 == "003") {
-				$searchstring = " and company_num like ? ";
+				$searchstring = " and user_id like '%{$searchkeyword}%' ";
 			} else if($search2 == "004") {
-				$searchstring = " and user_name like ? ";
-			} else if($search2 == "005") {
-				$searchstring = " and user_email like ? ";
+				$searchstring = " and user_email like '%{$searchkeyword}%' ";
 			}
 		} else {
 			$searchstring = "";
 		}
 
-		$sql = "select count(seq) as ucount from user".$quit_yn.$searchstring." order by seq desc";
+		$sql = "select count(seq) as ucount from user".$quit_yn.$cooperation_yn.$searchstring." order by seq desc";
 
-		if  ( $searchkeyword != "" )
-			$query = $this->db->query( $sql, $keyword  );
-		else
-			$query = $this->db->query( $sql );
+		$query = $this->db->query( $sql );
+
 		return $query->row();
 	}
 
@@ -328,12 +329,14 @@ return $query;
 	}
 
 	function management_user_list($checked_group) {
-		if(in_array('all', $checked_group)) {
-			$sql =  "SELECT * FROM user WHERE quit_date is null order by seq";
+		if(in_array(1, $checked_group)) {
+			$sql =  "SELECT * FROM user WHERE quit_date is null and cooperation_yn = 'N' order by seq";
 		} else {
 			$group = implode("','", $checked_group);
-			$sql =  "SELECT * FROM user WHERE user_group in ('{$group}') and quit_date is null order by seq";
+			$sql =  "SELECT * FROM user WHERE user_group in (SELECT groupName FROM user_group WHERE seq IN ('{$group}'))
+			and quit_date is null order by seq";
 		}
+		// echo $sql;
 		$query = $this->db->query($sql);
 
 		return $query->result_array();

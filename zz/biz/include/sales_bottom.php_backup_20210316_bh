@@ -1,9 +1,0 @@
-<script>
-	window.addEventListener('DOMContentLoaded', function(){
-		$("#sidebar_left").height($("#main_contents").height());
-	});
-</script>
-</div>
-</div>
-
-

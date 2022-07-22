@@ -1,6 +1,9 @@
 <?php
 include $this->input->server('DOCUMENT_ROOT')."/include/base.php";
 include $this->input->server('DOCUMENT_ROOT')."/include/sales_top.php";
+if($searchkeyword != '') {
+	$filter = explode(',', $searchkeyword); // 문자열 분리하여 배열로 저장
+}
 ?>
 <link rel="stylesheet" href="/misc/css/view_page_common.css">
 <style>
@@ -50,9 +53,37 @@ include $this->input->server('DOCUMENT_ROOT')."/include/sales_top.php";
 .modal_tbl td {
 	border: thin solid #DFDFDF !important;
 }
-</style>
-<script language="javascript">
+.search_title {
+	font-weight: bold;
+}
+.search_title:not(:first-child) {
+	margin-left:10px;
+}
+.filtercolumn {
+	width:100px;
+}
+.datepicker {
+	z-index: 10000 !important;
+}
+#icon_inf p {
+	font-size: 14px;
+	line-height: 0.7;
+}
 
+#icon_inf .title {
+	font-weight: bold;
+	font-size: 16px;
+	padding-top:10px;
+}
+
+#icon_inf .content {
+	color: #B0B0B0;
+	padding-left: 10px;
+}
+</style>
+<link rel="stylesheet" href="/misc/css/bootstrap-datepicker.css"> <!-- 달력 표시 css (datepicker) -->
+<script type="text/javascript" src="/misc/js/bootstrap-datepicker.js"></script> <!--  달력 표시 js (datepicker) -->
+<script language="javascript">
 window.onload=function(){
 
 change();
@@ -76,33 +107,6 @@ function change(){
   }
 }
 
-function GoSearch(){
-  var searchkeyword = document.mform.searchkeyword.value;
-  var searchkeyword = searchkeyword.trim();
-
-  var searchkeyword2 = document.mform.searchkeyword2.value;
-  var searchkeyword2 = searchkeyword2.trim();
-  if(searchkeyword == ""){
-    alert( "검색어를 입력해 주세요." );
-    return false;
-  }
-//  if(searchkeyword2 == ""){
- //   alert( "검색어를 입력해 주세요." );
-   // return false;
- // }
-
-	var type = "<?php echo $_GET['type']?>";
-	document.mform.type.value = type;
-  document.mform.action = "<?php echo site_url();?>/tech/tech_board/tech_doc_list";
-  document.mform.cur_page.value = "";
-//  document.mform.search_keyword.value = searchkeyword;
-  document.mform.submit();
-}
-
-//$(document).ready(function() {
-//   $('li > ul').show();
-//});
-
 function sendMail(){
   if($("#mail_send").val() != ''){
     var sendMailCheck = confirm("메일을 전송하시겠습니까?")
@@ -110,9 +114,9 @@ function sendMail(){
       $("input:checkbox").attr("disabled",true);
       $("input[name=cur_page]").attr("disabled",true);
       $("input[name=seq]").attr("disabled",true);
-      $("input[name=search1]").attr("disabled",true);
+      // $("input[name=search1]").attr("disabled",true);
       $("input[name=searchkeyword]").attr("disabled",true);
-      $("input[name=searchkeyword2]").attr("disabled",true);
+      // $("input[name=searchkeyword2]").attr("disabled",true);
       $("input[name=mode]").attr("disabled",true);
 
       document.mform.mail_send.value = btoa(unescape(encodeURIComponent($("#mail_send").val().substring(1))));
@@ -126,8 +130,13 @@ function sendMail(){
   }
 
 }
-</script>
 
+// datepicker
+$(function(){
+	$('.datepicker').datepicker();
+})
+</script>
+<script type="text/javascript" src="/misc/js/jquery.bpopup-0.1.1.min.js"></script>
 <!-- 체크해놓은 seq 가져오기 -->
 <?php
 $checkSeq ='';
@@ -154,16 +163,18 @@ $checkSeq ='';
 <table width="95%" height="100%" border="0" cellspacing="0" cellpadding="0" class="dash_tbl1-1">
 <input type="hidden" name="cur_page" value="<?php echo $cur_page; ?>">
 <input type="hidden" id ="seq" name="seq" value="<?php echo $seq; ?>">
+<input type="hidden" id="searchkeyword" name="searchkeyword" value="<?php echo $searchkeyword; ?>">
+<!-- vlaue값이 비어있으면 페이지 이동하면 값이 넘어가지않아서(비어있어서) 검색이 안됨 -->
 <input type="hidden" name="mode" value="">
-<input type="hidden" name="type" id="type" value="">
+<input type="hidden" name="type" id="type" value="<?php echo $type; ?>">
 
 <!-- 타이틀 이미지 자리요 -->
 <tr height="5%">
 	<td class="dash_title">
 		<div class="main_title">
 			<?php if(isset($_GET['type'])){$type = $_GET['type'];}else{$type="request";} ?>
-			<a onclick="register_yn('Y')" style='cursor:pointer;margin-right:10px;color:<?php if($type == "Y" || $type == ''){echo "#1C1C1C";}else{echo "#DEDEDE";}?>'>기술지원보고</a>
-			<a onclick="register_yn('N')" style='cursor:pointer;margin-right:10px;color:<?php if($type == "N"){echo "#1C1C1C";}else{echo "#DEDEDE";}?>'>임시저장함</a>
+			<a onclick="register_yn('Y')" style='cursor:pointer;margin-right:10px;color:<?php if($type == "Y" || $type == ''){echo "#1C1C1C";}else{echo "#DEDEDE;font-weight:normal;";}?>'>기술지원보고</a>
+			<a onclick="register_yn('N')" style='cursor:pointer;margin-right:10px;color:<?php if($type == "N"){echo "#1C1C1C";}else{echo "#DEDEDE;font-weight:normal;";}?>'>임시저장함</a>
 		</div>
 	</td>
 </tr>
@@ -171,32 +182,89 @@ $checkSeq ='';
 <!-- 여기는 검색 자리요 -->
 <tr height="10%">
 <td align="left" valign="bottom">
-		<table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-top:70px;">
+		<table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-top:70px;" id="search_tbl">
 		<tr>
-			<!-- <td width="6.5%"></td> -->
-			<td align="left" valign="bottom">
-				<select name="search1" id="search1" class="select-common select-style1" style="margin-right:10px;" onChange="change();">
-				<option value="002" <?php if($search1 == "002"){ echo "selected";}?>>고객사</option>
-				<option value="003" <?php if($search1 == "003"){ echo "selected";}?>>작성자</option>
-				<option value="001" <?php if($search1 == "001"){ echo "selected";}?>>작업명</option>
-				<option value="004" <?php if($search1 == "004"){ echo "selected";}?>>작성일</option>
-				<option value="005" <?php if($search1 == "005"){ echo "selected";}?>>결과</option>
-				<option value="006" <?php if($search1 == "006"){ echo "selected";}?>>장비명</option>
-			</select>
 
-			<span>
-			<input  type="text" size="25" class="input-common" name="searchkeyword" placeholder="검색하세요." value="<?php echo str_replace('"', '&uml;', $search_keyword );?>" style="margin-right:10px;"/>
-							<input  type="hidden" size="25" class="input-common" name="searchkeyword2" id="searchkeyword2" placeholder="버전명을 입력하세요." value="<?php echo str_replace('"', '&uml;', $search_keyword2 );?>" style="margin-right:10px;" />
-			</span>
-			<!-- </td>
-			<td> -->
-			<span>
-				<input type="image" style='cursor:hand; margin-bottom:8px;' onClick="return GoSearch();" src="<?php echo $misc;?>img/dashboard/btn/btn_search.png" width="20px" height="20px" align="middle" border="0" />
-			</span>
+			<td align="left" valign="bottom">
+				<span class="search_title" style="margin-right:10px;">고객사</span>
+				<input type="text" id="filter1" class="input-common filtercolumn" value="<?php if(isset($filter)){echo $filter[0];} ?>">
+				<span class="search_title" style="margin-right:10px;">작성자</span>
+				<input type="text" id="filter2" class="input-common filtercolumn" value="<?php if(isset($filter)){echo $filter[1];} ?>">
+				<span class="search_title" style="margin-right:10px;">작업명</span>
+				<input type="text" id="filter3" class="input-common filtercolumn" value="<?php if(isset($filter)){echo $filter[2];} ?>">
+				<span class="search_title" style="margin-right:10px;">장비명</span>
+				<input type="text" id="filter6" class="input-common filtercolumn" value="<?php if(isset($filter)){echo $filter[5];} ?>">
+				<span class="search_title" style="margin-right:10px;">version</span>
+				<input type="text" id="filter13" class="input-common filtercolumn" value="<?php if(isset($filter)){echo $filter[12];} ?>">
+				<span class="search_title" style="margin-right:10px;">serial</span>
+				<input type="text" id="filter14" class="input-common filtercolumn" value="<?php if(isset($filter)){echo $filter[13];} ?>">
+				<span class="search_title" style="margin-right:10px;display:none;">작성일</span>
+				<input type="text" id="filter4" style="display:none;" class="input-common filtercolumn datepicker" value="<?php if(isset($filter)){echo $filter[3];} ?>">
+			</td>
+		</tr>
+		<tr>
+			<td style="padding-top:10px;">
+				<span class="search_title">지원내역</span>
+				<input type="text" id="filter7" class="input-common filtercolumn" value="<?php if(isset($filter)){echo $filter[6];} ?>">
+				<span class="search_title">지원구분</span>
+				<!-- <input type="text" id="filter9" class="input-common filtercolumn" value="<?php if(isset($filter)){echo $filter[8];} ?>"> -->
+				<select name="result" id="filter9" class="select-common select-style1 filtercolumn" style="width:auto;">
+					<option value="">지원구분</option>
+					<option value="정기점검2" <?php if(isset($filter) && $filter[8] == '정기점검2'){echo 'selected="selected"';}?>>정기점검2</option>
+					<option value="교육지원" <?php if(isset($filter) && $filter[8] == '교육지원'){echo 'selected="selected"';}?>>교육지원</option>
+					<option value="교육참석" <?php if(isset($filter) && $filter[8] == '교육참석'){echo 'selected="selected"';}?>>교육참석</option>
+					<option value="장애지원" <?php if(isset($filter) && $filter[8] == '장애지원'){echo 'selected="selected"';}?> >장애지원</option>
+					<option value="설치지원" <?php if(isset($filter) && $filter[8] == '설치지원'){echo 'selected="selected"';}?>>설치지원</option>
+					<option value="기술지원" <?php if(isset($filter) && $filter[8] == '기술지원'){echo 'selected="selected"';}?>>기술지원</option>
+					<option value="납품설치" <?php if(isset($filter) && $filter[8] == '납품설치'){echo 'selected="selected"';}?>>납품설치</option>
+					<option value="미팅" <?php if(isset($filter) && $filter[8] == '미팅'){echo 'selected="selected"';}?>>미팅</option>
+					<option value="데모(BMT)지원" <?php if(isset($filter) && $filter[8] == '데모(BMT)지원'){echo 'selected="selected"';}?>>데모(BMT)지원</option>
+	  		</select>
+				<span class="search_title">제조사</span>
+				<select name="result" id="filter10" class="select-common select-style1 filtercolumn" style="width:auto;">
+					<option value="" >제조사</option>
+					<?php foreach($product_company as $pc) { ?>
+						<option value="<?php echo $pc['product_company'] ?>" <?php if(isset($filter) && $filter[9] == $pc['product_company']) {echo 'selected';} ?>><?php echo $pc['product_company']; ?></option>
+					<?php } ?>
+				</select>
+				<span class="search_title">작성일 (시작)</span>
+				<!-- <input type="text" id="filter11" class="input-common filtercolumn" value="<?php if(isset($filter)){echo $filter[10];} ?>"> -->
+				<input type="text" id="filter11" class="input-common filtercolumn datepicker" value='<?php if(isset($filter)){echo $filter[10];} ?>' autocomplete="off"/>
+					~
+				<span class="search_title">작성일 (종료)</span>
+				<input type="text" id="filter12" class="input-common filtercolumn datepicker" value='<?php if(isset($filter)){echo $filter[11];} ?>' autocomplete="off"/>
+
+
+			</td>
+		</tr>
+		<tr>
+			<td style="padding-top:10px;">
+				<span class="search_title" style="margin-right:23px;">결과</span>
+				<select name="result" id="filter5" class="select-common select-style1 filtercolumn" style="width:auto;">
+					<option value="">기술지원 결과</option>
+					<option value="기술지원 완료(100% 진행)" <?php if(isset($filter) && $filter[4] == "기술지원 완료(100% 진행)"){echo 'selected';} ?>>기술지원 완료(100% 진행)</option>
+					<option value="기술지원 미완료(90% 진행)" <?php if(isset($filter) && $filter[4] == "기술지원 미완료(90% 진행)"){echo 'selected';} ?>>기술지원 미완료(90% 진행)</option>
+					<option value="기술지원 미완료(70% 진행)" <?php if(isset($filter) && $filter[4] == "기술지원 미완료(70% 진행)"){echo 'selected';} ?>>기술지원 미완료(70% 진행)</option>
+					<option value="기술지원 미완료(50% 진행)" <?php if(isset($filter) && $filter[4] == "기술지원 미완료(50% 진행)"){echo 'selected';} ?>>기술지원 미완료(50% 진행)</option>
+					<option value="기술지원 미완료(30% 진행)" <?php if(isset($filter) && $filter[4] == "기술지원 미완료(30% 진행)"){echo 'selected';} ?>>기술지원 미완료(30% 진행)</option>
+					<option value="기술지원 미완료(10% 진행)" <?php if(isset($filter) && $filter[4] == "기술지원 미완료(10% 진행)"){echo 'selected';} ?>>기술지원 미완료(10% 진행)</option>
+					<option value="교육완료" <?php if(isset($filter) && $filter[4] == "교육완료"){echo 'selected';} ?>>교육완료</option>
+					<option value="미팅완료" <?php if(isset($filter) && $filter[4] == "미팅완료"){echo 'selected';} ?>>미팅완료</option>
+	  		</select>
+				<span class="search_title">#해시태그</span>
+				<input style="width:350px;" type="text" id="filter8" class="input-common filtercolumn" value="<?php if(isset($filter)) {echo $filter[7];} else if ($hashtag != '') {echo "#".$hashtag;} ?>" placeholder="#홍길동  #두리안정보기술  #2022-01-01">
+				<span class="search_title" style="vertical-align:middle;<?php if($type == 'N'){echo 'display:none;';} ?>">우수 보고서 보기</span>
+				<input type="checkbox" name="excellent_report_yn" class="excellent_report_yn" value="Y" style="vertical-align:middle;<?php if($type == 'N'){echo 'display:none;';} ?>" <?php if($excellent_report_yn == 'Y'){echo "checked";} ?>>
+
+				<!-- <input type="text" class="input-common" style="width:250px;margin-left:20px;" placeholder="검색하세요" value=""> -->
+				<input type="button" id="search_btn" class="btn-common btn-style2" style="margin-left:10px;" value="검색" onclick="search_data()">
+				<img style="cursor:pointer;vertical-align:middle;" src="/misc/img/dashboard/btn/btn_info.svg" width="25" onclick="open_inf(this);"/>
 			</td>
 			<td align='right'>
-				<input type="button" class="btn-common btn-color1" value="표지 등록" style="margin-right:10px;" onclick="coverUpload();"/>
-				<input type="button" class="btn-common btn-color1" value="로고 등록" style="margin-right:10px;" onclick="logoUpload();"/>
+				<?php if($this->cooperation_yn == 'N') { ?>
+					<input type="button" class="btn-common btn-color7" value="표지 등록" style="margin-right:10px;" onclick="coverUpload();"/>
+					<input type="button" class="btn-common btn-color7" value="로고 등록" style="margin-right:10px;" onclick="logoUpload();"/>
+				<?php } ?>
 				<?php if($parent_group == "기술본부" && $tech_lv > 0){ ?>
 					<a onclick="open_schedule();">
 						<input type="button" class="btn-common btn-color2" value="글쓰기">
@@ -206,6 +274,9 @@ $checkSeq ='';
 					<a onclick="open_schedule();">
 						<input type="button" class="btn-common btn-color2" value="글쓰기">
 					</a>
+				<?php } ?>
+				<?php if($this->cooperation_yn == 'Y'){ ?>
+					<input type="button" class="btn-common btn-color2" value="글쓰기" onclick="go_input();">
 				<?php } ?>
 			</td>
 		</tr>
@@ -219,15 +290,17 @@ $checkSeq ='';
 	<table class="content_dash_tbl" align="center" width="100%" border="0" cellspacing="0" cellpadding="0">
 		<tr>
 			<td>
-				<table class="list_tbl" style="margin-top:20px;" width="100%" border="0" cellspacing="0" cellpadding="0">
+				<table class="list_tbl list" style="margin-top:20px;" width="100%" border="0" cellspacing="0" cellpadding="0">
 					<colgroup>
 						<col width="5%">
 						<col width="5%">
-						<col width="15%">
-						<col width="35%">
+						<col width="10%">
+						<col width="30%">
 						<col width="10%">
 						<col width="10%">
 						<col width="10%">
+						<col width="5%">
+						<col width="5%">
 						<col width="5%">
 						<col width="5%">
 					</colgroup>
@@ -241,6 +314,8 @@ $checkSeq ='';
 						<th align="center">작성일</th>
 						<th align="center">결과</th>
 						<th align="center">첨부</th>
+						<th align="center">지원구분</th>
+						<th align="center">제조사</th>
 						<th></th>
 					</tr>
 					<?php
@@ -265,7 +340,7 @@ $checkSeq ='';
 									<?php echo $i;?></td>
 
 									<td align="center">
-										<a href="JavaScript:ViewBoard('<?php echo $item['seq'];?>')">
+										<a class="list" href="JavaScript:ViewBoard('<?php echo $item['seq'];?>')">
 											<?php echo $item['customer'];?>
 										</a>
 									</td>
@@ -276,7 +351,8 @@ $checkSeq ='';
 										<?php echo $item['writer'];?>
 									</td>
 									<td align="center">
-										<?php echo substr($item['income_time'], 0, 10);?>
+										<!-- <?php echo substr($item['income_time'], 0, 10);?> -->
+										<?php echo substr($item['insert_date'], 0, 10); ?>
 									</td>
 									<td align="center">
 										<?php echo $item['result'];?>
@@ -284,6 +360,15 @@ $checkSeq ='';
 									<td align="center">
 										<?php echo $strFile;?>
 									</td>
+									<!-- 지원구분 -->
+									<td align="center">
+										<?php echo $item['work_name'];?>
+									</td>
+									<!-- 제조사 -->
+									<td align="center">
+										<?php echo explode(',', $item['manufacturer'])[0]; ?>
+									</td>
+
 									<td></td>
 								</tr>
 
@@ -326,9 +411,9 @@ $checkSeq ='';
 <?php
 if ($cur_page > 10){
 ?>
-		<td width="19"><a href="JavaScript:GoFirstPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_first.png" width="20" height="20"/></a></td>
+		<td width="19"><a href="JavaScript:GoFirstPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_last_left.svg" width="20" height="20"/></a></td>
 		<td width="2"></td>
-		<td width="19"><a href="JavaScript:GoPrevPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_left.png" width="20" height="20"/></a></td>
+		<td width="19"><a href="JavaScript:GoPrevPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_left.svg" width="20" height="20"/></a></td>
 <?php
 } else {
 ?>
@@ -360,8 +445,8 @@ if   ( floor( ( $cur_page - 1 ) / 10 ) < floor( ( $total_page - 1 ) / 10 ) ){
 ?>
 <!-- <td width="19"><a href="JavaScript:GoNextPage()"><img src="<?php echo $misc;?>img/dashboard/page_next.png" width="20" height="20"/></a></td> -->
 		<td width="2"></td>
-		<td width="19"><a href="JavaScript:GoNextPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_right.png" width="20" height="20"/></a></td>
-		<td width="19"><a href="JavaScript:GoLastPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_last.png" width="20" height="20"/></a></td>
+		<td width="19"><a href="JavaScript:GoNextPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_right.svg" width="20" height="20"/></a></td>
+		<td width="19"><a href="JavaScript:GoLastPage()"><img src="<?php echo $misc;?>img/dashboard/btn/btn_last_right.svg" width="20" height="20"/></a></td>
 <?php
 } else {
 ?>
@@ -430,7 +515,7 @@ if   ( floor( ( $cur_page - 1 ) / 10 ) < floor( ( $total_page - 1 ) / 10 ) ){
 	 </tr>
 	 <tr>
 		 <td align="right">
-			 <input type="button" class="btn-common btn-color1" value="취소" onclick="popupClose('schedule_popup');" style="margin-right:35px;margin-top:20px;margin-bottom:40px;">
+			 <input type="button" class="btn-common btn-color4" value="취소" onclick="popupClose('schedule_popup');" style="margin-right:35px;margin-top:20px;margin-bottom:40px;">
 		 </td>
 	 </tr>
 </table>
@@ -488,10 +573,33 @@ if   ( floor( ( $cur_page - 1 ) / 10 ) < floor( ( $total_page - 1 ) / 10 ) ){
 </table>
 </article>
 </div>
+
+<div id="icon_inf" style="display: none; position: absolute;background-color: white;border: 2px solid grey;
+border-radius: 3px; font-size: medium;">
+<!-- <div id="car_input" style="display:none; position: absolute; background-color: white; width: auto; height: auto;"> -->
+<span style="cursor: pointer;float: right;margin-right: 10px;margin-top: 10px;" onclick="$('#icon_inf').bPopup().close();">×</span>
+    <div style="padding: 10px 20px 15px 20px;">
+      <!-- 개인보관함 이동 방법 : 트리에서 이동할 개인보관함을 선택하여 Drag & Drop으로 이동할 수 있습니다. *아직 미완성* -->
+      <p class="title">· (+) 연산자</p>
+      <p class="content">예) vpn <span style="color:red;">+</span> 점검</p>
+      <p class="content">[vpn] 와 [점검]가 모두 포함된 문서를 검색 (AND)</p>
+
+      <p class="title">· (|) 연산자</p>
+			<p class="content">예) vpn <span style="color:red;">|</span> 점검</p>
+			<p class="content">[vpn] 와 [점검] 중 하나 이상이 포함된 문서를 검색 (OR)</p>
+
+			<p class="title">* 고객사, 작성자, 작업명, 장비명, 지원내역 검색에서 사용 가능</p>
+    </div>
+</div>
 <!--schedule insert Popup End -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.9/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.9/js/select2.min.js"></script>
 <script>
+$("#filter10").select2();
+
+
   $(document).ready(function(){
-    $("input:checkbox").on('click', function() {
+    $("input:checkbox").not('.excellent_report_yn').on('click', function() {
       if($("#mail_send").val() == ""){
           $("#seq").val("");
         if($("#seq").val() == ""){
@@ -725,6 +833,53 @@ if   ( floor( ( $cur_page - 1 ) / 10 ) < floor( ( $total_page - 1 ) / 10 ) ){
 	function register_yn(type){
 	  location.href="<?php echo site_url();?>/tech/tech_board/tech_doc_list?type="+type;
 	}
+
+	//검색버튼 눌렀을때
+	function search_data() {
+		var column_cnt = $('.filtercolumn').length; // 다중검색 몇개 했는지 길이 구했어
+		var search = [];
+		for(var i = 1; i <= column_cnt; i++) {
+			var text = $.trim($('#filter'+i).val()); // 반복문 돌면서 공백제거하고 filter i번째의 value갖고와
+			search.push(text); //search배열에 담아
+		}
+		var search_string = search.join(','); // ,를 기준으로 한 문자열로 합치기
+		if(search_string.replace(/,/g, '') == '' && $('input[name=excellent_report_yn]').is(":checked") == false) { //배열을 문자열로 바꾸면서 [, , , , ,] 가 " , , , , ," 로 되면서 ,들을 다시 공백으로 replace(모든,를 ''으로 바꾸는 정규식)해주고 그제서야 조건문에 if (변수 == '') 이렇게 쓸수있옹
+			alert('검색어가 없습니다.');
+			location.href="<?php echo site_url(); ?>/tech/tech_board/tech_doc_list?type=Y";
+			return false;
+		}
+		$('#searchkeyword').val(search_string);
+		document.mform.cur_page.value = 1; // 항상 1페이지부터 띄우기 위해 1로 고정
+		document.mform.submit(); //컨트롤러로 form 전송
+	}
+
+
+	// enter키로 검색가능
+	$(document).ready(function(){
+		$("#search_tbl").keydown(function(e){
+			if(e.keyCode == 13){
+				$("#search_btn").click()
+			}
+		})
+	})
+
+	//아이콘 클릭
+	function open_inf(el){
+		var position = $(el).offset();
+
+	 $('#icon_inf').bPopup({
+		 opacity:0,
+		 follow:[false,false],
+		 // modalClose: false,
+		 position:[position.left+25, position.top+25]
+	 });
+	}
+
+	function go_input() {
+		location.href='<?php echo site_url();?>/tech/tech_board/tech_doc_input?schedule_seq=N';
+	}
+
+
 </script>
 <?php
  include $this->input->server('DOCUMENT_ROOT')."/include/sales_bottom.php";

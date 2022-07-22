@@ -4,9 +4,12 @@
   include $this->input->server('DOCUMENT_ROOT')."/include/sales_top.php";
   require_once $this->input->server('DOCUMENT_ROOT')."/include/KISA_SEED_CBC.php";
   //본인 그룹 멤버가져오기
-  $g_member = array();
-  foreach($group_member as $member){
-    array_push( $g_member, $member['user_name'] );
+
+  if($this->cooperation_yn != 'Y') {
+    $g_member = array();
+    foreach($group_member as $member){
+      array_push( $g_member, $member['user_name'] );
+    }
   }
 ?>
 <link rel="stylesheet" href="/misc/css/view_page_common.css">
@@ -115,6 +118,22 @@
     }
     .modal-input-tbl {
       margin-bottom: 10px;
+    }
+
+    .hashtag_div {
+      text-align:left;
+      margin-bottom: 20px;
+    }
+
+    .hashtag_item {
+      height:20px;
+      background-color: #959595;
+      color:white;
+      padding: 7px 13px 7px 13px;
+      border-radius: 3px;
+      font-size: 14px !important;
+      margin-right: 10px;
+      cursor:pointer;
     }
 </style>
 <?php
@@ -242,6 +261,43 @@
     }
   }
 
+  //보고서작성 버튼
+  // function create_document(mode) {
+  //   var tech_seq = $('input[name=seq]').val();
+  //
+  //   if(mode == 'trip') { //출장
+  //     if($("#trip_status").val() == 001) {
+  //       alert("출장보고서 결재 진행 중입니다.");
+  //     } else {
+  //     location.href = "<?php echo site_url(); ?>/biz/approval/electronic_approval_doc_input?seq=17&tech_seq="+tech_seq;
+  //     }
+  //   } else if(mode == 'night') { //야간
+  //     if($("#night_status").val() == 001) {
+  //       alert("야간근무결과보고서 결재 진행 중입니다.");
+  //     } else {
+  //     location.href = "<?php echo site_url(); ?>/biz/approval/electronic_approval_doc_input?seq=56&tech_seq="+tech_seq;
+  //     }
+  //   } else if(mode == 'weekend') { //주말
+  //     if($("#weekend_status").val() == 001) {
+  //       alert("주말근무결과보고서 결재 진행 중입니다.");
+  //     } else {
+  //     location.href = "<?php echo site_url(); ?>/biz/approval/electronic_approval_doc_input?seq=21&tech_seq="+tech_seq;
+  //   }
+  // }
+  // }
+
+  // 보고서 작성 버튼
+  function create_document() {
+    var tech_seq = $('input[name=seq]').val();
+    var status = $('input[name=approval_document_status]').val();
+
+    if(status == '001') {
+      alert('근무결과보고서 결재가 진행 중입니다.');
+    } else {
+      location.href = "<?php echo site_url(); ?>/biz/approval/electronic_approval_doc_input?seq=74&tech_seq=" + tech_seq;
+    }
+  }
+
 </script>
 <script type="text/javascript" src="/misc/js/jquery.bpopup-0.1.1.min.js"></script>
 <script src='/misc/js/exif.js'></script>
@@ -292,8 +348,47 @@
                     <input type="checkbox" id="sign_consent" name="sign_consent"
                       value="<?php echo $view_val['sign_consent'] ?>">
                   </td>
-                  <td style="border:none;">
+                  <input type="hidden" name="approval_document_status" value="<?php if(isset($approval_document['approval_doc_status'])){echo $approval_document['approval_doc_status'];} ?>">
+        <?php if($view_val['writer'] == $name && $this->cooperation_yn == 'N'){ ?>
+                  <td align="right" style="border:none;">
+                    <!-- <?php if(substr($view_val['end_time'],0,2) >= 18 || $view_val['income_time'] != $view_val['end_work_day']) { ?>
+                    <button type="button" id="c_night" name="button" class="btn-common btn-color2" style="width:170px" onclick="create_document('night')">야간근무결과보고서 작성</button>
+                    <input type="hidden" id="night_status" value="<?php
+                    if(isset($night['approval_doc_status'])) { echo $night['approval_doc_status']; } ?>">
+                  <?php }
+
+                    $is_weekend = false;
+                    $start_day = $view_val['income_time'];
+                    $end_day = $view_val['end_work_day'];
+
+                    $week = array("일","월","화","수","목","금","토");
+
+                    while (strtotime($start_day) <= strtotime($end_day)) {
+                      $dayOfWeek = $week[date('w', strtotime($start_day))];
+
+                      if($dayOfWeek == '토' || $dayOfWeek == '일') {
+                        $is_weekend = true;
+                      }
+
+                     $start_day = date ("Y-m-d", strtotime("+1 day", strtotime($start_day)));
+                    }
+
+                    if($is_weekend == true) { ?>
+                      <button type="button" id="c_weekend" name="button" class="btn-common btn-color2" style="width:170px" onclick="create_document('weekend')">주말근무결과보고서 작성</button>
+                      <input type="hidden" id="weekend_status" value="<?php
+                      if(isset($weekend['approval_doc_status'])) { echo $weekend['approval_doc_status']; }?>">
+                    <?php
+                    }
+
+                    if($view_val['handle'] == '현장지원') { ?>
+                    <button type="button" id="c_trip" name="button" class="btn-common btn-color2" style="width:130px" onclick="create_document('trip')">출장보고서 작성</button>
+                    <input type="hidden" id="trip_status" value="<?php
+                    if(isset($trip['approval_doc_status'])) { echo $trip['approval_doc_status']; } ?>">
+                    <?php } ?> -->
+
+                    <input type="button" id="approval_doc_btn" class="btn-common btn-color2" value="근무결과보고서 작성" style="width:auto;" onclick="create_document();">
                   </td>
+        <?php } ?>
                 </tr>
                 <tr>
                   <td width="200px" height="50" align="center" style="border:thin solid #DFDFDF;">
@@ -310,12 +405,25 @@
                     <?php
                     }
                     ?>
+              <?php if($this->cooperation_yn == 'N' || ($this->cooperation_yn == 'Y' && $name == $view_val['writer'])) { ?>
                       <button type="button" name="button" class="btn-common btn-color1" onClick="javascript:chkForm(0);return false;">수정</button>
                       <button type="button" name="button" class="btn-common btn-color1" onClick="javascript:chkForm(1);return false;">삭제</button>
+              <?php } ?>
                       <button type="button" name="button" class="btn-common btn-color2" onClick="javascript:history.go(-1);">목록</button>
                   </td>
                 </tr>
               </table>
+
+              <div class="hashtag_div">
+              <?php
+              if(!empty($hashtag)) {
+                for($i = 0; $i < count($hashtag); $i++) {
+                  ?> <span class="hashtag_item" onclick="hashtagSearch('<?php echo $hashtag[$i]['hashtag_name']; ?>')">
+                  <?php echo '#'.$hashtag[$i]['hashtag_name'].' '; ?> </span> <?php
+                }
+              }
+              ?>
+              </div>
 
               <table width="100%" border="0" cellspacing="0">
                   <tr class="border-t">
@@ -464,8 +572,7 @@
                                     <td width="35%" style="padding-left:10px;"  ><?php echo $view_val['handle'];?></td>
                                   </tr>
                                   <tr>
-                                    <td width="15%" colspan="2" height="40" align="center" style="font-weight:bold;" class="tbl-title"  >제품명/host/버전/서버/라이선스<?php if((trim($view_val['customer']) == "SKB(유통망)" || trim($view_val['customer']) == "SKB(과금망)") && strpos($view_val['produce'],',')=== false) {echo "/serial";} ?>
-                                    </td>
+                                    <td width="15%" colspan="2" height="40" align="center" style="font-weight:bold;" class="tbl-title"  >제품</td>
                                     <td width="35%" colspan="3" style="padding-left:10px;" >
                                       <ul id="sortable">
                                         <?php
@@ -481,14 +588,34 @@
                                           }else{
                                             $host = explode(",",$view_val['host']);
                                           }
+                                          $manufacturer = array();
+                                          if(trim($view_val['manufacturer']) == "" || $view_val['manufacturer'] == null){//host가 후에 생겨서 빈값인 경우
+                                            for($i=0; $i<count($produce); $i++){
+                                              $manufacturer[$i]= '';
+                                            }
+                                          }else{
+                                            $manufacturer = explode(",",$view_val['manufacturer']);
+                                          }
+                                          $duplication_yn = array();
+                                          if(trim($view_val['duplication_yn']) == "" || $view_val['duplication_yn'] == null){//host가 후에 생겨서 빈값인 경우
+                                            for($i=0; $i<count($produce); $i++){
+                                              $duplication_yn[$i]= '';
+                                            }
+                                          }else{
+                                            $duplication_yn = explode(",",$view_val['duplication_yn']);
+                                          }
                                           $sn = explode(",",$view_val['sn']);
                                           for($i=1; $i<=count($produce); $i++){
-                                            echo '<li id="li'.$i.'"><span style="cursor:pointer;" id="produce'.$i.'" class="click_produce" onclick="clickProduce('.$i.')"><span class="produce">'.$produce[($i-1)].'</span> / <span class="host">'.$host[($i-1)].'</span> / <span class="version">'.$version[($i-1)].'</span> / <span class="hardware">'.$hardware[($i-1)].'</span> / <span class="license">'.$license[($i-1)].'</span>';
-                                            if((trim($view_val['customer']) == "SKB(유통망)" || trim($view_val['customer']) == "SKB(과금망)") && strpos($view_val['produce'],',')=== false){
-                                              echo '/ <span class="serial">'.$sn[($i-1)].'</span></span></li>';
-                                            }else{
-                                              '<span class="serial" style="display:none;">'.$sn[($i-1)].'</span></span></li>';
-                                            }
+                                            echo '<li id="li'.$i.'"><span style="cursor:pointer;" id="produce'.$i.'" class="click_produce" onclick="clickProduce('.$i.')">';
+                                            echo '<span style="font-weight:bold;">제품명 : </span><span class="produce">'.$produce[($i-1)].'</span>';
+                                            echo '<span style="font-weight:bold;"> / 제조사 : </span><span class="manufacturer">'.$manufacturer[($i-1)].'</span>';
+                                            echo '<span style="font-weight:bold;"> / host : </span><span class="host">'.$host[($i-1)].'</span>';
+                                            echo '<span style="font-weight:bold;"> / 버전정보 : </span><span class="version">'.$version[($i-1)].'</span>';
+                                            echo '<span style="font-weight:bold;"> / 하드웨어 : </span><span class="hardware">'.$hardware[($i-1)].'</span>';
+                                            echo '<span style="font-weight:bold;"> / 라이선스 : </span><span class="license">'.$license[($i-1)].'</span>';
+                                            echo '<span style="font-weight:bold;"> / 시리얼 : </span><span class="serial">'.$sn[($i-1)].'</span>';
+                                            echo '<span style="font-weight:bold;"> / 이중화 : </span><span class="duplication_yn">'.$duplication_yn[($i-1)].'</span>';
+                                            echo '</span></li>';
                                           }
                                         ?>
                                       </ul>
@@ -655,6 +782,36 @@
                          </tbody>
              <?php }?>
              <!-- 정기점검2끝 -->
+             <!-- <tr>
+               <td colspan="2" width="15%" height="40" align="center"
+                 style="font-weight:bold;" class="tbl-title">버전정보</td>
+               <td width="35%" style="padding-left:10px;"><?php echo $view_val['version_info'];?></td>
+               <td width="15%" height="40" align="center" style="font-weight:bold;" class="tbl-title">제조사</td>
+               <td width="35%" style="padding-left:10px;"><?php echo $view_val['manufacturer']; ?></td>
+             </tr>
+             <tr>
+               <td colspan="2" width="15%" height="40" align="center"
+                 style="font-weight:bold;" class="tbl-title">시리얼번호</td>
+               <td width="35%" style="padding-left:10px;"><?php echo $view_val['serial_number'];?></td>
+               <td width="15%" height="40" align="center" style="font-weight:bold;" class="tbl-title">이중화여부</td>
+               <td width="35%" style="padding-left:10px;">
+                 <input type="checkbox" name="" value="" <?php if($view_val['duplication_yn'] == 'Y'){echo "checked";} ?> onclick="return false;">
+               </td>
+             </tr> -->
+
+<?php if($view_val['work_name']=="장애지원" && $view_val['failure_contents'] != ''){
+        $failure_data = explode('*/*', $view_val['failure_contents']);
+        foreach($failure_data as $fd) {
+          $fd_arr = explode(':::', $fd);
+          $failure_title = $fd_arr[0];
+          $failure_content = $fd_arr[1]; ?>
+          <tr>
+            <td colspan="2" size="100" height="40" align="center" style="font-weight:bold;" class="tbl-title"><?php echo $failure_title; ?></td>
+            <td colspan="3" style="padding-left:10px;"  ><?php echo nl2br($failure_content);?></td>
+          </tr>
+  <?php } ?>
+<?php }?>
+
              <tr>
                <td colspan="2" size="100" height="40" align="center" style="font-weight:bold;" class="tbl-title">지원의견</td>
                <td colspan="3" style="padding-left:10px;"  ><?php echo $view_val['comment'];?></td>
@@ -681,9 +838,46 @@
                <td colspan="3" style="padding-left:10px;"  ><?php echo $issue['contents'];?></td>
              </tr>
              <?php } ?>
+
+              <!-- 버그 있으면 보여죠 -->
+              <?php if (!empty($bug_val)){ ?>
+              <tr>
+                <td colspan="2" size="100" height="40" align="center" style="font-weight:bold;" class="tbl-title">버그</td>
+                <td colspan="3" style="padding-left:10px;"  ><?php echo $bug_val['contents'];?></td>
+              </tr>
+              <?php } ?>
              <tr>
                <td  colspan="2" height="40" align="center" style="font-weight:bold;" class="tbl-title">첨부파일</td>
                <td  style="padding-left:10px;" colspan="3"><?php if($view_val['file_changename']) {?><a href="<?php echo site_url();?>/tech/tech_board/tech_doc_download/<?php echo $seq;?>/<?php echo $view_val['file_changename'];?>"><?php echo $view_val['file_realname'];?></a><?php } else {?>파일없음<?php }?> </td>
+             </tr>
+             <tr>
+               <td  colspan="2" height="40" align="center" style="font-weight:bold;" class="tbl-title">우수 보고서</td>
+               <td  style="padding-left:10px;" colspan="3">
+             <?php
+             $excellent_checked = false;
+             if(!empty($excellent_check)) {
+               foreach($excellent_check as $ec) {
+                 if($ec['selector_seq'] == $this->seq) {$excellent_checked = true;} ?>
+                 <input type="button" class="btn-common btn-color1" value="<?php echo $ec['user_name'].' '.$ec['user_duty']; ?>" style="cursor:default;">
+         <?php }
+             }
+             if($this->pGroupName == "기술본부" && ( $this->duty == '이사' || $this->duty == '팀장' )) {
+               if($excellent_checked == true) { ?>
+                <input type="button" class="btn-common btn-style2" value="선택 취소" style="float:right;width:auto;margin-right:10px;" onclick="check_excellent('cancel');">
+         <?php } else { ?>
+                <input type="button" class="btn-common btn-style2" value="우수보고서 선택" style="float:right;width:auto;margin-right:10px;" onclick="check_excellent('check');">
+         <?php } ?>
+       <?php } ?>
+               </td>
+             </tr>
+             <tr>
+               <td  colspan="2" height="40" align="center" style="font-weight:bold;" class="tbl-title">전자 결재</td>
+               <td  style="padding-left:10px;" colspan="3">
+                 <!-- <span style="font-weight:bold;">야간근무결과보고서</span><input type="checkbox" style="margin-right:10px;" name="night" id="night" value="" onclick="return false;">
+                 <span style="font-weight:bold;">주말근무결과보고서</span><input type="checkbox" style="margin-right:10px;" name="weekend" id="weekend" value="" onclick="return false;">
+                 <span style="font-weight:bold;">출장보고서</span><input type="checkbox" name="trip" id="trip" value="" onclick="return false;"> -->
+                 <span style="font-weight:bold;">근무결과보고서</span><input type="checkbox" name="approval_document" id="approval_document" value="" onclick="return false;">
+               </td>
              </tr>
                 </table>
               </form>
@@ -784,6 +978,9 @@
   if($("#sign_consent").val()=="true"){
     $("#sign_consent").prop("checked", true);
     $("#sign").html("<?php echo "<img src='".$misc."img/".$view_val['writer'].".png' width='50' height = '50'><div>{$view_val['writer']}</div>";?>");
+<?php if(isset($sign_img['sign_changename']) && $sign_img['sign_changename'] != '') { ?>
+  $("#sign").html("<?php echo "<img src='{$misc}upload/user_sign/{$sign_img['sign_changename']}' width='50' height = '50'><div>{$view_val['writer']}</div>";?>");
+<?php } ?>
   }
 
   if($("#customer_sign_consent").val()=="true" && "<?php echo $view_val['customer_sign_src'];?>" != ''){
@@ -941,6 +1138,15 @@
     window.open('/index.php/tech_board/tech_doc_signature', '_blank',settings);
   }
 
+  function hashtagSearch(hashtag_name) { //해시태그 눌렀을때
+    <?PHP if($_GET['type'] == "Y") { ?>
+      location.href="<?php echo site_url(); ?>/tech/tech_board/tech_doc_list?type=Y&hashtag=" + hashtag_name;
+    <?PHP } else { ?>
+      location.href="<?php echo site_url(); ?>/tech/tech_board/tech_doc_list?type=N&hashtag=" + hashtag_name; //임시저장함
+    <?PHP } ?>
+
+  }
+
 </script>
 <script>
   // 이전,다음 제품 (버튼 <,>) 누를 때
@@ -1091,6 +1297,55 @@
     marker.setMap(map);
 
   }
+
+  function check_excellent(type) {
+    if (type == 'cancel') {
+      var request_url = "<?php echo site_url(); ?>/tech/tech_board/excellentReportCancle";
+      var message = "우수 보고서 선택이 취소되었습니다.";
+    } else if (type == 'check') {
+      var request_url = "<?php echo site_url(); ?>/tech/tech_board/excellentReportInsert";
+      var message = "우수 보고서로 선택되었습니다.";
+    }
+
+    $.ajax({
+      type: "POST",
+      cache: false,
+      url: request_url,
+      dataType: "json",
+      async: false,
+      data: {
+          seq:seq
+      },
+      success: function (data) {
+        alert(message);
+        location.reload();
+      }
+    });
+  }
+
+  //보고서 체크박스
+  <?php
+    if(isset($night['approval_doc_status'])) {
+      if($night['approval_doc_status'] == 002) { ?>
+        $('#night').prop('checked', true);
+        $('#c_night').hide();
+  <?php } }
+    if(isset($weekend['approval_doc_status'])) {
+      if($weekend['approval_doc_status'] == 002) { ?>
+        $('#weekend').prop('checked', true);
+        $('#c_weekend').hide();
+  <?php } }
+    if(isset($trip['approval_doc_status'])) {
+      if($trip['approval_doc_status'] == 002) { ?>
+        $('#trip').prop('checked', true);
+        $('#c_trip').hide();
+  <?php } } ?>
+
+  if($('input[name=approval_document_status]').val() == '002') {
+    $('#approval_document').prop('checked', true);
+    $('#approval_doc_btn').hide();
+  }
+
 </script>
 <?php
  include $this->input->server('DOCUMENT_ROOT')."/include/sales_bottom.php";

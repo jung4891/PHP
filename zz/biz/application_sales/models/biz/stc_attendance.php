@@ -35,6 +35,19 @@ class STC_Attendance extends CI_Model {
 		}
 	}
 
+	//사용자 가져오기
+	function attendance_user_mobile($t_month){
+		$sql = "SELECT DATE_ADD(date_format(e_date, '%Y-%m-%d'), INTERVAL -1 DAY) AS e_date, go_time, leave_time, ws_time, wc_time FROM adt_attendance WHERE u_seq = {$this->seq} and e_date like '{$t_month}%'";
+
+		$query = $this->db->query($sql);
+
+		if ($query->num_rows() <= 0) {
+			return false;
+		} else {
+			return $query->result_array();
+		}
+	}
+
   function attendance_info() {
     $sql = "SELECT u.user_name, au.card_num, au.ws_time as designate_ws, au.wc_time as designate_wc from attendance_user au JOIN user u ON au.user_seq = u.seq where user_seq='{$this->seq}'";
     $query = $this->db->query($sql);
@@ -238,7 +251,19 @@ if ($query->num_rows() <= 0) {
 
 }
 
+function annual_usage_status_day($date) {
+	$sql =" SELECT eaa.*,u.user_name FROM electronic_approval_annual as eaa
+	left join user AS u
+	on eaa.user_id = u.user_id WHERE annual_status = 'Y' and eaa.user_id='{$this->id}' AND '{$date}' BETWEEN annual_start_date AND annual_end_date";
 
+	$query = $this->db->query($sql);
+
+	if ($query->num_rows() <= 0) {
+		return false;
+	} else {
+		return $query->result_array();
+	}
+}
 
 
 }
