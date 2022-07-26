@@ -325,7 +325,8 @@ function GoSearch(mode) {
 <td valign="top" style="padding:15px 0px 0px 0px">
 	<table class="list_tbl list" align="center" width="100%" border="0" cellspacing="0" cellpadding="0">
 		<tr>
-			<td id="tablePlus"><table width="100%" border="0" cellspacing="0" cellpadding="0">
+			<td id="tablePlus">
+				<table width="100%" border="0" cellspacing="0" cellpadding="0">
 				<colgroup>
 					<col width="2.37%" />  <!--번    호-->
 					<col width="2.37%" />	<!--종    류-->
