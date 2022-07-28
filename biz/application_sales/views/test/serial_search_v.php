@@ -14,29 +14,30 @@
 
     <div class="">
       <h3>수주완료</h3>
-      <table width="100%" border="0" cellspacing="0" cellpadding="0">
+      <table width="99%" border="0" cellspacing="0" cellpadding="0" style="border-collapse : collapse">
       <colgroup>
-        <col width="2.37%" />  <!--번    호-->
+        <!-- <col width="2.37%" />  번    호-->
         <col width="2.37%" />	<!--종    류-->
-        <col width="9%" />	<!--고 객 사-->
+        <col width="8%" />	<!--고 객 사-->
         <col width="11.58%" />	<!--프로젝트-->
         <col width="5.58%" />	<!--매 출 처-->
         <col width="5.58%" />	<!--제 조 사-->
         <col width="8.58%" />	<!--제 품 명 5%-->
         <col width="5.58%" />	<!--예 상 월-->
         <col width="5.58%" />	<!--진척단계-->
-        <col width="5.58%" />	<!--진척단계-->
+        <col width="5.58%" />	<!--계산서발행-->
         <col width="5.58%" />	<!--매출금액 6%-->
         <col width="5.58%" />	<!--매입금액 6%-->
         <col width="6.58%" />	<!--마진금액 6%-->
         <col width="4.08%" />	<!--마 진 율-->
-        <col width="7.58%" />	<!--업    체-->
+        <col width="5.58%" />	<!--업    체-->
         <col width="4.08%" />	<!--담당부서-->
-        <col width="4.72%" />	<!--담 당 자-->
+        <col width="5.72%" />	<!--담 당 자-->
+        <col width="3.37%" /> <!--제품시리얼-->
       </colgroup>
 
-      <tr class="t_top row-color1">
-        <th align="center">번호</th>
+      <tr class="" style="background-color: #F4F4F4; height:40px ">
+        <!-- <th align="center">번호</th> -->
         <th align="center">종류</th>
         <th align="center">고객사</th>
         <th align="center">프로젝트</th>
@@ -54,15 +55,15 @@
         <th align="center">업체</th>
         <th align="center">사업부</th>
         <th align="center">영업담당자</th>
+        <th align="center">시리얼번호</th>
       </tr>
 
 <?php
-$count = 1;
-if ($count > 0) {
+if ($order_completed_count > 0) {
 // $i = $count - $no_page_list * ( $cur_page - 1 );
 // $icounter = 0;
 
-foreach ( $list_val as $item ) {
+foreach ( $order_completed_list as $item ) {
 
 if($item['type']==1){
   $strType = "판매";
@@ -115,9 +116,9 @@ if($item['progress_step'] == "001") {
 }
 ?>
      <?php if($cnum == $item['company_num'] || $sales_lv >= 1 ) { ?>
-       <tr onmouseover="this.style.backgroundColor='#FAFAFA'" onmouseout="this.style.backgroundColor='#fff'" style="cursor:pointer" onclick="ViewBoard('<?php echo $item['seq'];?>')" onmousedown="copy_div(event, this, '<?php echo $item['seq'];?>');"><?php } else {?>
-         <tr onmouseover="this.style.backgroundColor='#FAFAFA'" onmouseout="this.style.backgroundColor='#fff'"><?php } ?>
-        <td height="40" align="center"><?php echo $i;?></td>
+       <tr onmouseover="this.style.backgroundColor='#FAFAFA'" onmouseout="this.style.backgroundColor='#fff'" style="cursor:pointer; border-bottom:1px solid lightgray" onclick="ViewBoard('<?php echo $item['seq'];?>')" onmousedown="copy_div(event, this, '<?php echo $item['seq'];?>');" ><?php } else {?>
+         <tr onmouseover="this.style.backgroundColor='#FAFAFA'" onmouseout="this.style.backgroundColor='#fff'" style="border-bottom:1px solid lightgray"><?php } ?>
+        <!-- <td height="40" align="center"><?php echo $i;?></td> -->
         <td align="center"><?php echo $strType;?></td>
         <td align="center"><?php echo $item['customer_companyname'];?></td>
         <td align="center"><?php echo $item['project_name'];?></td>
@@ -143,6 +144,7 @@ if($item['progress_step'] == "001") {
         <td align="center"><?php echo $item['cooperation_companyname'];?></td></a>
         <td align="center"><?php echo $item['dept'];?></td></a>
         <td align="center"><?php echo $item['cooperation_username'];?></td></a>
+        <td align="center"><?php echo $item['product_serial'];?></td></a>
       </tr>
 
 <?php

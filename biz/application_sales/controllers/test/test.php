@@ -24,10 +24,21 @@ class Test extends CI_Controller {
 	}
 
 	function serial_search() {
-		$data['serial_num'] = $this->input->get('serial_num');
-		$data['list_val'] = $this->STC_Test->order_completed_serial($data['serial_num']);
+		$data['sales_lv'] = '3';
 		$data['cnum'] = $this->cnum;
-		// var_dump($data['user_list']);
+		$data['serial_num'] = $this->input->get('serial_num');
+
+		$data['maintain_list'] = $this->STC_Test->maintain_serial($data['serial_num']);
+
+		var_dump($data['maintain_list']);
+		return;
+
+		if($data['serial_num'] == '') {
+			$data['count'] = 0;
+		} else {
+			$data['order_completed_list'] = $this->STC_Test->order_completed_serial($data['serial_num']);
+			$data['order_completed_count'] = $this->STC_Test->order_completed_serial_count($data['serial_num'])->ucount;
+		}
 		$this->load->view('test/serial_search_v', $data);
 	}
 
