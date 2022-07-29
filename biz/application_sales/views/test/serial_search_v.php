@@ -153,7 +153,7 @@ if($item['progress_step'] == "001") {
 }
 } else {
 ?>
-<tr onmouseover="this.style.backgroundColor='#FAFAFA'" onmouseout="this.style.backgroundColor='#fff'">
+      <tr onmouseover="this.style.backgroundColor='#FAFAFA'" onmouseout="this.style.backgroundColor='#fff'">
         <td width="100%" height="40" align="center" colspan="18">등록된 게시물이 없습니다.</td>
       </tr>
       <tr>
@@ -162,20 +162,206 @@ if($item['progress_step'] == "001") {
 <?php
 }
 ?>
+      </table>
+    </div><br><br>
 
-
-</table>
-    </div>
-<!--
     <div class="">
       <h3>유지보수</h3>
+      <table width="99%" border="0" cellspacing="0" cellpadding="0" style="border-collapse : collapse">
+        <colgroup>
+          <!-- <col width="2.51%" />  번    호-->
+          <col width="2.72%" />  <!--종    류-->
+          <col width="8.14%" />	<!--고 객 사-->
+          <col width="10.72%" />	<!--프로젝트-->
+          <col width="5.52%" />	<!--제조사-->
+          <col width="5.52%" />	<!--품목-->
+          <col width="8.52%" />	<!--제품명-->
+          <col width="5.52%" />	<!--유지보수시작일-->
+          <col width="5.52%" />	<!--유지보수종료일-->
+          <col width="5.52%" />	<!--매출금액-->
+          <col width="5.52%" />	<!--매입금액-->
+          <col width="5.52%" />	<!--마진금액-->
+          <col width="6.52%" />	<!--마진율-->
+          <col width="4.02%" />	<!--점검주기-->
+          <col width="5.72%" />	<!--관리팀-->
+          <col width="4%" />	<!--영업부서-->
+          <col width="3.22%" />	<!--점검여부-->
+          <col width="3.86%" />	<!--알림-->
+          <col width="3.37%" /> <!--제품시리얼-->
+        </colgroup>
+        <tr class="t_top row-color1" style="background-color: #F4F4F4; height:40px ">
+          <!-- <th height="40" align="center">번호</th> -->
+          <th align="center">종류</th>
+          <th align="center">고객사</th>
+          <th align="center">프로젝트</th>
+          <th align="center">제조사</th>
+          <th align="center">품목</th>
+          <th align="center">제품</th>
+          <th align="center">유지보수시작일</th>
+          <th align="center">유지보수종료일</th>
+          <th align="center">매출금액</th>
+          <th align="center">매입금액</th>
+          <th align="center">마진금액</th>
+          <th align="center">마진율</th>
+          <th align="center">점검주기</th>
+          <th align="center">관리팀</th>
+          <th align="center">영업부서</th>
+          <th align="center">점검여부</th>
+          <th align="center">알림</th>
+          <th align="center">시리얼번호</th>
+        </tr>
+<?php
+if ($maintain_count > 0) {
+// $i = $count - $no_page_list * ( $cur_page - 1 );
+// $icounter = 0;
 
-    </div>
+foreach ( $maintain_list as $item ) {
+if($item['manage_team']=="1"){
+  $strstep ="기술1팀";
+}else if($item['manage_team']=="2"){
+  $strstep ="기술2팀";
+}else if($item['manage_team']=="3"){
+  $strstep ="기술3팀";
+}else{
+  $strstep ="없음";
+}
+if($cnum == $item['company_num'] || $sales_lv >= 1) {
+?>
+        <tr onmouseover="this.style.backgroundColor='#FAFAFA'" onmouseout="this.style.backgroundColor='#fff'" style="cursor:pointer; border-bottom:1px solid lightgray" onclick="ViewBoard('<?php echo $item['seq'];?>')">
+<?php
+} else {
+?>
+        <tr onmouseover="this.style.backgroundColor='#FAFAFA'" onmouseout="this.style.backgroundColor='#fff'" style="border-bottom:1px solid lightgray">
+<?php
+}
+?>
+          <!-- <td height="40" align="center"><?php echo $i;?></td> -->
+          <td align="center">
+            <?php
+            if($item['generate_type'] != '') {
+              echo $item['generate_type'];
+            }
+            ?>
+          </td>
+          <td align="center"><?php echo $item['customer_companyname'];?></td>
+          <td align="center"><?php echo $item['project_name'];?></td>
+          <td align="center"><?php echo $item['product_company'];?></td>
+          <td align="center"><?php echo $item['product_item'];?></td>
+          <td align="center"><?php echo $item['product_name'];?></td>
+          <td align="center"><?php echo $item['exception_saledate2'];?></td>
+          <td align="center"><?php echo $item['exception_saledate3'];?></td>
+          <td align="center">
+            <?php
+              echo number_format($item['forcasting_sales']);
+            ?>
+          </td>
+          <td align="center">
+            <?php
+              echo number_format($item['forcasting_purchase']);
+            ?>
+          </td>
+          <td align="center">
+            <?php
+              if($item['forcasting_profit']!=0) {
+                echo number_format($item['forcasting_profit']);
+              }else{
+                echo 0;
+              }
+            ?>
+          </td>
+          <td align="center">
+            <?php
+              if($item['forcasting_profit']!=0 && $item['forcasting_profit'] > 0) {
+                echo number_format($item['forcasting_profit']*100/$item['forcasting_sales'],1)."%";
+              }
+            ?>
+          </td>
+          <td align="center">
+            <?php
+              if ($item['maintain_cycle'] == "1") {
+                echo "월점검";
+              }else if ($item['maintain_cycle'] == "3") {
+                echo "분기점검";
+              }else if ($item['maintain_cycle'] == "6") {
+                echo "반기점검";
+              }else if ($item['maintain_cycle'] == "0") {
+                echo "장애시";
+              }else if ($item['maintain_cycle'] == "7") {
+                echo "미점검";
+              }else{
+                echo "미선택";
+              }
+            ?>
+          </td>
+          <td align="center"><?php echo $strstep;?></td>
+          <td align="center"><?php echo $item['dept']; ?></td>
+          <td align="center">
+            <?php
+              switch($item['maintain_result']){
+                case 0:
+                  echo "미완료";
+                  break;
+                case 1:
+                  echo "완료";
+                  break;
+                case 2:
+                  echo "미해당";
+                  break;
+                case 9:
+                  echo "예정";
+                  break;
+                default:
+                  echo "미선택";
+                  break;
+              }
+              ?>
+            </td>
+            <?php
+              $end_date = strtotime($item['exception_saledate3']);
+              $today = strtotime(date('Y-m-d'));
+              if ($today > $end_date) {
+                $m = '기간만료';
+              } else {
+                $m = '진행';
+              }
+              if ($item['exception_saledate3'] == '') {
+                $m = '';
+              }
+            ?>
+            <td align="center"><?php echo $m; ?></td>
+            <td align="center"><?php echo $item['product_serial'];?></td>
+
+          </tr>
+  <?php
+        // $i--;
+        // $icounter++;
+      }
+    } else {
+  ?>
+          <tr onmouseover="this.style.backgroundColor='#FAFAFA'" onmouseout="this.style.backgroundColor='#fff'">
+            <td width="100%" height="40" align="center" colspan="18">등록된 게시물이 없습니다.</td>
+          </tr>
+          <tr>
+            <td colspan="16" height="1" bgcolor="#e8e8e8"></td>
+          </tr>
+<?php
+}
+?>
+        </table>
+    </div><br><br>
+
+
 
     <div class="">
       <h3>기술지원보고서</h3>
-
-    </div> -->
+      <pre>
+<?php
+        // var_dump($tech_doc_count);
+    		// echo '==================<br><br>';
+    		// var_dump($tech_doc_list);
+?>
+      </pre>
+    </div>
 
   </body>
 
